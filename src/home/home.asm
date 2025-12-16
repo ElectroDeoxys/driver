@@ -12,8 +12,8 @@ Reset:
 	call EnableStatInterrupt
 	call Func_1fd
 	call Func_7ab
-	call $1cb9
-	call $15bb
+	call Func_1cb9
+	call Func_15bb
 	jr Reset
 
 Init:
@@ -152,7 +152,7 @@ Func_1fd:
 	add hl, hl
 	add hl, hl
 	add hl, hl ; *16
-	ld de, $33a
+	ld de, Data_33a
 	add hl, de
 	ldh a, [hROMBank]
 	push af
@@ -262,9 +262,77 @@ Func_333:
 	or LCDC_BG_ON | LCDC_ON
 	ldh [rLCDC], a
 	ret
-; 0x33a
 
-SECTION "Func_3da", ROM0[$3da]
+Data_33a:
+	dmgpal SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK ; BGP (dgm only)
+	dbw $00, NULL  ; BG palettes (CGB only)
+	dbw $34, $68dd ; tiles VRAM0
+	dbw $34, $6b3c ; BG map
+	dbw $00, NULL  ; tiles VRAM1 (CGB only)
+	dbw $00, NULL  ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $34, $6c17 ; BG palettes (CGB only)
+	dbw $34, $6c57 ; tiles VRAM0
+	dbw $34, $7407 ; BG map
+	dbw $32, $7fd0 ; tiles VRAM1 (CGB only)
+	dbw $34, $7543 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $34, $7567 ; BG palettes (CGB only)
+	dbw $34, $75a7 ; tiles VRAM0
+	dbw $34, $7cb4 ; BG map
+	dbw $34, $7ddd ; tiles VRAM1 (CGB only)
+	dbw $34, $7e06 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $34, $7e68 ; BG palettes (CGB only)
+	dbw $35, $4000 ; tiles VRAM0
+	dbw $34, $7ea8 ; BG map
+	dbw $35, $47f7 ; tiles VRAM1 (CGB only)
+	dbw $35, $4820 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $35, $4857 ; BG palettes (CGB only)
+	dbw $35, $4897 ; tiles VRAM0
+	dbw $35, $4c9d ; BG map
+	dbw $35, $4d7b ; tiles VRAM1 (CGB only)
+	dbw $35, $4da4 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $35, $4dcb ; BG palettes (CGB only)
+	dbw $35, $4e0b ; tiles VRAM0
+	dbw $35, $5086 ; BG map
+	dbw $35, $511e ; tiles VRAM1 (CGB only)
+	dbw $34, $7fda ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $35, $5147 ; BG palettes (CGB only)
+	dbw $35, $5187 ; tiles VRAM0
+	dbw $35, $5284 ; BG map
+	dbw $35, $52c9 ; tiles VRAM1 (CGB only)
+	dbw $35, $52f2 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $35, $61a4 ; BG palettes (CGB only)
+	dbw $35, $61e4 ; tiles VRAM0
+	dbw $35, $6994 ; BG map
+	dbw $35, $6ad0 ; tiles VRAM1 (CGB only)
+	dbw $35, $6af9 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $35, $589f ; BG palettes (CGB only)
+	dbw $35, $58df ; tiles VRAM0
+	dbw $35, $5ff0 ; BG map
+	dbw $35, $6119 ; tiles VRAM1 (CGB only)
+	dbw $35, $6142 ; tile attributes (CGB only)
+
+	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
+	dbw $35, $5315 ; BG palettes (CGB only)
+	dbw $35, $5355 ; tiles VRAM0
+	dbw $35, $5770 ; BG map
+	dbw $35, $584f ; tiles VRAM1 (CGB only)
+	dbw $35, $5878 ; tile attributes (CGB only)
 
 _VBlank:
 	push af
@@ -1340,7 +1408,11 @@ Pals_ed5:
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb  0,  0,  0
-; 0xedd
+
+PtrTable_edd:
+	dw $4cf4
+	dw $4cf4
+; 0xee1
 
 SECTION "Func_f41", ROM0[$f41]
 
@@ -1506,7 +1578,7 @@ Func_102c:
 	pop bc
 	ld a, c
 	sub $3e
-	ld hl, $edd
+	ld hl, PtrTable_edd
 	get_pointer
 	jp $4006
 
@@ -1557,7 +1629,9 @@ SECTION "Func_15bb", ROM0[$15bb]
 
 Func_15bb:
 
+
 SECTION "Func_1cb9", ROM0[$1cb9]
 
 Func_1cb9:
+
 

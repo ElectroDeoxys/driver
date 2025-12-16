@@ -22,8 +22,7 @@ wc54a:: db ; c54a
 
 ; if TRUE then resetting game through A+B+START+SELECT is disabled
 wResetDisabled:: db ; c56a
-
-wResetDelay:: db ; c56b
+wResetDelay::    db ; c56b
 
 wFrameCounter:: db ; c56c
 wc56d:: db ; c56d
@@ -75,5 +74,12 @@ wLCDCSettings:: ; c687
 
 wc6cf:: db ; c6cf
 
+	ds $d000 - $c6d0
+
 SECTION "WRAM1", WRAMX
 
+	ds $d823 - $d000
+
+wd823:: db ; d823
+
+	ds $e000 - $d824

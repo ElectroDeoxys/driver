@@ -9,6 +9,9 @@ import argparse
 from ctypes import c_int8
 
 import configuration
+
+import postdisasm as post
+
 from wram import read_constants
 
 z80_table = [
@@ -990,6 +993,7 @@ if __name__ == "__main__":
 
 	# run the disassembler and return the output
 	output = disasm.output_bank_opcodes(start_addr,stop_addr,hard_stop=args.dry_run,parse_data=args.parse_data)[0]
+	output = post.process(output)
 
 	# suppress output if quiet flag is set
 	if not args.quiet:
