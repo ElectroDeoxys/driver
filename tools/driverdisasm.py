@@ -254,7 +254,7 @@ z80_table = [
 	('db $ec', 2),                 # ec
 	('db $ed', 2),                 # ed
 	('xor ${:02x}', 1),            # ee
-	('add_de {}', 0),              # ef
+	('add_de', 0),                 # ef
 	('ldh a, [{}]', 1),            # f0
 	('pop af', 0),                 # f1
 	('db $f2', 0),                 # f2
@@ -611,13 +611,6 @@ class Disassembler(object):
 			return f"farcall {label}"
 
 		output = re.sub(r"ld hl, \$([1-7][a-f0-9]{3})\n\tld a, \$([a-f0-9]{2})\n\tcall Farcall", substitute_hex_farcall, output)
-
-		def substitute_farcall(m):
-			return f"farcall {m[1]}"
-
-		output = re.sub(r"ld hl, (.+)\n\tld a, \$([a-f0-9]{2})\n\tcall Farcall", substitute_farcall, output)
-
-		output = re.sub(r"jr nc, (.*)\n\tinc (.)\n\1", lambda m: f"incc {m[2]}", output)
 
 		return output
 

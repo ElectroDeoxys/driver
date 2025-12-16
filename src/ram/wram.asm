@@ -10,7 +10,11 @@ wc541:: db ; c541
 
 wc542:: db ; c542
 
-	ds $c546 - $c543
+	ds $c544 - $c543
+
+wc544:: db ; c544
+
+wc545:: db ; c545
 
 wc546:: db ; c546
 
@@ -34,11 +38,19 @@ wc570:: db ; c570
 wJoypadPressed:: db ; c571
 wJoypadDown::    db ; c572
 
-	ds $c575 - $c573
+wc573:: db ; c573
+
+wc574:: db ; c574
 
 wc575:: db ; c575
 
-	ds $c57d - $c576
+	ds $c579 - $c576
+
+wc579:: db ; c579
+
+wc57a:: db ; c57a
+
+	ds $c57d - $c57b
 
 ; palettes either for CGB or DMG
 UNION
@@ -54,7 +66,15 @@ ENDU
 
 wc5fd:: db ; c5fd
 
-	ds $c67d - $c5fe
+	ds $c63d - $c5fe
+
+wc63d:: db ; c63d
+
+	ds $c645 - $c63e
+
+wc645:: db ; c645
+
+	ds $c67d - $c646
 
 wc67d:: db ; c67d
 
@@ -74,12 +94,294 @@ wLCDCSettings:: ; c687
 
 wc6cf:: db ; c6cf
 
-	ds $d000 - $c6d0
+	ds $c717 - $c6d0
+
+wc717:: db ; c717
+
+	ds $d000 - $c718
 
 SECTION "WRAM1", WRAMX
 
-	ds $d823 - $d000
+	ds $d217 - $d000
+
+wd217:: db ; d217
+
+	ds $d219 - $d218
+
+wd219:: db ; d219
+
+wd21a:: db ; d21a
+
+wd21b:: db ; d21b
+
+	ds $d545 - $d21c
+
+wd545:: db ; d545
+
+wd546:: db ; d546
+
+wd547:: db ; d547
+
+wd548:: db ; d548
+
+	ds $d54b - $d549
+
+wd54b:: db ; d54b
+
+wd54c:: db ; d54c
+
+wd54d:: db ; d54d
+
+wd54e:: db ; d54e
+
+wd54f:: db ; d54f
+
+	ds $d551 - $d550
+
+wd551:: db ; d551
+
+	ds $d771 - $d552
+
+wd771:: db ; d771
+
+	ds $d782 - $d772
+
+wd782:: db ; d782
+
+	ds $d786 - $d783
+
+wd786:: db ; d786
+
+	ds $d7b1 - $d787
+
+wd7b1:: db ; d7b1
+
+	ds $d7f1 - $d7b2
+
+wd7f1:: db ; d7f1
+
+wd7f2:: db ; d7f2
+
+wd7f3:: db ; d7f3
+
+wd7f4:: db ; d7f4
+
+wd7f5:: db ; d7f5
+
+	ds $d7f7 - $d7f6
+
+wd7f7:: db ; d7f7
+
+wd7f8:: db ; d7f8
+
+wd7f9:: db ; d7f9
+
+	ds $d7fb - $d7fa
+
+wd7fb:: db ; d7fb
+
+	ds $d7fd - $d7fc
+
+wd7fd:: db ; d7fd
+
+	ds $d7ff - $d7fe
+
+wd7ff:: db ; d7ff
+
+	ds $d801 - $d800
+
+wd801:: db ; d801
+
+wd802:: db ; d802
+
+wd803:: db ; d803
+
+wd804:: db ; d804
+
+	ds $d80b - $d805
+
+wd80b:: db ; d80b
+
+wd80c:: db ; d80c
+
+	ds $d81e - $d80d
+
+wd81e:: db ; d81e
+
+wd81f:: db ; d81f
+
+wd820:: db ; d820
+
+	ds $d822 - $d821
+
+wd822:: db ; d822
 
 wd823:: db ; d823
 
-	ds $e000 - $d824
+wd824:: db ; d824
+
+	ds $d826 - $d825
+
+wd826:: db ; d826
+
+wd827:: db ; d827
+
+	ds $d82e - $d828
+
+wd82e:: db ; d82e
+
+	ds $d830 - $d82f
+
+wd830:: db ; d830
+
+wd831:: db ; d831
+
+	ds $d833 - $d832
+
+wd833:: db ; d833
+
+wd834:: db ; d834
+
+wd835:: db ; d835
+
+wd836:: db ; d836
+
+wd837:: db ; d837
+
+wd838:: db ; d838
+
+wd839:: db ; d839
+
+wd83a:: db ; d83a
+
+wd83b:: db ; d83b
+
+	ds $d86a - $d83c
+
+wd86a:: db ; d86a
+
+	ds $d895 - $d86b
+
+wd895:: db ; d895
+
+wd896:: db ; d896
+
+wd897:: db ; d897
+
+	ds $d8e5 - $d898
+
+wd8e5:: db ; d8e5
+
+	ds $d8e8 - $d8e6
+
+wd8e8:: db ; d8e8
+
+wd8e9:: db ; d8e9
+
+wd8ea:: db ; d8ea
+
+wd8eb:: db ; d8eb
+
+	ds $da4a - $d8ec
+
+wda4a:: db ; da4a
+
+wda4b:: db ; da4b
+
+	ds $da76 - $da4c
+
+wda76:: db ; da76
+
+	ds $da82 - $da77
+
+wda82:: db ; da82
+
+wda83:: db ; da83
+
+	ds $da97 - $da84
+
+wda97:: db ; da97
+
+wda98:: db ; da98
+
+wda99:: db ; da99
+
+	ds $da9b - $da9a
+
+wda9b:: db ; da9b
+
+wda9c:: db ; da9c
+
+wda9d:: db ; da9d
+
+	ds $db81 - $da9e
+
+wdb81:: db ; db81
+
+	ds $db83 - $db82
+
+wdb83:: db ; db83
+
+	ds $db85 - $db84
+
+wdb85:: db ; db85
+
+	ds $dbc5 - $db86
+
+wdbc5:: db ; dbc5
+
+	ds $dbdb - $dbc6
+
+wdbdb:: db ; dbdb
+
+wdbdc:: db ; dbdc
+
+	ds $dc30 - $dbdd
+
+wdc30:: db ; dc30
+
+wdc31:: db ; dc31
+
+wdc32:: db ; dc32
+
+wdc33:: db ; dc33
+
+	ds $dc38 - $dc34
+
+wdc38:: db ; dc38
+
+wdc39:: db ; dc39
+
+	ds $dc7a - $dc3a
+
+wdc7a:: db ; dc7a
+
+wdc7b:: db ; dc7b
+
+wdc7c:: db ; dc7c
+
+wdc7d:: db ; dc7d
+
+wdc7e:: db ; dc7e
+
+	ds $dc80 - $dc7f
+
+wdc80:: db ; dc80
+
+	ds $dc82 - $dc81
+
+wdc82:: db ; dc82
+
+	ds $dc8e - $dc83
+
+wdc8e:: db ; dc8e
+
+wdc8f:: db ; dc8f
+
+wdc90:: db ; dc90
+
+	ds $dc95 - $dc91
+
+wdc95:: db ; dc95
+
+	ds $e000 - $dc96
