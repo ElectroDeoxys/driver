@@ -1,7 +1,11 @@
 INCLUDE "constants/hardware.inc"
 
-INCLUDE "macros/data.asm"
+INCLUDE "macros/constants.asm"
 INCLUDE "macros/code.asm"
-INCLUDE "macros/gfx.asm"
+INCLUDE "macros/data.asm"
 
+INCLUDE "macros/gfx.asm"
+INCLUDE "macros/ram.asm"
+
+INCLUDE "constants/entity_constants.asm"
 INCLUDE "constants/misc_constants.asm"

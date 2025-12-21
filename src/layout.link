@@ -27,14 +27,16 @@ ROM0
 	"Start"
 	org $0150
 	"Home"
+ROMX $1
+	"Bank01"
+ROMX $2
+	"Bank02"
 VRAM $0
 	"VRAM0"
 VRAM $1
 	"VRAM1"
 WRAM0
 	"WRAM0"
-WRAMX $1
-	"WRAM1"
 HRAM
 	org $ff80
 	"DMA Transfer"

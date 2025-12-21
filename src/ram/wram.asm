@@ -43,8 +43,9 @@ wc573:: db ; c573
 wc574:: db ; c574
 
 wc575:: db ; c575
-
-	ds $c579 - $c576
+wc576:: db ; c576
+wc577:: db ; c577
+wc578:: db ; c578
 
 wc579:: db ; c579
 
@@ -96,21 +97,14 @@ wc6cf:: db ; c6cf
 
 	ds $c717 - $c6d0
 
-wc717:: db ; c717
+wEntities:: ; c717
+FOR n, 0, NUM_ENTITIES
+wEntity{u:n}:: entity_struct wEntity{u:n}
+ENDR
 
-	ds $d000 - $c718
+wd217:: dw ; d217
 
-SECTION "WRAM1", WRAMX
-
-	ds $d217 - $d000
-
-wd217:: db ; d217
-
-	ds $d219 - $d218
-
-wd219:: db ; d219
-
-wd21a:: db ; d21a
+wEntityPtr:: dw ; d219
 
 wd21b:: db ; d21b
 
@@ -176,19 +170,19 @@ wd7f8:: db ; d7f8
 
 wd7f9:: db ; d7f9
 
-	ds $d7fb - $d7fa
+wd7fa:: db ; d7fa
 
 wd7fb:: db ; d7fb
 
-	ds $d7fd - $d7fc
+wd7fc:: db ; d7fc
 
 wd7fd:: db ; d7fd
 
-	ds $d7ff - $d7fe
+wd7fe:: db ; d7fe
 
 wd7ff:: db ; d7ff
 
-	ds $d801 - $d800
+wd800:: db ; d800
 
 wd801:: db ; d801
 
@@ -198,13 +192,27 @@ wd803:: db ; d803
 
 wd804:: db ; d804
 
-	ds $d80b - $d805
+wd805:: db ; d805
+
+wd806:: db ; d806
+
+wd807:: db ; d807
+
+wd808:: db ; d808
+
+	ds $d80b - $d809
 
 wd80b:: db ; d80b
 
 wd80c:: db ; d80c
 
-	ds $d81e - $d80d
+wd80d:: db ; d80d
+
+wd80e:: db ; d80e
+
+wd80f:: db ; d80f
+
+	ds $d81e - $d810
 
 wd81e:: db ; d81e
 
@@ -212,7 +220,7 @@ wd81f:: db ; d81f
 
 wd820:: db ; d820
 
-	ds $d822 - $d821
+wd821:: db ; d821
 
 wd822:: db ; d822
 
@@ -226,7 +234,17 @@ wd826:: db ; d826
 
 wd827:: db ; d827
 
-	ds $d82e - $d828
+wd828:: db ; d828
+
+wd829:: db ; d829
+
+wd82a:: db ; d82a
+
+wd82b:: db ; d82b
+
+wd82c:: db ; d82c
+
+	ds $d82e - $d82d
 
 wd82e:: db ; d82e
 
@@ -256,11 +274,23 @@ wd83a:: db ; d83a
 
 wd83b:: db ; d83b
 
-	ds $d86a - $d83c
+	ds $d83f - $d83c
+
+wd83f:: db ; d83f
+
+	ds $d868 - $d840
+
+wd868:: db ; d868
+
+	ds $d86a - $d869
 
 wd86a:: db ; d86a
 
-	ds $d895 - $d86b
+	ds $d877 - $d86b
+
+wd877:: db ; d877
+
+	ds $d895 - $d878
 
 wd895:: db ; d895
 
@@ -282,7 +312,27 @@ wd8ea:: db ; d8ea
 
 wd8eb:: db ; d8eb
 
-	ds $da4a - $d8ec
+	ds $da23 - $d8ec
+
+wda23:: db ; da23
+
+	ds $da2a - $da24
+
+wda2a:: db ; da2a
+
+	ds $da2d - $da2b
+
+wda2d:: db ; da2d
+
+	ds $da2f - $da2e
+
+wda2f:: db ; da2f
+
+	ds $da31 - $da30
+
+wda31:: db ; da31
+
+	ds $da4a - $da32
 
 wda4a:: db ; da4a
 
@@ -298,7 +348,13 @@ wda82:: db ; da82
 
 wda83:: db ; da83
 
-	ds $da97 - $da84
+	ds $da94 - $da84
+
+wda94:: db ; da94
+
+wda95:: db ; da95
+
+wda96:: db ; da96
 
 wda97:: db ; da97
 
@@ -336,7 +392,13 @@ wdbdb:: db ; dbdb
 
 wdbdc:: db ; dbdc
 
-	ds $dc30 - $dbdd
+	ds $dc26 - $dbdd
+
+wdc26:: db ; dc26
+
+	ds $dc2f - $dc27
+
+wdc2f:: db ; dc2f
 
 wdc30:: db ; dc30
 

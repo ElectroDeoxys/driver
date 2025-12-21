@@ -10,7 +10,7 @@ Reset:
 	call Func_cc2
 	call Func_333
 	call EnableStatInterrupt
-	call Func_1fd
+	call ShowCompanies
 	call Func_7ab
 	call Func_1cb9
 	call Func_15bb
@@ -28,7 +28,7 @@ ClearWRAM:
 
 	; clear WRAM0
 	ld hl, STARTOF(WRAM0)
-	ld bc, SIZEOF(WRAM0)
+	ld bc, $1000
 	call ClearMemory
 
 	; clear WRAMX
@@ -38,7 +38,7 @@ ClearWRAM:
 	ld a, b
 	wramswitch
 	ld hl, STARTOF(WRAMX)
-	ld bc, SIZEOF(WRAMX)
+	ld bc, $1000
 	call ClearMemory
 	pop bc
 	dec b
@@ -50,7 +50,7 @@ ClearWRAM:
 .gb
 	; clear WRAM
 	ld hl, STARTOF(WRAM0)
-	ld bc, SIZEOF(WRAM0) + SIZEOF(WRAMX)
+	ld bc, SIZEOF(WRAM0)
 	jp ClearMemory
 
 Func_1b5:
@@ -93,7 +93,7 @@ Func_1b5:
 	bankswitch
 	jp Func_721
 
-Func_1fd:
+ShowCompanies:
 	call Func_320
 	ldh a, [hBootUpA]
 	cp BOOTUP_A_CGB
@@ -101,7 +101,7 @@ Func_1fd:
 
 ; gb
 	ld a, $00
-	call .Func_25c
+	call .LoadScreen
 .asm_20b
 	call Func_501
 	call Func_530
@@ -113,39 +113,41 @@ Func_1fd:
 	ld [hl], $01
 	and a
 	ret nz
-	ld a, $01
+
+	ld a, BANK(CheckSkipCompanies)
 	bankswitch
-	call $7cff
-	ret nz
+	call CheckSkipCompanies
+	ret nz ; skip
+
 	ld a, $06
-	ld b, $3c
-	ld c, $3c
+	ld b, 60
+	ld c, 60
 	call .Func_254
 	ld a, $05
-	ld b, $3c
-	ld c, $3c
+	ld b, 60
+	ld c, 60
 	call .Func_254
 	ld a, $07
-	ld b, $3c
-	ld c, $3c
+	ld b, 60
+	ld c, 60
 	call .Func_254
 	ld a, $08
-	ld b, $3c
-	ld c, $3c
+	ld b, 60
+	ld c, 60
 	call .Func_254
 	ld a, $03
-	ld b, $3c
-	ld c, $3c
+	ld b, 60
+	ld c, 60
 	call .Func_254
 	ret
 
 .Func_254:
 	push bc
-	call .Func_25c
+	call .LoadScreen
 	pop bc
-	jp .asm_2a1
+	jp .loop_show
 
-.Func_25c:
+.LoadScreen:
 	ld l, a
 	ld h, $00
 	add hl, hl
@@ -189,24 +191,25 @@ Func_1fd:
 	bankswitch
 	ret
 
-.asm_2a1
+.loop_show
 	push bc
 	call Func_501
 	call Func_530
 	pop bc
 	ld a, c
 	and a
-	jr nz, .asm_2b6
+	jr nz, .decrement_input_delay
 	ld a, [wJoypadPressed]
 	and PAD_A | PAD_START
-	jr nz, .asm_2ba
-	jr .asm_2b7
-.asm_2b6
+	jr nz, .next_screen
+	jr .decrement_screen_delay
+.decrement_input_delay
 	dec c
-.asm_2b7
+.decrement_screen_delay
 	dec b
-	jr nz, .asm_2a1
-.asm_2ba
+	jr nz, .loop_show
+
+.next_screen
 	call .Func_2ca
 .asm_2bd
 	call Func_501
@@ -232,7 +235,7 @@ Func_1fd:
 	ld c, 8 + 8 ; num of BG and OB pals
 .asm_2e2
 	ld b, PAL_SIZE
-	ld de, Pals_ecd
+	ld de, Pals_White
 .asm_2e7
 	ld a, [de]
 	ld [hli], a
@@ -252,7 +255,7 @@ Func_320:
 	ldh [hff9a], a
 	ldh [hff9b], a
 	lddmgpal c, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE
-	ld hl, Pals_ecd
+	ld hl, Pals_White
 	call Func_cc9
 	call Func_721
 	jp ClearBGMap
@@ -590,7 +593,7 @@ Func_530:
 
 	; reset game, show all black
 	; only reset when buttons are released
-	ld hl, Pals_ed5
+	ld hl, Pals_Black
 	lddmgpal c, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK
 	call Func_cc9
 	call Func_f41
@@ -996,7 +999,7 @@ Func_733:
 
 Func_73c:
 	ld b, $10
-	call Func_921
+	call SafeCopyRow
 	ld a, [wd7f7]
 	inc a
 	ld [wd7f7], a
@@ -1037,6 +1040,28 @@ Func_75a:
 	pop af
 	ret
 ; 0x767
+
+SECTION "Func_774", ROM0[$774]
+
+Func_774::
+	push hl
+	ld a, [wc575]
+	and $48
+	adc $38
+	sla a
+	sla a
+	ld hl, wc578
+	rl [hl]
+	dec hl
+	rl [hl]
+	dec hl
+	rl [hl]
+	dec hl
+	rl [hl]
+	ld a, [hl]
+	pop hl
+	ret
+; 0x791
 
 SECTION "Func_7ab", ROM0[$7ab]
 
@@ -1120,23 +1145,27 @@ Func_826:
 	ret
 
 Func_839:
-	call $a0f
+	call CoordinateToBGMapPtr
+
+	; swap hl and de
 	push de
 	ld e, l
 	ld d, h
 	pop hl
+
 	ld a, c
-	add a
+	add a ; *2
 	cp b
 	jr c, .asm_854
 .asm_845
 	push bc
 	push de
 	ld b, c
-	call Func_921
+	call SafeCopyRow
 	pop de
 	pop bc
-	ld a, $20
+	; next row
+	ld a, TILEMAP_WIDTH
 	add_de
 	dec b
 	jr nz, .asm_845
@@ -1144,7 +1173,7 @@ Func_839:
 .asm_854
 	push bc
 	push de
-	call Func_860
+	call SafeCopyColumn
 	pop de
 	pop bc
 	inc e
@@ -1152,20 +1181,25 @@ Func_839:
 	jr nz, .asm_854
 	ret
 
-Func_860:
-	ld c, $06
+SafeCopyColumn:
+	; CGB can copy 6 bytes
+	ld c, 6
 	ldh a, [hBootUpA]
 	cp $11
-	jr z, .asm_86a
-	ld c, $03
-.asm_86a
+	jr z, .loop_copy
+	; DMG can copy 3 bytes
+	ld c, 3
+.loop_copy
+	; does it exceed c bytes?
 	ld a, b
 	sub c
 	jr nc, .asm_891
 	add c
-	ret z
+	ret z ; nothing to copy
+
+	; copies b bytes
 	push hl
-	ld hl, $8a5
+	ld hl, .PtrTable
 	dec a
 	add a
 	add_hl
@@ -1174,7 +1208,7 @@ Func_860:
 	ld b, [hl]
 	pop hl
 	push bc
-	ld bc, $20
+	ld bc, TILEMAP_WIDTH
 	ldh a, [rLCDC]
 	rlca
 	jr nc, .asm_890
@@ -1187,32 +1221,89 @@ Func_860:
 	cp $06
 	jr z, .asm_89e
 	push bc
-	call $8f4
+	call .CopyDMG
 	pop bc
-	jr .asm_86a
+	jr .loop_copy
 .asm_89e
 	push bc
-	call $8af
+	call .CopyCGB
 	pop bc
-	jr .asm_86a
-; 0x8a5
+	jr .loop_copy
 
-SECTION "Func_921", ROM0[$921]
+.PtrTable:
+	dw .copy_1
+	dw .copy_2
+	dw .copy_3
+	dw .copy_4
+	dw .copy_5
 
-Func_921:
-	ld c, $0c
+.CopyCGB:
+	ld bc, TILEMAP_WIDTH
+	ldh a, [rLCDC]
+	rlca
+	jr nc, .copy_6
+	wait_ppu
+.copy_6
+	ld a, [hli]
+	ld [de], a
+	ld a, e
+	add c
+	ld e, a
+	ld a, d
+	adc b
+	ld d, a
+FOR n, 1, 6
+DEF x = 6 - n
+.copy_{u:x}
+	ld a, [hli]
+	ld [de], a
+	ld a, e
+	add c
+	ld e, a
+	ld a, d
+	adc b
+	ld d, a
+ENDR
+	ret
+
+.CopyDMG:
+	ld bc, TILEMAP_WIDTH
+	ldh a, [rLCDC]
+	rlca
+	jr nc, .asm_908
+	wait_ppu
+.asm_908
+REPT 3
+	ld a, [hli]
+	ld [de], a
+	ld a, e
+	add c
+	ld e, a
+	ld a, d
+	adc b
+	ld d, a
+ENDR
+	ret
+
+SafeCopyRow:
+	; CGB can copy 12 bytes
+	ld c, 12
 	ldh a, [hBootUpA]
-	cp $11
-	jr z, .asm_92b
-	ld c, $06
-.asm_92b
+	cp BOOTUP_A_CGB
+	jr z, .loop_copy
+	; DMG can copy  6 bytes
+	ld c, 6
+.loop_copy
+	; does it exceed c bytes?
 	ld a, b
 	sub c
-	jr nc, .asm_94f
+	jr nc, .copy_c_bytes
 	add c
-	ret z
+	ret z ; nothing to copy
+
+	; copies b bytes
 	push hl
-	ld hl, $95f
+	ld hl, .PtrTable
 	dec a
 	add a
 	add_hl
@@ -1226,20 +1317,62 @@ Func_921:
 	jr nc, .asm_94e
 	wait_ppu
 .asm_94e
-	ret
-.asm_94f
+	ret ; jumps to bc
+
+.copy_c_bytes
 	ld b, a
 	ld a, c
-	cp $0c
-	jr z, .asm_95a
-	call $9ab
-	jr .asm_92b
-.asm_95a
-	call $975
-	jr .asm_92b
-; 0x95f
+	cp 12
+	jr z, .copy_12
+	call .CopyDMG
+	jr .loop_copy
+.copy_12
+	call .CopyCGB
+	jr .loop_copy
 
-SECTION "ClearBGMap", ROM0[$9cf]
+.PtrTable:
+	dw .copy_1
+	dw .copy_2
+	dw .copy_3
+	dw .copy_4
+	dw .copy_5
+	dw .copy_6
+	dw .copy_7
+	dw .copy_8
+	dw .copy_9
+	dw .copy_10
+	dw .copy_11
+
+.CopyCGB:
+	ldh a, [rLCDC]
+	rlca
+	jr nc, .asm_986
+	wait_ppu
+.asm_986
+	ld a, [hli]
+	ld [de], a
+	inc e
+FOR n, 1, 12
+DEF x = 12 - n
+.copy_{u:x}
+	ld a, [hli]
+	ld [de], a
+	inc e
+ENDR
+	ret
+
+.CopyDMG:
+	ldh a, [rLCDC]
+	rlca
+	jr nc, .asm_9bc
+	wait_ppu
+.asm_9bc
+REPT 6
+	ld a, [hli]
+	ld [de], a
+	inc e
+ENDR
+	ret
 
 ClearBGMap:
 	ldh a, [hBootUpA]
@@ -1269,7 +1402,28 @@ ClearBGMap:
 	ret
 ; 0xa03
 
-SECTION "Func_a1e", ROM0[$a1e]
+SECTION "CoordinateToBGMapPtr", ROM0[$a0f]
+
+; converts tile coordinate (h, l) into
+; pointer to its tile in BGMap
+; input:
+; - l = x tile coordinate (0 - 31)
+; - h = y tile coordinate (0 - 31)
+CoordinateToBGMapPtr:
+	push bc
+	ld c, l
+	ld l, h
+	ld h, 0
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl ; *32
+	ld b, HIGH(v0BGMap0)
+	add hl, bc
+	pop bc
+	; hl = (h * TILEMAP_WIDTH) + l + v0BGMap0
+	ret
 
 Func_a1e:
 	ld hl, wd7f1
@@ -1706,13 +1860,13 @@ Pals_ec5:
 	rgb 10, 10, 10
 	rgb  0,  0,  0
 
-Pals_ecd:
+Pals_White:
 	rgb 31, 31, 31
 	rgb 31, 31, 31
 	rgb 31, 31, 31
 	rgb 31, 31, 31
 
-Pals_ed5:
+Pals_Black:
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb  0,  0,  0
@@ -1721,19 +1875,68 @@ Pals_ed5:
 PtrTable_edd:
 	dw $4cf4
 	dw $4cf4
-; 0xee1
 
-SECTION "Func_ef1", ROM0[$ef1]
+Data_ee1:
+	db $3e, $01
+	db $3e, $02
+	db $3e, $03
+	db $3e, $04
+	db $3e, $05
+	db $3f, $01
+	db $3f, $02
+	db $3f, $03
 
 Func_ef1:
 	ld b, $04
 	ld c, a
 	jp Func_f4f
-; 0xef7
 
-SECTION "Func_f2e", ROM0[$f2e]
+Func_ef7::
+	and a
+	ret z
+	push bc
+	push de
+	push hl
+	ld c, a
+	ld a, [wc544]
+	and a
+	jr z, .asm_f08
+	ld b, $00
+	call Func_f4f
+.asm_f08
+	pop hl
+	pop de
+	pop bc
+	ret
 
-Func_f2e:
+Func_f0c::
+	push bc
+	push de
+	push hl
+	ld c, a
+	ld a, [wc544]
+	and a
+	jr z, .asm_f1b
+	ld b, $03
+	call Func_f4f
+.asm_f1b
+	pop hl
+	pop de
+	pop bc
+	ret
+; 0xf1f
+
+SECTION "Func_f27", ROM0[$f27]
+
+Func_f27::
+	push hl
+	ld hl, wc541
+	cp [hl]
+	pop hl
+	ret z
+;	fallthrough
+
+Func_f2e::
 	push bc
 	push de
 	push hl
@@ -1854,7 +2057,7 @@ Func_fd3:
 	ld [wc542], a
 	and a
 	ret z
-	ld hl, $edf
+	ld hl, Data_ee1 - $2
 	add a
 	add_hl
 	ld c, [hl]
@@ -1958,6 +2161,18 @@ Func_1084:
 	jp Func_f73
 ; 0x1091
 
+SECTION "Func_1098", ROM0[$1098]
+
+Func_1098:
+	push hl
+	add_hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	ret
+; 0x109f
+
 SECTION "Func_10b0", ROM0[$10b0]
 
 Func_10b0:
@@ -1984,7 +2199,7 @@ Func_10d0:
 	pop hl
 	ret
 
-Func_10d7:
+Func_10d7::
 	push hl
 	add_hl
 	ld [hl], e
@@ -1992,7 +2207,24 @@ Func_10d7:
 	ld [hl], d
 	pop hl
 	ret
-; 0x10de
+
+Func_10de::
+	push hl
+	add_hl
+	ld a, [hl]
+	pop hl
+	ret
+; 0x10e3
+
+SECTION "Func_10f7", ROM0[$10f7]
+
+Func_10f7:
+	push hl
+	add_hl
+	ld [hl], c
+	pop hl
+	ret
+; 0x10fc
 
 SECTION "Func_110b", ROM0[$110b]
 
@@ -2010,7 +2242,7 @@ Func_110b:
 	ld [hl], a
 	ret
 
-Func_1124:
+Func_1124::
 	push hl
 	push bc
 	ld hl, wd551
@@ -2621,15 +2853,15 @@ Func_1443:
 SECTION "Func_1488", ROM0[$1488]
 
 Func_1488:
-	ld b, $20
-	ld hl, wc717
-	ld de, $58
+	ld b, NUM_ENTITIES
+	ld hl, wEntities
+	ld de, ENT_STRUCT_SIZE
 	xor a
-.asm_1491
-	ld [hl], a
+.loop
+	ld [hl], a ; ENT_FLAGS
 	add hl, de
 	dec b
-	jr nz, .asm_1491
+	jr nz, .loop
 	ret
 ; 0x1497
 
@@ -2638,22 +2870,22 @@ SECTION "Func_14bf", ROM0[$14bf]
 Func_14bf:
 	ldh a, [hROMBank]
 	push af
-	ld b, $20
-	ld hl, wc717
-	ld de, $58
-.asm_14ca
-	bit 0, [hl]
-	call nz, Func_14da
+	ld b, NUM_ENTITIES
+	ld hl, wEntities
+	ld de, ENT_STRUCT_SIZE
+.loop
+	bit 0, [hl] ; ENT_FLAGS
+	call nz, .Func_14da
 	add hl, de
 	dec b
-	jr nz, .asm_14ca
+	jr nz, .loop
 	pop af
 	bankswitch
 	ret
 
-Func_14da:
+.Func_14da:
 	inc hl
-	dec [hl]
+	dec [hl] ; ENT_UNK01
 	dec hl
 	ret nz
 	push bc
@@ -2664,21 +2896,47 @@ Func_14da:
 	pop de
 	pop bc
 	ret
-; 0x14e8
 
-SECTION "Func_150b", ROM0[$150b]
+Func_14e8::
+	push bc
+	push de
+	push hl
+	ld c, a
+	ld a, [wEntityPtr + 0]
+	ld e, a
+	ld a, [wEntityPtr + 1]
+	ld d, a
+	inc de
+	ld a, c
+	ld [de], a ; ENT_UNK01
+	inc de
+	ldh a, [hROMBank]
+	ld [de], a ; ENT_UNK02
+	inc de
+	ld hl, sp+$00
+	ld a, l
+	ld [de], a ; ENT_UNK03
+	inc de     ;
+	ld a, h    ;
+	ld [de], a ;
+	ld hl, wd217
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld sp, hl
+	ret
 
 Func_150b:
 	ld a, l
-	ld [wd219], a
+	ld [wEntityPtr + 0], a
 	ld a, h
-	ld [wd21a], a
+	ld [wEntityPtr + 1], a
 	inc hl
 	inc hl
-	ld a, [hli]
+	ld a, [hli] ; ENT_UNK02
 	bankswitch
-	ld a, [hli]
-	ld h, [hl]
+	ld a, [hli] ; ENT_UNK03
+	ld h, [hl]  ;
 	ld l, a
 	ld [wd217], sp
 	ld sp, hl
@@ -2690,54 +2948,93 @@ Func_150b:
 
 SECTION "Func_1536", ROM0[$1536]
 
-Func_1536:
+; input:
+; - hl = ?
+; - b  = ?
+; - c  = ?
+Func_1536::
 	push hl
-	ld a, $20
-	ld hl, wc717
-	ld de, $58
-.asm_153f
-	bit 0, [hl]
-	jr z, .asm_154a
+	ld a, NUM_ENTITIES
+	ld hl, wEntities
+	ld de, ENT_STRUCT_SIZE
+.loop
+	bit 0, [hl] ; ENT_FLAGS
+	jr z, .inactive
 	add hl, de
 	dec a
-	jr nz, .asm_153f
+	jr nz, .loop
 	pop hl
 	scf
 	ret
-.asm_154a
-	ld [hl], $01
+
+.inactive
+	ld [hl], $01 ; ENT_FLAGS
 	inc hl
-	ld [hl], $01
+	ld [hl], $01 ; ENT_UNK01
 	inc hl
-	ld [hl], c
+	ld [hl], c ; ENT_UNK02
 	inc hl
+	; loads ENT_UNK50 address to ENT_UNK03
 	ld d, h
 	ld e, l
-	ld a, $4d
+	ld a, ENT_UNK50 - ENT_UNK03
 	add_de
-	ld [hl], e
+	ld [hl], e ; ENT_UNK03
+	inc hl     ;
+	ld [hl], d ;
 	inc hl
-	ld [hl], d
-	inc hl
-	ld [hl], b
-	ld a, $52
+	ld [hl], b ; ENT_UNK05
+	ld a, (ENT_UNK56 + 1) - ENT_UNK05
 	add_hl
-	pop de
-	ld [hl], d
-	dec hl
-	ld [hl], e
-	ld de, -$56
+	pop de ; input hl
+	ld [hl], d ; ENT_UNK56
+	dec hl     ;
+	ld [hl], e ;
+	ld de, -ENT_UNK56
 	add hl, de
 	and a
 	ret
 ; 0x1569
+
+SECTION "Func_157f", ROM0[$157f]
+
+Func_157f::
+	bankswitch
+	ld hl, wEntityPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $58
+	add_hl
+	ld sp, hl
+	ld h, d
+	ld l, e
+	jp hl
+; 0x1591
+
+SECTION "Func_1598", ROM0[$1598]
+
+Func_1598::
+	ld hl, wEntityPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, ENT_UNK06
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
+; 0x15a5
 
 SECTION "Func_15bb", ROM0[$15bb]
 
 Func_15bb:
 	xor a
 	ld [wResetDisabled], a
+
 	call Func_1a12
+
 	ld a, $02
 	ld [wd823], a
 	ld a, $00
@@ -2746,11 +3043,13 @@ Func_15bb:
 	ld [wd81f], a
 	ld a, $00
 	ld [wdc38], a
+
 	call Func_1692
+
 .asm_15d9
-	ld a, $02
+	ld a, BANK(Func_8ce1)
 	bankswitch
-	call $4ce1
+	call Func_8ce1
 	jr .asm_15ef
 .asm_15e5
 	ld a, $02
@@ -2758,6 +3057,7 @@ Func_15bb:
 	call $4cff
 .asm_15ef
 	call Func_1692
+
 	ld a, $02
 	bankswitch
 	call $50aa
@@ -2854,13 +3154,17 @@ Func_16a8:
 	ld [wd83b], a
 	ld a, $01
 	bankswitch
-	call $16e2
+	call Func_16e2
 	call Func_1b4e
 	ld a, $01
 	bankswitch
 	call Func_178e
 	ret
-; 0x16e2
+
+Func_16e2:
+	ld a, [wd81f]
+	jumptable
+; 0x16e6
 
 SECTION "Func_178e", ROM0[$178e]
 
@@ -2893,7 +3197,7 @@ Func_1a71:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call $1b3d
+	call Func_1b3d
 	jr nc, .asm_1a85
 	xor a
 	ld [hli], a
@@ -3012,9 +3316,20 @@ Func_1b32:
 	add_de
 	ld a, [de]
 	ret
-; 0x1b3d
 
-SECTION "Func_1b4e", ROM0[$1b4e]
+Func_1b3d:
+	ld a, [wd877]
+	and a
+	jr nz, .asm_1b4a
+	ld a, [wd895]
+	cp $03
+	jr c, .asm_1b4c
+.asm_1b4a
+	scf
+	ret
+.asm_1b4c
+	and a
+	ret
 
 Func_1b4e:
 	call Func_320
@@ -3022,10 +3337,10 @@ Func_1b4e:
 	call Func_110b
 	call Func_1488
 	call Func_25e5
-	call $3565
+	call Func_3565
 	call Func_1d16
-	call $2026
-	call $32fb
+	call Func_2026
+	call Func_32fb
 	ld a, $02
 	bankswitch
 	call $402b
@@ -3033,9 +3348,9 @@ Func_1b4e:
 	ld c, $01
 	ld b, $03
 	call Func_1536
-	ld a, $01
+	ld a, BANK(Func_4000)
 	bankswitch
-	call $4000
+	call Func_4000
 	ld hl, $42e1
 	ld c, $01
 	ld b, $02
@@ -3143,13 +3458,15 @@ Func_1cb9:
 	ld [wdc38], a
 	ld [wdc8e], a
 	ld [wdc8f], a
+
+	; fill wdc39 with $aa
 	ld hl, wdc39
 	ld b, $3f
 	ld a, $aa
-.asm_1ce8
+.loop
 	ld [hli], a
 	dec b
-	jr nz, .asm_1ce8
+	jr nz, .loop
 	ret
 ; 0x1ced
 
@@ -3407,7 +3724,168 @@ Func_1fc7:
 	ret
 ; 0x200a
 
-SECTION "Func_2133", ROM0[$2133]
+SECTION "Func_2026", ROM0[$2026]
+
+Func_2026:
+	xor a
+	ld [wd81e], a
+	call Func_2597
+	call Func_2133
+	ld a, [hli]
+	ld [wd80b], a
+	ld a, [hli]
+	ld [wd80c], a
+	inc hl
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld [wdc7a], a
+	ld a, [hli]
+	ld [wdc7c], a
+	ld a, [hli]
+	ld [wdc7d], a
+	ld a, [hli]
+	ld [wd80d], a
+	ld a, [hli]
+	ld [wd80e], a
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	push hl
+	ld hl, $ff60
+	add hl, de
+	ld a, l
+	ld [wd805], a
+	ld a, h
+	ld [wd806], a
+	pop hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	push hl
+	ld hl, -$80
+	add hl, de
+	ld a, l
+	ld [wd807], a
+	ld a, h
+	ld [wd808], a
+	pop hl
+	call Func_2101
+	ld a, c
+	ld [wd7ff], a
+	ld [wd7fb], a
+	ld a, b
+	ld [wd800], a
+	ld [wd7fc], a
+	ld a, e
+	ld [wd7fd], a
+	ld [wd7f9], a
+	ld a, d
+	ld [wd7fe], a
+	ld [wd7fa], a
+	call Func_2216
+	ld de, wd80f
+	xor a
+	ld [wdc7e], a
+.asm_209c
+	call Func_20dc
+	ld a, $35
+	bankswitch
+	ld hl, $7e0d
+	ld bc, $f00
+.asm_20ac
+	push bc
+	push de
+	push hl
+	call Func_20ce
+	pop hl
+	pop de
+	pop bc
+	jr z, .asm_20c0
+	ld a, $10
+	add_hl
+	inc c
+	dec b
+	jr nz, .asm_20ac
+	ld c, $01
+.asm_20c0
+	ld a, c
+	ld [de], a
+	inc de
+	ld hl, wdc7e
+	ld a, [hl]
+	inc a
+	ld [hl], a
+	cp $0f
+	jr nz, .asm_209c
+	ret
+
+Func_20ce:
+	ld de, wd771
+	ld b, $10
+.asm_20d3
+	ld a, [de]
+	cp [hl]
+	ret nz
+	inc hl
+	inc de
+	dec b
+	jr nz, .asm_20d3
+	ret
+
+Func_20dc:
+	push bc
+	push de
+	ld l, a
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld a, [wdc7c]
+	ld e, a
+	ld a, [wdc7d]
+	ld d, a
+	add hl, de
+	ld a, [wdc7a]
+	bankswitch
+	ld de, wd771
+	ld b, $10
+	call CopyHLtoDE
+	pop de
+	pop bc
+	ret
+
+Func_2101:
+	ld hl, wd828
+	ld de, wda2d
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ld hl, wd82a
+	ld de, wda2a
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ld a, [wd82c]
+	ld [wda2f], a
+	xor a
+	ld [wda31], a
+	ld hl, wda23
+	ld a, $01
+	bankswitch
+	call $43be
+	push bc
+	ld c, e
+	ld b, d
+	pop de
+	ret
 
 Func_2133:
 	xor a
@@ -4156,9 +4634,213 @@ Func_25e5:
 	dec b
 	jr nz, .asm_25ee
 	ret
-; 0x25f4
 
-SECTION "Func_30f1", ROM0[$30f1]
+Func_25f4:
+	push bc
+	push de
+	ld b, $08
+	ld hl, wd8eb
+	ld de, $27
+.asm_25fe
+	bit 0, [hl]
+	jr z, .asm_260a
+	add hl, de
+	dec b
+	jr nz, .asm_25fe
+	pop de
+	pop bc
+	scf
+	ret
+.asm_260a
+	ld [hl], $01
+	lb bc, 0, 0
+	ld a, $22
+	call Func_10f7
+	ld a, $21
+	call Func_10f7
+	ld a, $12
+	call Func_10f7
+	ld a, $20
+	call Func_10f7
+	ld a, $0d
+	call Func_1098
+	ld a, $10
+	call Func_1098
+	pop de
+	pop bc
+	and a
+	ret
+
+Func_2631::
+	ld [wdc7a], a
+	ld a, l
+	ld [wdc7c], a
+	ld a, h
+	ld [wdc7e], a
+	call Func_25f4
+	ret c
+	push hl
+	inc hl
+	ld a, [wdc7c]
+	ld [hli], a
+	ld a, [wdc7e]
+	ld [hli], a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	ld [hli], a
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	inc hl
+	ld a, [wdc7a]
+	ld [hl], a
+	pop hl
+	and a
+	ret
+; 0x265f
+
+SECTION "Func_3047", ROM0[$3047]
+
+Func_3047::
+	ldh a, [hROMBank]
+	push af
+	ld a, $03
+	bankswitch
+	ld a, $25
+	call Func_10d0
+	push de
+	push hl
+	inc de
+	inc de
+	ld a, $07
+	add_hl
+	ld a, [hli]
+	sub $08
+	ld [de], a
+	inc de
+	ld a, [hli]
+	sbc $00
+	ld [de], a
+	inc de
+	inc hl
+	inc de
+	ld a, [hli]
+	sub $08
+	ld [de], a
+	inc de
+	ld a, [hl]
+	sbc $00
+	ld [de], a
+	pop hl
+	pop de
+	ld a, $0c
+	call Func_10de
+	add $04
+	rrca
+	rrca
+	rrca
+	and $1f
+	ld c, a
+	push hl
+	ld hl, $7624
+	ld b, $00
+	add hl, bc
+	ld a, [de]
+	and $9f
+	or [hl]
+	or $06
+	ld [de], a
+	ld a, [hl]
+	pop hl
+	inc hl
+	ld b, [hl]
+	inc hl
+	inc hl
+	ld [hli], a
+	push hl
+	ld a, b
+	add a
+	ld hl, $75d7
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, c
+	add a
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	ld a, $05
+	sub_hl
+	ld a, [bc]
+	push af
+	inc bc
+	ld a, [bc]
+	ld b, a
+	pop af
+	ld c, a
+	ld a, $05
+	add_de
+	bit 4, b
+	jr nz, .asm_30c6
+	ld a, [de]
+	add $04
+	ld [de], a
+	inc de
+	ld a, [de]
+	adc $00
+	ld [de], a
+	jr .asm_30c7
+.asm_30c6
+	inc de
+.asm_30c7
+	inc de
+	ld a, $10
+	ld [de], a
+	inc de
+	ld a, b
+	ld [de], a
+	inc de
+	push hl
+	inc hl
+	ld a, [hli]
+	ld b, [hl]
+	ld hl, wdbc5
+	add a
+	add_hl
+	ld a, [hli]
+	add c
+	ld c, a
+	ld a, [hl]
+	or b
+	ld b, a
+	ld h, d
+	ld l, e
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	inc hl
+	inc c
+	inc c
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	pop af
+	bankswitch
+	ret
 
 Func_30f1:
 	ldh a, [hROMBank]
@@ -4215,7 +4897,43 @@ Func_30f1:
 	jr .asm_3111
 ; 0x313e
 
-SECTION "Func_332a", ROM0[$332a]
+SECTION "Func_32fb", ROM0[$32fb]
+
+Func_32fb:
+	call Func_33b4
+	ld hl, wdb81
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	ld a, e
+	and $f8
+	ld e, a
+	ld hl, -$4
+	add hl, bc
+	ld b, h
+	ld c, l
+	ld hl, -$4
+	add hl, de
+	ld d, h
+	ld e, l
+	ld a, $11
+.asm_331a
+	push af
+	push bc
+	push de
+	call Func_33bf
+	pop de
+	pop bc
+	ld a, $08
+	add_de
+	pop af
+	dec a
+	jr nz, .asm_331a
+	ret
 
 Func_332a:
 	ld hl, wd7fd
@@ -4597,9 +5315,18 @@ Func_3544:
 	add_hl
 	pop de
 	ret
-; 0x3565
 
-SECTION "Func_3574", ROM0[$3574]
+Func_3565:
+	ld hl, wda9d
+	ld b, $0c
+	ld de, $13
+	xor a
+.asm_356e
+	ld [hl], a
+	add hl, de
+	dec b
+	jr nz, .asm_356e
+	ret
 
 Func_3574:
 	call Func_3582
@@ -4745,7 +5472,7 @@ Func_35ad:
 	inc de
 	ld a, $08
 	ld [de], a
-	jp $3637
+	jp Func_3637
 .asm_362b
 	xor a
 	ld [de], a
@@ -4755,4 +5482,154 @@ Func_35ad:
 	ld a, $0f
 	call Func_10d0
 	jr .asm_362b
-; 0x3637
+
+Func_3637:
+	push hl
+	ld e, [hl]
+	inc hl
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	ld a, $0d
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [hl]
+	and $9f
+	ld [hl], a
+	push hl
+	ld a, $09
+	add_hl
+	ld a, e
+	push af
+	ld a, c
+	add a
+	ld de, wdbdb
+	add_de
+	pop af
+	and $02
+	jr z, .asm_368e
+	ld a, c
+	cp $0a
+	ld c, $02
+	jr c, .asm_3663
+	inc c
+	inc c
+.asm_3663
+	ld a, [de]
+	add c
+	ld c, a
+	ld a, b
+	add $10
+	ld b, a
+	push hl
+	swap a
+	and $0e
+	ld hl, .Data1
+	add_hl
+	ld a, [hli]
+	add c
+	ld b, [hl]
+	pop hl
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+	ld a, b
+	jr .asm_36b6
+
+.Data1:
+	db $00, $00
+	db $02, $00
+	db $04, $00
+	db $02, $40
+	db $00, $40
+	db $02, $60
+	db $04, $20
+	db $02, $20
+
+.asm_368e
+	ld a, c
+	cp $0a
+	jr c, .asm_36b0
+	ld a, [de]
+	bit 6, b
+	jr z, .asm_369a
+	add $02
+.asm_369a
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+	ld a, b
+	swap a
+	rrca
+	rrca
+	and $03
+	ld hl, .Data2
+	add_hl
+	ld a, [hl]
+	jr .asm_36b6
+
+.Data2:
+	db $00, $00
+	db $40, $20
+
+.asm_36b0
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+	xor a
+.asm_36b6
+	pop hl
+	ld b, a
+	or [hl]
+	ld [hl], a
+	ld d, h
+	ld e, l
+	ld a, $02
+	add_de
+	pop hl
+	push hl
+	ld a, $0a
+	add_hl
+	push de
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $04
+	sub_hl
+	push hl
+	ld h, d
+	ld l, e
+	ld a, $04
+	bit 6, b
+	jr z, .asm_36db
+	ld a, $0c
+.asm_36db
+	sub_hl
+	ld d, h
+	ld e, l
+	pop bc
+	pop hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	ret
+; 0x36ea
