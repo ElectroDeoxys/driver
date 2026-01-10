@@ -49,6 +49,12 @@ MACRO? vramswitch
 	ldh [rVBK], a
 ENDM
 
+MACRO? homecall
+	ld a, BANK(\1)
+	bankswitch
+	call \1
+ENDM
+
 MACRO? wait_ppu
 :
 	ldh a, [rSTAT]

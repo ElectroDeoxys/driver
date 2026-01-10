@@ -202,7 +202,7 @@ InitHardwareRegisters:
 SECTION "CopyHLtoDE", ROM0[$cc]
 
 ; copies b bytes from hl to de
-CopyHLtoDE:
+CopyHLtoDE::
 .loop
 	ld a, [hli]
 	ld [de], a

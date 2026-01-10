@@ -31,6 +31,10 @@ ROMX $1
 	"Bank01"
 ROMX $2
 	"Bank02"
+ROMX $3e
+	"Bank3e"
+ROMX $3f
+	"Bank3f"
 VRAM $0
 	"VRAM0"
 VRAM $1

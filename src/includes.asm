@@ -2,6 +2,7 @@ INCLUDE "constants/hardware.inc"
 
 INCLUDE "macros/constants.asm"
 INCLUDE "macros/code.asm"
+INCLUDE "macros/coords.asm"
 INCLUDE "macros/data.asm"
 
 INCLUDE "macros/gfx.asm"

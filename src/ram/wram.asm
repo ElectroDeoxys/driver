@@ -3,7 +3,53 @@ SECTION "WRAM0", WRAM0
 wVirtualOAM:: ; c000
 	ds OAM_SIZE
 
-	ds $c540 - $c0a0
+	ds $c400 - $c0a0
+
+wc400:: db ; c400
+
+	ds $c40a - $c401
+
+wc40a:: db ; c40a
+
+	ds $c4b0 - $c40b
+
+wc4b0:: db ; c4b0
+
+wc4b1:: db ; c4b1
+
+	ds $c51d - $c4b2
+
+wc51d:: db ; c51d
+
+wc51e:: db ; c51e
+
+wc51f:: db ; c51f
+
+wc520:: db ; c520
+
+wc521:: db ; c521
+
+wc522:: db ; c522
+
+wc523:: db ; c523
+
+wc524:: db ; c524
+
+wc525:: db ; c525
+
+wc526:: db ; c526
+
+wc527:: db ; c527
+
+wc528:: db ; c528
+
+wc529:: db ; c529
+
+wc52a:: db ; c52a
+
+wc52b:: db ; c52b
+
+	ds $c540 - $c52c
 
 wc540:: db ; c540
 wc541:: db ; c541
@@ -67,7 +113,15 @@ ENDU
 
 wc5fd:: db ; c5fd
 
-	ds $c63d - $c5fe
+	ds $c60d - $c5fe
+
+wc60d:: db ; c60d
+
+	ds $c62d - $c60e
+
+wc62d:: db ; c62d
+
+	ds $c63d - $c62e
 
 wc63d:: db ; c63d
 
@@ -75,7 +129,11 @@ wc63d:: db ; c63d
 
 wc645:: db ; c645
 
-	ds $c67d - $c646
+	ds $c655 - $c646
+
+wc655:: db ; c655
+
+	ds $c67d - $c656
 
 wc67d:: db ; c67d
 
@@ -392,11 +450,35 @@ wdbdb:: db ; dbdb
 
 wdbdc:: db ; dbdc
 
-	ds $dc26 - $dbdd
+	ds $dbfa - $dbdd
+
+wdbfa:: db ; dbfa
+
+wdbfb:: db ; dbfb
+
+	ds $dbfd - $dbfc
+
+wdbfd:: db ; dbfd
+
+wdbfe:: db ; dbfe
+
+wdbff:: db ; dbff
+
+	ds $dc20 - $dc00
+
+wdc20:: db ; dc20
+
+	ds $dc25 - $dc21
+
+wdc25:: db ; dc25
 
 wdc26:: db ; dc26
 
-	ds $dc2f - $dc27
+	ds $dc29 - $dc27
+
+wdc29:: db ; dc29
+
+	ds $dc2f - $dc2a
 
 wdc2f:: db ; dc2f
 
@@ -446,4 +528,8 @@ wdc90:: db ; dc90
 
 wdc95:: db ; dc95
 
-	ds $e000 - $dc96
+	ds $dcb6 - $dc96
+
+wdcb6:: db ; dcb6
+
+	ds $e000 - $dcb7

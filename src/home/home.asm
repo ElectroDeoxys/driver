@@ -114,9 +114,7 @@ ShowCompanies:
 	and a
 	ret nz
 
-	ld a, BANK(CheckSkipCompanies)
-	bankswitch
-	call CheckSkipCompanies
+	homecall CheckSkipCompanies
 	ret nz ; skip
 
 	ld a, $06
@@ -250,7 +248,7 @@ ShowCompanies:
 
 SECTION "Func_320", ROM0[$320]
 
-Func_320:
+Func_320::
 	xor a
 	ldh [hff9a], a
 	ldh [hff9b], a
@@ -575,7 +573,7 @@ _Serial:
 
 	reti ; stray ret
 
-Func_530:
+Func_530::
 	call Func_434
 	call Func_cfe
 	call ReadJoypad
@@ -974,7 +972,7 @@ Func_721:
 ;	fallthrough
 
 ; clears bc bytes starting from hl
-ClearMemory:
+ClearMemory::
 	xor a
 FillMemory:
 .loop
@@ -1146,7 +1144,7 @@ Func_826:
 
 Func_839:
 	call CoordinateToBGMapPtr
-
+Func_83c::
 	; swap hl and de
 	push de
 	ld e, l
@@ -1425,7 +1423,7 @@ CoordinateToBGMapPtr:
 	; hl = (h * TILEMAP_WIDTH) + l + v0BGMap0
 	ret
 
-Func_a1e:
+Func_a1e::
 	ld hl, wd7f1
 	xor a
 	ld [hli], a
@@ -1439,7 +1437,7 @@ Func_a1e:
 
 SECTION "Func_a95", ROM0[$a95]
 
-Func_a95:
+Func_a95::
 	ld [wd7f8], a
 	ldh a, [hROMBank]
 	push af
@@ -1494,7 +1492,44 @@ Func_a95:
 	pop af
 	bankswitch
 	ret
-; 0xaf6
+
+Func_af6::
+	ld c, a
+	ldh a, [hROMBank]
+	push af
+	push bc
+	ld hl, wd771
+	ld bc, DoFrame
+	call ClearMemory
+	pop bc
+.asm_b05
+	push bc
+	ld de, wd771
+	ld c, $01
+	ld a, $01
+	call Func_a95
+	pop bc
+	dec c
+	jr nz, .asm_b05
+	pop af
+	bankswitch
+	ret
+
+Func_b1b::
+	ldh a, [hROMBank]
+	push af
+	ld a, c
+	bankswitch
+.asm_b24
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_b24
+	pop af
+	bankswitch
+	ret
+; 0xb31
 
 SECTION "EnableDoubleSpeed", ROM0[$c87]
 
@@ -1552,7 +1587,7 @@ Func_cc9:
 	ld [hl], a  ; wOBP1
 	jp ApplyDMGPalettes
 
-Func_cf2:
+Func_cf2::
 	ld [wc67f], a
 	ld [wc67e], a
 	ld a, $01
@@ -2228,7 +2263,7 @@ Func_10f7:
 
 SECTION "Func_110b", ROM0[$110b]
 
-Func_110b:
+Func_110b::
 	ld hl, wd551
 	ld bc, $220
 	call ClearMemory
@@ -2267,7 +2302,7 @@ Func_1124::
 	and a
 	ret
 
-Func_1142:
+Func_1142::
 	xor a
 	ld [wd7f7], a
 	ret
@@ -2304,7 +2339,7 @@ Func_1147:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, $1183
+	ld de, .asm_1183
 	push de
 	jp hl
 .asm_1183
@@ -2852,7 +2887,7 @@ Func_1443:
 
 SECTION "Func_1488", ROM0[$1488]
 
-Func_1488:
+Func_1488::
 	ld b, NUM_ENTITIES
 	ld hl, wEntities
 	ld de, ENT_STRUCT_SIZE
@@ -2867,7 +2902,7 @@ Func_1488:
 
 SECTION "Func_14bf", ROM0[$14bf]
 
-Func_14bf:
+Func_14bf::
 	ldh a, [hROMBank]
 	push af
 	ld b, NUM_ENTITIES
@@ -3047,14 +3082,10 @@ Func_15bb:
 	call Func_1692
 
 .asm_15d9
-	ld a, BANK(Func_8ce1)
-	bankswitch
-	call Func_8ce1
+	homecall Func_8ce1
 	jr .asm_15ef
 .asm_15e5
-	ld a, $02
-	bankswitch
-	call $4cff
+	homecall Func_8cff
 .asm_15ef
 	call Func_1692
 
@@ -3348,9 +3379,7 @@ Func_1b4e:
 	ld c, $01
 	ld b, $03
 	call Func_1536
-	ld a, BANK(Func_4000)
-	bankswitch
-	call Func_4000
+	homecall Func_4000
 	ld hl, $42e1
 	ld c, $01
 	ld b, $02
@@ -3643,6 +3672,43 @@ Func_1e38:
 	pop hl
 	ret
 ; 0x1e3f
+
+SECTION "Func_1e4b", ROM0[$1e4b]
+
+Func_1e4b::
+	ldh a, [hROMBank]
+	push af
+	ld a, $3c
+	bankswitch
+	jr Func_1e61
+	
+	ldh a, [hROMBank]
+	push af
+	ld a, $3d
+	bankswitch
+;	fallthrough
+
+Func_1e61:
+	ld a, [wdc30]
+	add a
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	push de
+	ld de, wdcb6
+.asm_1e6d
+	ld a, [hli]
+	ld [de], a
+	inc de
+	and a
+	jr nz, .asm_1e6d
+	pop de
+	ld hl, wdcb6
+	pop af
+	bankswitch
+	ret
+; 0x1e7e
 
 SECTION "Func_1eee", ROM0[$1eee]
 
