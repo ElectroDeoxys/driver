@@ -5,44 +5,26 @@ wVirtualOAM:: ; c000
 
 	ds $c400 - $c0a0
 
-wc400:: db ; c400
-
-	ds $c40a - $c401
-
-wc40a:: db ; c40a
-
-	ds $c4b0 - $c40b
+wAudioTracks:: ; c400
+FOR n, 0, NUM_AUDIO_TRACKS
+wTrack{u:n}:: audio_track_struct wTrack{u:n}
+ENDR
 
 wc4b0:: db ; c4b0
 
-wc4b1:: db ; c4b1
+wAudioChannels:: ; c4b1
+FOR n, 1, NUM_AUDIO_CHANNELS + 1
+wChannel{u:n}:: audio_channel_struct wChannel{u:n}
+ENDR
 
-	ds $c51d - $c4b2
+wc51d:: dw ; c51d
+wc51f:: dw ; c51f
+wc521:: dw ; c521
 
-wc51d:: db ; c51d
+wc523:: dw ; c523
+wc525:: dw ; c525
 
-wc51e:: db ; c51e
-
-wc51f:: db ; c51f
-
-wc520:: db ; c520
-
-wc521:: db ; c521
-
-wc522:: db ; c522
-
-wc523:: db ; c523
-
-wc524:: db ; c524
-
-wc525:: db ; c525
-
-wc526:: db ; c526
-
-wc527:: db ; c527
-
-wc528:: db ; c528
-
+wc527:: dw ; c527
 wc529:: db ; c529
 
 wc52a:: db ; c52a
@@ -51,7 +33,7 @@ wc52b:: db ; c52b
 
 	ds $c540 - $c52c
 
-wc540:: db ; c540
+wAudioBank:: db ; c540
 wc541:: db ; c541
 
 wc542:: db ; c542

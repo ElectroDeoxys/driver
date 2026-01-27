@@ -1,8 +1,6 @@
 SECTION "HRAM", HRAM
 
-hff8a:: db ; ff8a
-
-hff8b:: db ; ff8b
+hTrackPtr:: dw ; ff8a
 
 hff8c:: db ; ff8c
 
@@ -10,13 +8,14 @@ hff8d:: db ; ff8d
 
 hff8e:: db ; ff8e
 
-hff8f:: db ; ff8f
+hTrackFlags:: db ; ff8f
 
-	ds $ff91 - $ff90
+hff90:: db ; ff90
 
-hff91:: db ; ff91
+; which track is currently being updated [0, NUM_AUDIO_TRACKS - 1]
+hTrackIndex:: db ; ff91
 
-hff92:: db ; ff92
+hChannelMixing:: db ; ff92
 
 hff93:: db ; ff93
 

@@ -18,3 +18,11 @@ ENDM
 MACRO? rgb
 	dw (\3 << 10 | \2 << 5 | \1)
 ENDM
+
+MACRO? offset_table
+DEF _offs = @
+ENDM
+
+MACRO? offset
+	dw \1 - _offs
+ENDM

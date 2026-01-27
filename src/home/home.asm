@@ -1908,8 +1908,8 @@ Pals_Black:
 	rgb  0,  0,  0
 
 PtrTable_edd:
-	dw $4cf4
-	dw $4cf4
+	dw Data_f8cf4 ; "Audio 1"
+	dw $4cf4      ; "Audio 2"
 
 Data_ee1:
 	db $3e, $01
@@ -1969,8 +1969,6 @@ Func_f27::
 	cp [hl]
 	pop hl
 	ret z
-;	fallthrough
-
 Func_f2e::
 	push bc
 	push de
@@ -2000,6 +1998,9 @@ Func_f41:
 	pop af
 	ret
 
+; input:
+; - b = ?
+; - c = ?
 Func_f4f:
 	ld hl, wc547
 	ld a, [hl]
@@ -2051,11 +2052,11 @@ Func_f81:
 	ld de, .return
 	push de
 	jumptable
-	dw Func_fba
-	dw Func_fd3
-	dw Func_1009
-	dw Func_1010
-	dw Func_101e
+	dw Func_fba  ; $0
+	dw Func_fd3  ; $1
+	dw Func_1009 ; $2
+	dw Func_1010 ; $3
+	dw Func_101e ; $4
 .return
 	pop hl
 	pop bc
@@ -2064,25 +2065,25 @@ Func_f81:
 	jr nz, .asm_f91
 	call Func_f73
 .asm_fad
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	and a
 	ret z
 	bankswitch
-	jp $4003
+	jp Func_f8003
 
 Func_fba:
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	and a
 	jr nz, .asm_fc7
 	push bc
-	ld c, $3e
+	ld c, BANK("Audio 1")
 	call Func_102c
 	pop bc
 .asm_fc7
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	bankswitch
 	ld a, c
-	jp $400c
+	jp Func_f800c
 
 Func_fd3:
 	push bc
@@ -2095,10 +2096,10 @@ Func_fd3:
 	ld hl, Data_ee1 - $2
 	add a
 	add_hl
-	ld c, [hl]
+	ld c, [hl] ; bank
 	inc hl
-	ld b, [hl]
-	ld a, [wc540]
+	ld b, [hl] ; ?
+	ld a, [wAudioBank]
 	cp c
 	jr z, .asm_ff9
 	and a
@@ -2111,12 +2112,12 @@ Func_fd3:
 	call Func_102c
 	pop bc
 .asm_ff9
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	bankswitch
 	ld a, b
 	ld [wc541], a
 	dec a
-	jp $400c
+	jp Func_f800c
 
 Func_1009:
 	xor a
@@ -2124,56 +2125,56 @@ Func_1009:
 	jp Func_1058
 
 Func_1010:
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	and a
 	ret z
 	bankswitch
 	ld a, c
-	jp $400f
+	jp Func_f800f
 
 Func_101e:
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	and a
 	ret z
 	bankswitch
 	ld a, c
-	jp $4015
+	jp Func_f8015
 
 Func_102c:
 	ld a, c
-	ld [wc540], a
+	ld [wAudioBank], a
 	ld a, c
 	bankswitch
 	push bc
-	call $4000
+	call InitAudio
 	pop bc
 	ld a, c
-	sub $3e
+	sub BANK("Audio 1")
 	ld hl, PtrTable_edd
 	get_pointer
-	jp $4006
+	jp Func_f8006
 
 Func_1045:
 	call Func_1058
-	ld hl, wc540
+	ld hl, wAudioBank
 	ld a, [hl]
 	ld [hl], $00
 	and a
 	ret z
 	bankswitch
-	jp $4003
+	jp Func_f8003
 
 Func_1058:
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	and a
 	ret z
 	bankswitch
 	xor a
 	ld [wc541], a
-	jp $4012
+	jp Func_f8012
 
 Func_1069:
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	and a
 	ret z
 	ld hl, wc541
@@ -2182,16 +2183,16 @@ Func_1069:
 	ld a, b
 	and a
 	ret z
-	ld a, [wc540]
+	ld a, [wAudioBank]
 	bankswitch
 	ld a, b
 	dec a
-	jp $400f
+	jp Func_f800f
 
 Func_1084:
 	xor a
 	ld [wc546], a
-	ld [wc540], a
+	ld [wAudioBank], a
 	ld [wc541], a
 	jp Func_f73
 ; 0x1091
@@ -3405,14 +3406,17 @@ Func_1b4e:
 	jr z, .asm_1bcb
 	call Func_f41
 	ld a, [wd823]
-	ld hl, $1bd0
+	ld hl, .Data
 	add_hl
 	ld a, [hl]
 	call Func_f2e
 .asm_1bcb
 	ld a, $01
 	jp Func_cf2
-; 0x1bd0
+
+.Data:
+	db $04, $06, $07
+; 0x1bd3
 
 SECTION "Func_1c57", ROM0[$1c57]
 

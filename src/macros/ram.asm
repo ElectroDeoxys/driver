@@ -84,3 +84,45 @@ MACRO? entity_struct
 \1Unk55:: db
 \1Unk56:: dw
 ENDM
+
+; unk audio structure (see constants/audio_constants.asm)
+MACRO? audio_track_struct
+\1Unk00:: dw
+\1CommandsPtr:: dw
+\1Unk04:: db
+\1Unk05:: db
+\1Unk06:: dw
+\1Unk08:: db
+\1Unk09:: db
+\1Flags:: db
+\1Unk0b:: db
+\1Unk0c:: db
+\1Unk0d:: db
+\1Unk0e:: dw
+\1Loop1Counter:: db
+\1Loop1Ptr:: dw
+\1Loop2Counter:: db
+\1Loop2Ptr:: dw
+ENDM
+
+MACRO? audio_channel_struct
+\1Note::  db
+\1Unk01:: dw
+\1Flags:: db
+\1Unk04:: db
+\1Track:: db
+\1Pan::   db
+\1Unk07:: db
+\1Unk08:: db
+\1Unk09:: dw
+\1Frequency:: dw
+\1Unk0d:: dw
+\1Unk0f:: dw
+\1Unk11:: dw
+\1Unk13:: dw
+\1Duty::  db
+\1Unk16:: db
+\1Unk17:: dw
+\1Unk19:: db
+\1Unk1a:: db
+ENDM
