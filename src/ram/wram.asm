@@ -1,9 +1,20 @@
-SECTION "WRAM0", WRAM0
+SECTION "WRAM Virtual OAM", WRAM0
 
-wVirtualOAM:: ; c000
+wVirtualOAM1:: ; c000
 	ds OAM_SIZE
+	ds $60
+wVirtualOAM2:: ; c100
+	ds OAM_SIZE
+	ds $60
 
-	ds $c400 - $c0a0
+wVirtualOAM3:: ; c200
+	ds OAM_SIZE
+	ds $60
+wVirtualOAM4:: ; c300
+	ds OAM_SIZE
+	ds $60
+
+SECTION "WRAM Audio", WRAM0
 
 wAudioTracks:: ; c400
 FOR n, 0, NUM_AUDIO_TRACKS
@@ -40,6 +51,8 @@ wc542:: db ; c542
 
 	ds $c544 - $c543
 
+SECTION "WRAM", WRAM0
+
 wc544:: db ; c544
 
 wc545:: db ; c545
@@ -60,8 +73,8 @@ wFrameCounter:: db ; c56c
 wc56d:: db ; c56d
 
 wc56e:: db ; c56e
-wc56f:: db ; c56f
-wc570:: db ; c570
+wActiveVirtualOAM:: db ; c56f
+wBufferedVirtualOAM:: db ; c570
 
 wJoypadPressed:: db ; c571
 wJoypadDown::    db ; c572
@@ -70,10 +83,8 @@ wc573:: db ; c573
 
 wc574:: db ; c574
 
-wc575:: db ; c575
-wc576:: db ; c576
-wc577:: db ; c577
-wc578:: db ; c578
+wRNG:: ; c575
+	ds $4
 
 wc579:: db ; c579
 
@@ -146,9 +157,12 @@ wd217:: dw ; d217
 
 wEntityPtr:: dw ; d219
 
-wd21b:: db ; d21b
-
-	ds $d545 - $d21c
+; sprite structs with OAM data
+; see (src/constants/sprite_constants.asm)
+wSprites:: ; d21b
+FOR n, 0, NUM_SPRITES
+wSprite{u:n}:: sprite_struct wSprite{u:n}
+ENDR
 
 wd545:: db ; d545
 
@@ -167,10 +181,7 @@ wd54c:: db ; d54c
 wd54d:: db ; d54d
 
 wd54e:: db ; d54e
-
-wd54f:: db ; d54f
-
-	ds $d551 - $d550
+wd54f:: dw ; d54f
 
 wd551:: db ; d551
 
@@ -326,7 +337,11 @@ wd868:: db ; d868
 
 wd86a:: db ; d86a
 
-	ds $d877 - $d86b
+	ds $d86c - $d86b
+
+wd86c:: db ; d86c
+
+	ds $d877 - $d86d
 
 wd877:: db ; d877
 
@@ -356,7 +371,9 @@ wd8eb:: db ; d8eb
 
 wda23:: db ; da23
 
-	ds $da2a - $da24
+	ds $da29 - $da24
+
+wda29:: db ; da29
 
 wda2a:: db ; da2a
 
@@ -378,17 +395,75 @@ wda4a:: db ; da4a
 
 wda4b:: db ; da4b
 
-	ds $da76 - $da4c
+	ds $da4d - $da4c
+
+wda4d:: db ; da4d
+
+	ds $da51 - $da4e
+
+wda51:: db ; da51
+
+	ds $da59 - $da52
+
+wda59:: db ; da59
+
+wda5a:: db ; da5a
+
+	ds $da5d - $da5b
+
+wda5d:: db ; da5d
+
+wda5e:: db ; da5e
+
+wda5f:: db ; da5f
+
+wda60:: db ; da60
+
+wda61:: db ; da61
+
+wda62:: db ; da62
+
+wda63:: db ; da63
+
+wda64:: db ; da64
+
+wda65:: db ; da65
+
+wda66:: db ; da66
+
+	ds $da68 - $da67
+
+wda68:: db ; da68
+
+	ds $da6e - $da69
+
+wda6e:: db ; da6e
+
+	ds $da76 - $da6f
 
 wda76:: db ; da76
 
-	ds $da82 - $da77
+	ds $da7b - $da77
+
+wda7b:: db ; da7b
+
+	ds $da82 - $da7c
 
 wda82:: db ; da82
 
 wda83:: db ; da83
 
-	ds $da94 - $da84
+	ds $da8f - $da84
+
+wda8f:: db ; da8f
+
+wda90:: db ; da90
+
+wda91:: db ; da91
+
+wda92:: db ; da92
+
+wda93:: db ; da93
 
 wda94:: db ; da94
 
@@ -436,9 +511,7 @@ wdbdc:: db ; dbdc
 
 wdbfa:: db ; dbfa
 
-wdbfb:: db ; dbfb
-
-	ds $dbfd - $dbfc
+wdbfb:: dw ; dbfb
 
 wdbfd:: db ; dbfd
 
@@ -446,11 +519,19 @@ wdbfe:: db ; dbfe
 
 wdbff:: db ; dbff
 
-	ds $dc20 - $dc00
+	ds $dc1f - $dc00
+
+wdc1f:: db ; dc1f
 
 wdc20:: db ; dc20
 
-	ds $dc25 - $dc21
+wdc21:: db ; dc21
+
+	ds $dc23 - $dc22
+
+wdc23:: db ; dc23
+
+	ds $dc25 - $dc24
 
 wdc25:: db ; dc25
 
@@ -472,7 +553,9 @@ wdc32:: db ; dc32
 
 wdc33:: db ; dc33
 
-	ds $dc38 - $dc34
+wdc34:: db ; dc34
+
+	ds $dc38 - $dc35
 
 wdc38:: db ; dc38
 

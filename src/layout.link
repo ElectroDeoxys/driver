@@ -40,7 +40,9 @@ VRAM $0
 VRAM $1
 	"VRAM1"
 WRAM0
-	"WRAM0"
+	"WRAM Virtual OAM"
+	"WRAM Audio"
+	"WRAM"
 HRAM
 	org $ff80
 	"DMA Transfer"

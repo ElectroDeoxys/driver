@@ -65,3 +65,10 @@ MACRO? wait_ppu
 	and STAT_BUSY
 	jr nz, :-
 ENDM
+
+MACRO? call_hl
+	ld de, :+
+	push de
+	jp hl
+:
+ENDM

@@ -85,6 +85,11 @@ MACRO? entity_struct
 \1Unk56:: dw
 ENDM
 
+MACRO? sprite_struct
+\1OAMCount:: db
+	ds OBJ_SIZE * NUM_SPRITE_OAMS
+ENDM
+
 ; unk audio structure (see constants/audio_constants.asm)
 MACRO? audio_track_struct
 \1Unk00:: dw

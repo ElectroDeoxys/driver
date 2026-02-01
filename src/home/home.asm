@@ -11,7 +11,7 @@ Reset:
 	call Func_333
 	call EnableStatInterrupt
 	call ShowCompanies
-	call Func_7ab
+	call SetRNGSeed
 	call Func_1cb9
 	call Func_15bb
 	jr Reset
@@ -59,15 +59,17 @@ Func_1b5:
 	jr nz, .gb
 	ld a, BANK("VRAM0")
 	vramswitch
-	ld a, BANK("WRAM0")
+	ld a, BANK("WRAM")
 	wramswitch
 .gb
 	xor a
 	ld [wc56e], a
-	ld a, $c0
-	ld [wc56f], a
-	ld a, $c2
-	ld [wc570], a
+	
+	ld a, HIGH(wVirtualOAM1)
+	ld [wActiveVirtualOAM], a
+	ld a, HIGH(wVirtualOAM3)
+	ld [wBufferedVirtualOAM], a
+
 	ld a, LCDC_OBJ_ON | LCDC_OBJ_16
 	ldh [hff99], a
 	call Func_4c6
@@ -91,17 +93,18 @@ Func_1b5:
 
 	ld a, $01
 	bankswitch
-	jp Func_721
+	jp ClearVirtualOAM
 
 ShowCompanies:
-	call Func_320
+	call EmptyScreen
+
 	ldh a, [hBootUpA]
 	cp BOOTUP_A_CGB
 	jr z, .cgb
 
 ; gb
 	ld a, $00
-	call .LoadScreen
+	call LoadScene
 .asm_20b
 	call Func_501
 	call Func_530
@@ -141,11 +144,11 @@ ShowCompanies:
 
 .Func_254:
 	push bc
-	call .LoadScreen
+	call LoadScene
 	pop bc
-	jp .loop_show
+	jp ShowScene
 
-.LoadScreen:
+LoadScene::
 	ld l, a
 	ld h, $00
 	add hl, hl
@@ -189,6 +192,7 @@ ShowCompanies:
 	bankswitch
 	ret
 
+ShowScene::
 .loop_show
 	push bc
 	call Func_501
@@ -208,7 +212,7 @@ ShowCompanies:
 	jr nz, .loop_show
 
 .next_screen
-	call .Func_2ca
+	call Func_2ca
 .asm_2bd
 	call Func_501
 	call Func_530
@@ -217,7 +221,7 @@ ShowCompanies:
 	jr nz, .asm_2bd
 	ret
 
-.Func_2ca:
+Func_2ca::
 	ldh a, [hBootUpA]
 	cp BOOTUP_A_CGB
 	jr z, .asm_2dd
@@ -246,16 +250,20 @@ ShowCompanies:
 	jp Func_cf2
 ; 0x2f5
 
-SECTION "Func_320", ROM0[$320]
+SECTION "EmptyScreen", ROM0[$320]
 
-Func_320::
+; clears OAM, BG map and sets all palettes to white
+EmptyScreen::
 	xor a
 	ldh [hff9a], a
 	ldh [hff9b], a
+
+	; fill palettes with white
 	lddmgpal c, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE
 	ld hl, Pals_White
-	call Func_cc9
-	call Func_721
+	call FillPalettes
+
+	call ClearVirtualOAM
 	jp ClearBGMap
 
 Func_333:
@@ -361,14 +369,16 @@ _VBlank:
 	ld a, [wFrameCounter]
 	and $1
 	ld d, a
-	ld a, [wc570]
+	; we take value in wBufferedVirtualOAM
+	; which was just swapped with wActiveVirtualOAM
+	ld a, [wBufferedVirtualOAM]
 	or d
 	ldh [hTransferVirtualOAM + $1], a
 	call hTransferVirtualOAM
 
 	call Func_4a5
-
 	ei
+
 	ldh a, [hROMBank]
 	ldh [hTempROMBank], a
 	call Func_f81
@@ -399,9 +409,9 @@ Func_434:
 	ret
 
 Func_43e:
-	; swap wc56f and wc570
-	ld hl, wc570
-	ld de, wc56f
+	; swap wActiveVirtualOAM and wBufferedVirtualOAM
+	ld hl, wBufferedVirtualOAM
+	ld de, wActiveVirtualOAM
 	ld c, [hl]
 	ld a, [de]
 	ld [hl], a
@@ -593,7 +603,7 @@ Func_530::
 	; only reset when buttons are released
 	ld hl, Pals_Black
 	lddmgpal c, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK
-	call Func_cc9
+	call FillPalettes
 	call Func_f41
 .wait_buttons_release
 	do_frame
@@ -966,9 +976,9 @@ Decompress:
 	jr c, .asm_6ce
 	ret
 
-Func_721:
-	ld hl, wVirtualOAM
-	ld bc, $400
+ClearVirtualOAM:
+	ld hl, STARTOF("WRAM Virtual OAM")
+	ld bc, SIZEOF("WRAM Virtual OAM")
 ;	fallthrough
 
 ; clears bc bytes starting from hl
@@ -1006,9 +1016,6 @@ Func_73c:
 	ret nz
 	inc d
 	ret
-; 0x74d
-
-SECTION "Func_74d", ROM0[$74d]
 
 Func_74d:
 	bit 7, h
@@ -1037,18 +1044,30 @@ Func_75a:
 	ld h, a
 	pop af
 	ret
-; 0x767
 
-SECTION "Func_774", ROM0[$774]
+Func_767:
+	push af
+	ld a, l
+	sub c
+	ld l, a
+	ld a, h
+	jr nc, .asm_76f
+	dec h
+.asm_76f
+	ld a, h
+	sub b
+	ld h, a
+	pop af
+	ret
 
-Func_774::
+Random::
 	push hl
-	ld a, [wc575]
+	ld a, [wRNG]
 	and $48
 	adc $38
 	sla a
 	sla a
-	ld hl, wc578
+	ld hl, wRNG + $3
 	rl [hl]
 	dec hl
 	rl [hl]
@@ -1061,12 +1080,13 @@ Func_774::
 	ret
 ; 0x791
 
-SECTION "Func_7ab", ROM0[$7ab]
+SECTION "SetRNGSeed", ROM0[$7ab]
 
-Func_7ab:
-	ld hl, .Data
-	ld de, wc575
-	ld b, $04
+; initialises wRNG with a seed
+SetRNGSeed:
+	ld hl, .Seed
+	ld de, wRNG
+	ld b, $4
 .loop
 	ld a, [hli]
 	ld [de], a
@@ -1075,7 +1095,7 @@ Func_7ab:
 	jr nz, .loop
 	ret
 
-.Data:
+.Seed:
 	db $ff, $80, $26, $37
 ; 0x7be
 
@@ -1531,7 +1551,92 @@ Func_b1b::
 	ret
 ; 0xb31
 
-SECTION "EnableDoubleSpeed", ROM0[$c87]
+SECTION "Func_c28", ROM0[$c28]
+
+Func_c28::
+	ld a, d
+	cp e
+	jr c, Func_c2e
+	ld a, e
+	ld e, d
+Func_c2e:
+	push hl
+	ld d, $00
+	ld h, d
+	ld l, d
+.asm_c33
+	srl a
+	jr nc, .asm_c38
+	add hl, de
+.asm_c38
+	sla e
+	rl d
+	and a
+	jr nz, .asm_c33
+	ld d, h
+	ld e, l
+	pop hl
+	ret
+
+Func_c43:
+	cp $02
+	jr c, .asm_c4a
+	ld e, a
+	jr Func_c2e
+.asm_c4a
+	ld e, a
+	ld d, $00
+	ret
+
+Func_c4e:
+	push bc
+	push hl
+	ld hl, $4000
+	ld b, l
+	ld c, l
+.asm_c55
+	push hl
+	add hl, bc
+	srl b
+	rr c
+	ld a, d
+	cp h
+	jr nz, .asm_c61
+	ld a, e
+	cp l
+.asm_c61
+	jr c, .asm_c76
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	ld a, c
+	or l
+	ld c, a
+	ld a, b
+	or h
+	ld b, a
+	jr .asm_c77
+.asm_c76
+	pop hl
+.asm_c77
+	srl h
+	rr l
+	srl h
+	rr l
+	ld a, h
+	or l
+	jr nz, .asm_c55
+	ld a, c
+	pop hl
+	pop bc
+	ret
 
 EnableDoubleSpeed:
 	ldh a, [hBootUpA]
@@ -1555,9 +1660,14 @@ SECTION "Func_cc2", ROM0[$cc2]
 Func_cc2:
 	lddmgpal c, SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK
 	ld hl, Pals_ec5
-	jr Func_cc9 ; useless jump
+	jr FillPalettes ; useless jump
 
-Func_cc9:
+; fills BG/OB palettes with palette
+; given by c (DMG) or pointed by hl (CGB)
+; input:
+; - c  = BG and OB palettes for DMG
+; - hl = BG and OB palettes for CGB
+FillPalettes:
 	xor a
 	ld [wc67d], a
 	ldh a, [hBootUpA]
@@ -1577,7 +1687,7 @@ Func_cc9:
 	pop hl
 	dec c
 	jr nz, .loop_copy_pals
-	jp ApplyCGBPalettes
+	jp FluchCGBPalettes
 
 .gb
 	ld a, c
@@ -1585,7 +1695,7 @@ Func_cc9:
 	ld [hli], a ; wBGP
 	ld [hli], a ; wOBP0
 	ld [hl], a  ; wOBP1
-	jp ApplyDMGPalettes
+	jp FlushDMGPalettes
 
 Func_cf2::
 	ld [wc67f], a
@@ -1611,7 +1721,7 @@ Func_cfe:
 	ld b, $03
 	call Func_de7
 	ld [wc67d], a
-	jp ApplyDMGPalettes
+	jp FlushDMGPalettes
 
 .cgb
 	ld a, [wc67f]
@@ -1626,7 +1736,7 @@ Func_cfe:
 	jr nz, .asm_d27
 .asm_d32
 	ld [wc67d], a
-	jp ApplyCGBPalettes
+	jp FluchCGBPalettes
 
 .Func_d38:
 	ld hl, wCGBPals
@@ -1826,7 +1936,7 @@ Func_de7:
 	ld a, c
 	ret
 
-ApplyCGBPalettes:
+FluchCGBPalettes:
 	ld hl, wCGBPals
 	; hl = wBGPals
 	ld a, BGPI_AUTOINC
@@ -1845,7 +1955,7 @@ ApplyCGBPalettes:
 	jr nz, .loop_copy_pals
 	ret
 
-ApplyDMGPalettes:
+FlushDMGPalettes:
 	ldh a, [rLCDC]
 	rlca
 	jr nc, .asm_e4f
@@ -2195,11 +2305,17 @@ Func_1084:
 	ld [wAudioBank], a
 	ld [wc541], a
 	jp Func_f73
-; 0x1091
 
-SECTION "Func_1098", ROM0[$1098]
+GetEntityWordField_BC::
+	push hl
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	ret
 
-Func_1098:
+SetEntityWordField_BC::
 	push hl
 	add_hl
 	ld [hl], c
@@ -2207,9 +2323,25 @@ Func_1098:
 	ld [hl], b
 	pop hl
 	ret
-; 0x109f
 
-SECTION "Func_10b0", ROM0[$10b0]
+Func_109f:
+	ld a, c
+	add [hl]
+	ld [hli], a
+	ld a, b
+	jr nc, .asm_10a6
+	inc a
+.asm_10a6
+	add [hl]
+	ld [hld], a
+	ret
+
+AddEntityWordField_BC:
+	push hl
+	add_hl
+	call Func_109f
+	pop hl
+	ret
 
 Func_10b0:
 	ld a, e
@@ -2222,11 +2354,18 @@ Func_10b0:
 	add [hl]
 	ld [hld], a
 	ret
-; 0x10ba
 
-SECTION "Func_10d0", ROM0[$10d0]
+AddEntityWordField_DE::
+	push hl
+	add_hl
+	call Func_10b0
+	pop hl
+	ret
+; 0x10c1
 
-Func_10d0:
+SECTION "GetEntityWordField_DE", ROM0[$10d0]
+
+GetEntityWordField_DE:
 	push hl
 	add_hl
 	ld e, [hl]
@@ -2235,7 +2374,7 @@ Func_10d0:
 	pop hl
 	ret
 
-Func_10d7::
+SetEntityWordField_DE::
 	push hl
 	add_hl
 	ld [hl], e
@@ -2244,17 +2383,42 @@ Func_10d7::
 	pop hl
 	ret
 
-Func_10de::
+GetEntityByteField_A::
 	push hl
 	add_hl
 	ld a, [hl]
 	pop hl
 	ret
-; 0x10e3
 
-SECTION "Func_10f7", ROM0[$10f7]
+GetEntityByteField_C::
+	push hl
+	add_hl
+	ld c, [hl]
+	pop hl
+	ret
 
-Func_10f7:
+GetEntityByteField_B::
+	push hl
+	add_hl
+	ld b, [hl]
+	pop hl
+	ret
+
+GetEntityByteField_E::
+	push hl
+	add_hl
+	ld e, [hl]
+	pop hl
+	ret
+
+GetEntityByteField_D::
+	push hl
+	add_hl
+	ld d, [hl]
+	pop hl
+	ret
+
+SetEntityByteField_C::
 	push hl
 	add_hl
 	ld [hl], c
@@ -2268,13 +2432,13 @@ Func_110b::
 	ld hl, wd551
 	ld bc, $220
 	call ClearMemory
-	ld a, $01
+	ld a, TRUE
 	ld [wd54c], a
 	ld [wd54d], a
 	xor a
 	ld hl, wd54e
 	ld [hli], a
-	ld [hli], a
+	ld [hli], a ; wd54f
 	ld [hl], a
 	ret
 
@@ -2312,10 +2476,13 @@ Func_1147:
 	ld a, [wd54d]
 	and a
 	ret z
-	call Func_13ce
+
+	call ClearSprites
+
 	ld a, [wd54c]
 	and a
 	jr z, .asm_116d
+
 	ld hl, wd551
 	ld b, $20
 .asm_115a
@@ -2331,20 +2498,19 @@ Func_1147:
 	add hl, de
 	dec b
 	jr nz, .asm_115a
+
 .asm_116d
 	ld a, [wd54e]
 	and a
-	jr z, .asm_1183
+	jr z, .load_sprites
 	bankswitch
 	ld hl, wd54f
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, .asm_1183
-	push de
-	jp hl
-.asm_1183
-	jp Func_13dd
+	call_hl
+.load_sprites
+	jp LoadSprites
 
 Func_1186:
 	push hl
@@ -2725,10 +2891,14 @@ Func_1338:
 	pop de
 	pop bc
 	ret
-; 0x1393
 
-SECTION "Func_139b", ROM0[$139b]
-
+Func_1393::
+	ld a, c
+	add $08
+	ld c, a
+	ld a, b
+	add $10
+	ld b, a
 Func_139b:
 	ld a, b
 	and a
@@ -2773,47 +2943,52 @@ Func_139b:
 	ld [hl], d
 	ret
 
-Func_13ce:
-	ld hl, wd21b
-	ld de, $51
-	ld b, $0a
+; zeroes out wSprites
+ClearSprites:
+	ld hl, wSprites
+	ld de, SPRITE_STRUCT_SIZE
+	ld b, NUM_SPRITES
 	xor a
-.asm_13d7
+.loop
 	ld [hl], a
 	add hl, de
 	dec b
-	jr nz, .asm_13d7
+	jr nz, .loop
 	ret
 
-Func_13dd:
-	ld a, [wc56f]
+; goes through wSprites and loads them into Virtual OAM
+LoadSprites:
+	ld a, [wActiveVirtualOAM]
 	ld d, a
-	ld e, $00
-	ld hl, wd21b
-	ld b, $0a
-.asm_13e8
+	ld e, 0
+	ld hl, wSprites
+	ld b, NUM_SPRITES
+.loop_sprites
 	ld a, [hl]
 	and a
 	jr nz, .asm_1401
-.asm_13ec
-	ld a, $51
+.next_sprite
+	ld a, SPRITE_STRUCT_SIZE
 	add_hl
 	dec b
-	jr nz, .asm_13e8
-	ld a, $a0
+	jr nz, .loop_sprites
+
+	; clear rest of OAM
+	ld a, OAM_SIZE
 	sub e
 	ld b, a
 	ld h, d
 	ld l, e
 	inc h
 	xor a
-.asm_13fa
+.loop_clear
 	ld [hli], a
 	ld [de], a
 	inc e
 	dec b
-	jr nz, .asm_13fa
+	jr nz, .loop_clear
 	ret
+
 .asm_1401
 	push bc
 	push hl
@@ -2821,14 +2996,14 @@ Func_13dd:
 	cp $0b
 	jr nc, .asm_1416
 	ld b, a
-	call Func_1443
+	call .LoadSprite
 	ld e, c
 	pop hl
 	push hl
 	inc d
 	ld b, [hl]
-	call Func_1443
-	jr .asm_1436
+	call .LoadSprite
+	jr .check_overflow
 .asm_1416
 	cpl
 	inc a
@@ -2836,7 +3011,7 @@ Func_13dd:
 	jr z, .asm_1422
 	push af
 	ld b, a
-	call Func_1443
+	call .LoadSprite
 	pop af
 .asm_1422
 	ld b, a
@@ -2847,46 +3022,84 @@ Func_13dd:
 	ld a, $0a
 	sub b
 	ld b, a
-	call Func_1443
+	call .LoadSprite
 	ld e, c
 	pop hl
 	push hl
 	inc d
-	call Func_1441
-.asm_1436
+	call .Func_1441
+.check_overflow
 	pop hl
 	pop bc
 	ld a, e
-	cp $a0
-	jr c, .asm_143e
+	cp OAM_SIZE
+	jr c, .no_overflow
+; overflow, do not process any more
 	ret
-.asm_143e
+.no_overflow
 	dec d
-	jr .asm_13ec
+	jr .next_sprite
 
-Func_1441:
+.Func_1441:
 	ld b, $0a
-Func_1443:
+;	fallthrough
+
+; sprites are made up of multiple OAMs
+; load sprite pointed by hl, with OAM count given in b
+; input:
+; - b =  OAM count
+; - hl = OAM data
+; - de = virtual OAM
+.LoadSprite:
 	inc hl
-.asm_1444
-	ld a, [hli]
+.loop_load_oam
+	ld a, [hli] ; y
 	ld [de], a
 	inc e
-	ld a, [hli]
+	ld a, [hli] ; x
 	ld [de], a
 	inc e
-	ld a, [hli]
+	ld a, [hli] ; tile ID
 	ld [de], a
 	inc e
-	ld a, [hli]
+	ld a, [hli] ; attibutes
 	ld [de], a
 	inc e
 	dec b
-	jr nz, .asm_1444
+	jr nz, .loop_load_oam
 	ret
 ; 0x1454
 
-SECTION "Func_1488", ROM0[$1488]
+SECTION "Func_146c", ROM0[$146c]
+
+Func_146c:
+	push hl
+	add_hl
+	ld d, h
+	ld e, l
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+	pop hl
+	inc de
+	ld a, [de]
+	bit 7, b
+	jr z, .asm_1484
+	ret c
+	dec a
+	ld [de], a
+	ret
+.asm_1484
+	ret nc
+	inc a
+	ld [de], a
+	ret
 
 Func_1488::
 	ld b, NUM_ENTITIES
@@ -2899,9 +3112,39 @@ Func_1488::
 	dec b
 	jr nz, .loop
 	ret
-; 0x1497
 
-SECTION "Func_14bf", ROM0[$14bf]
+Func_1497::
+	push bc
+	push de
+	ld c, a
+	ld b, $20
+	ld hl, wEntities
+	ld de, $58
+.asm_14a2
+	bit 0, [hl]
+	jr z, .asm_14b0
+	ld a, $05
+	add_hl
+	ld a, c
+	cp [hl]
+	jr z, .asm_14b8
+	ld a, $05
+	sub_hl
+.asm_14b0
+	add hl, de
+	dec b
+	jr nz, .asm_14a2
+	pop de
+	pop bc
+	and a
+	ret
+.asm_14b8
+	pop de
+	pop bc
+	ld a, $05
+	sub_hl
+	scf
+	ret
 
 Func_14bf::
 	ldh a, [hROMBank]
@@ -3030,9 +3273,27 @@ Func_1536::
 	add hl, de
 	and a
 	ret
-; 0x1569
 
-SECTION "Func_157f", ROM0[$157f]
+Func_1569::
+	inc hl
+	ld [hl], $01
+	inc hl
+	ld [hli], a
+	push de
+	ld d, h
+	ld e, l
+	ld a, $4d
+	add_de
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld a, $53
+	add_hl
+	pop de
+	ld [hl], d
+	dec hl
+	ld [hl], e
+	ret
 
 Func_157f::
 	bankswitch
@@ -3061,9 +3322,24 @@ Func_1598::
 	ld h, [hl]
 	ld l, a
 	ret
-; 0x15a5
 
-SECTION "Func_15bb", ROM0[$15bb]
+Func_15a5:
+	ld a, c
+	call Func_14e8
+	ld a, b
+	and a
+.loop
+	ret z
+	xor a
+	call Func_14e8
+	dec b
+	jr .loop
+
+Func_15b3::
+.loop
+	ld bc, $ffff
+	call Func_15a5
+	jr .loop
 
 Func_15bb:
 	xor a
@@ -3364,7 +3640,7 @@ Func_1b3d:
 	ret
 
 Func_1b4e:
-	call Func_320
+	call EmptyScreen
 	call Func_a1e
 	call Func_110b
 	call Func_1488
@@ -3390,7 +3666,7 @@ Func_1b4e:
 	ld a, [wda4b]
 	ld d, a
 	ld a, $06
-	call Func_10d7
+	call SetEntityWordField_DE
 	xor a
 	ld [wda76], a
 	ld hl, $5f27
@@ -3436,7 +3712,7 @@ Func_1c57:
 	and a
 	ret nz
 	ld a, [wJoypadPressed]
-	and $04
+	and PAD_SELECT
 	call nz, Func_1fc7
 	ret
 
@@ -3451,7 +3727,7 @@ Func_1c7b:
 	cp $01
 	ret nz
 	ld a, [wc574]
-	and $08
+	and PAD_START
 	ret z
 	ld a, [wc579]
 	and a
@@ -3675,9 +3951,15 @@ Func_1e38:
 	call Func_30f1
 	pop hl
 	ret
-; 0x1e3f
 
-SECTION "Func_1e4b", ROM0[$1e4b]
+Func_1e3f::
+.asm_1e3f
+	ld a, [wc67d]
+	and a
+	ret z
+	ld a, $01
+	call Func_14e8
+	jr .asm_1e3f
 
 Func_1e4b::
 	ldh a, [hROMBank]
@@ -3768,7 +4050,7 @@ Func_1fc7:
 	ld bc, $38
 	ld a, $ff
 	call FillMemory
-	call ApplyCGBPalettes
+	call FluchCGBPalettes
 	call Func_2597
 	ld a, [wd81e]
 	and a
@@ -3786,7 +4068,7 @@ Func_1fc7:
 	ld de, wDMGPals
 	ld b, $38
 	call CopyHLtoDE
-	call ApplyCGBPalettes
+	call FluchCGBPalettes
 	ld hl, wd81e
 	ld a, [hl]
 	xor $01
@@ -4676,9 +4958,49 @@ Func_2551:
 	inc hl
 	ld d, [hl]
 	ret
-; 0x2558
 
-SECTION "Func_2597", ROM0[$2597]
+Func_2558:
+	push bc
+	push hl
+	ldh a, [hROMBank]
+	push af
+	ld hl, wd80e
+	call Func_21a4
+	ld a, [wd80d]
+	bit 1, h
+	jr z, .asm_256d
+	inc a
+	res 1, h
+.asm_256d
+	bankswitch
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld a, h
+	add $40
+	ld h, a
+	ld a, c
+	rrca
+	rrca
+	and $06
+	add l
+	ld l, a
+	ld a, e
+	and $18
+	add l
+	ld l, a
+	ld c, [hl]
+	pop af
+	bankswitch
+	ld hl, wd80f
+	ld a, c
+	add_hl
+	ld a, [hl]
+	pop hl
+	pop bc
+	ret
 
 Func_2597:
 	ld a, [wd823]
@@ -4725,17 +5047,17 @@ Func_25f4:
 	ld [hl], $01
 	lb bc, 0, 0
 	ld a, $22
-	call Func_10f7
+	call SetEntityByteField_C
 	ld a, $21
-	call Func_10f7
+	call SetEntityByteField_C
 	ld a, $12
-	call Func_10f7
+	call SetEntityByteField_C
 	ld a, $20
-	call Func_10f7
+	call SetEntityByteField_C
 	ld a, $0d
-	call Func_1098
+	call SetEntityWordField_BC
 	ld a, $10
-	call Func_1098
+	call SetEntityWordField_BC
 	pop de
 	pop bc
 	and a
@@ -4774,9 +5096,975 @@ Func_2631::
 	pop hl
 	and a
 	ret
-; 0x265f
 
-SECTION "Func_3047", ROM0[$3047]
+Func_265f::
+	ld a, $0e
+	call GetEntityByteField_A
+	ld e, a
+	and $80
+	jr nz, .asm_2670
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+.asm_2670
+	push de
+	ld a, $0d
+	call AddEntityWordField_BC
+	pop de
+	ld a, $0e
+	call GetEntityByteField_A
+	xor e
+	and $80
+	ret z
+	ld de, $0000
+	ld a, $0d
+	jp SetEntityWordField_DE
+; 0x2688
+
+SECTION "Func_26b8", ROM0[$26b8]
+
+Func_26b8::
+	ld a, $0e
+	call GetEntityByteField_A
+	bit 7, a
+	jr z, .asm_26c3
+	cpl
+	inc a
+.asm_26c3
+	cp c
+	ret
+; 0x26c5
+
+SECTION "Func_26cd", ROM0[$26cd]
+
+Func_26cd::
+	push hl
+	ld a, $07
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	ret
+
+Func_26db:
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	pop hl
+	call Func_271b
+	push hl
+	push de
+	ld de, $e
+	add hl, de
+	bit 7, [hl]
+	pop de
+	pop hl
+	ret z
+	push hl
+	ld hl, $26f7
+	add_hl
+	ld a, [hl]
+	pop hl
+	ret
+; 0x26f7
+
+SECTION "Func_270f", ROM0[$270f]
+
+Func_270f::
+	push hl
+	ld a, $25
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [hl]
+	and $08
+	pop hl
+	ret
+
+Func_271b:
+	cp $40
+	jr c, .asm_273f
+	cp $80
+	jr c, .asm_2737
+	cp $c0
+	jr c, .asm_272f
+	and $3f
+	ld a, $08
+	ret z
+	ld a, $09
+	ret
+.asm_272f
+	and $3f
+	ld a, $04
+	ret z
+	ld a, $0c
+	ret
+.asm_2737
+	and $3f
+	ld a, $02
+	ret z
+	ld a, $06
+	ret
+.asm_273f
+	and $3f
+	ld a, $01
+	ret z
+	ld a, $03
+	ret
+
+Func_2747::
+	push hl
+	ld hl, $274f
+	add_hl
+	ld a, [hl]
+	pop hl
+	ret
+; 0x274f
+
+SECTION "Func_27e5", ROM0[$27e5]
+
+Func_27e5:
+	push de
+	push hl
+	ld a, $07
+	add_hl
+	ld a, $07
+	add_de
+	push de
+	push hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [de]
+	ld c, a
+	inc de
+	ld a, [de]
+	ld b, a
+	call Func_767
+	ld a, l
+	or h
+	jr z, .asm_2807
+	ld c, $04
+	bit 7, h
+	jr nz, .asm_2806
+	ld c, $01
+.asm_2806
+	ld a, c
+.asm_2807
+	ld [wda59], a
+	call Func_74d
+	ld b, l
+	ld a, h
+	and a
+	jr z, .asm_2814
+	ld b, $ff
+.asm_2814
+	pop hl
+	pop de
+	inc hl
+	inc hl
+	inc hl
+	inc de
+	inc de
+	inc de
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [de]
+	ld c, a
+	inc de
+	ld a, [de]
+	ld d, a
+	ld e, c
+	call Func_75a
+	ld a, l
+	or h
+	jr z, .asm_283b
+	ld c, $02
+	bit 7, h
+	jr nz, .asm_2834
+	ld c, $08
+.asm_2834
+	ld a, [wda59]
+	or c
+	ld [wda59], a
+.asm_283b
+	call Func_74d
+	ld c, l
+	ld a, h
+	and a
+	jr z, .asm_2845
+	ld c, $ff
+.asm_2845
+	ld a, [wda59]
+	pop hl
+	pop de
+	ret
+; 0x284b
+
+SECTION "Func_289f", ROM0[$289f]
+
+Func_289f::
+	bit 7, b
+	jr z, .asm_28ae
+	add $80
+	push af
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+	pop af
+.asm_28ae
+	push af
+	ld a, $10
+	call SetEntityWordField_BC
+	pop af
+	ld c, a
+	ld a, $0f
+	jp SetEntityByteField_C
+
+Func_28bb::
+	push hl
+	add_hl
+	push hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	bit 7, h
+	jr z, .asm_28c9
+	ld hl, $0000
+.asm_28c9
+	ld b, h
+	ld c, l
+	pop hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	ret
+
+Func_28d1::
+	push hl
+	push de
+	call Func_292a
+	ld hl, wdc7a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop bc
+	call Func_292a
+	ld hl, wdc7a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, de
+	ld d, h
+	ld hl, wdc7c
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	ld b, h
+	ld c, d
+	ld a, b
+	or c
+	jr z, .asm_2928
+	ld hl, wda59
+	ld [hl], $00
+	ld a, b
+	and a
+	jr z, .asm_290e
+	bit 7, a
+	jr z, .asm_290c
+	ld [hl], $01
+	cpl
+	ld b, a
+	jr .asm_290e
+.asm_290c
+	ld [hl], $04
+.asm_290e
+	ld a, c
+	and a
+	jr z, .asm_291e
+	bit 7, a
+	jr z, .asm_291c
+	set 3, [hl]
+	cpl
+	ld c, a
+	jr .asm_291e
+.asm_291c
+	set 1, [hl]
+.asm_291e
+	call Func_2daf
+	push af
+	call Func_2d66
+	ld c, a
+	pop af
+	ld b, a
+.asm_2928
+	pop hl
+	ret
+
+Func_292a:
+	ld a, b
+	and a
+	jr nz, .asm_2934
+	ld d, $00
+	ld e, d
+	ld b, d
+	ld c, d
+	ret
+.asm_2934
+	ld l, b
+	push hl
+	ld a, c
+	call Func_29ea
+	pop hl
+	push de
+	ld d, b
+	ld e, c
+	call Func_2944
+	ld b, d
+	ld c, e
+	pop de
+Func_2944:
+	bit 7, d
+	jr z, .Func_295a
+	xor a
+	sub e
+	ld e, a
+	ld a, $00
+	sbc d
+	ld d, a
+	call .Func_295a
+	xor a
+	sub e
+	ld e, a
+	ld a, $00
+	sbc d
+	ld d, a
+	ret
+.Func_295a:
+	ld a, d
+	and a
+	jr z, .asm_2960
+	ld d, l
+	ret
+.asm_2960
+	ld a, e
+	and a
+	ret z
+	ld d, l
+	jp Func_c28
+
+Func_2967::
+	ld a, $11
+	call GetEntityByteField_A
+	and a
+	jr z, .asm_2978
+	ld d, a
+	ld a, $0f
+	call GetEntityByteField_E
+	call Func_28d1
+.asm_2978
+	ld a, $0f
+	call SetEntityByteField_C
+	ld c, $00
+	ld a, $10
+	jp SetEntityWordField_BC
+; 0x2984
+
+SECTION "Func_298c", ROM0[$298c]
+
+Func_298c:
+	push de
+	ld a, $06
+	call Func_146c
+	pop bc
+	ld a, $09
+	jp Func_146c
+
+Func_2998:
+	ld hl, $0000
+	bit 7, a
+	jr z, .Func_29ac
+	cpl
+	inc a
+	call .Func_29ac
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+	ret
+.Func_29ac:
+	push af
+	and $0f
+	jr z, .asm_29c4
+	call Func_29d1
+	sra h
+	rr l
+	sra h
+	rr l
+	sra h
+	rr l
+	sra h
+	rr l
+.asm_29c4
+	pop af
+	swap a
+	and $0f
+	jr z, .asm_29ce
+	call Func_29d1
+.asm_29ce
+	ld b, h
+	ld c, l
+	ret
+
+Func_29d1:
+.asm_29d1
+	add hl, bc
+	dec a
+	jr nz, .asm_29d1
+	ret
+; 0x29d6
+
+SECTION "Func_29ea", ROM0[$29ea]
+
+Func_29ea:
+	ld c, a
+	swap a
+	and $0c
+	ld b, a
+	ld a, c
+	and $3f
+	jr nz, .asm_29f7
+	inc b
+	inc b
+.asm_29f7
+	ld a, b
+	ld hl, $2a00
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	jp hl
+; 0x2a00
+
+SECTION "Func_2a7e", ROM0[$2a7e]
+
+Func_2a7e:
+	call Func_29ea
+	xor a
+	sub e
+	ld e, a
+	ld a, $00
+	sbc d
+	ld d, a
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+	ret
+
+Func_2a90::
+	call Func_27e5
+	ld a, $0f
+	cp c
+	ret c
+	cp b
+	ret c
+	call Func_2f8e
+	push hl
+	ld hl, wda5e
+	ld a, [wda62]
+	add [hl]
+	pop hl
+	cp c
+	ret c
+	push hl
+	ld hl, wda5f
+	ld a, [wda63]
+	add [hl]
+	pop hl
+	cp b
+	ret c
+	jp Func_2fc1
+
+Func_2ab5:
+	call Func_26cd
+	call Func_2558
+	cp $00
+	ret
+
+Func_2abe::
+	ld [wdc7e], a
+	xor a
+	ld [wda5d], a
+	ld [wda5a], a
+	push hl
+	ld a, $0e
+	add_hl
+	ld c, [hl]
+	ld a, $03
+	add_hl
+	ld a, [hl]
+	or c
+	pop hl
+	jr z, .asm_2b16
+	ld de, wda4d
+	call Func_2c37
+	call Func_2cbb
+	call Func_298c
+	call Func_2ab5
+	jr nz, .asm_2b16
+	ld de, wda51
+	call Func_2c37
+	ld a, [wda5a]
+	ld de, $2b16
+	push de
+	push hl
+	jumptable
+	dec d
+	dec hl
+	dec de
+	dec hl
+	inc hl
+	dec hl
+	dec hl
+	dec hl
+	rra
+	dec hl
+	dec d
+	dec hl
+	ld e, l
+	dec hl
+	dec d
+	dec hl
+	daa
+	dec hl
+	pop bc
+	dec hl
+	dec d
+	dec hl
+	dec d
+	dec hl
+	adc a
+	dec hl
+	dec d
+	dec hl
+	dec d
+	dec hl
+	dec d
+	dec hl
+	pop hl
+.asm_2b16
+	ld a, [wda5d]
+	and a
+	ret
+; 0x2b1b
+
+SECTION "Func_2c37", ROM0[$2c37]
+
+Func_2c37:
+	push hl
+	ld a, $07
+	add_hl
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	inc hl
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	pop hl
+	ret
+; 0x2c49
+
+SECTION "Func_2cbb", ROM0[$2cbb]
+
+Func_2cbb:
+	ld a, $0e
+	call GetEntityByteField_A
+	and a
+	jr z, .asm_2cf5
+	ld [wdc7a], a
+	ld a, $0c
+	call GetEntityByteField_A
+	ld [wdc7c], a
+	call Func_2d2c
+	ld a, $11
+	call GetEntityByteField_A
+	and a
+	jr z, .asm_2d08
+	ld [wdc7a], a
+	ld a, $0f
+	call GetEntityByteField_A
+	ld [wdc7c], a
+	push hl
+	push de
+	push bc
+	call Func_2d2c
+	pop hl
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	jr .asm_2d08
+.asm_2cf5
+	ld a, $11
+	call GetEntityByteField_A
+	ld [wdc7a], a
+	ld a, $0f
+	call GetEntityByteField_A
+	ld [wdc7c], a
+	call Func_2d2c
+.asm_2d08
+	push hl
+	ld hl, wda5a
+	ld [hl], $00
+	ld a, e
+	or d
+	jr z, .asm_2d1c
+	bit 7, d
+	jr nz, .asm_2d1a
+	set 1, [hl]
+	jr .asm_2d1c
+.asm_2d1a
+	set 3, [hl]
+.asm_2d1c
+	ld a, c
+	or b
+	jr z, .asm_2d2a
+	bit 7, b
+	jr nz, .asm_2d28
+	set 2, [hl]
+	jr .asm_2d2a
+.asm_2d28
+	set 0, [hl]
+.asm_2d2a
+	pop hl
+	ret
+
+Func_2d2c:
+	push hl
+	ld a, [wdc7c]
+	call Func_29ea
+	ld a, b
+	or c
+	call nz, Func_2d47
+	ld a, d
+	or e
+	jr z, .asm_2d45
+	push bc
+	ld b, d
+	ld c, e
+	call Func_2d47
+	ld d, b
+	ld e, c
+	pop bc
+.asm_2d45
+	pop hl
+	ret
+
+Func_2d47:
+	ld a, [wdc7a]
+	jp Func_2998
+; 0x2d4d
+
+SECTION "Func_2d66", ROM0[$2d66]
+
+Func_2d66::
+	call Func_2d87
+	ld c, a
+	ld a, [wda59]
+	and $0c
+	jr z, .asm_2d85
+	cp $0c
+	jr z, .asm_2d81
+	cp $04
+	jr z, .asm_2d7d
+	ld a, c
+	cpl
+	inc a
+	ret
+.asm_2d7d
+	ld a, $80
+	sub c
+	ret
+.asm_2d81
+	ld a, c
+	add $80
+	ret
+.asm_2d85
+	ld a, c
+	ret
+
+Func_2d87:
+.asm_2d87
+	ld a, c
+	and a
+	ret z
+	ld a, b
+	and a
+	jr z, .asm_2dac
+	cp $11
+	jr nc, .asm_2da6
+	ld a, c
+	cp $11
+	jr nc, .asm_2da6
+	dec a
+	dec b
+	add a
+	add a
+	add a
+	add a
+	add b
+	push hl
+	ld hl, $2e5f
+	add_hl
+	ld a, [hl]
+	pop hl
+	ret
+.asm_2da6
+	srl c
+	srl b
+	jr .asm_2d87
+.asm_2dac
+	ld a, $40
+	ret
+
+Func_2daf:
+	ld a, b
+	and a
+	jr z, .asm_2dd1
+	ld a, c
+	and a
+	jr z, .asm_2dd3
+	push de
+	push hl
+	call Func_c43
+	ld h, d
+	ld l, e
+	ld a, b
+	call Func_c43
+	add hl, de
+	jr c, .asm_2dcd
+	ld d, h
+	ld e, l
+	call Func_c4e
+.asm_2dca
+	pop hl
+	pop de
+	ret
+.asm_2dcd
+	ld a, $ff
+	jr .asm_2dca
+.asm_2dd1
+	ld a, c
+	ret
+.asm_2dd3
+	ld a, b
+	ret
+; 0x2dd5
+
+SECTION "Func_2f5f", ROM0[$2f5f]
+
+Func_2f5f::
+	ldh a, [hROMBank]
+	push af
+	ld a, $03
+	bankswitch
+	push hl
+	ld a, $03
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld [wda5e], a
+	ld a, [hli]
+	ld [wda5f], a
+	ld a, c
+	add_hl
+	ld a, l
+	ld [wda60], a
+	ld a, h
+	ld [wda61], a
+	pop hl
+	pop af
+	bankswitch
+	ret
+
+Func_2f8e:
+	ldh a, [hROMBank]
+	push af
+	ld a, $03
+	bankswitch
+	push de
+	push hl
+	ld h, d
+	ld l, e
+	ld a, $03
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld [wda62], a
+	ld a, [hli]
+	ld [wda63], a
+	ld a, e
+	add_hl
+	ld a, l
+	ld [wda64], a
+	ld a, h
+	ld [wda65], a
+	pop hl
+	pop de
+	pop af
+	bankswitch
+	ret
+
+Func_2fc1:
+	ldh a, [hROMBank]
+	push af
+	ld a, $03
+	bankswitch
+	push de
+	push hl
+	ld hl, wda60
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wda64]
+	ld e, a
+	ld a, [wda65]
+	ld d, a
+	ld a, [wda59]
+	and $01
+	jr z, .asm_2fe7
+	ld a, b
+	add a
+	add_de
+	jr .asm_2fea
+.asm_2fe7
+	ld a, b
+	add a
+	add_hl
+.asm_2fea
+	ld a, [wda59]
+	and $08
+	jr z, .asm_2ff5
+	push de
+	ld e, l
+	ld d, h
+	pop hl
+.asm_2ff5
+	ld a, $10
+	sub b
+.asm_2ff8
+	push af
+	push de
+	push hl
+	ld a, [de]
+	push af
+	inc de
+	ld a, [de]
+	ld d, a
+	pop af
+	ld e, a
+	or d
+	jr z, .asm_3026
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	or h
+	jr z, .asm_3026
+	ld a, c
+	and a
+	jr z, .asm_301e
+	cp $08
+	jr c, .asm_301a
+	ld h, l
+	ld l, $00
+	sub $08
+	jr z, .asm_301e
+.asm_301a
+	add hl, hl
+	dec a
+	jr nz, .asm_301a
+.asm_301e
+	ld a, h
+	and d
+	jr nz, .asm_303a
+	ld a, l
+	and e
+	jr nz, .asm_303a
+.asm_3026
+	pop hl
+	pop de
+	inc hl
+	inc hl
+	inc de
+	inc de
+	pop af
+	dec a
+	jr nz, .asm_2ff8
+	pop hl
+	pop de
+	pop af
+	bankswitch
+	scf
+	ret
+.asm_303a
+	pop af
+	pop af
+	pop af
+	pop hl
+	pop de
+	pop af
+	bankswitch
+	and a
+	ret
 
 Func_3047::
 	ldh a, [hROMBank]
@@ -4784,7 +6072,7 @@ Func_3047::
 	ld a, $03
 	bankswitch
 	ld a, $25
-	call Func_10d0
+	call GetEntityWordField_DE
 	push de
 	push hl
 	inc de
@@ -4811,7 +6099,7 @@ Func_3047::
 	pop hl
 	pop de
 	ld a, $0c
-	call Func_10de
+	call GetEntityByteField_A
 	add $04
 	rrca
 	rrca
@@ -4965,9 +6253,351 @@ Func_30f1:
 	add $80
 	ld [hl], a
 	jr .asm_3111
-; 0x313e
 
-SECTION "Func_32fb", ROM0[$32fb]
+Func_313e::
+	call Func_2f5f
+	call Func_26db
+	ld [wda5a], a
+	xor a
+	ld [wda5d], a
+	ld de, wda9d
+	ld b, $0c
+.asm_3150
+	ld a, [de]
+	and $01
+	call nz, Func_3161
+	ld a, $13
+	add_de
+	dec b
+	jr nz, .asm_3150
+	ld a, [wda5d]
+	and a
+	ret
+
+Func_3161:
+	push bc
+	push de
+	push hl
+	ld a, $09
+	add_de
+	ld hl, wda29
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+	pop hl
+	ld de, wda23
+	call Func_27e5
+	pop de
+	ld a, $09
+	cp c
+	jr c, .asm_31f9
+	cp b
+	jr c, .asm_31f9
+	ld a, [wda5e]
+	add $02
+	cp c
+	jr c, .asm_31f9
+	ld a, [wda5f]
+	add $02
+	cp b
+	jr c, .asm_31f9
+	push de
+	ld a, $04
+	add_de
+	call Func_2d66
+	ld [wda66], a
+	ld [de], a
+	inc de
+	ld [de], a
+	inc de
+	ld c, a
+	ld a, [wda5a]
+	sub c
+	cp $80
+	ld a, $ff
+	jr c, .asm_31b6
+	ld a, $01
+.asm_31b6
+	ld [de], a
+	inc de
+	ld a, $0d
+	call GetEntityWordField_BC
+	bit 7, b
+	jr z, .asm_31c8
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+.asm_31c8
+	ld a, c
+	ld [de], a
+	inc de
+	ld a, b
+	ld [de], a
+	pop de
+	push de
+	push hl
+	ld h, d
+	ld l, e
+	ld a, $0f
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, $3705
+	ld a, $00
+	call Func_1569
+	pop hl
+	pop de
+	ld a, [de]
+	and $02
+	jr z, .asm_31f4
+	ld a, [wda5d]
+	and a
+	jr nz, .asm_31f9
+	ld a, $01
+	ld [wda5d], a
+	jr .asm_31f9
+.asm_31f4
+	ld a, $02
+	ld [wda5d], a
+.asm_31f9
+	pop bc
+	ret
+
+Func_31fb::
+	push de
+	push hl
+	call Func_2a7e
+	ld hl, wda68
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	pop de
+	call Func_3259
+.asm_320f
+	call .Func_322a
+	call Func_2a90
+	jr c, .asm_3221
+	push de
+	call Func_2ab5
+	pop de
+	call nz, Func_3259
+	jr .asm_320f
+.asm_3221
+	push de
+	call Func_2ab5
+	pop de
+	jr z, .asm_323c
+	and a
+	ret
+
+.Func_322a:
+	push de
+	push hl
+	ld hl, wda68
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	pop hl
+	call Func_298c
+	pop de
+	ret
+
+.asm_323c
+	push de
+	push hl
+	ld a, $06
+	add_hl
+	ld de, wda6e
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+	pop hl
+	pop de
+	scf
+	ret
+
+Func_3259:
+	push de
+	push hl
+	ld de, wda6e
+	ld a, $06
+	add_hl
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	pop hl
+	pop de
+	ret
+
+Func_3275::
+	push de
+	push hl
+	call Func_29ea
+	ld hl, wda68
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	pop de
+	call Func_32dd
+.asm_3289
+	call .Func_32aa
+	call Func_2a90
+	jr c, .asm_3299
+	call .Func_32a0
+	call nz, Func_32dd
+	jr .asm_3289
+.asm_3299
+	call .Func_32a0
+	jr z, .asm_32be
+	and a
+	ret
+
+.Func_32a0:
+	push de
+	push hl
+	ld h, d
+	ld l, e
+	call Func_2ab5
+	pop hl
+	pop de
+	ret
+
+.Func_32aa:
+	push hl
+	push de
+	ld hl, wda68
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	pop hl
+	call Func_298c
+	ld d, h
+	ld e, l
+	pop hl
+	ret
+
+.asm_32be
+	push de
+	push hl
+	ld h, d
+	ld l, e
+	ld a, $06
+	add_hl
+	ld de, wda6e
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+	pop hl
+	pop de
+	scf
+	ret
+
+Func_32dd:
+	push de
+	push hl
+	ld h, d
+	ld l, e
+	ld de, wda6e
+	ld a, $06
+	add_hl
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	pop hl
+	pop de
+	ret
 
 Func_32fb:
 	call Func_33b4
@@ -5521,17 +7151,17 @@ Func_35ad:
 	pop de
 	jr c, .asm_362b
 	ld a, $06
-	call Func_10d7
+	call SetEntityWordField_DE
 	push de
 	ld e, l
 	ld d, h
 	pop hl
 	ld a, $0f
-	call Func_10d7
+	call SetEntityWordField_DE
 	call Func_1124
 	jr c, .asm_362e
 	ld a, $11
-	call Func_10d7
+	call SetEntityWordField_DE
 	ld a, [de]
 	or $06
 	ld [de], a
@@ -5550,7 +7180,7 @@ Func_35ad:
 .asm_362e
 	ld [hl], $00
 	ld a, $0f
-	call Func_10d0
+	call GetEntityWordField_DE
 	jr .asm_362b
 
 Func_3637:

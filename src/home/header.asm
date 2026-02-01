@@ -165,7 +165,7 @@ InitTransferVirtualOAMAndClearWRAM:
 TransferVirtualOAM:
 LOAD "DMA Transfer", HRAM
 hTransferVirtualOAM::
-	ld a, HIGH(wVirtualOAM)
+	ld a, HIGH(wVirtualOAM1)
 	ldh [rDMA], a ; start DMA transfer (starts right after instruction)
 	ld a, 160 / (1 + 3) ; delay for a total of 160 cycles
 .loop
