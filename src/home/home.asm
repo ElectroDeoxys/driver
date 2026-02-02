@@ -63,7 +63,7 @@ Func_1b5:
 	wramswitch
 .gb
 	xor a
-	ld [wc56e], a
+	ld [wVBlankExecuted], a
 	
 	ld a, HIGH(wVirtualOAM1)
 	ld [wActiveVirtualOAM], a
@@ -107,7 +107,7 @@ ShowCompanies:
 	call LoadScene
 .asm_20b
 	call Func_501
-	call Func_530
+	call PostVBlank
 	jr .asm_20b
 
 .cgb
@@ -163,7 +163,7 @@ LoadScene::
 	cp BOOTUP_A_CGB
 	jr z, .asm_27b
 	ld a, [hli]
-	ld [wc5fd], a
+	ld [wTempBGP], a
 	inc hl
 	inc hl
 	inc hl
@@ -180,13 +180,13 @@ LoadScene::
 	push hl
 	ld h, d
 	ld l, e
-	ld de, wc5fd
-	ld b, $40
+	ld de, wTempBGPals
+	ld b, 8 palettes
 	call CopyHLtoDE
 	pop hl
 	ld a, $01
 .asm_294
-	call Func_cf2
+	call InitFade
 	call Func_59e
 	pop af
 	bankswitch
@@ -196,7 +196,7 @@ ShowScene::
 .loop_show
 	push bc
 	call Func_501
-	call Func_530
+	call PostVBlank
 	pop bc
 	ld a, c
 	and a
@@ -212,42 +212,44 @@ ShowScene::
 	jr nz, .loop_show
 
 .next_screen
-	call Func_2ca
+	call FadeToWhite
 .asm_2bd
 	call Func_501
-	call Func_530
-	ld a, [wc67d]
+	call PostVBlank
+	ld a, [wFadeActive]
 	and a
 	jr nz, .asm_2bd
 	ret
 
-Func_2ca::
+FadeToWhite::
 	ldh a, [hBootUpA]
 	cp BOOTUP_A_CGB
-	jr z, .asm_2dd
+	jr z, .cgb
+; dmg
 	ld a, $00
-	ld hl, wc5fd
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
+	ld hl, wTempDMGPals
+	ld [hli], a ; wTempBGP
+	ld [hli], a ; wTempOBP0
+	ld [hl], a  ; wTempOBP1
 	ld a, $03
-	jp Func_cf2
-.asm_2dd
-	ld hl, wc5fd
+	jp InitFade
+
+.cgb
+	ld hl, wTempCGBPals
 	ld c, 8 + 8 ; num of BG and OB pals
-.asm_2e2
+.loop_pals
 	ld b, PAL_SIZE
 	ld de, Pals_White
-.asm_2e7
+.loop_cols
 	ld a, [de]
 	ld [hli], a
 	inc de
 	dec b
-	jr nz, .asm_2e7
+	jr nz, .loop_cols
 	dec c
-	jr nz, .asm_2e2
+	jr nz, .loop_pals
 	ld a, $01
-	jp Func_cf2
+	jp InitFade
 ; 0x2f5
 
 SECTION "EmptyScreen", ROM0[$320]
@@ -352,7 +354,7 @@ _VBlank:
 	inc [hl]
 	ld hl, wc56d
 	inc [hl]
-	ld a, [wc56e]
+	ld a, [wVBlankExecuted]
 	and a
 	jr nz, .push_oam
 	ld a, [hl] ; wc56d
@@ -361,7 +363,7 @@ _VBlank:
 	xor a
 	ld [hl], a
 	inc a ; TRUE
-	ld [wc56e], a
+	ld [wVBlankExecuted], a
 	call Func_43e
 
 .push_oam
@@ -398,9 +400,8 @@ _VBlank:
 	pop af
 	reti
 
-; waits for wc56e to be TRUE
-Func_434:
-	ld hl, wc56e
+WaitForVBlank:
+	ld hl, wVBlankExecuted
 	ld [hl], FALSE
 .loop
 	ld a, [hl]
@@ -583,14 +584,18 @@ _Serial:
 
 	reti ; stray ret
 
-Func_530::
-	call Func_434
-	call Func_cfe
+; waits for V-Blank to be executed, then updates colour fading,
+; reads joypad input, and does a soft reset if A+B+START+SELECT are pressed
+PostVBlank::
+	call WaitForVBlank
+	call UpdateFade
 	call ReadJoypad
 
 	ld a, [wResetDisabled]
 	and a
 	ret nz ; reset disabled
+
+	; only reset if buttons are pressed for 5 frames
 	ld hl, wResetDelay
 	ld a, [wJoypadDown]
 	and PAD_BUTTONS
@@ -604,7 +609,9 @@ Func_530::
 	ld hl, Pals_Black
 	lddmgpal c, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK
 	call FillPalettes
+
 	call Func_f41
+
 .wait_buttons_release
 	do_frame
 	call ReadJoypad
@@ -613,6 +620,7 @@ Func_530::
 	cp PAD_A | PAD_B | PAD_SELECT | PAD_START
 	jr z, .wait_buttons_release
 	jp Reset
+
 .reset_delay
 	ld [hl], 5 ; wResetDelay
 	ret
@@ -724,10 +732,9 @@ Func_59e:
 	ld c, l
 	ld hl, v0TilesEnd
 	ld de, v0Tiles1
-	jp SafeCopyHLToDE ; useless jump
+	jp .loop_copy ; useless jump
 
-SafeCopyHLToDE:
-.loop
+.loop_copy
 	ldh a, [rLCDC]
 	rlca
 	jr nc, .safe
@@ -739,7 +746,7 @@ SafeCopyHLToDE:
 	dec bc
 	ld a, b
 	or c
-	jr nz, .loop
+	jr nz, .loop_copy
 	ret
 
 Func_62b:
@@ -996,18 +1003,20 @@ FillMemory:
 	jr nz, .loop
 	ret
 
-Func_733:
-.asm_733
+; copies b tiles from hl to de
+SafeCopyBTiles:
+.loop
 	push bc
-	call Func_73c
+	call SafeCopyTile
 	pop bc
 	dec b
-	jr nz, .asm_733
+	jr nz, .loop
 	ret
 
-Func_73c:
-	ld b, $10
-	call SafeCopyRow
+; copies 1 tile from hl to de
+SafeCopyTile:
+	ld b, TILE_SIZE
+	call SafeCopyHLToDE
 	ld a, [wd7f7]
 	inc a
 	ld [wd7f7], a
@@ -1121,7 +1130,7 @@ Func_7d5:
 	bankswitch
 .asm_7f0
 	push bc
-	call Func_73c
+	call SafeCopyTile
 	call Func_81d
 	pop bc
 	dec b
@@ -1137,7 +1146,7 @@ Func_7d5:
 .asm_80b
 	push bc
 	call Func_81d
-	call Func_73c
+	call SafeCopyTile
 	pop bc
 	dec b
 	jr nz, .asm_80b
@@ -1148,16 +1157,17 @@ Func_7d5:
 Func_81d:
 	push hl
 	ld hl, wd771
-	call Func_73c
+	call SafeCopyTile
 	pop hl
 	ret
 
-Func_826:
+; copies b tiles from c:hl to de
+SafeCopyFarTiles:
 	ldh a, [hROMBank]
 	push af
 	ld a, c
 	bankswitch
-	call Func_733
+	call SafeCopyBTiles
 	pop af
 	bankswitch
 	ret
@@ -1179,7 +1189,7 @@ Func_83c::
 	push bc
 	push de
 	ld b, c
-	call SafeCopyRow
+	call SafeCopyHLToDE
 	pop de
 	pop bc
 	; next row
@@ -1303,7 +1313,9 @@ REPT 3
 ENDR
 	ret
 
-SafeCopyRow:
+; copies b bytes from hl to de,
+; only when PPU is not busy
+SafeCopyHLToDE:
 	; CGB can copy 12 bytes
 	ld c, 12
 	ldh a, [hBootUpA]
@@ -1443,42 +1455,48 @@ CoordinateToBGMapPtr:
 	; hl = (h * TILEMAP_WIDTH) + l + v0BGMap0
 	ret
 
-Func_a1e::
-	ld hl, wd7f1
+ClearVRAMTiles::
+	ld hl, wVRAMNumTiles
 	xor a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
+	ld [hli], a ; V0TILES_8000
+	ld [hli], a ; V0TILES_9000
+	ld [hli], a ; V0TILES_9800
+	ld [hli], a ; V1TILES_8000
+	ld [hli], a ; V1TILES_9000
+	ld [hl], a  ; V1TILES_8800
 	ret
 ; 0xa29
 
-SECTION "Func_a95", ROM0[$a95]
+SECTION "PushTilesToVRAM", ROM0[$a95]
 
-Func_a95::
-	ld [wd7f8], a
+; input:
+; - a  = number of tiles
+; - c  = bank
+; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
+;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
+; - de = source of tiles
+PushTilesToVRAM::
+	ld [wNumTilesToPush], a
 	ldh a, [hROMBank]
 	push af
 	ld a, c
 	bankswitch
 	ld a, b
-	ld hl, wd7f1
+	ld hl, wVRAMNumTiles
 	add_hl
-	ld c, [hl]
+	ld c, [hl] ; tile index
 	push hl
-	ld hl, $b31
+	ld hl, VRAMBlockAddresses
 	ld a, b
-	cp $03
-	jr c, .asm_ab9
-	ld a, $01
+	cp V1TILES
+	jr c, .vram0
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld a, b
-	sub $03
-.asm_ab9
+	sub V1TILES
+.vram0
 	add_hl
-	ld h, [hl]
+	ld h, [hl] ; high byte of dest
 	ld l, $00
 	ld b, $00
 	sla c
@@ -1488,49 +1506,60 @@ Func_a95::
 	sla c
 	rl b
 	sla c
-	rl b
+	rl b ; *16
 	add hl, bc
+
+	; swap hl with de
 	ld a, l
 	ld l, e
 	ld e, a
 	ld a, h
 	ld h, d
 	ld d, a
-	ld a, [wd7f8]
+
+	ld a, [wNumTilesToPush]
 	ld b, a
-	call Func_733
+	call SafeCopyBTiles
 	pop hl
-	ld a, [wd7f8]
+
+	ld a, [wNumTilesToPush]
 	add [hl]
 	ld [hl], a
 	ldh a, [hBootUpA]
-	cp $11
-	jr nz, .asm_aef
-	ld a, $00
+	cp BOOTUP_A_CGB
+	jr nz, .dmg
+	ld a, BANK("VRAM0")
 	vramswitch
-.asm_aef
+.dmg
 	pop af
 	bankswitch
 	ret
 
+; input
+; - a = number of tiles
+; - b = ?
 Func_af6::
 	ld c, a
 	ldh a, [hROMBank]
 	push af
+
+	; black out wd771
 	push bc
 	ld hl, wd771
-	ld bc, DoFrame
+	ld bc, TILE_SIZE
 	call ClearMemory
 	pop bc
-.asm_b05
+
+.loop_tiles
 	push bc
 	ld de, wd771
 	ld c, $01
-	ld a, $01
-	call Func_a95
+	ld a, 1 ; tile
+	call PushTilesToVRAM
 	pop bc
 	dec c
-	jr nz, .asm_b05
+	jr nz, .loop_tiles
+
 	pop af
 	bankswitch
 	ret
@@ -1549,7 +1578,12 @@ Func_b1b::
 	pop af
 	bankswitch
 	ret
-; 0xb31
+
+VRAMBlockAddresses:
+	db HIGH(v0Tiles0) ; V0TILES_8000 | V1TILES_8000
+	db HIGH(v0Tiles2) ; V0TILES_9000 | V1TILES_9000
+	db HIGH(v0Tiles1) ; V0TILES_9800 | V1TILES_8800
+; 0xb34
 
 SECTION "Func_c28", ROM0[$c28]
 
@@ -1669,7 +1703,7 @@ Func_cc2:
 ; - hl = BG and OB palettes for CGB
 FillPalettes:
 	xor a
-	ld [wc67d], a
+	ld [wFadeActive], a
 	ldh a, [hBootUpA]
 	cp BOOTUP_A_CGB
 	jr nz, .gb
@@ -1687,7 +1721,7 @@ FillPalettes:
 	pop hl
 	dec c
 	jr nz, .loop_copy_pals
-	jp FluchCGBPalettes
+	jp FlushCGBPalettes
 
 .gb
 	ld a, c
@@ -1697,15 +1731,17 @@ FillPalettes:
 	ld [hl], a  ; wOBP1
 	jp FlushDMGPalettes
 
-Func_cf2::
-	ld [wc67f], a
+; input:
+; - a = fade speed
+InitFade::
+	ld [wFadeSpeed], a
 	ld [wc67e], a
-	ld a, $01
-	ld [wc67d], a
+	ld a, TRUE
+	ld [wFadeActive], a
 	ret
 
-Func_cfe:
-	ld a, [wc67d]
+UpdateFade:
+	ld a, [wFadeActive]
 	and a
 	ret z
 	ldh a, [hBootUpA]
@@ -1713,41 +1749,47 @@ Func_cfe:
 	jr z, .cgb
 	ld hl, wc67e
 	dec [hl]
-	ret nz
-	ld a, [wc67f]
+	ret nz ; no fade yet
+	ld a, [wFadeSpeed]
 	ld [hl], a
 	ld hl, wDMGPals
-	ld de, wc5fd
+	ld de, wTempDMGPals
 	ld b, $03
 	call Func_de7
-	ld [wc67d], a
+	ld [wFadeActive], a
 	jp FlushDMGPalettes
 
 .cgb
-	ld a, [wc67f]
+	ld a, [wFadeSpeed]
 	ld b, a
-.asm_d27
+.loop
 	push bc
-	call .Func_d38
+	call .DoFadeStep
 	pop bc
 	and a
-	jr z, .asm_d32
+	jr z, .none_changed
 	dec b
-	jr nz, .asm_d27
-.asm_d32
-	ld [wc67d], a
-	jp FluchCGBPalettes
+	jr nz, .loop
+.none_changed
+	ld [wFadeActive], a
+	jp FlushCGBPalettes
 
-.Func_d38:
+.DoFadeStep:
 	ld hl, wCGBPals
-	ld de, wc5fd
-	ld b, $40
-	jp Func_d43 ; useless jump
+	ld de, wTempCGBPals
+	ld b, 16 * PAL_COLORS ; 8 + 8 palettes
+	jp FadePaletteFromHLToDE ; useless jump
 
-Func_d43:
+; input:
+; - hl = working palettes
+; - de = final palettes
+; - b  = number of colours
+; output:
+; - a = TRUE if any colours changed
+FadePaletteFromHLToDE:
 	xor a
-	ld [wc680], a
-.asm_d47
+	ld [wFadeColourChanged], a
+.loop_cols
 	push bc
 	ld a, [de]
 	ld c, a
@@ -1762,108 +1804,111 @@ Func_d43:
 	ld l, a
 	ld a, c
 	cp l
-	jr z, .asm_d71
-	and $1f
+	jr z, .green
+	and COLOR_RED
 	ld e, a
 	ld a, l
-	and $1f
+	and COLOR_RED
 	cp e
-	jr z, .asm_d71
-	jr c, .asm_d65
+	jr z, .green
+	jr c, .inc_red
 	dec a
-	jr .asm_d66
-.asm_d65
+	jr .got_red
+.inc_red
 	inc a
-.asm_d66
+.got_red
 	ld e, a
 	ld a, l
-	and $e0
+	and COLOR_GREEN_LOW
 	or e
 	ld l, a
-	ld a, $01
-	ld [wc680], a
-.asm_d71
+	ld a, TRUE
+	ld [wFadeColourChanged], a
+
+.green
 	ld a, l
 	rlca
 	rlca
 	rlca
-	and $07
+	and COLOR_GREEN_LOW >> 5
 	ld e, a
 	ld a, h
-	and $03
+	and COLOR_GREEN_HIGH
 	add a
 	add a
-	add a
+	add a ; << 3
 	or e
 	ld e, a
 	ld a, c
 	rlca
 	rlca
 	rlca
-	and $07
+	and COLOR_GREEN_LOW >> 5
 	ld d, a
 	ld a, b
-	and $03
+	and COLOR_GREEN_HIGH
 	add a
 	add a
-	add a
+	add a ; << 3
 	or d
 	cp e
-	jr z, .asm_db6
-	jr c, .asm_d97
+	jr z, .blue
+	jr c, .dec_green
 	ld a, e
 	inc a
-	jr .asm_d99
-.asm_d97
+	jr .got_green
+.dec_green
 	ld a, e
 	dec a
-.asm_d99
+.got_green
 	ld e, a
 	rrca
 	rrca
 	rrca
-	and $03
+	and COLOR_GREEN_HIGH
 	ld d, a
 	ld a, h
-	and $fc
+	and ~COLOR_GREEN_HIGH
 	or d
 	ld h, a
 	ld a, e
 	rrca
 	rrca
 	rrca
-	and $e0
+	and COLOR_GREEN_LOW
 	ld d, a
 	ld a, l
-	and $1f
+	and COLOR_RED
 	or d
 	ld l, a
-	ld a, $01
-	ld [wc680], a
-.asm_db6
+	ld a, TRUE
+	ld [wFadeColourChanged], a
+
+.blue
 	ld a, b
 	cp h
-	jr z, .asm_dd6
-	and $7c
+	jr z, .got_cols
+	and COLOR_BLUE
 	ld e, a
 	ld a, h
-	and $7c
+	and COLOR_BLUE
 	cp e
-	jr z, .asm_dd6
-	jr c, .asm_dc9
-	sub $04
-	jr .asm_dcb
-.asm_dc9
-	add $04
-.asm_dcb
+	jr z, .got_cols
+	jr c, .inc_blue
+	sub 1 << 2
+	jr .got_blue
+.inc_blue
+	add 1 << 2
+.got_blue
 	ld e, a
 	ld a, h
-	and $03
+	and COLOR_GREEN_HIGH
 	or e
 	ld h, a
-	ld a, $01
-	ld [wc680], a
-.asm_dd6
+	ld a, TRUE
+	ld [wFadeColourChanged], a
+
+.got_cols
 	ld b, h
 	ld c, l
 	pop de
@@ -1874,8 +1919,8 @@ Func_d43:
 	inc hl
 	pop bc
 	dec b
-	jp nz, .asm_d47
-	ld a, [wc680]
+	jp nz, .loop_cols
+	ld a, [wFadeColourChanged]
 	ret
 
 Func_de7:
@@ -1936,7 +1981,7 @@ Func_de7:
 	ld a, c
 	ret
 
-FluchCGBPalettes:
+FlushCGBPalettes:
 	ld hl, wCGBPals
 	; hl = wBGPals
 	ld a, BGPI_AUTOINC
@@ -2432,9 +2477,11 @@ Func_110b::
 	ld hl, wd551
 	ld bc, $220
 	call ClearMemory
+
 	ld a, TRUE
 	ld [wd54c], a
 	ld [wd54d], a
+
 	xor a
 	ld hl, wd54e
 	ld [hli], a
@@ -2472,7 +2519,7 @@ Func_1142::
 	ld [wd7f7], a
 	ret
 
-Func_1147:
+Func_1147::
 	ld a, [wd54d]
 	and a
 	ret z
@@ -3101,7 +3148,7 @@ Func_146c:
 	ld [de], a
 	ret
 
-Func_1488::
+ClearEntities::
 	ld b, NUM_ENTITIES
 	ld hl, wEntities
 	ld de, ENT_STRUCT_SIZE
@@ -3113,48 +3160,52 @@ Func_1488::
 	jr nz, .loop
 	ret
 
+; returns in hl pointer to entity with ENT_UNK05 == a
+; if found, return carry, otherwise no carry
+; input:
+; - a = ?
 Func_1497::
 	push bc
 	push de
 	ld c, a
-	ld b, $20
+	ld b, NUM_ENTITIES
 	ld hl, wEntities
-	ld de, $58
-.asm_14a2
-	bit 0, [hl]
-	jr z, .asm_14b0
-	ld a, $05
+	ld de, ENT_STRUCT_SIZE
+.loop
+	bit ENTF_ACTIVE_F, [hl] ; ENT_FLAGS
+	jr z, .inactive
+	ld a, ENT_UNK05
 	add_hl
 	ld a, c
 	cp [hl]
-	jr z, .asm_14b8
-	ld a, $05
+	jr z, .found
+	ld a, ENT_UNK05
 	sub_hl
-.asm_14b0
+.inactive
 	add hl, de
 	dec b
-	jr nz, .asm_14a2
+	jr nz, .loop
 	pop de
 	pop bc
 	and a
 	ret
-.asm_14b8
+.found
 	pop de
 	pop bc
-	ld a, $05
+	ld a, ENT_UNK05
 	sub_hl
 	scf
 	ret
 
-Func_14bf::
+UpdateEntities::
 	ldh a, [hROMBank]
 	push af
 	ld b, NUM_ENTITIES
 	ld hl, wEntities
 	ld de, ENT_STRUCT_SIZE
 .loop
-	bit 0, [hl] ; ENT_FLAGS
-	call nz, .Func_14da
+	bit ENTF_ACTIVE_F, [hl] ; ENT_FLAGS
+	call nz, .Update
 	add hl, de
 	dec b
 	jr nz, .loop
@@ -3162,21 +3213,26 @@ Func_14bf::
 	bankswitch
 	ret
 
-.Func_14da:
+.Update:
 	inc hl
-	dec [hl] ; ENT_UNK01
+	dec [hl] ; ENT_UPDATE_TIMER
 	dec hl
 	ret nz
 	push bc
 	push de
 	push hl
-	call Func_150b
+	call StartEntityUpdate
 	pop hl
 	pop de
 	pop bc
 	ret
 
-Func_14e8::
+; expected to be called after StartEntityUpdate
+; pauses current entity update function and resumes normal code execution
+; sets entity's stack pointer so that next update call is set to callee
+; input:
+; - a = update timer for next update
+YieldEntityUpdate::
 	push bc
 	push de
 	push hl
@@ -3187,37 +3243,42 @@ Func_14e8::
 	ld d, a
 	inc de
 	ld a, c
-	ld [de], a ; ENT_UNK01
+	ld [de], a ; ENT_UPDATE_TIMER
 	inc de
 	ldh a, [hROMBank]
-	ld [de], a ; ENT_UNK02
+	ld [de], a ; ENT_UPDATE_FUNC_BANK
 	inc de
 	ld hl, sp+$00
 	ld a, l
-	ld [de], a ; ENT_UNK03
+	ld [de], a ; ENT_STACK_POINTER
 	inc de     ;
 	ld a, h    ;
 	ld [de], a ;
-	ld hl, wd217
+
+	; resume main sp
+	ld hl, wTempSP
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld sp, hl
 	ret
 
-Func_150b:
+; starts update of entity given in hl
+; expects YieldEntityUpdate to be called when finished
+; temporarily sets sp to ENT_STACK_POINTER
+StartEntityUpdate:
 	ld a, l
 	ld [wEntityPtr + 0], a
 	ld a, h
 	ld [wEntityPtr + 1], a
 	inc hl
 	inc hl
-	ld a, [hli] ; ENT_UNK02
+	ld a, [hli] ; ENT_UPDATE_FUNC_BANK
 	bankswitch
-	ld a, [hli] ; ENT_UNK03
+	ld a, [hli] ; ENT_STACK_POINTER
 	ld h, [hl]  ;
 	ld l, a
-	ld [wd217], sp
+	ld [wTempSP], sp
 	ld sp, hl
 	pop hl
 	pop de
@@ -3225,19 +3286,18 @@ Func_150b:
 	ret
 ; 0x1526
 
-SECTION "Func_1536", ROM0[$1536]
+SECTION "SpawnEntity", ROM0[$1536]
 
 ; input:
-; - hl = ?
+; - c:hl = update function
 ; - b  = ?
-; - c  = ?
-Func_1536::
+SpawnEntity::
 	push hl
 	ld a, NUM_ENTITIES
 	ld hl, wEntities
 	ld de, ENT_STRUCT_SIZE
 .loop
-	bit 0, [hl] ; ENT_FLAGS
+	bit ENTF_ACTIVE_F, [hl] ; ENT_FLAGS
 	jr z, .inactive
 	add hl, de
 	dec a
@@ -3247,18 +3307,18 @@ Func_1536::
 	ret
 
 .inactive
-	ld [hl], $01 ; ENT_FLAGS
+	ld [hl], ENTF_ACTIVE ; ENT_FLAGS
 	inc hl
-	ld [hl], $01 ; ENT_UNK01
+	ld [hl], 1 ; ENT_UPDATE_TIMER
 	inc hl
-	ld [hl], c ; ENT_UNK02
+	ld [hl], c ; ENT_UPDATE_FUNC_BANK
 	inc hl
-	; loads ENT_UNK50 address to ENT_UNK03
+	; loads ENT_UNK50 address to ENT_STACK_POINTER
 	ld d, h
 	ld e, l
-	ld a, ENT_UNK50 - ENT_UNK03
+	ld a, ENT_UNK50 - ENT_STACK_POINTER
 	add_de
-	ld [hl], e ; ENT_UNK03
+	ld [hl], e ; ENT_STACK_POINTER
 	inc hl     ;
 	ld [hl], d ;
 	inc hl
@@ -3274,23 +3334,28 @@ Func_1536::
 	and a
 	ret
 
+; input:
+; - hl = entity
+; - a  = ?
+; - de = ?
 Func_1569::
 	inc hl
-	ld [hl], $01
+	ld [hl], 1 ; ENT_UPDATE_TIMER
 	inc hl
-	ld [hli], a
+	ld [hli], a ; ENT_UPDATE_FUNC_BANK
 	push de
 	ld d, h
 	ld e, l
-	ld a, $4d
+	ld a, ENT_UNK4F - ENT_UPDATE_FUNC_BANK
 	add_de
+	; write ENT_UNK4F address to ENT_STACK_POINTER
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld a, $53
+	ld a, (ENT_UNK56 + 1) - (ENT_STACK_POINTER + 1)
 	add_hl
-	pop de
-	ld [hl], d
+	pop de ; input de
+	ld [hl], d ; ENT_UNK56
 	dec hl
 	ld [hl], e
 	ret
@@ -3323,22 +3388,22 @@ Func_1598::
 	ld l, a
 	ret
 
-Func_15a5:
+YieldEntityUpdate_BCTimes:
 	ld a, c
-	call Func_14e8
+	call YieldEntityUpdate
 	ld a, b
 	and a
 .loop
 	ret z
 	xor a
-	call Func_14e8
+	call YieldEntityUpdate
 	dec b
 	jr .loop
 
-Func_15b3::
+YieldEntityUpdateIndefinitely::
 .loop
 	ld bc, $ffff
-	call Func_15a5
+	call YieldEntityUpdate_BCTimes
 	jr .loop
 
 Func_15bb:
@@ -3378,7 +3443,7 @@ Func_15bb:
 	ld [wc57a], a
 	ld [wc579], a
 .asm_1610
-	call Func_530
+	call PostVBlank
 	ld a, [wd820]
 	cp $03
 	jr z, .asm_1669
@@ -3388,7 +3453,7 @@ Func_15bb:
 	ld a, [wc579]
 	and a
 	jr nz, .asm_164d
-	call Func_14bf
+	call UpdateEntities
 	call Func_23d1
 	call Func_332a
 	ld a, $01
@@ -3641,9 +3706,9 @@ Func_1b3d:
 
 Func_1b4e:
 	call EmptyScreen
-	call Func_a1e
+	call ClearVRAMTiles
 	call Func_110b
-	call Func_1488
+	call ClearEntities
 	call Func_25e5
 	call Func_3565
 	call Func_1d16
@@ -3655,12 +3720,12 @@ Func_1b4e:
 	ld hl, $4988
 	ld c, $01
 	ld b, $03
-	call Func_1536
+	call SpawnEntity
 	homecall Func_4000
 	ld hl, $42e1
 	ld c, $01
 	ld b, $02
-	call Func_1536
+	call SpawnEntity
 	ld a, [wda4a]
 	ld e, a
 	ld a, [wda4b]
@@ -3672,11 +3737,11 @@ Func_1b4e:
 	ld hl, $5f27
 	ld c, $01
 	ld b, $07
-	call Func_1536
+	call SpawnEntity
 	ld hl, $5e97
 	ld c, $01
 	ld b, $08
-	call Func_1536
+	call SpawnEntity
 	ld a, [wd81f]
 	cp $06
 	jr z, .asm_1bcb
@@ -3688,7 +3753,7 @@ Func_1b4e:
 	call Func_f2e
 .asm_1bcb
 	ld a, $01
-	jp Func_cf2
+	jp InitFade
 
 .Data:
 	db $04, $06, $07
@@ -3708,7 +3773,7 @@ Func_1c57:
 	ld a, [wdc32]
 	and $10
 	ret z
-	ld a, [wc67d]
+	ld a, [wFadeActive]
 	and a
 	ret nz
 	ld a, [wJoypadPressed]
@@ -3720,7 +3785,7 @@ Func_1c7b:
 	ld a, [wd81f]
 	cp $06
 	ret z
-	ld a, [wc67d]
+	ld a, [wFadeActive]
 	and a
 	ret nz
 	ld a, [wd820]
@@ -3812,7 +3877,7 @@ Func_1d16:
 	ld c, a
 	ld hl, wdbdb
 	add_hl
-	ld a, [wd7f4]
+	ld a, [wVRAMNumTiles_v1_8000]
 	ld [hli], a
 	ld a, $08
 	ld [hl], a
@@ -3828,7 +3893,7 @@ Func_1d16:
 	ld h, [hl]
 	ld l, a
 	push hl
-	ld a, [wd7f4]
+	ld a, [wVRAMNumTiles_v1_8000]
 	ld l, a
 	ld h, $00
 	add hl, hl
@@ -3840,10 +3905,10 @@ Func_1d16:
 	ld d, h
 	ld e, l
 	pop hl
-	ld a, [wd7f4]
+	ld a, [wVRAMNumTiles_v1_8000]
 	add b
 	add b
-	ld [wd7f4], a
+	ld [wVRAMNumTiles_v1_8000], a
 	xor a
 	call Func_7d5
 	pop hl
@@ -3852,7 +3917,7 @@ Func_1d16:
 	jr nz, .asm_1d43
 	ld a, $00
 	vramswitch
-	ld de, wc63d
+	ld de, wTempOBPals
 	ld b, $08
 .asm_1d8e
 	push bc
@@ -3889,8 +3954,8 @@ Func_1d16:
 	ld a, $03
 	bankswitch
 	ld hl, $767c
-	ld de, wc645
-	ld b, $08
+	ld de, wTempOBPals palette 1
+	ld b, 1 palettes
 	call CopyHLtoDE
 	pop af
 	bankswitch
@@ -3935,12 +4000,12 @@ Func_1d16:
 	ld hl, $4f5d
 	ld c, $34
 	ld b, $04
-	call Func_826
+	call SafeCopyFarTiles
 	ld de, v1Tiles1 tile $68
 	ld hl, $4f9d
 	ld c, $34
 	ld b, $0c
-	call Func_826
+	call SafeCopyFarTiles
 	ld a, $00
 	vramswitch
 	ret
@@ -3952,14 +4017,14 @@ Func_1e38:
 	pop hl
 	ret
 
-Func_1e3f::
-.asm_1e3f
-	ld a, [wc67d]
+YieldEntityUpdateUntilFadeEnds::
+.loop
+	ld a, [wFadeActive]
 	and a
 	ret z
-	ld a, $01
-	call Func_14e8
-	jr .asm_1e3f
+	ld a, 1
+	call YieldEntityUpdate
+	jr .loop
 
 Func_1e4b::
 	ldh a, [hROMBank]
@@ -3968,6 +4033,7 @@ Func_1e4b::
 	bankswitch
 	jr Func_1e61
 	
+Func_1e57::
 	ldh a, [hROMBank]
 	push af
 	ld a, $3d
@@ -4050,7 +4116,7 @@ Func_1fc7:
 	ld bc, $38
 	ld a, $ff
 	call FillMemory
-	call FluchCGBPalettes
+	call FlushCGBPalettes
 	call Func_2597
 	ld a, [wd81e]
 	and a
@@ -4064,11 +4130,11 @@ Func_1fc7:
 	ld a, [hli]
 	ld [wd80c], a
 	call Func_2216
-	ld hl, wc5fd
-	ld de, wDMGPals
-	ld b, $38
+	ld hl, wTempBGPals
+	ld de, wBGPals
+	ld b, 7 palettes
 	call CopyHLtoDE
-	call FluchCGBPalettes
+	call FlushCGBPalettes
 	ld hl, wd81e
 	ld a, [hl]
 	xor $01
@@ -4241,9 +4307,9 @@ Func_2101:
 
 Func_2133:
 	xor a
-	ld [wd7f2], a
-	ld [wd7f3], a
-	ld [wd7f5], a
+	ld [wVRAMNumTiles_v0_9000], a
+	ld [wVRAMNumTiles_v0_8800], a
+	ld [wVRAMNumTiles_v1_9000], a
 	ld a, [hli]
 	bankswitch
 	ld e, [hl]
@@ -4253,8 +4319,8 @@ Func_2133:
 	push hl
 	ld h, d
 	ld l, e
-	ld de, wc5fd
-	ld b, $38
+	ld de, wTempBGPals
+	ld b, 7 palettes
 	call CopyHLtoDE
 	pop hl
 	ld c, [hl]
@@ -4266,9 +4332,9 @@ Func_2133:
 	push hl
 	push bc
 	push de
-	ld b, $01
+	ld b, V0TILES_9000
 	ld a, $80
-	call Func_a95
+	call PushTilesToVRAM
 	pop de
 	pop bc
 	ld hl, $800
@@ -4277,18 +4343,18 @@ Func_2133:
 	ld e, l
 	push bc
 	push de
-	ld b, $02
+	ld b, V0TILES_9800
 	ld a, $80
-	call Func_a95
+	call PushTilesToVRAM
 	pop de
 	pop bc
 	ld hl, $800
 	add hl, de
 	ld d, h
 	ld e, l
-	ld b, $04
+	ld b, V1TILES_9000
 	ld a, $80
-	call Func_a95
+	call PushTilesToVRAM
 	pop hl
 	ret
 
@@ -6200,6 +6266,10 @@ Func_3047::
 	bankswitch
 	ret
 
+; input:
+; - c  = ?
+; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
+;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
 Func_30f1:
 	ldh a, [hROMBank]
 	push af
@@ -6209,20 +6279,20 @@ Func_30f1:
 	ld a, c
 	add a
 	add_hl
-	ld de, wd7f1
+	ld de, wVRAMNumTiles
 	ld a, b
 	add_de
 	ld a, [de]
 	ld [hl], a
 	ld a, b
-	cp $02
+	cp V0TILES_9800
 	jr z, .asm_3138
-	cp $05
+	cp V1TILES_8800
 	jr z, .asm_3138
 .asm_3111
 	inc hl
 	ld a, b
-	cp $03
+	cp V1TILES
 	ld a, $00
 	jr c, .asm_311b
 	ld a, $08
@@ -6244,7 +6314,7 @@ Func_30f1:
 	ld h, [hl]
 	ld l, a
 	ld a, [hl]
-	call Func_a95
+	call PushTilesToVRAM
 	pop af
 	bankswitch
 	ret
@@ -7147,7 +7217,7 @@ Func_35ad:
 	ld hl, $36f5
 	ld c, $00
 	ld b, $0a
-	call Func_1536
+	call SpawnEntity
 	pop de
 	jr c, .asm_362b
 	ld a, $06

@@ -25,9 +25,9 @@ Func_4000::
 	ld [wda4b], a
 	push hl
 	ld hl, Func_4066
-	ld c, $01
+	ld c, BANK(Func_4066)
 	ld b, $01
-	call Func_1536
+	call SpawnEntity
 	pop de
 	ld a, ENT_UNK06
 	call SetEntityWordField_DE
@@ -59,8 +59,8 @@ Func_4066:
 	cp $06
 	call nz, Func_475f
 .asm_407b
-	ld a, $01
-	call Func_14e8
+	ld a, 1
+	call YieldEntityUpdate
 	ld a, [wd820]
 	cp $00
 	jr z, .asm_407b
@@ -422,8 +422,8 @@ Func_4446:
 	call Func_451e
 	call Func_44a8
 	call Func_469c
-	ld a, $01
-	call Func_14e8
+	ld a, 1
+	call YieldEntityUpdate
 	jr .asm_4489
 
 Func_44a8:
@@ -1170,7 +1170,7 @@ Func_613b:
 	ld hl, $6186
 	ld c, $01
 	ld b, $09
-	call Func_1536
+	call SpawnEntity
 	jr c, .asm_6182
 	call Func_1124
 	jr c, .asm_6180

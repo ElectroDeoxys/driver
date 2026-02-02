@@ -72,7 +72,7 @@ wResetDelay::    db ; c56b
 wFrameCounter:: db ; c56c
 wc56d:: db ; c56d
 
-wc56e:: db ; c56e
+wVBlankExecuted:: db ; c56e
 wActiveVirtualOAM:: db ; c56f
 wBufferedVirtualOAM:: db ; c570
 
@@ -104,36 +104,24 @@ wOBP0:: db ; c57e
 wOBP1:: db ; c57f
 ENDU
 
-wc5fd:: db ; c5fd
+UNION
+wTempCGBPals::
+wTempBGPals:: ds 8 palettes ; c5fd
+wTempOBPals:: ds 8 palettes ; c63d
+NEXTU
+wTempDMGPals::
+wTempBGP::  db ; c5fd
+wTempOBP0:: db ; c5fe
+wTempOBP1:: db ; c5ff
+ENDU
 
-	ds $c60d - $c5fe
-
-wc60d:: db ; c60d
-
-	ds $c62d - $c60e
-
-wc62d:: db ; c62d
-
-	ds $c63d - $c62e
-
-wc63d:: db ; c63d
-
-	ds $c645 - $c63e
-
-wc645:: db ; c645
-
-	ds $c655 - $c646
-
-wc655:: db ; c655
-
-	ds $c67d - $c656
-
-wc67d:: db ; c67d
+wFadeActive:: db ; c67d
 
 wc67e:: db ; c67e
-wc67f:: db ; c67f
+; represents number of steps done at a time when fading colours
+wFadeSpeed:: db ; c67f
 
-wc680:: db ; c680
+wFadeColourChanged:: db ; c680
 
 wc681::            dw ; c681
 wc683::            dw ; c683
@@ -153,7 +141,8 @@ FOR n, 0, NUM_ENTITIES
 wEntity{u:n}:: entity_struct wEntity{u:n}
 ENDR
 
-wd217:: dw ; d217
+; holds main sp while executing entity update functions
+wTempSP:: dw ; d217
 
 wEntityPtr:: dw ; d219
 
@@ -203,21 +192,17 @@ wd7b1:: db ; d7b1
 
 	ds $d7f1 - $d7b2
 
-wd7f1:: db ; d7f1
-
-wd7f2:: db ; d7f2
-
-wd7f3:: db ; d7f3
-
-wd7f4:: db ; d7f4
-
-wd7f5:: db ; d7f5
-
-	ds $d7f7 - $d7f6
+wVRAMNumTiles::
+wVRAMNumTiles_v0_8000:: db ; d7f1
+wVRAMNumTiles_v0_9000:: db ; d7f2
+wVRAMNumTiles_v0_8800:: db ; d7f3
+wVRAMNumTiles_v1_8000:: db ; d7f4
+wVRAMNumTiles_v1_9000:: db ; d7f5
+wVRAMNumTiles_v1_8800:: db ; d7f6
 
 wd7f7:: db ; d7f7
 
-wd7f8:: db ; d7f8
+wNumTilesToPush:: db ; d7f8
 
 wd7f9:: db ; d7f9
 
@@ -513,7 +498,7 @@ wdbfa:: db ; dbfa
 
 wdbfb:: dw ; dbfb
 
-wdbfd:: db ; dbfd
+wTitleScreenFinished:: db ; dbfd
 
 wdbfe:: db ; dbfe
 

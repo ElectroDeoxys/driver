@@ -5,7 +5,7 @@ Func_8ce1::
 	call Func_f27
 	ld a, TRUE
 	ld [wResetDisabled], a
-	call $4d7d ; Func_8d7d
+	call Func_8d7d
 	ld a, [wd821]
 	cp $02
 	jr z, Func_8cff
@@ -31,11 +31,11 @@ Func_8cff::
 	ld hl, $561f
 	ld c, $02
 	ld b, $13
-	call Func_1536
+	call SpawnEntity
 	ld hl, $4d45
 	ld c, $02
 	ld b, $17
-	call Func_1536
+	call SpawnEntity
 	call Func_94d8
 	ld a, [wd81f]
 	cp $06
@@ -52,52 +52,71 @@ SECTION "Func_8d7d", ROMX[$4d7d], BANK[$2]
 
 Func_8d7d:
 	call Func_8ddb
-	ld de, $4dcb
+
+	ld de, Func_8dcb
 	ld hl, wdbfb
 	ld [hl], e
 	inc hl
 	ld [hl], d
+
 	xor a
 	ld [wd54d], a
+
 	ld a, $09
 	call LoadScene
+
 	ld a, $01
-	call Func_cf2
+	call InitFade
+
 	ld hl, Func_8da4
-	ld c, $02
+	ld c, BANK(Func_8da4)
 	ld b, $16
-	call Func_1536
+	call SpawnEntity
 	jp Func_94d8
 
 Func_8da4:
-	call Func_1e3f
-	ld bc, $b4
-.asm_8daa
-	ld a, $01
-	call Func_14e8
+	call YieldEntityUpdateUntilFadeEnds
+	ld bc, 180
+.loop
+	ld a, 1
+	call YieldEntityUpdate
 	ld a, [wJoypadPressed]
 	and PAD_A | PAD_START
-	jr nz, .asm_8dc3
+	jr nz, .a_or_start_btn
 	dec bc
 	ld a, b
 	or c
-	jr nz, .asm_8daa
+	jr nz, .loop
 	ld a, $01
 	ld [wd821], a
 	jp Func_a491
-.asm_8dc3
+.a_or_start_btn
 	ld a, $02
 	ld [wd821], a
 	jp Func_a491
-; 0x8dcb
+
+Func_8dcb:
+	ld hl, wc683
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+	ld a, $ff
+	ld [hl], a
+	ret
+; 0x8ddb
 
 SECTION "Func_8ddb", ROMX[$4ddb], BANK[$2]
 
 Func_8ddb:
 	call EmptyScreen
-	call Func_a1e
+	call ClearVRAMTiles
 	call Func_110b
-	call Func_1488
+	call ClearEntities
 	call Func_93b5
 	xor a
 	ld [wdc20], a
@@ -119,8 +138,8 @@ Func_90aa::
 	call $6096 ; Func_a096
 	ld hl, $63a0
 	ld c, $36
-	ld b, $28
-	ld de, wc655
+	ld b, 5 palettes
+	ld de, wTempOBPals palette 3
 	call Func_b1b
 	call $614c ; Func_a14c
 	ld bc, $a00
@@ -137,9 +156,9 @@ Func_90aa::
 	ld hl, $5102
 	ld c, $02
 	ld b, $15
-	call Func_1536
+	call SpawnEntity
 	ld a, $03
-	call Func_cf2
+	call InitFade
 	ld a, $03
 	call Func_f27
 	jp Func_94d8
@@ -356,8 +375,8 @@ Func_9292:
 	push hl
 	call Func_98c5
 	ld hl, $52ad
-	ld de, wc62d
-	ld b, $08
+	ld de, wTempBGPals palette 6
+	ld b, 1 palettes
 	call CopyHLtoDE
 	pop hl
 	xor a
@@ -371,7 +390,7 @@ SECTION "Func_935e", ROMX[$535e], BANK[$2]
 
 Func_935e:
 	push hl
-	call Func_a1e
+	call ClearVRAMTiles
 	pop hl
 	ld c, [hl]
 	inc hl
@@ -381,8 +400,8 @@ Func_935e:
 	inc hl
 	ld a, [hli]
 	push hl
-	ld b, $01
-	call Func_a95
+	ld b, V0TILES_9000
+	call PushTilesToVRAM
 	pop hl
 	ld c, [hl]
 	inc hl
@@ -394,8 +413,8 @@ Func_935e:
 	and a
 	jr z, .asm_9382
 	push hl
-	ld b, $02
-	call Func_a95
+	ld b, V0TILES_9800
+	call PushTilesToVRAM
 	pop hl
 .asm_9382
 	ld c, [hl]
@@ -429,35 +448,35 @@ Func_935e:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, wc5fd
-	ld b, $40
+	ld de, wTempBGPals
+	ld b, 8 palettes
 	jp Func_b1b
 
 Func_93b5:
 	ld a, $02
-	ld b, $04
+	ld b, V1TILES_9000
 	call Func_af6
 	ld de, $7960
 	ld c, $33
-	ld b, $04
+	ld b, V1TILES_9000
 	ld a, $53
-	call Func_a95
+	call PushTilesToVRAM
 	ld de, $6830
 	ld c, $33
-	ld b, $04
+	ld b, V1TILES_9000
 	ld a, $2b
-	call Func_a95
+	call PushTilesToVRAM
 	ld de, $6ae0
 	ld c, $33
-	ld b, $05
+	ld b, V1TILES_8800
 	ld a, $7b
-	call Func_a95
+	call PushTilesToVRAM
 	ret
 
 Func_93e1:
 	ld hl, $53ec
-	ld de, wc60d
-	ld b, $08
+	ld de, wTempBGPals palette 2
+	ld b, 1 palettes
 	jp CopyHLtoDE
 ; 0x93ec
 
@@ -576,34 +595,40 @@ SECTION "Func_94d8", ROMX[$54d8], BANK[$2]
 Func_94d8:
 	xor a
 	ld [wc57a], a
-	ld [wdbfd], a
+	ld [wTitleScreenFinished], a
 	ld [wdc29], a
-	call Func_530
+
+.loop
+	call PostVBlank
 	ld a, [wdc29]
 	and a
 	jr z, .asm_94f5
 	call Func_9523
-	call $5bb9 ; Func_9bb9
+	call Func_9bb9
 	xor a
 	ld [wdc29], a
 .asm_94f5
 	call Func_1142
 	call Random
-	call Func_14bf
+	call UpdateEntities
 	ld a, [wdc29]
 	and a
 	jr z, .asm_950a
 	call Func_9523
-	call $5bd1 ; Func_9bd1
+	call Func_9bd1
 .asm_950a
 	ld hl, wdbfb
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	call_hl
-; 0x9515
-
-SECTION "Func_9523", ROMX[$5523], BANK[$2]
+	call Func_1147
+	ld hl, wc57a
+	inc [hl]
+	ld a, [wTitleScreenFinished]
+	and a
+	jr z, .loop
+	ret
 
 Func_9523:
 	ld a, [wdc29]
@@ -658,32 +683,34 @@ Func_98c5:
 	call Func_935e
 	ld de, $6710
 	ld c, $33
-	ld b, $00
+	ld b, V0TILES_8000
 	ld a, $10
-	call Func_a95
+	call PushTilesToVRAM
 	ld de, $7fb0
 	ld c, $32
-	ld b, $00
+	ld b, V0TILES_8000
 	ld a, $01
-	call Func_a95
+	call PushTilesToVRAM
 	ld a, $01
-	ld b, $00
+	ld b, V0TILES_8000
 	call Func_af6
 	ld de, $7fc0
 	ld c, $32
-	ld b, $00
+	ld b, V0TILES_8000
 	ld a, $01
-	call Func_a95
+	call PushTilesToVRAM
 	ld a, $01
-	ld b, $00
+	ld b, V0TILES_8000
 	call Func_af6
 	ld bc, $c00
 	call Func_9484
 	call Func_93e1
+
 	ld hl, $594a
-	ld de, wc63d
-	ld b, $18
+	ld de, wTempOBPals
+	ld b, 3 palettes
 	call CopyHLtoDE
+
 	ld a, TRUE
 	ld [wd54d], a
 	xor a
@@ -703,7 +730,7 @@ Func_98c5:
 	ld a, $01
 	ld [wdbfa], a
 	ld a, $03
-	jp Func_cf2
+	jp InitFade
 ; 0x9939
 
 SECTION "Func_9a2c", ROMX[$5a2c], BANK[$2]
@@ -792,6 +819,102 @@ Func_9a89:
 	ld [wdc7a], a
 	ret
 ; 0x9aa9
+
+SECTION "Func_9bb9", ROMX[$5bb9], BANK[$2]
+
+Func_9bb9:
+	call Func_9bd1
+	ld l, a
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld de, v0BGMap1
+	add hl, de
+	ld de, wd771
+	ld bc, $114
+	jp Func_83c
+
+Func_9bd1:
+	push af
+	call Func_1e57
+	push hl
+	ld hl, wd771
+	ld b, $14
+	xor a
+.asm_9bdc
+	ld [hli], a
+	dec b
+	jr nz, .asm_9bdc
+	pop hl
+	call Func_9c1d
+	ld a, $14
+	sub c
+	jr c, .asm_9c07
+.asm_9be9
+	srl a
+	ld de, wd771
+	add_de
+.asm_9bef
+	ld a, [hli]
+	and a
+	jr z, .asm_9bfd
+	sub $20
+	jr z, .asm_9bf9
+	add $01
+.asm_9bf9
+	ld [de], a
+	inc de
+	jr .asm_9bef
+.asm_9bfd
+	pop af
+	push af
+	ld de, wdbff
+	add_de
+	ld a, c
+	ld [de], a
+	pop af
+	ret
+.asm_9c07
+	ld hl, $5c11
+	ld c, $0b
+	ld a, $09
+	jp .asm_9be9
+; 0x9c11
+
+SECTION "Func_9c1d", ROMX[$5c1d], BANK[$2]
+
+Func_9c1d:
+	ld c, $00
+	ld de, wd7b1
+.asm_9c22
+	ld a, [hli]
+	cp $80
+	jr nc, .asm_9c33
+	ld [de], a
+	and a
+	jr z, .asm_9c2f
+	inc c
+	inc de
+	jr .asm_9c22
+.asm_9c2f
+	ld hl, wd7b1
+	ret
+.asm_9c33
+	sub $80
+	push hl
+	ld hl, $5c43
+	push hl
+	add a
+	ld hl, $5c46
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	jp hl
+; 0x9c43
 
 SECTION "Func_9c91", ROMX[$5c91], BANK[$2]
 
@@ -953,9 +1076,9 @@ Func_a491:
 	ld a, $00
 	call Func_1569
 .asm_a4a0
-	call Func_2ca
-	call Func_1e3f
-	ld a, $01
-	ld [wdbfd], a
-	jp Func_15b3
+	call FadeToWhite
+	call YieldEntityUpdateUntilFadeEnds
+	ld a, TRUE
+	ld [wTitleScreenFinished], a
+	jp YieldEntityUpdateIndefinitely
 ; 0xa4ae
