@@ -103,7 +103,7 @@ ShowCompanies:
 	jr z, .cgb
 
 ; gb
-	ld a, $00
+	ld a, SCENE_GB_DISCLAIMER
 	call LoadScene
 .asm_20b
 	call Func_501
@@ -120,29 +120,33 @@ ShowCompanies:
 	homecall CheckSkipCompanies
 	ret nz ; skip
 
-	ld a, $06
+	ld a, SCENE_LICENSED_BY_NINTENDO
 	ld b, 60
 	ld c, 60
-	call .Func_254
-	ld a, $05
+	call .ShowScene
+
+	ld a, SCENE_LEGAL_INFO
 	ld b, 60
 	ld c, 60
-	call .Func_254
-	ld a, $07
+	call .ShowScene
+
+	ld a, SCENE_INFOGRAMES
 	ld b, 60
 	ld c, 60
-	call .Func_254
-	ld a, $08
+	call .ShowScene
+
+	ld a, SCENE_REFLECTIONS
 	ld b, 60
 	ld c, 60
-	call .Func_254
-	ld a, $03
+	call .ShowScene
+
+	ld a, SCENE_CRAWFISH_INTERACTIVE
 	ld b, 60
 	ld c, 60
-	call .Func_254
+	call .ShowScene
 	ret
 
-.Func_254:
+.ShowScene:
 	push bc
 	call LoadScene
 	pop bc
@@ -155,7 +159,7 @@ LoadScene::
 	add hl, hl
 	add hl, hl
 	add hl, hl ; *16
-	ld de, Data_33a
+	ld de, Scenes
 	add hl, de
 	ldh a, [hROMBank]
 	push af
@@ -274,7 +278,8 @@ Func_333:
 	ldh [rLCDC], a
 	ret
 
-Data_33a:
+Scenes:
+	; SCENE_GB_DISCLAIMER
 	dmgpal SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK ; BGP (dgm only)
 	dbw $00, NULL  ; BG palettes (CGB only)
 	dbw $34, $68dd ; tiles VRAM0
@@ -296,6 +301,7 @@ Data_33a:
 	dbw $34, $7ddd ; tiles VRAM1 (CGB only)
 	dbw $34, $7e06 ; tile attributes (CGB only)
 
+	; SCENE_CRAWFISH_INTERACTIVE
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $34, $7e68 ; BG palettes (CGB only)
 	dbw $35, $4000 ; tiles VRAM0
@@ -310,6 +316,7 @@ Data_33a:
 	dbw $35, $4d7b ; tiles VRAM1 (CGB only)
 	dbw $35, $4da4 ; tile attributes (CGB only)
 
+	; SCENE_LEGAL_INFO
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $35, $4dcb ; BG palettes (CGB only)
 	dbw $35, $4e0b ; tiles VRAM0
@@ -317,6 +324,7 @@ Data_33a:
 	dbw $35, $511e ; tiles VRAM1 (CGB only)
 	dbw $34, $7fda ; tile attributes (CGB only)
 
+	; SCENE_LICENSED_BY_NINTENDO
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $35, $5147 ; BG palettes (CGB only)
 	dbw $35, $5187 ; tiles VRAM0
@@ -324,6 +332,7 @@ Data_33a:
 	dbw $35, $52c9 ; tiles VRAM1 (CGB only)
 	dbw $35, $52f2 ; tile attributes (CGB only)
 
+	; SCENE_INFOGRAMES
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $35, $61a4 ; BG palettes (CGB only)
 	dbw $35, $61e4 ; tiles VRAM0
@@ -331,6 +340,7 @@ Data_33a:
 	dbw $35, $6ad0 ; tiles VRAM1 (CGB only)
 	dbw $35, $6af9 ; tile attributes (CGB only)
 
+	; SCENE_REFLECTIONS
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $35, $589f ; BG palettes (CGB only)
 	dbw $35, $58df ; tiles VRAM0
@@ -338,6 +348,7 @@ Data_33a:
 	dbw $35, $6119 ; tiles VRAM1 (CGB only)
 	dbw $35, $6142 ; tile attributes (CGB only)
 
+	; SCENE_TITLESCREEN
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $35, $5315 ; BG palettes (CGB only)
 	dbw $35, $5355 ; tiles VRAM0
@@ -383,7 +394,7 @@ _VBlank:
 
 	ldh a, [hROMBank]
 	ldh [hTempROMBank], a
-	call Func_f81
+	call UpdateAudio
 	ldh a, [hTempROMBank]
 	bankswitch
 	pop hl
@@ -1039,7 +1050,8 @@ Func_74d:
 	pop af
 	ret
 
-Func_75a:
+; outputs hl = hl - de
+SubtractDEFromHL:
 	push af
 	ld a, l
 	sub e
@@ -1113,7 +1125,7 @@ SECTION "Func_7d5", ROM0[$7d5]
 Func_7d5:
 	push bc
 	push hl
-	ld hl, wd771
+	ld hl, wGfxBuffer
 	ld bc, $1000
 .asm_7dd
 	ld [hl], c
@@ -1156,7 +1168,7 @@ Func_7d5:
 
 Func_81d:
 	push hl
-	ld hl, wd771
+	ld hl, wGfxBuffer
 	call SafeCopyTile
 	pop hl
 	ret
@@ -1172,9 +1184,17 @@ SafeCopyFarTiles:
 	bankswitch
 	ret
 
-Func_839:
+Func_839::
 	call CoordinateToBGMapPtr
-Func_83c::
+;	falltrough
+
+; copies data from hl to bg map de
+; in shape of box with dimensions bxc
+; input:
+; - hl = bg map pointer
+; - de = bg map data
+; - (b, c) = (rows, columns)
+CopyBGMapBox::
 	; swap hl and de
 	push de
 	ld e, l
@@ -1184,8 +1204,8 @@ Func_83c::
 	ld a, c
 	add a ; *2
 	cp b
-	jr c, .asm_854
-.asm_845
+	jr c, .loop_copy_cols
+.loop_copy_rows
 	push bc
 	push de
 	ld b, c
@@ -1196,9 +1216,10 @@ Func_83c::
 	ld a, TILEMAP_WIDTH
 	add_de
 	dec b
-	jr nz, .asm_845
+	jr nz, .loop_copy_rows
 	ret
-.asm_854
+
+.loop_copy_cols
 	push bc
 	push de
 	call SafeCopyColumn
@@ -1206,7 +1227,7 @@ Func_83c::
 	pop bc
 	inc e
 	dec c
-	jr nz, .asm_854
+	jr nz, .loop_copy_cols
 	ret
 
 SafeCopyColumn:
@@ -1460,21 +1481,91 @@ ClearVRAMTiles::
 	xor a
 	ld [hli], a ; V0TILES_8000
 	ld [hli], a ; V0TILES_9000
-	ld [hli], a ; V0TILES_9800
+	ld [hli], a ; V0TILES_8800
 	ld [hli], a ; V1TILES_8000
 	ld [hli], a ; V1TILES_9000
 	ld [hl], a  ; V1TILES_8800
 	ret
-; 0xa29
 
-SECTION "PushTilesToVRAM", ROM0[$a95]
+; input:
+; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
+;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
+; - c:de = source of tiles (compressed)
+PushTilesToVRAM_Compressed::
+	ldh a, [hROMBank]
+	push af
+	ld a, c
+	bankswitch
+	ld a, b
+	ld hl, wVRAMNumTiles
+	add_hl
+	ld c, [hl] ; tile index
+	push hl
+	ld hl, VRAMBlockAddresses
+	ld a, b
+	cp V1TILES
+	jr c, .vram0
+	ld a, BANK("VRAM1")
+	vramswitch
+	ld a, b
+	sub V1TILES
+.vram0
+	add_hl
+	ld h, [hl] ; high byte of dest
+	ld l, $00
+	ld b, $00
+	sla c
+	rl b
+	sla c
+	rl b
+	sla c
+	rl b
+	sla c
+	rl b ; *16
+	add hl, bc
+
+	; swap hl with de
+	ld a, l
+	ld l, e
+	ld e, a
+	ld a, h
+	ld h, d
+	ld d, a
+
+	push de
+	call Func_62b
+	ld h, d
+	ld l, e
+	pop de
+	call SubtractDEFromHL
+	srl l
+	srl l
+	srl l
+	srl l
+	ld a, h
+	add a
+	add a
+	add a
+	add a
+	add l
+	pop hl
+	add [hl]
+	ld [hl], a
+	ldh a, [hBootUpA]
+	cp BOOTUP_A_CGB
+	jr nz, .dmg
+	ld a, BANK("VRAM0")
+	vramswitch
+.dmg
+	pop af
+	bankswitch
+	ret
 
 ; input:
 ; - a  = number of tiles
-; - c  = bank
 ; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
 ;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
-; - de = source of tiles
+; - c:de = source of tiles
 PushTilesToVRAM::
 	ld [wNumTilesToPush], a
 	ldh a, [hROMBank]
@@ -1543,16 +1634,16 @@ Func_af6::
 	ldh a, [hROMBank]
 	push af
 
-	; black out wd771
+	; black out wGfxBuffer
 	push bc
-	ld hl, wd771
+	ld hl, wGfxBuffer
 	ld bc, TILE_SIZE
 	call ClearMemory
 	pop bc
 
 .loop_tiles
 	push bc
-	ld de, wd771
+	ld de, wGfxBuffer
 	ld c, $01
 	ld a, 1 ; tile
 	call PushTilesToVRAM
@@ -1564,17 +1655,18 @@ Func_af6::
 	bankswitch
 	ret
 
-Func_b1b::
+; copies b bytes from c:hl to de
+FarCopy::
 	ldh a, [hROMBank]
 	push af
 	ld a, c
 	bankswitch
-.asm_b24
+.loop
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec b
-	jr nz, .asm_b24
+	jr nz, .loop
 	pop af
 	bankswitch
 	ret
@@ -1582,7 +1674,7 @@ Func_b1b::
 VRAMBlockAddresses:
 	db HIGH(v0Tiles0) ; V0TILES_8000 | V1TILES_8000
 	db HIGH(v0Tiles2) ; V0TILES_9000 | V1TILES_9000
-	db HIGH(v0Tiles1) ; V0TILES_9800 | V1TILES_8800
+	db HIGH(v0Tiles1) ; V0TILES_8800 | V1TILES_8800
 ; 0xb34
 
 SECTION "Func_c28", ROM0[$c28]
@@ -2067,20 +2159,22 @@ PtrTable_edd:
 	dw $4cf4      ; "Audio 2"
 
 Data_ee1:
-	db $3e, $01
-	db $3e, $02
-	db $3e, $03
-	db $3e, $04
-	db $3e, $05
-	db $3f, $01
-	db $3f, $02
-	db $3f, $03
+	db $3e, $01 ; MUSIC_TITLESCREEN
+	db $3e, $02 ; MUSIC_MAIN_MENU
+	db $3e, $03 ; MUSIC_BRIEFING
+	db $3e, $04 ; MUSIC_MIAMI
+	db $3e, $05 ; MUSIC_MISSION_COMPLETE
+	db $3f, $01 ; MUSIC_LOS_ANGELES
+	db $3f, $02 ; MUSIC_NEW_YORK
+	db $3f, $03 ; MUSIC_MISSION_FAILED
 
 Func_ef1:
-	ld b, $04
+	ld b, AUDIOFUNC_UNK4
 	ld c, a
-	jp Func_f4f
+	jp AddToAudioQueue
 
+; input:
+; - a = SFX_* constant
 Func_ef7::
 	and a
 	ret z
@@ -2090,10 +2184,10 @@ Func_ef7::
 	ld c, a
 	ld a, [wc544]
 	and a
-	jr z, .asm_f08
-	ld b, $00
-	call Func_f4f
-.asm_f08
+	jr z, .skip
+	ld b, AUDIOFUNC_PLAY_SFX
+	call AddToAudioQueue
+.skip
 	pop hl
 	pop de
 	pop bc
@@ -2107,8 +2201,8 @@ Func_f0c::
 	ld a, [wc544]
 	and a
 	jr z, .asm_f1b
-	ld b, $03
-	call Func_f4f
+	ld b, AUDIOFUNC_UNK3
+	call AddToAudioQueue
 .asm_f1b
 	pop hl
 	pop de
@@ -2116,25 +2210,31 @@ Func_f0c::
 	ret
 ; 0xf1f
 
-SECTION "Func_f27", ROM0[$f27]
+SECTION "PlayMusicIfNotPlaying", ROM0[$f27]
 
-Func_f27::
+; input:
+; - a = MUSIC_* constant
+PlayMusicIfNotPlaying::
 	push hl
 	ld hl, wc541
 	cp [hl]
 	pop hl
-	ret z
-Func_f2e::
+	ret z ; already playing
+;	fallthrough
+
+; input:
+; - a = MUSIC_* constant
+PlayMusic::
 	push bc
 	push de
 	push hl
 	ld c, a
 	ld a, [wc545]
 	and a
-	jr z, .asm_f3d
-	ld b, $01
-	call Func_f4f
-.asm_f3d
+	jr z, .skip
+	ld b, AUDIOFUNC_PLAY_MUSIC
+	call AddToAudioQueue
+.skip
 	pop hl
 	pop de
 	pop bc
@@ -2145,8 +2245,8 @@ Func_f41:
 	push bc
 	push de
 	push hl
-	ld b, $02
-	call Func_f4f
+	ld b, AUDIOFUNC_UNK2
+	call AddToAudioQueue
 	pop hl
 	pop de
 	pop bc
@@ -2154,52 +2254,62 @@ Func_f41:
 	ret
 
 ; input:
-; - b = ?
-; - c = ?
-Func_f4f:
-	ld hl, wc547
+; - b = AUDIOFUNC_* constant
+; - c = argument to audio function
+AddToAudioQueue:
+	ld hl, wAudioQueueSize
 	ld a, [hl]
-	cp $10
-	ret z
+	cp MAX_AUDIO_QUEUE_SIZE
+	ret z ; no more space in queue
+
+	; mark queue as invalid while pushing a new entry
 	xor a
-	ld [wc546], a
-	inc [hl]
-	ld hl, wc548
+	ld [wAudioQueueValid], a
+
+	; increment size
+	inc [hl] ; wAudioQueueSize
+
+	ld hl, wAudioQueueIterator
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld [hl], b
+	ld [hl], b ; function
 	inc hl
-	ld [hl], c
+	ld [hl], c ; argument
 	inc hl
 	ld a, l
-	ld [wc548 + 0], a
+	ld [wAudioQueueIterator + 0], a
 	ld a, h
-	ld [wc548 + 1], a
-	ld a, $01
-	ld [wc546], a
+	ld [wAudioQueueIterator + 1], a
+
+	; mark queue as valid again
+	ld a, TRUE
+	ld [wAudioQueueValid], a
 	ret
 
-Func_f73:
-	ld de, wc54a
-	ld hl, wc548
+ClearAudioQueue:
+	ld de, wAudioQueue
+	ld hl, wAudioQueueIterator
 	ld [hl], e
 	inc hl
 	ld [hl], d
 	xor a
-	ld [wc547], a
+	ld [wAudioQueueSize], a
 	ret
 
-Func_f81:
-	ld a, [wc546]
+UpdateAudio:
+	; process audio queue
+	ld a, [wAudioQueueValid]
 	and a
-	jr z, .asm_fad
-	ld a, [wc547]
+	jr z, .skip_queue ; not valid
+
+	ld a, [wAudioQueueSize]
 	and a
-	jr z, .asm_fad
-	ld hl, wc54a
-	ld b, a
-.asm_f91
+	jr z, .skip_queue ; no entries
+
+	ld hl, wAudioQueue
+	ld b, a ; num of entries
+.loop_entries
 	push bc
 	ld a, [hli]
 	ld c, [hl]
@@ -2207,19 +2317,20 @@ Func_f81:
 	ld de, .return
 	push de
 	jumptable
-	dw Func_fba  ; $0
-	dw Func_fd3  ; $1
-	dw Func_1009 ; $2
-	dw Func_1010 ; $3
-	dw Func_101e ; $4
+	dw Func_fba  ; AUDIOFUNC_PLAY_SFX
+	dw Func_fd3  ; AUDIOFUNC_PLAY_MUSIC
+	dw Func_1009 ; AUDIOFUNC_UNK2
+	dw Func_1010 ; AUDIOFUNC_UNK3
+	dw Func_101e ; AUDIOFUNC_UNK4
 .return
 	pop hl
 	pop bc
 	inc hl
 	dec b
-	jr nz, .asm_f91
-	call Func_f73
-.asm_fad
+	jr nz, .loop_entries
+	call ClearAudioQueue
+
+.skip_queue
 	ld a, [wAudioBank]
 	and a
 	ret z
@@ -2232,7 +2343,7 @@ Func_fba:
 	jr nz, .asm_fc7
 	push bc
 	ld c, BANK("Audio 1")
-	call Func_102c
+	call SetAudioBank
 	pop bc
 .asm_fc7
 	ld a, [wAudioBank]
@@ -2264,7 +2375,7 @@ Func_fd3:
 	pop bc
 .asm_ff4
 	push bc
-	call Func_102c
+	call SetAudioBank
 	pop bc
 .asm_ff9
 	ld a, [wAudioBank]
@@ -2295,7 +2406,9 @@ Func_101e:
 	ld a, c
 	jp Func_f8015
 
-Func_102c:
+; input:
+; - c = audio bank to switch to
+SetAudioBank:
 	ld a, c
 	ld [wAudioBank], a
 	ld a, c
@@ -2346,10 +2459,10 @@ Func_1069:
 
 Func_1084:
 	xor a
-	ld [wc546], a
+	ld [wAudioQueueValid], a
 	ld [wAudioBank], a
 	ld [wc541], a
-	jp Func_f73
+	jp ClearAudioQueue
 
 GetEntityWordField_BC::
 	push hl
@@ -2870,7 +2983,7 @@ Func_1338:
 	jr z, .asm_1364
 	ld b, d
 	push bc
-	ld bc, wd771
+	ld bc, wGfxBuffer
 	ld a, d
 	ld d, $00
 .asm_1347
@@ -2897,7 +3010,7 @@ Func_1338:
 	jr nz, .asm_1347
 	pop bc
 	ld d, b
-	ld hl, wd771
+	ld hl, wGfxBuffer
 .asm_1364
 	ld a, c
 	and $40
@@ -3164,7 +3277,7 @@ ClearEntities::
 ; if found, return carry, otherwise no carry
 ; input:
 ; - a = ?
-Func_1497::
+FindEntity::
 	push bc
 	push de
 	ld c, a
@@ -3284,9 +3397,19 @@ StartEntityUpdate:
 	pop de
 	pop bc
 	ret
-; 0x1526
 
-SECTION "SpawnEntity", ROM0[$1536]
+DespawnEntity:
+	ld hl, wEntityPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld [hl], $00
+	ld hl, wTempSP
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld sp, hl
+	ret
 
 ; input:
 ; - c:hl = update function
@@ -3335,9 +3458,8 @@ SpawnEntity::
 	ret
 
 ; input:
-; - hl = entity
-; - a  = ?
-; - de = ?
+; - hl    = entity
+; - a:de  = ?
 Func_1569::
 	inc hl
 	ld [hl], 1 ; ENT_UPDATE_TIMER
@@ -3402,7 +3524,7 @@ YieldEntityUpdate_BCTimes:
 
 YieldEntityUpdateIndefinitely::
 .loop
-	ld bc, $ffff
+	ld bc, -1 ; max duration
 	call YieldEntityUpdate_BCTimes
 	jr .loop
 
@@ -3412,8 +3534,9 @@ Func_15bb:
 
 	call Func_1a12
 
-	ld a, $02
-	ld [wd823], a
+	ld a, NEW_YORK
+	ld [wCity], a
+
 	ld a, $00
 	ld [wd822], a
 	ld a, $05
@@ -3423,17 +3546,17 @@ Func_15bb:
 
 	call Func_1692
 
-.asm_15d9
-	homecall Func_8ce1
+.titlescreen
+	homecall Titlescreen
 	jr .asm_15ef
-.asm_15e5
-	homecall Func_8cff
+.main_menu
+	homecall MainMenu
 .asm_15ef
 	call Func_1692
 
 	ld a, $02
 	bankswitch
-	call $50aa
+	call Func_90aa
 	call Func_16a8
 	ld a, $00
 	ld [wd820], a
@@ -3480,7 +3603,7 @@ Func_15bb:
 	cp $06
 	jr z, .asm_1684
 	ld a, $00
-	call Func_f2e
+	call PlayMusic
 	ld hl, wc579
 	ld a, [hl]
 	and a
@@ -3495,8 +3618,8 @@ Func_15bb:
 	and a
 	jp z, .asm_15ef
 	dec a
-	jp z, .asm_15e5
-	jp .asm_15d9
+	jp z, .main_menu
+	jp .titlescreen
 
 Func_1692:
 	ld a, [wdc38]
@@ -3746,17 +3869,19 @@ Func_1b4e:
 	cp $06
 	jr z, .asm_1bcb
 	call Func_f41
-	ld a, [wd823]
-	ld hl, .Data
+	ld a, [wCity]
+	ld hl, .MusicIDs
 	add_hl
 	ld a, [hl]
-	call Func_f2e
+	call PlayMusic
 .asm_1bcb
 	ld a, $01
 	jp InitFade
 
-.Data:
-	db $04, $06, $07
+.MusicIDs:
+	db MUSIC_MIAMI       ; MIAMI
+	db MUSIC_LOS_ANGELES ; LOS_ANGELES
+	db MUSIC_NEW_YORK    ; NEW_YORK
 ; 0x1bd3
 
 SECTION "Func_1c57", ROM0[$1c57]
@@ -4026,13 +4151,17 @@ YieldEntityUpdateUntilFadeEnds::
 	call YieldEntityUpdate
 	jr .loop
 
+; input:
+; - hl = data in bank $3c
 Func_1e4b::
 	ldh a, [hROMBank]
 	push af
 	ld a, $3c
 	bankswitch
 	jr Func_1e61
-	
+
+; input:
+; - hl = data in bank $3d
 Func_1e57::
 	ldh a, [hROMBank]
 	push af
@@ -4049,12 +4178,12 @@ Func_1e61:
 	ld l, a
 	push de
 	ld de, wdcb6
-.asm_1e6d
+.loop_copy
 	ld a, [hli]
 	ld [de], a
 	inc de
 	and a
-	jr nz, .asm_1e6d
+	jr nz, .loop_copy
 	pop de
 	ld hl, wdcb6
 	pop af
@@ -4241,7 +4370,7 @@ Func_2026:
 	ret
 
 Func_20ce:
-	ld de, wd771
+	ld de, wGfxBuffer
 	ld b, $10
 .asm_20d3
 	ld a, [de]
@@ -4269,7 +4398,7 @@ Func_20dc:
 	add hl, de
 	ld a, [wdc7a]
 	bankswitch
-	ld de, wd771
+	ld de, wGfxBuffer
 	ld b, $10
 	call CopyHLtoDE
 	pop de
@@ -4343,7 +4472,7 @@ Func_2133:
 	ld e, l
 	push bc
 	push de
-	ld b, V0TILES_9800
+	ld b, V0TILES_8800
 	ld a, $80
 	call PushTilesToVRAM
 	pop de
@@ -4568,7 +4697,7 @@ Func_225d:
 	add_bc
 	jr .asm_228f
 .asm_22a9
-	ld de, wd771
+	ld de, wGfxBuffer
 	call Func_22c2
 	ld a, $01
 	vramswitch
@@ -4612,7 +4741,7 @@ Func_22c2:
 
 Func_22f5:
 	push de
-	ld de, wd771
+	ld de, wGfxBuffer
 	ld a, [wd803]
 	add_de
 	ld a, [hli]
@@ -4681,7 +4810,7 @@ Func_2315:
 	add_de
 	jr .asm_2345
 .asm_235f
-	ld de, wd771
+	ld de, wGfxBuffer
 	call Func_2378
 	ld a, $01
 	vramswitch
@@ -4725,7 +4854,7 @@ Func_2378:
 
 Func_23ab:
 	push de
-	ld de, wd771
+	ld de, wGfxBuffer
 	ld a, [wd803]
 	add_de
 	ld a, [hli]
@@ -4800,7 +4929,7 @@ Func_2410:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call Func_75a
+	call SubtractDEFromHL
 	ld a, l
 	or h
 	ret z
@@ -5069,15 +5198,20 @@ Func_2558:
 	ret
 
 Func_2597:
-	ld a, [wd823]
-	ld hl, $25a3
+	ld a, [wCity]
+	ld hl, .PtrTable
 	add a
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ret
-; 0x25a3
+
+.PtrTable:
+	dw $25a9 ; MIAMI
+	dw $25bd ; LOS_ANGELES
+	dw $25d1 ; NEW_YORK
+; 0x25a9
 
 SECTION "Func_25e5", ROM0[$25e5]
 
@@ -5353,7 +5487,7 @@ Func_27e5:
 	ld a, [de]
 	ld d, a
 	ld e, c
-	call Func_75a
+	call SubtractDEFromHL
 	ld a, l
 	or h
 	jr z, .asm_283b
@@ -6285,7 +6419,7 @@ Func_30f1:
 	ld a, [de]
 	ld [hl], a
 	ld a, b
-	cp V0TILES_9800
+	cp V0TILES_8800
 	jr z, .asm_3138
 	cp V1TILES_8800
 	jr z, .asm_3138
@@ -6830,10 +6964,10 @@ Func_33bf:
 	jr c, .asm_33ea
 	call Func_3425
 	call c, Func_3574
-	ld a, [wdc7a]
+	ld a, [wdc7a + 0]
 	cp l
 	jr nz, .asm_33e5
-	ld a, [wdc7b]
+	ld a, [wdc7a + 1]
 	cp h
 	jr z, .asm_33ea
 .asm_33e5
@@ -7000,10 +7134,10 @@ Func_34cf:
 	ret
 
 Func_34de:
-	ld a, [wdc7a]
+	ld a, [wdc7a + 0]
 	cp l
 	jr nz, .asm_34e9
-	ld a, [wdc7b]
+	ld a, [wdc7a + 1]
 	cp h
 	ret z
 .asm_34e9
@@ -7064,11 +7198,11 @@ Func_351e:
 
 Func_3544:
 	push de
-	ld a, [wd823]
+	ld a, [wCity]
 	ld e, a
 	add a
-	add e
-	ld hl, $3823
+	add e ; *3
+	ld hl, PtrTable_3823
 	add_hl
 	ld a, [hli]
 	bankswitch
@@ -7078,10 +7212,11 @@ Func_3544:
 	ld e, $00
 	srl d
 	rr e
+	; de = d * $80
 	add hl, de
 	ld a, b
 	add a
-	add a
+	add a ; *4
 	add_hl
 	pop de
 	ret
@@ -7402,4 +7537,225 @@ Func_3637:
 	ld [hl], b
 	pop hl
 	ret
-; 0x36ea
+
+Func_36ea:
+	push de
+	ld a, $11
+	call GetEntityWordField_DE
+	ld a, [de]
+	and $08
+	pop de
+	ret
+; 0x36f5
+
+SECTION "Func_3705", ROM0[$3705]
+
+Func_3705:
+	call Func_1598
+	set 1, [hl]
+.asm_370a
+	call Func_3773
+	call Func_37be
+	call Func_3743
+	call Func_3637
+	call Func_3798
+	ld a, b
+	or c
+	jr z, .asm_3724
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_370a
+.asm_3724
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_36ea
+	jr z, .asm_3724
+	ld c, $00
+.asm_3730
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_36ea
+	jr z, .asm_3724
+	inc c
+	ld a, $59
+	cp c
+	jr nc, .asm_3730
+	jp Func_3815
+
+Func_3743:
+	push hl
+	ld a, $0a
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	call Func_2558
+	cp $00
+	ret nz
+	push hl
+	ld a, $06
+	add_hl
+	ld a, [hl]
+	cpl
+	ld [hld], a
+	ld a, [hl]
+	add $80
+	ld [hl], a
+	pop hl
+	ld a, $07
+	call GetEntityWordField_BC
+	srl b
+	rr c
+	ld a, $07
+	call SetEntityWordField_BC
+	jp Func_37f0
+
+Func_3773:
+	ld a, $08
+	call GetEntityByteField_A
+	rrca
+	rrca
+	and $3f
+	ld b, a
+	push hl
+	ld a, $06
+	add_hl
+	ld c, [hl]
+	dec hl
+	ld a, $01
+	bit 7, c
+	jr z, .asm_378b
+	ld a, $ff
+.asm_378b
+	add [hl]
+	ld [hld], a
+	ld a, b
+	bit 7, c
+	jr z, .asm_3794
+	cpl
+	inc a
+.asm_3794
+	add [hl]
+	ld [hl], a
+	pop hl
+	ret
+
+Func_3798:
+	push hl
+	ld a, $03
+	add_hl
+	ld a, [hl]
+	add a
+	ld hl, $3872
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	push hl
+	ld a, $07
+	add_hl
+	push hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	bit 7, h
+	jr z, .asm_37b6
+	ld hl, JumpTable
+.asm_37b6
+	ld b, h
+	ld c, l
+	pop hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	ret
+
+Func_37be:
+	call Func_37fb
+	ld a, $05
+	call GetEntityByteField_A
+	push hl
+	call Func_29ea
+	pop hl
+	push bc
+	ld b, d
+	ld c, e
+	call Func_37e3
+	ld d, b
+	ld e, c
+	pop bc
+	call Func_37e3
+	push de
+	ld a, $09
+	call Func_146c
+	pop bc
+	ld a, $0c
+	jp Func_146c
+
+Func_37e3:
+	ld a, $08
+	call GetEntityByteField_A
+	push de
+	push hl
+	call Func_2998
+	pop hl
+	pop de
+	ret
+
+Func_37f0:
+	push hl
+	ld a, $09
+	add_hl
+	ld d, h
+	ld e, l
+	ld hl, wda6e
+	jr Func_3802
+Func_37fb:
+	push hl
+	ld a, $09
+	add_hl
+	ld de, wda6e
+Func_3802:
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	pop hl
+	ret
+
+Func_3815:
+	call Func_1598
+	ld a, $11
+	call GetEntityWordField_DE
+	xor a
+	ld [de], a
+	ld [hl], a
+	jp DespawnEntity
+
+PtrTable_3823:
+	dba Data_10000 ; MIAMI
+	dba Data_14000 ; LOS_ANGELES
+	dba Data_c0000 ; NEW_YORK
+; 0x382c

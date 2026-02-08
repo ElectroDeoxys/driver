@@ -57,13 +57,13 @@ wc544:: db ; c544
 
 wc545:: db ; c545
 
-wc546:: db ; c546
-
-wc547:: db ; c547
-wc548:: dw ; c548
-wc54a:: db ; c54a
-
-	ds $c56a - $c54b
+; variables related to audio queue
+; each entry is 2 bytes in size,
+; corresponding to an audio function and argument
+wAudioQueueValid::    db ; c546
+wAudioQueueSize::     db ; c547
+wAudioQueueIterator:: dw ; c548
+wAudioQueue::         ds MAX_AUDIO_QUEUE_SIZE * 2 ; c54a
 
 ; if TRUE then resetting game through A+B+START+SELECT is disabled
 wResetDisabled:: db ; c56a
@@ -176,13 +176,17 @@ wd551:: db ; d551
 
 	ds $d771 - $d552
 
-wd771:: db ; d771
+; multipurpose buffer for temporarily
+; holding tile/bg map data
+wGfxBuffer:: db ; d771
 
 	ds $d782 - $d772
 
 wd782:: db ; d782
 
-	ds $d786 - $d783
+	ds $d785 - $d783
+
+wd785:: db ; d785
 
 wd786:: db ; d786
 
@@ -190,7 +194,11 @@ wd786:: db ; d786
 
 wd7b1:: db ; d7b1
 
-	ds $d7f1 - $d7b2
+	ds $d7c4 - $d7b2
+
+wd7c4:: db ; d7c4
+
+	ds $d7f1 - $d7c5
 
 wVRAMNumTiles::
 wVRAMNumTiles_v0_8000:: db ; d7f1
@@ -256,11 +264,11 @@ wd81f:: db ; d81f
 
 wd820:: db ; d820
 
-wd821:: db ; d821
+wTitlescreenTransition:: db ; d821
 
 wd822:: db ; d822
 
-wd823:: db ; d823
+wCity:: db ; d823
 
 wd824:: db ; d824
 
@@ -338,7 +346,11 @@ wd896:: db ; d896
 
 wd897:: db ; d897
 
-	ds $d8e5 - $d898
+	ds $d8e2 - $d898
+
+wd8e2:: db ; d8e2
+
+	ds $d8e5 - $d8e3
 
 wd8e5:: db ; d8e5
 
@@ -496,7 +508,7 @@ wdbdc:: db ; dbdc
 
 wdbfa:: db ; dbfa
 
-wdbfb:: dw ; dbfb
+wMenuUpdateFunc:: dw ; dbfb
 
 wTitleScreenFinished:: db ; dbfd
 
@@ -522,11 +534,15 @@ wdc25:: db ; dc25
 
 wdc26:: db ; dc26
 
-	ds $dc29 - $dc27
+wdc27:: dw ; dc27
 
 wdc29:: db ; dc29
 
-	ds $dc2f - $dc2a
+wdc2a:: db ; dc2a
+
+wdc2b:: db ; dc2b
+
+	ds $dc2f - $dc2c
 
 wdc2f:: db ; dc2f
 
@@ -548,9 +564,7 @@ wdc39:: db ; dc39
 
 	ds $dc7a - $dc3a
 
-wdc7a:: db ; dc7a
-
-wdc7b:: db ; dc7b
+wdc7a:: dw ; dc7a
 
 wdc7c:: db ; dc7c
 

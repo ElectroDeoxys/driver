@@ -2,6 +2,7 @@ rom := driver.gbc
 
 rom_obj := \
 src/audio.o \
+src/gfx.o \
 src/home.o \
 src/main.o \
 src/ram.o

@@ -15,6 +15,11 @@ MACRO? dwb
 	db \2
 ENDM
 
+MACRO? dba
+	db BANK(\1)
+	dw \1
+ENDM
+
 MACRO? rgb
 	dw (\3 << 10 | \2 << 5 | \1)
 ENDM

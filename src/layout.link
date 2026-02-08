@@ -31,6 +31,16 @@ ROMX $1
 	"Bank01"
 ROMX $2
 	"Bank02"
+ROMX $4
+	"Bank04"
+ROMX $5
+	"Bank05"
+ROMX $30
+	"Bank30"
+ROMX $32
+	"Bank32"
+ROMX $33
+	"Bank33"
 ROMX $3e
 	"Audio 1"
 ROMX $3f

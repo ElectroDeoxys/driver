@@ -171,12 +171,12 @@ Func_4119:
 	jr c, .asm_41b4
 	cp $30
 	jr c, .asm_41a5
-	ld a, $2a
+	ld a, SFX_2A
 	call Func_ef7
 	jr .asm_41b4
 .asm_41a5
 	push hl
-	ld hl, $41e8
+	ld hl, .SfxIDs
 	call Random
 	and $03
 	add_hl
@@ -216,9 +216,9 @@ Func_4119:
 	call Func_41ec
 	pop bc
 	ret
-; 0x41e8
 
-SECTION "Func_41ec", ROMX[$41ec], BANK[$1]
+.SfxIDs:
+	db SFX_28, SFX_29, SFX_2B, SFX_27
 
 Func_41ec:
 	ld a, [de]
@@ -783,9 +783,9 @@ Func_469c:
 Func_470f:
 	call Random
 	and $01
-	ld a, $27
+	ld a, SFX_27
 	jp z, Func_ef7
-	ld a, $29
+	ld a, SFX_29
 	jp Func_ef7
 
 Func_471e:
@@ -794,9 +794,9 @@ Func_471e:
 	ret c
 	call Random
 	and $01
-	ld a, $29
+	ld a, SFX_29
 	jp z, Func_ef7
-	ld a, $2b
+	ld a, SFX_2B
 	jp Func_ef7
 
 Func_4733:
@@ -919,7 +919,7 @@ Func_475f:
 	and $01
 	ld a, $0c
 	jr z, .asm_480f
-	ld a, $22
+	ld a, SFX_22
 	ld c, a
 	jr .asm_4812
 .asm_480f
@@ -939,36 +939,36 @@ Func_475f:
 	ret
 
 .Func_4829:
-	ld a, $24
-	ld bc, $108
+	ld a, SFX_24
+	lb bc, $01, $08
 	jr .asm_4860
 .Func_4830:
 	ld a, $24
 	jr .asm_4885
 .Func_4834:
-	ld a, $25
-	ld bc, $108
+	ld a, SFX_25
+	lb bc, $01, $08
 	jr .asm_4860
 .Func_483b:
 	ld a, $25
 	jr .asm_4885
 .Func_483f:
-	ld a, $1a
-	ld bc, $207
+	ld a, SFX_1A
+	lb bc, $02, $07
 	jr .asm_4860
 .Func_4846:
 	ld a, $1a
 	jr .asm_4885
 .Func_484a:
-	ld a, $1b
-	ld bc, $30a
+	ld a, SFX_1B
+	lb bc, $03, $0a
 	jr .asm_4860
 .Func_4851:
 	ld a, $1b
 	jr .asm_4885
 .Func_4855:
-	ld a, $1c
-	ld bc, $41e
+	ld a, SFX_1C
+	lb bc, $04, $1e
 	jr .asm_4860
 .Func_485c:
 	ld a, $1c
