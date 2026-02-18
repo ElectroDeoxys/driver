@@ -593,7 +593,7 @@ wdc2b:: db ; dc2b
 
 wdc2f:: db ; dc2f
 
-wdc30:: db ; dc30
+wLanguage:: db ; dc30
 
 wdc31:: db ; dc31
 

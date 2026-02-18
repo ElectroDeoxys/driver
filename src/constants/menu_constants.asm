@@ -18,3 +18,11 @@ DEF GOTO_MAIN_MENU EQU $2
 	const SCENE_INFOGRAMES           ; $7
 	const SCENE_REFLECTIONS          ; $8
 	const SCENE_TITLESCREEN          ; $9
+
+; wLanguage constants
+	const_def
+	const ENGLISH ; $0
+	const FRENCH  ; $1
+	const GERMAN  ; $2
+	const ITALIAN ; $3
+	const SPANISH ; $4

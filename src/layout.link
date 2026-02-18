@@ -37,10 +37,16 @@ ROMX $5
 	"Bank05"
 ROMX $30
 	"Bank30"
+ROMX $31
+	"Bank31"
 ROMX $32
 	"Bank32"
 ROMX $33
 	"Bank33"
+ROMX $34
+	"Bank34"
+ROMX $35
+	"Bank35"
 ROMX $36
 	"Bank36"
 ROMX $3e

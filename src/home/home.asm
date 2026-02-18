@@ -1121,13 +1121,20 @@ SetRNGSeed:
 	db $ff, $80, $26, $37
 ; 0x7be
 
-SECTION "Func_7d5", ROM0[$7d5]
+SECTION "CopyTilesWithAlternatingBlackTiles", ROM0[$7d5]
 
-Func_7d5:
+; copies b tiles from hl to de
+; but alternating with a black tile
+; if a == 0, then interleave after tiles
+; if a == 1, then interleave before tiles
+; input:
+; - c:hl = source gfx
+; - de = destination
+CopyTilesWithAlternatingBlackTiles:
 	push bc
 	push hl
 	ld hl, wGfxBuffer
-	ld bc, $1000
+	lb bc, TILE_SIZE, $00
 .asm_7dd
 	ld [hl], c
 	inc hl
@@ -1135,39 +1142,43 @@ Func_7d5:
 	jr nz, .asm_7dd
 	pop hl
 	pop bc
+
 	and a
-	jr nz, .asm_802
+	jr nz, .pre
+
+; post
 	ldh a, [hROMBank]
 	push af
 	ld a, c
 	bankswitch
-.asm_7f0
+.loop_copy_post
 	push bc
 	call SafeCopyTile
-	call Func_81d
+	call .CopyBlackTile
 	pop bc
 	dec b
-	jr nz, .asm_7f0
-	pop af
-	bankswitch
-	ret
-.asm_802
-	ldh a, [hROMBank]
-	push af
-	ld a, c
-	bankswitch
-.asm_80b
-	push bc
-	call Func_81d
-	call SafeCopyTile
-	pop bc
-	dec b
-	jr nz, .asm_80b
+	jr nz, .loop_copy_post
 	pop af
 	bankswitch
 	ret
 
-Func_81d:
+.pre
+	ldh a, [hROMBank]
+	push af
+	ld a, c
+	bankswitch
+.loop_copy_pre
+	push bc
+	call .CopyBlackTile
+	call SafeCopyTile
+	pop bc
+	dec b
+	jr nz, .loop_copy_pre
+	pop af
+	bankswitch
+	ret
+
+.CopyBlackTile:
 	push hl
 	ld hl, wGfxBuffer
 	call SafeCopyTile
@@ -1185,7 +1196,7 @@ SafeCopyFarTiles::
 	bankswitch
 	ret
 
-Func_839::
+CopyBGMapBox_ToCoordinate::
 	call CoordinateToBGMapPtr
 ;	falltrough
 
@@ -1631,7 +1642,7 @@ PushTilesToVRAM::
 ; - a = number of tiles
 ; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
 ;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
-Func_af6::
+BlackOutVRAMTiles::
 	ld c, a
 	ldh a, [hROMBank]
 	push af
@@ -1646,7 +1657,7 @@ Func_af6::
 .loop_tiles
 	push bc
 	ld de, wGfxBuffer
-	ld c, $01
+	ld c, $1
 	ld a, 1 ; tile
 	call PushTilesToVRAM
 	pop bc
@@ -3830,7 +3841,7 @@ Func_1b4e:
 	call Func_1d16
 	call Func_2026
 	call Func_32fb
-	homecall Func_802b
+	homecall LoadHUD
 	ld hl, $4988
 	ld c, $01
 	ld b, $03
@@ -4019,8 +4030,8 @@ Func_1cb9:
 	ld [wdc32], a
 	ld a, $01
 	ld [wdc33], a
-	ld a, $00
-	ld [wdc30], a
+	ld a, ENGLISH
+	ld [wLanguage], a
 	ld a, $01
 	ld [wdc31], a
 	ld a, $01
@@ -4065,7 +4076,7 @@ Func_1d16:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld b, $08
 .asm_1d43
@@ -4109,12 +4120,12 @@ Func_1d16:
 	add b
 	ld [wVRAMNumTiles_v1_8000], a
 	xor a
-	call Func_7d5
+	call CopyTilesWithAlternatingBlackTiles
 	pop hl
 	pop bc
 	dec b
 	jr nz, .asm_1d43
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld de, wTempOBPals
 	ld b, $08
@@ -4181,31 +4192,35 @@ Func_1d16:
 	inc de
 	dec b
 	jr nz, .asm_1deb
-	ld a, $01
+
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v1Tiles0 tile $70
-	ld hl, $7ff0
-	ld c, $31
-	ld b, $01
-	ld a, $01
-	call Func_7d5
+	ld hl, Gfx_cdff0
+	ld c, BANK(Gfx_cdff0)
+	ld b, 1 ; tile
+	ld a, 1
+	call CopyTilesWithAlternatingBlackTiles
+
 	ld de, v1Tiles0 tile $72
-	ld hl, $515d
-	ld c, $34
-	ld b, $04
+	ld hl, Gfx_d115d
+	ld c, BANK(Gfx_d115d)
+	ld b, 4 ; tiles
 	xor a
-	call Func_7d5
+	call CopyTilesWithAlternatingBlackTiles
+
 	ld de, v1Tiles0 tile $7a
-	ld hl, $4f5d
-	ld c, $34
-	ld b, $04
+	ld hl, Gfx_d0f5d
+	ld c, BANK(Gfx_d0f5d)
+	ld b, 4 ; tiles
 	call SafeCopyFarTiles
+
 	ld de, v1Tiles1 tile $68
-	ld hl, $4f9d
-	ld c, $34
-	ld b, $0c
+	ld hl, Gfx_d0f9d
+	ld c, BANK(Gfx_d0f9d)
+	ld b, 12 ; tiles
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -4244,7 +4259,7 @@ Func_1e57::
 ;	fallthrough
 
 Func_1e61:
-	ld a, [wdc30]
+	ld a, [wLanguage]
 	add a
 	add_hl
 	ld a, [hli]
@@ -4814,11 +4829,11 @@ Func_225d:
 .asm_22a9
 	ld de, wGfxBuffer
 	call Func_22c2
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, wd786
 	call Func_22c2
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -4835,7 +4850,7 @@ Func_22c2:
 	ld h, a
 	push bc
 	push de
-	call Func_839
+	call CopyBGMapBox_ToCoordinate
 	pop de
 	pop bc
 	ld a, c
@@ -4846,13 +4861,13 @@ Func_22c2:
 	ld l, $00
 	ld a, [wd802]
 	ld h, a
-	jp Func_839
+	jp CopyBGMapBox_ToCoordinate
 .asm_22ea
 	ld bc, $115
 	ld l, a
 	ld a, [wd802]
 	ld h, a
-	jp Func_839
+	jp CopyBGMapBox_ToCoordinate
 
 Func_22f5:
 	push de
@@ -4927,11 +4942,11 @@ Func_2315:
 .asm_235f
 	ld de, wGfxBuffer
 	call Func_2378
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, wd782
 	call Func_2378
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -4948,7 +4963,7 @@ Func_2378:
 	ld l, a
 	push bc
 	push de
-	call Func_839
+	call CopyBGMapBox_ToCoordinate
 	pop de
 	pop bc
 	ld a, b
@@ -4959,13 +4974,13 @@ Func_2378:
 	ld h, $00
 	ld a, [wd801]
 	ld l, a
-	jp Func_839
+	jp CopyBGMapBox_ToCoordinate
 .asm_23a0
 	ld bc, $1101
 	ld h, a
 	ld a, [wd801]
 	ld l, a
-	jp Func_839
+	jp CopyBGMapBox_ToCoordinate
 
 Func_23ab:
 	push de

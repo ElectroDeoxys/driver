@@ -87,6 +87,11 @@ $(rom): $(rom_obj) src/layout.link
 	$(RGBLINK) -w -m $(rom:.gbc=.map) -n $(rom:.gbc=.sym) -l src/layout.link -o $@ $(filter %.o,$^) -O baserom.gbc
 	$(RGBFIX) $(opts) $@
 
+### Misc file-specific graphics rules
+
+src/gfx/font.2bpp: RGBGFX += -x 5
+src/gfx/font_checkbox.2bpp: RGBGFX += -x 5
+
 ### Catch-all graphics rules
 
 %.2bpp: %.png

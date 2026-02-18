@@ -1,13 +1,17 @@
-SECTION "Func_8008", ROMX[$4008], BANK[$2]
+Pals_8000:
+	rgb  0,  0,  0
+	rgb 27,  0,  0
+	rgb 11, 11, 11
+	rgb 31, 31, 31
 
-Func_8008:
+GetHUDGfxPointer:
 	push af
 	push hl
-	ld a, [wdc30]
+	ld a, [wLanguage]
 	ld l, a
 	add a
-	add l
-	ld hl, $401c
+	add l ; *3
+	ld hl, .HUDGfx
 	add_hl
 	ld c, [hl]
 	inc hl
@@ -17,31 +21,40 @@ Func_8008:
 	pop hl
 	pop af
 	ret
-; 0x801c
 
-SECTION "Func_802b", ROMX[$402b], BANK[$2]
+.HUDGfx:
+	dba EnglishHUDGfx ; ENGLISH
+	dba FrenchHUDGfx  ; FRENCH
+	dba GermanHUDGfx  ; GERMAN
+	dba ItalianHUDGfx ; ITALIAN
+	dba SpanishHUDGfx ; SPANISH
 
-Func_802b::
-	ld hl, $4000
+; loads HUD that occupies the 2 bottom rows of the screen
+LoadHUD::
+	ld hl, Pals_8000
 	ld de, wTempBGPals palette 7
 	ld b, 1 palettes
 	call CopyHLtoDE
-	ld a, $00
+
+	ld a, 0
 	ld [wVRAMNumTiles_v1_8800], a
-	ld a, $01
-	ld b, $05
-	call Func_af6
-	call Func_8008
-	ld hl, $100
+	ld a, 1 ; tile
+	ld b, V1TILES_8800
+	call BlackOutVRAMTiles
+
+	call GetHUDGfxPointer
+	; skip over number gfx
+	ld hl, 16 tiles
 	add hl, de
 	ld d, h
 	ld e, l
-	ld b, $05
-	ld a, $1a
+	ld b, V1TILES_8800
+	ld a, 26 ; tiles
 	call PushTilesToVRAM
-	ld hl, $4112
+
+	ld hl, .BoxTilemap
 	ld de, wd840
-	ld b, $28
+	ld b, 2 * SCREEN_WIDTH
 .asm_805a
 	ld a, [hli]
 	add $80
@@ -49,26 +62,29 @@ Func_802b::
 	inc de
 	dec b
 	jr nz, .asm_805a
+
 	hlbgcoord 0, 16, v0BGMap1
 	ld de, wd840
-	lb bc, $2, $14
+	lb bc, 2, SCREEN_WIDTH
 	call CopyBGMapBox
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	hlbgcoord 0, 16, v0BGMap1
-	ld de, $413a
-	lb bc, $2, $14
+	ld de, .BoxAttrmap
+	lb bc, 2, SCREEN_WIDTH
 	call CopyBGMapBox
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
+
 	ld a, $80
-	call Func_80ef
-	ld a, $01
+	call .FillRows
+	ld a, BANK("VRAM1")
 	vramswitch
-	ld a, $0f
-	call Func_80ef
-	ld a, $00
+	ld a, 7 | BG_BANK1
+	call .FillRows
+	ld a, BANK("VRAM0")
 	vramswitch
+
 	xor a
 	ld [wd869], a
 	ld [wd86b], a
@@ -81,52 +97,65 @@ Func_802b::
 	ld [wd8e9], a
 	ld [wd877], a
 	ld [wd894], a
+
 	ld hl, wd874
 	ld a, $ff
 	ld [hli], a
 	ld [hli], a
 	ld [hl], a
+
 	ld a, [wdc32]
 	and $10
-	jr z, .asm_80e6
-	ld a, $01
+	jr z, .skip_numbers
+	; load number gfx
+	ld a, BANK("VRAM1")
 	vramswitch
-	call Func_8008
+	call GetHUDGfxPointer
 	ld h, d
 	ld l, e
 	ld de, v0Tiles1 tile $0b
-	ld b, $0a
+	ld b, 10 ; tiles
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
-.asm_80e6
+
+.skip_numbers
 	ld a, [wd81f]
 	cp $06
 	jp z, Func_8bef
 	ret
 
-Func_80ef:
+; fills 4 rows with value given in a
+; starting from row 18 (to VRAM0 or VRAM1)
+.FillRows:
 	ld hl, wGfxBuffer
-	ld bc, $20
+	ld bc, TILEMAP_WIDTH
 	call FillMemory
 	hlbgcoord 0, 18, v0BGMap1
-	ld b, $04
-.asm_80fd
+	ld b, 4
+.loop_rows
 	push bc
 	ld de, wGfxBuffer
-	lb bc, $1, $20
+	lb bc, 1, TILEMAP_WIDTH
 	push hl
 	call CopyBGMapBox
 	pop hl
-	ld de, $20
+	ld de, TILEMAP_WIDTH
 	add hl, de
 	pop bc
 	dec b
-	jr nz, .asm_80fd
+	jr nz, .loop_rows
 	ret
-; 0x8112
 
-SECTION "Func_8162", ROMX[$4162], BANK[$2]
+.BoxTilemap:
+	; DAMAGE and FELONY bars/text tiles
+	db $01, $02, $02, $02, $02, $02, $02, $02, $01, $00, $00, $01, $02, $02, $02, $02, $02, $02, $02, $01
+	db $00, $0b, $0c, $0d, $0e, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $0f, $10, $11, $12, $00
+
+.BoxAttrmap:
+	; DAMAGE and FELONY bars/text attributes
+	db 7 | BG_BANK1, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1 | BG_XFLIP, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1 | BG_XFLIP
+	db 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1
 
 Func_8162::
 	ld a, [wd81f]
@@ -530,9 +559,10 @@ Func_8530:
 	add hl, hl
 	add hl, hl
 	push bc
-	call Func_8008
+	call GetHUDGfxPointer
+	; skip over number and hud gfx
 	add hl, de
-	ld de, $2a0
+	ld de, (16 + 26) tiles
 	add hl, de
 	push hl
 	ld l, b
@@ -547,11 +577,11 @@ Func_8530:
 	ld d, h
 	ld e, l
 	pop hl
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
-	ld b, $01
+	ld b, 1 ; tile
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	pop bc
 	pop hl
@@ -581,64 +611,73 @@ SECTION "Func_8bef", ROMX[$4bef], BANK[$2]
 Func_8bef:
 	xor a
 	ld [wVRAMNumTiles_v1_8800], a
-	ld a, $01
-	ld b, $05
-	call Func_af6
-	ld de, $7420
-	ld c, $33
-	ld b, $05
-	ld a, $53
+
+	ld a, 1 ; tile
+	ld b, V1TILES_8800
+	call BlackOutVRAMTiles
+
+	ld de, FontGfx
+	ld c, BANK(FontGfx)
+	ld b, V1TILES_8800
+	ld a, $53 ; tiles
 	call PushTilesToVRAM
-	ld hl, $4c5c
+
+	ld hl, Pals_8c5c
 	ld de, wTempBGPals palette 7
 	ld b, 1 palettes
 	call CopyHLtoDE
-	ld bc, $f80
-	call Func_8c22
+
+	lb bc, 7 | BG_BANK1, $80
+	call .FillBGMap
+
 	xor a
 	ld [wdc90], a
 	ld [wdc91], a
 	ld [wdc92], a
 	ret
 
-Func_8c22:
+.FillBGMap:
 	ld a, c
 	push bc
-	call Func_8c39
+	call .FillRows
 	pop bc
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld a, b
-	call Func_8c39
-	ld a, $00
+	call .FillRows
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
-Func_8c39:
+.FillRows:
 	ld hl, wGfxBuffer
-	ld b, $20
-.asm_8c3e
+	ld b, TILEMAP_WIDTH
+.loop_fill
 	ld [hli], a
 	dec b
-	jr nz, .asm_8c3e
-	ld hl, v0BGMap1
-	ld b, $20
-.asm_8c47
+	jr nz, .loop_fill
+
+	hlbgcoord 0, 0, v0BGMap1
+	ld b, TILEMAP_HEIGHT
+.loop_rows
 	push bc
 	push hl
 	ld de, wGfxBuffer
-	lb bc, $1, $20
+	lb bc, 1, TILEMAP_WIDTH
 	call CopyBGMapBox
 	pop hl
-	ld de, $20
+	ld de, TILEMAP_WIDTH
 	add hl, de
 	pop bc
 	dec b
-	jr nz, .asm_8c47
+	jr nz, .loop_rows
 	ret
-; 0x8c5c
 
-SECTION "Func_8c64", ROMX[$4c64], BANK[$2]
+Pals_8c5c:
+	rgb 31, 31, 31
+	rgb  0,  0, 31
+	rgb  0,  0, 28
+	rgb  0,  0, 24
 
 Func_8c64:
 	ld hl, wdc91
@@ -926,7 +965,7 @@ SECTION "Func_9159", ROMX[$5159], BANK[$2]
 Func_9159:
 	ld hl, wdc34
 	ld c, $38
-	ld a, [wdc30]
+	ld a, [wLanguage]
 	cp $03
 	jr c, .asm_9167
 	ld c, $40
@@ -1108,7 +1147,7 @@ Func_91ae:
 	srl a
 	ld e, a
 	ld d, $9c
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld a, [wdc25]
 	ld l, a
@@ -1122,7 +1161,7 @@ Func_91ae:
 	ld b, $01
 	ld de, wd7b1
 	call CopyBGMapBox
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld hl, wdc25
 	inc [hl]
@@ -1131,7 +1170,7 @@ Func_91ae:
 Func_9292:
 	push hl
 	call Func_98c5
-	ld hl, $52ad
+	ld hl, Pals_92ad
 	ld de, wTempBGPals palette 6
 	ld b, 1 palettes
 	call CopyHLtoDE
@@ -1141,7 +1180,13 @@ Func_9292:
 	ld [wdc25], a
 	ld [wdbfe], a
 	ret
-; 0x92ad
+
+Pals_92ad:
+	rgb  6,  6,  6
+	rgb 31, 31, 31
+	rgb 24, 24, 24
+	rgb 16, 16, 16
+; 0x92b5
 
 SECTION "Func_935e", ROMX[$535e], BANK[$2]
 
@@ -1220,23 +1265,26 @@ Func_935e:
 	jp FarCopy
 
 Func_93b5:
-	ld a, $02
+	ld a, 2 ; tiles
 	ld b, V1TILES_9000
-	call Func_af6
-	ld de, $7960
-	ld c, $33
+	call BlackOutVRAMTiles
+
+	ld de, FontCheckboxGfx
+	ld c, BANK(FontCheckboxGfx)
 	ld b, V1TILES_9000
-	ld a, $53
+	ld a, $53 ; tiles
 	call PushTilesToVRAM
-	ld de, $6830
-	ld c, $33
+
+	ld de, FontBigGfx
+	ld c, BANK(FontBigGfx)
 	ld b, V1TILES_9000
-	ld a, $2b
+	ld a, $2b ; tiles
 	call PushTilesToVRAM
-	ld de, $6ae0
-	ld c, $33
+
+	ld de, FontBigGfx tile $2b
+	ld c, BANK(FontBigGfx)
 	ld b, V1TILES_8800
-	ld a, $7b
+	ld a, $7b ; tiles
 	call PushTilesToVRAM
 	ret
 
@@ -1441,7 +1489,7 @@ Func_9523:
 	ret
 
 LoadMainMenu:
-	ld hl, $55a3
+	ld hl, .GfxData
 	call Func_935e
 
 	ld de, Gfx_cdf50
@@ -1511,9 +1559,17 @@ LoadMainMenu:
 
 	ld a, $03
 	jp InitFade
-; 0x95a3
 
-SECTION "Data_95b4", ROMX[$55b4], BANK[$2]
+.GfxData:
+	dba Gfx_cd000
+	db 128 ; tiles
+
+	dba Gfx_cd800
+	db 72 ; tiles
+
+	dba Tilemap_cdc80
+	dba Attrmap_cdde8
+	dba Pals_cbec0
 
 Pals_95b4:
 	rgb  0,  0,  0
@@ -1866,10 +1922,10 @@ Func_97f2:
 	ld hl, $5e63
 	ld c, $33
 	call .Func_9850
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call .Func_986d
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 .asm_9821
@@ -1888,10 +1944,10 @@ Func_97f2:
 	ld hl, $7f58
 	ld c, $32
 	call .Func_9865
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call .Func_986d
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -1920,7 +1976,7 @@ Func_97f2:
 	ld de, wGfxBuffer
 	lb bc, 4, 6
 	lb hl, 6, 3
-	jp Func_839
+	jp CopyBGMapBox_ToCoordinate
 ; 0x9879
 
 SECTION "Func_9879", ROMX[$5879], BANK[$2]
@@ -1993,7 +2049,7 @@ Func_98c5:
 
 	ld a, 1 ; tile
 	ld b, V0TILES_8000
-	call Func_af6
+	call BlackOutVRAMTiles
 
 	ld de, Gfx_cbfc0
 	ld c, BANK(Gfx_cbfc0)
@@ -2003,7 +2059,7 @@ Func_98c5:
 
 	ld a, 1 ; tile
 	ld b, V0TILES_8000
-	call Func_af6
+	call BlackOutVRAMTiles
 
 	lb bc, 4 | BG_BANK1, $00
 	call FillBGMap1
@@ -2617,7 +2673,7 @@ Func_a096:
 	ld hl, Gfx_da0e0
 	ld c, BANK(Gfx_da0e0)
 	ld de, v0Tiles1
-	ld b, $2c
+	ld b, 44 ; tiles
 	jp SafeCopyFarTiles
 ; 0xa0a3
 
