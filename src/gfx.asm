@@ -58,3 +58,35 @@ Attrmap_ce5a8:: INCBIN "gfx/bg_ce5a8.attrmap"
 
 SECTION "Gfx_ce710", ROMX[$6710], BANK[$33]
 Gfx_ce710:: INCBIN "gfx/gfx_ce710.2bpp"
+
+SECTION "Bank36", ROMX, BANK[$36]
+
+SECTION "Gfx_da0e0", ROMX[$60e0], BANK[$36]
+Gfx_da0e0:: INCBIN "gfx/gfx_da0e0.2bpp"
+
+Pals_da3a0::
+	rgb  0,  0,  0
+	rgb  6,  6,  6
+	rgb 15, 15, 15
+	rgb 25, 25, 25
+
+	rgb  0,  0,  0
+	rgb  0, 29,  0
+	rgb 31, 20,  0
+	rgb 26,  5,  0
+
+	rgb  0,  0,  0
+	rgb 15, 15, 15
+	rgb 26,  5,  0
+	rgb 25, 25, 25
+
+	rgb  0,  0,  0
+	rgb  7,  6,  0
+	rgb 15, 12,  0
+	rgb 31, 25,  0
+
+	rgb  0,  0,  0
+	rgb 15, 15, 15
+	rgb  0, 11, 31
+	rgb 25, 25, 25
+; 0xda3c8

@@ -17,17 +17,17 @@ hTrackIndex:: db ; ff91
 
 hChannelMixing:: db ; ff92
 
-hff93:: db ; ff93
+; is set to TRUE at the start
+; when game is soft-reset, this variable is checked
+; so that game skips to titlescreen
+hInitialised:: db ; ff93
 
 hBootUpA:: db ; ff94
 
-hSCX::  db ; ff95
-hSCY::  db ; ff96
-hLCDC:: db ; ff97
-hLYC::  db ; ff98
+; these are applied in Stat and V-Blank interrupts
+hLCDSettings:: lcd_struct hLCDSettings ; ff95
 
 hff99:: db ; ff99
-
 hff9a:: db ; ff9a
 hff9b:: db ; ff9b
 

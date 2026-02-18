@@ -41,6 +41,8 @@ ROMX $32
 	"Bank32"
 ROMX $33
 	"Bank33"
+ROMX $36
+	"Bank36"
 ROMX $3e
 	"Audio 1"
 ROMX $3f

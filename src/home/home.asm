@@ -20,7 +20,7 @@ Init:
 	ldh [hBootUpA], a
 	disable_lcd
 	xor a
-	ldh [hff93], a
+	ldh [hInitialised], a
 ClearWRAM:
 	ldh a, [hBootUpA]
 	cp BOOTUP_A_CGB
@@ -105,15 +105,15 @@ ShowCompanies:
 ; gb
 	ld a, SCENE_GB_DISCLAIMER
 	call LoadScene
-.asm_20b
+.loop_disclaimer
 	call Func_501
 	call PostVBlank
-	jr .asm_20b
+	jr .loop_disclaimer
 
 .cgb
-	ld hl, hff93
+	ld hl, hInitialised
 	ld a, [hl]
-	ld [hl], $01
+	ld [hl], TRUE
 	and a
 	ret nz
 
@@ -450,15 +450,15 @@ _Stat:
 	di
 	push af
 	push hl
-	ld hl, hSCX
+	ld hl, hLCDSettings
 	ld a, [hli]
-	ldh [rSCX], a ; hSCX
+	ldh [rSCX], a  ; hLCDSettingsSCX
 	ld a, [hli]
-	ldh [rSCY], a ; hSCY
+	ldh [rSCY], a  ; hLCDSettingsSCY
 	ld a, [hli]
-	ldh [rLCDC], a ; hLCDC
+	ldh [rLCDC], a ; hLCDSettingsLCDC
 	ld a, [hl]
-	ldh [rLYC], a ; hLYC
+	ldh [rLYC], a  ; hLCDSettingsLYC
 	push bc
 	call Func_487
 	pop bc
@@ -474,37 +474,37 @@ _Stat:
 	reti
 
 Func_487:
-	ld hl, wLCDCSettingsPtr
+	ld hl, wLCDSettingsPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld c, LOW(hSCX)
+	ld c, LOW(hLCDSettings)
 	ld a, [hli]
-	ld [$ff00+c], a ; hSCX
+	ld [$ff00+c], a ; hLCDSettingsSCX
 	inc c
 	ld a, [hli]
-	ld [$ff00+c], a ; hSCY
+	ld [$ff00+c], a ; hLCDSettingsSCY
 	inc c
 	ld a, [hli]
 	or LCDC_BG_ON | LCDC_ON
-	ld [$ff00+c], a ; hLCDC
+	ld [$ff00+c], a ; hLCDSettingsLCDC
 	inc c
 	ld a, [hli]
-	ld [$ff00+c], a ; hLYC
+	ld [$ff00+c], a ; hLCDSettingsLYC
 	ld a, l
-	ld [wLCDCSettingsPtr + 0], a
+	ld [wLCDSettingsPtr + 0], a
 	ld a, h
-	ld [wLCDCSettingsPtr + 1], a
+	ld [wLCDSettingsPtr + 1], a
 	ret
 
 Func_4a5:
 	ld a, [wc681 + 0]
-	ld [wLCDCSettingsPtr + 0], a
+	ld [wLCDSettingsPtr + 0], a
 	ld a, [wc681 + 1]
-	ld [wLCDCSettingsPtr + 1], a
+	ld [wLCDSettingsPtr + 1], a
 	call Func_487
 
-	ld hl, hSCX
+	ld hl, hLCDSettings
 	ld a, [hli]
 	ldh [rSCX], a
 	ld a, [hli]
@@ -516,13 +516,13 @@ Func_4a5:
 	jp Func_487
 
 Func_4c6:
-	; set wc681 and wLCDCSettingsPtr to wLCDCSettings
-	ld de, wLCDCSettings
+	; set wc681 and wLCDSettingsPtr to wLCDSettings
+	ld de, wLCDSettings
 	ld hl, wc681
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld hl, wLCDCSettingsPtr
+	ld hl, wLCDSettingsPtr
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -533,20 +533,21 @@ Func_4c6:
 	inc hl
 	ld [hl], d
 
-	ld hl, wLCDCSettings
-	call .ClearSettings
-	ld hl, wc6cf
-	call .ClearSettings
-	ld hl, hSCX
-	call .ClearSettings
+	ld hl, wLCDSettings
+	call .ClearLCDSettings
 
-	ld hl, hLCDC
+	ld hl, wc6cf
+	call .ClearLCDSettings
+
+	ld hl, hLCDSettings
+	call .ClearLCDSettings
+	ld hl, hLCDSettingsLCDC
 	ld a, [hl]
 	or LCDC_BG_ON | LCDC_ON
 	ld [hl], a
 	ret
 
-.ClearSettings:
+.ClearLCDSettings:
 	xor a
 	ld [hli], a  ; scroll X
 	ld [hli], a  ; scroll y
@@ -1002,7 +1003,7 @@ ClearVirtualOAM:
 ; clears bc bytes starting from hl
 ClearMemory::
 	xor a
-FillMemory:
+FillMemory::
 .loop
 	ld [hli], a
 	dec bc
@@ -1174,7 +1175,7 @@ Func_81d:
 	ret
 
 ; copies b tiles from c:hl to de
-SafeCopyFarTiles:
+SafeCopyFarTiles::
 	ldh a, [hROMBank]
 	push af
 	ld a, c
@@ -1188,7 +1189,7 @@ Func_839::
 	call CoordinateToBGMapPtr
 ;	falltrough
 
-; copies data from hl to bg map de
+; copies data from de to bg map hl
 ; in shape of box with dimensions bxc
 ; input:
 ; - hl = bg map pointer
@@ -1628,7 +1629,8 @@ PushTilesToVRAM::
 
 ; input
 ; - a = number of tiles
-; - b = ?
+; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
+;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
 Func_af6::
 	ld c, a
 	ldh a, [hROMBank]
@@ -3553,11 +3555,9 @@ Func_15bb:
 	homecall MainMenu
 .asm_15ef
 	call Func_1692
-
-	ld a, $02
-	bankswitch
-	call Func_90aa
+	homecall Func_90aa
 	call Func_16a8
+
 	ld a, $00
 	ld [wd820], a
 	ld a, $00
@@ -3579,25 +3579,18 @@ Func_15bb:
 	call UpdateEntities
 	call Func_23d1
 	call Func_332a
-	ld a, $01
-	bankswitch
-	call $5471
-	ld a, $01
-	bankswitch
-	call $642c
+	homecall Func_5471
+	homecall Func_642c
 	call Func_1eee
 	ld hl, wc57a
 	inc [hl]
 .asm_164d
-	ld a, $02
-	bankswitch
-	call $4162
-	ld a, $02
-	bankswitch
-	call $459d
+	homecall Func_8162
+	homecall Func_859d
 	call Func_1a71
 	call Func_1147
 	jr .asm_1610
+
 .asm_1669
 	ld a, [wd81f]
 	cp $06
@@ -3696,12 +3689,12 @@ Func_1a71:
 	call Func_1b3d
 	jr nc, .asm_1a85
 	xor a
-	ld [hli], a
-	ld [hli], a
-	ld a, $08
-	ld [hli], a
-	ld a, $08
-	ld [hli], a
+	ld [hli], a ; SCX
+	ld [hli], a ; SCY
+	ld a, LCDC_BG_9C00
+	ld [hli], a ; LCDC
+	ld a, 8
+	ld [hli], a ; LYC
 .asm_1a85
 	ld a, [wd895]
 	cp $03
@@ -3837,9 +3830,7 @@ Func_1b4e:
 	call Func_1d16
 	call Func_2026
 	call Func_32fb
-	ld a, $02
-	bankswitch
-	call $402b
+	homecall Func_802b
 	ld hl, $4988
 	ld c, $01
 	ld b, $03
@@ -3883,6 +3874,89 @@ Func_1b4e:
 	db MUSIC_LOS_ANGELES ; LOS_ANGELES
 	db MUSIC_NEW_YORK    ; NEW_YORK
 ; 0x1bd3
+
+SECTION "Func_1be7", ROM0[$1be7]
+
+Func_1be7::
+	push hl
+	ld a, [wd86e]
+	and a
+	jr z, .asm_1c00
+	ld a, [wd86f]
+	and a
+	jr z, .asm_1c00
+	cp $02
+	jr z, .asm_1bfd
+	call Func_1c02
+	jr .asm_1c00
+.asm_1bfd
+	call Func_1c28
+.asm_1c00
+	pop hl
+	ret
+
+Func_1c02:
+	ld hl, wd871
+	ld a, [hl]
+	sub $03
+	daa
+	ld [hl], a
+	ret nc
+	inc hl
+	ld a, [hli]
+	or [hl]
+	jr nz, .asm_1c18
+	xor a
+	ld [wd871], a
+	ld [wd86e], a
+	ret
+.asm_1c18
+	ld hl, wd872
+	ld a, [hl]
+	and a
+	jr nz, .asm_1c23
+	ld [hl], $59
+	inc hl
+	ld a, [hl]
+.asm_1c23
+	sub $01
+	daa
+	ld [hl], a
+	ret
+
+Func_1c28:
+	ld hl, wd871
+	ld a, [hl]
+	add $03
+	daa
+	ld [hl], a
+	ret nc
+	inc hl
+	ld a, [hli]
+	cp $59
+	jr nz, .asm_1c46
+	ld a, [hl]
+	cp $59
+	jr nz, .asm_1c46
+	ld a, $99
+	ld [wd871], a
+	xor a
+	ld [wd86e], a
+	ret
+.asm_1c46
+	ld hl, wd872
+	ld a, [hl]
+	cp $59
+	jr nz, .asm_1c52
+	ld [hl], $00
+	inc hl
+	ld a, [hl]
+.asm_1c52
+	add $01
+	daa
+	ld [hl], a
+	ret
+; 0x1c57
 
 SECTION "Func_1c57", ROM0[$1c57]
 
@@ -4189,7 +4263,50 @@ Func_1e61:
 	pop af
 	bankswitch
 	ret
-; 0x1e7e
+
+Func_1e7e::
+	ldh a, [hROMBank]
+	push af
+	ld a, $3c
+	bankswitch
+	ld hl, wdc93
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	bit 7, [hl]
+	jr z, .asm_1e96
+	ld b, [hl]
+	inc hl
+	jr .asm_1eae
+.asm_1e96
+	ld de, wdcb6
+	ld b, $00
+.asm_1e9b
+	ld a, [hli]
+	and a
+	jr z, .asm_1ea4
+	ld [de], a
+	inc de
+	inc b
+	jr .asm_1e9b
+.asm_1ea4
+	ld a, b
+	and a
+	jr z, .asm_1eb6
+	cp $15
+	jr c, .asm_1eae
+	ld b, $14
+.asm_1eae
+	ld a, l
+	ld [wdc93], a
+	ld a, h
+	ld [wdc94], a
+.asm_1eb6
+	ld hl, wdcb6
+	pop af
+	bankswitch
+	ret
+; 0x1ec0
 
 SECTION "Func_1eee", ROM0[$1eee]
 
@@ -4425,9 +4542,7 @@ Func_2101:
 	xor a
 	ld [wda31], a
 	ld hl, wda23
-	ld a, $01
-	bankswitch
-	call $43be
+	homecall Func_43be
 	push bc
 	ld c, e
 	ld b, d
@@ -5746,9 +5861,24 @@ Func_29d1:
 	dec a
 	jr nz, .asm_29d1
 	ret
-; 0x29d6
 
-SECTION "Func_29ea", ROM0[$29ea]
+Func_29d6::
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	call Func_29ea
+	pop hl
+	ret
+
+Func_29e0::
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	call Func_2a7e
+	pop hl
+	ret
 
 Func_29ea:
 	ld c, a
@@ -7668,7 +7798,7 @@ Func_3798:
 	add hl, bc
 	bit 7, h
 	jr z, .asm_37b6
-	ld hl, JumpTable
+	ld hl, $0000
 .asm_37b6
 	ld b, h
 	ld c, l

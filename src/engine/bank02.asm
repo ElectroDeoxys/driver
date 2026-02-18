@@ -1,4 +1,721 @@
-SECTION "Titlescreen", ROMX[$4ce1], BANK[$2]
+SECTION "Func_8008", ROMX[$4008], BANK[$2]
+
+Func_8008:
+	push af
+	push hl
+	ld a, [wdc30]
+	ld l, a
+	add a
+	add l
+	ld hl, $401c
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	pop hl
+	pop af
+	ret
+; 0x801c
+
+SECTION "Func_802b", ROMX[$402b], BANK[$2]
+
+Func_802b::
+	ld hl, $4000
+	ld de, wTempBGPals palette 7
+	ld b, 1 palettes
+	call CopyHLtoDE
+	ld a, $00
+	ld [wVRAMNumTiles_v1_8800], a
+	ld a, $01
+	ld b, $05
+	call Func_af6
+	call Func_8008
+	ld hl, $100
+	add hl, de
+	ld d, h
+	ld e, l
+	ld b, $05
+	ld a, $1a
+	call PushTilesToVRAM
+	ld hl, $4112
+	ld de, wd840
+	ld b, $28
+.asm_805a
+	ld a, [hli]
+	add $80
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_805a
+	hlbgcoord 0, 16, v0BGMap1
+	ld de, wd840
+	lb bc, $2, $14
+	call CopyBGMapBox
+	ld a, $01
+	vramswitch
+	hlbgcoord 0, 16, v0BGMap1
+	ld de, $413a
+	lb bc, $2, $14
+	call CopyBGMapBox
+	ld a, $00
+	vramswitch
+	ld a, $80
+	call Func_80ef
+	ld a, $01
+	vramswitch
+	ld a, $0f
+	call Func_80ef
+	ld a, $00
+	vramswitch
+	xor a
+	ld [wd869], a
+	ld [wd86b], a
+	ld [wd86f], a
+	ld [wd86e], a
+	ld [wd870], a
+	ld [wd8e5], a
+	ld [wd8ea], a
+	ld [wd8e8], a
+	ld [wd8e9], a
+	ld [wd877], a
+	ld [wd894], a
+	ld hl, wd874
+	ld a, $ff
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	ld a, [wdc32]
+	and $10
+	jr z, .asm_80e6
+	ld a, $01
+	vramswitch
+	call Func_8008
+	ld h, d
+	ld l, e
+	ld de, v0Tiles1 tile $0b
+	ld b, $0a
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+.asm_80e6
+	ld a, [wd81f]
+	cp $06
+	jp z, Func_8bef
+	ret
+
+Func_80ef:
+	ld hl, wGfxBuffer
+	ld bc, $20
+	call FillMemory
+	hlbgcoord 0, 18, v0BGMap1
+	ld b, $04
+.asm_80fd
+	push bc
+	ld de, wGfxBuffer
+	lb bc, $1, $20
+	push hl
+	call CopyBGMapBox
+	pop hl
+	ld de, $20
+	add hl, de
+	pop bc
+	dec b
+	jr nz, .asm_80fd
+	ret
+; 0x8112
+
+SECTION "Func_8162", ROMX[$4162], BANK[$2]
+
+Func_8162::
+	ld a, [wd81f]
+	cp $06
+	jp z, Func_8c64
+	ld a, [wc579]
+	and a
+	jr nz, .asm_8185
+	call Func_1be7
+	call Func_8189
+	call Func_8273
+	call Func_829d
+	call Func_8220
+	call Func_81cd
+	call Func_8318
+.asm_8185
+	call Func_8977
+	ret
+
+Func_8189:
+	ld a, [wdc32]
+	and $10
+	ret z
+	ld c, $8b
+	ld de, wd855
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $0a
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call Func_82db
+	ld de, wd863
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $07
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call Func_82db
+	hlbgcoord 1, 17, v0BGMap1
+	ld de, wd855
+	lb bc, 1, 4
+	call CopyBGMapBox
+	hlbgcoord 15, 17, v0BGMap1
+	ld de, wd863
+	lb bc, 1, 4
+	jp CopyBGMapBox
+
+Func_81cd:
+	ld a, [wd86f]
+	and a
+	jr z, .asm_81ff
+	ld de, wd871
+	ld hl, wd874
+	ld a, [de]
+	cp [hl]
+	jr nz, .asm_81e2
+	inc hl
+	inc de
+	ld a, [de]
+	cp [hl]
+	ret z
+.asm_81e2
+	ld b, $9c
+	ld hl, wd873
+	ld de, wd876
+	call Func_84a7
+	ld hl, wd85b
+	ld a, $9c
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hl], a
+	jr .asm_8214
+.asm_81ff
+	ld hl, wd874
+	ld a, $ff
+	cp [hl]
+	ret z
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	ld hl, wd85b
+	ld a, $80
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+.asm_8214
+	hlbgcoord 7, 17, v0BGMap1
+	ld de, wd85b
+	lb bc, 1, 6
+	jp CopyBGMapBox
+
+Func_8220:
+	ld a, [wdc32]
+	and $10
+	ret nz
+	ld a, [wd86f]
+	and a
+	jr z, .asm_8256
+	cp $02
+	jr z, .asm_8249
+	ld a, [wd86e]
+	and a
+	jr z, .asm_8249
+	ld hl, wd873
+	ld a, [hld]
+	and a
+	jr nz, .asm_8249
+	ld a, [hl]
+	cp $10
+	jr nc, .asm_8249
+	ld a, [wc57a]
+	and $08
+	jr z, .asm_8256
+.asm_8249
+	ld hl, wd870
+	ld a, [hl]
+	and a
+	ret nz
+	ld [hl], $01
+	lb bc, $94, $93
+	jr .asm_8261
+.asm_8256
+	ld hl, wd870
+	ld a, [hl]
+	and a
+	ret z
+	ld [hl], $00
+	lb bc, $80, $80
+.asm_8261
+	ld hl, wd849
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	hlbgcoord 9, 16, v0BGMap1
+	ld de, wd849
+	lb bc, 1, 2
+	jp CopyBGMapBox
+
+Func_8273:
+	ld hl, wd868
+	call Func_82c7
+	ret z
+	ld hl, wd841
+	ld b, $07
+.asm_827f
+	sub $08
+	jr c, .asm_8287
+	ld [hl], $8a
+	jr .asm_828d
+.asm_8287
+	add $08
+	add $82
+	ld [hl], a
+	xor a
+.asm_828d
+	inc hl
+	dec b
+	jr nz, .asm_827f
+	hlbgcoord 1, 16, v0BGMap1
+	ld de, wd841
+	lb bc, 1, 7
+	jp CopyBGMapBox
+
+Func_829d:
+	ld hl, wd86a
+	call Func_82c7
+	ret z
+	ld hl, wd852
+	ld b, $07
+.asm_82a9
+	sub $08
+	jr c, .asm_82b1
+	ld [hl], $8a
+	jr .asm_82b7
+.asm_82b1
+	add $08
+	add $82
+	ld [hl], a
+	xor a
+.asm_82b7
+	dec hl
+	dec b
+	jr nz, .asm_82a9
+	hlbgcoord 12, 16, v0BGMap1
+	ld de, wd84c
+	lb bc, 1, 7
+	jp CopyBGMapBox
+
+Func_82c7:
+	ld a, [hli]
+	cp [hl]
+	ret z
+	jr c, .asm_82cf
+	inc [hl]
+	jr .asm_82d0
+.asm_82cf
+	dec [hl]
+.asm_82d0
+	ld a, [hl]
+	cp $39
+	jr c, .asm_82d7
+	ld [hl], $38
+.asm_82d7
+	xor a
+	dec a
+	ld a, [hl]
+	ret
+
+Func_82db:
+	push de
+	ld b, c
+.asm_82dd
+	ld de, -$3e8
+	add hl, de
+	bit 7, h
+	jr nc, .asm_82e8
+	inc b
+	jr .asm_82dd
+.asm_82e8
+	ld de, $3e8
+	add hl, de
+	pop de
+	ld a, b
+	ld [de], a
+	inc de
+	push de
+	ld b, c
+.asm_82f2
+	ld de, hROMBank
+	add hl, de
+	bit 7, h
+	jr nc, .asm_82fd
+	inc b
+	jr .asm_82f2
+.asm_82fd
+	ld de, $64
+	add hl, de
+	pop de
+	ld a, b
+	ld [de], a
+	inc de
+	ld b, c
+	ld a, l
+.asm_8307
+	sub $0a
+	jr c, .asm_830e
+	inc b
+	jr .asm_8307
+.asm_830e
+	add $0a
+	ld l, a
+	ld a, b
+	ld [de], a
+	inc de
+	ld a, l
+	add c
+	ld [de], a
+	ret
+
+Func_8318:
+	ld a, [wd877]
+	and a
+	ret z
+	dec a
+	jumptable
+; 0x831f
+
+SECTION "Func_84a7", ROMX[$44a7], BANK[$2]
+
+Func_84a7:
+	ld a, [hl]
+	and $f0
+	ld c, a
+	ld a, [de]
+	and $f0
+	cp c
+	jr z, .asm_84be
+	ld a, [de]
+	and $0f
+	or c
+	ld [de], a
+	ld a, c
+	swap a
+	ld c, $00
+	call Func_8530
+.asm_84be
+	inc b
+	ld a, [hl]
+	and $0f
+	ld c, a
+	ld a, [de]
+	and $0f
+	cp c
+	jr z, .asm_84d4
+	ld a, [de]
+	and $f0
+	or c
+	ld [de], a
+	ld a, c
+	ld c, $0b
+	call Func_8530
+.asm_84d4
+	inc b
+	dec hl
+	dec de
+	ld a, [hl]
+	and $f0
+	ld c, a
+	ld a, [de]
+	and $f0
+	cp c
+	jr z, .asm_84ee
+	ld a, [de]
+	and $0f
+	or c
+	ld [de], a
+	ld a, c
+	swap a
+	ld c, $00
+	call Func_8530
+.asm_84ee
+	inc b
+	ld a, [hl]
+	and $0f
+	ld c, a
+	ld a, [de]
+	and $0f
+	cp c
+	jr z, .asm_8504
+	ld a, [de]
+	and $f0
+	or c
+	ld [de], a
+	ld a, c
+	ld c, $0b
+	call Func_8530
+.asm_8504
+	inc b
+	dec hl
+	dec de
+	ld a, [hl]
+	and $f0
+	ld c, a
+	ld a, [de]
+	and $f0
+	cp c
+	jr z, .asm_851e
+	ld a, [de]
+	and $0f
+	or c
+	ld [de], a
+	ld a, c
+	swap a
+	ld c, $00
+	call Func_8530
+.asm_851e
+	inc b
+	ld a, [hl]
+	and $0f
+	ld c, a
+	ld a, [de]
+	and $0f
+	cp c
+	ret z
+	ld a, [de]
+	and $f0
+	or c
+	ld [de], a
+	ld a, c
+	ld c, $16
+Func_8530:
+	push de
+	push hl
+	ld l, a
+	ld a, $0a
+	sub l
+	add c
+	ld l, a
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	push bc
+	call Func_8008
+	add hl, de
+	ld de, $2a0
+	add hl, de
+	push hl
+	ld l, b
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld a, h
+	add $80
+	ld h, a
+	ld d, h
+	ld e, l
+	pop hl
+	ld a, $01
+	vramswitch
+	ld b, $01
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	pop bc
+	pop hl
+	pop de
+	ret
+; 0x856b
+
+SECTION "Func_859d", ROMX[$459d], BANK[$2]
+
+Func_859d::
+	ld a, [wd895]
+	jumptable
+; 0x85a1
+
+SECTION "Func_8977", ROMX[$4977], BANK[$2]
+
+Func_8977:
+	ld a, [wd8e5]
+	and a
+	ret z
+	dec a
+	jumptable
+; 0x897e
+
+SECTION "Func_8bef", ROMX[$4bef], BANK[$2]
+
+Func_8bef:
+	xor a
+	ld [wVRAMNumTiles_v1_8800], a
+	ld a, $01
+	ld b, $05
+	call Func_af6
+	ld de, $7420
+	ld c, $33
+	ld b, $05
+	ld a, $53
+	call PushTilesToVRAM
+	ld hl, $4c5c
+	ld de, wTempBGPals palette 7
+	ld b, 1 palettes
+	call CopyHLtoDE
+	ld bc, $f80
+	call Func_8c22
+	xor a
+	ld [wdc90], a
+	ld [wdc91], a
+	ld [wdc92], a
+	ret
+
+Func_8c22:
+	ld a, c
+	push bc
+	call Func_8c39
+	pop bc
+	ld a, $01
+	vramswitch
+	ld a, b
+	call Func_8c39
+	ld a, $00
+	vramswitch
+	ret
+
+Func_8c39:
+	ld hl, wGfxBuffer
+	ld b, $20
+.asm_8c3e
+	ld [hli], a
+	dec b
+	jr nz, .asm_8c3e
+	ld hl, v0BGMap1
+	ld b, $20
+.asm_8c47
+	push bc
+	push hl
+	ld de, wGfxBuffer
+	lb bc, $1, $20
+	call CopyBGMapBox
+	pop hl
+	ld de, $20
+	add hl, de
+	pop bc
+	dec b
+	jr nz, .asm_8c47
+	ret
+; 0x8c5c
+
+SECTION "Func_8c64", ROMX[$4c64], BANK[$2]
+
+Func_8c64:
+	ld hl, wdc91
+	ld a, [hl]
+	and a
+	jr z, .asm_8c78
+	dec [hl]
+	ret
+.asm_8c6d
+	ld hl, wdc90
+	dec [hl]
+	ld a, b
+	and $7f
+	ld [wdc91], a
+	ret
+.asm_8c78
+	ld hl, wdc90
+	ld a, [hl]
+	inc a
+	ld [hl], a
+	and $07
+	cp $02
+	ret nz
+	ld hl, wGfxBuffer
+	ld a, $80
+	ld bc, $14
+	call FillMemory
+	call Func_1e7e
+	bit 7, b
+	jr nz, .asm_8c6d
+	ld c, b
+	ld a, b
+	and a
+	jr z, .asm_8cda
+	ld a, $14
+	sub b
+	srl a
+	ld de, wGfxBuffer
+	add_de
+.asm_8ca3
+	ld a, [hli]
+	add $60
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_8ca3
+.asm_8cab
+	ld hl, wdc95
+	ld a, [wdc90]
+	add $10
+	rrca
+	rrca
+	rrca
+	and $1f
+	add_hl
+	xor a
+	bit 0, c
+	jr z, .asm_8cc0
+	ld a, $fc
+.asm_8cc0
+	ld [hl], a
+	ld a, [wdc90]
+	add $10
+	and $f8
+	ld l, a
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	ld de, v0BGMap1
+	add hl, de
+	ld de, wGfxBuffer
+	lb bc, 1, 20
+	jp CopyBGMapBox
+.asm_8cda
+	ld a, $01
+	ld [wdc92], a
+	jr .asm_8cab
 
 Titlescreen::
 	ld a, MUSIC_TITLESCREEN
@@ -142,12 +859,12 @@ Func_8dcb:
 	ld h, [hl]
 	ld l, a
 	xor a
-	ld [hli], a
-	ld [hli], a
+	ld [hli], a ; SCX
+	ld [hli], a ; SCY
 	ldh a, [hff99]
-	ld [hli], a
+	ld [hli], a ; LCDC
 	ld a, $ff
-	ld [hl], a
+	ld [hl], a ; LYC
 	ret
 
 Func_8ddb:
@@ -173,17 +890,19 @@ Func_90aa::
 	get_pointer
 	call Func_1e4b
 	call Func_9177
-	call $6096 ; Func_a096
-	ld hl, $63a0
-	ld c, $36
+	call Func_a096
+
+	ld hl, Pals_da3a0
+	ld c, BANK(Pals_da3a0)
 	ld b, 5 palettes
 	ld de, wTempOBPals palette 3
 	call FarCopy
-	call $614c ; Func_a14c
-	ld bc, $a00
+
+	call Func_a14c
+	lb bc, 2 | BG_BANK1, $00
 	call Func_945c
 	ld hl, $521a
-	call $5aa9 ; Func_9aa9
+	call Func_9aa9
 	ld a, BANK(Func_9159)
 	ld de, Func_9159
 	ld hl, wd54e
@@ -1212,10 +1931,10 @@ Func_9879:
 	ld h, [hl]
 	ld l, a
 	xor a
-	ld [hli], a
-	ld [hli], a
-	ld a, $02
-	ld [hli], a
+	ld [hli], a ; SCX
+	ld [hli], a ; SCY
+	ld a, LCDC_OBJ_ON
+	ld [hli], a ; LCDC
 	ld a, $02
 	call Func_988e
 	ld a, $ff
@@ -1394,10 +2113,10 @@ Func_9a2c:
 	ld h, [hl]
 	ld l, a
 	xor a
-	ld [hli], a
-	ld [hli], a
+	ld [hli], a ; SCX
+	ld [hli], a ; SCY
 	ldh a, [hff99]
-	ld [hli], a
+	ld [hli], a ; LCDC
 	ld a, [wdbfa]
 	and a
 	jr z, .asm_9a80
@@ -1892,6 +2611,16 @@ Func_9d1a:
 	ret
 ; 0x9d38
 
+SECTION "Func_a096", ROMX[$6096], BANK[$2]
+
+Func_a096:
+	ld hl, Gfx_da0e0
+	ld c, BANK(Gfx_da0e0)
+	ld de, v0Tiles1
+	ld b, $2c
+	jp SafeCopyFarTiles
+; 0xa0a3
+
 SECTION "Func_a0e2", ROMX[$60e2], BANK[$2]
 
 Func_a0e2:
@@ -1935,6 +2664,25 @@ Func_a0e2:
 	jr nz, .loop
 	ret
 ; 0xa114
+
+SECTION "Func_a14c", ROMX[$614c], BANK[$2]
+
+Func_a14c:
+	ld a, [wdc38]
+	add a
+	add a
+	ld hl, $6189
+	add_hl
+	ld de, wdc34
+	ld b, $04
+.asm_a15a
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_a15a
+	ret
+; 0xa161
 
 SECTION "EndTitlescreenOrMainScreen", ROMX[$6491], BANK[$2]
 

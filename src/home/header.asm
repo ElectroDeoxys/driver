@@ -181,7 +181,7 @@ InitHardwareRegisters:
 	ld c, a
 	ld a, [hli]
 	ld [$ff00+c], a
-	inc c
+	inc c ; useless
 	jr nz, .loop
 	ret
 

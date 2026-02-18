@@ -123,18 +123,17 @@ wFadeSpeed:: db ; c67f
 
 wFadeColourChanged:: db ; c680
 
-wc681::            dw ; c681
-wc683::            dw ; c683
-wLCDCSettingsPtr:: dw ; c685
+wc681::           dw ; c681
+wc683::           dw ; c683
+wLCDSettingsPtr:: dw ; c685
 
-wLCDCSettings:: ; c687
-	ds $4
+wLCDSettings:: lcd_struct wLCDSettings ; c687
 
 	ds $c6cf - $c68b
 
-wc6cf:: db ; c6cf
+wc6cf:: lcd_struct wc6cf ; c6cf
 
-	ds $c717 - $c6d0
+	ds $c717 - $c6d3
 
 wEntities:: ; c717
 FOR n, 0, NUM_ENTITIES
@@ -322,23 +321,71 @@ wd83b:: db ; d83b
 
 wd83f:: db ; d83f
 
-	ds $d868 - $d840
+wd840:: db ; d840
+
+wd841:: db ; d841
+
+	ds $d849 - $d842
+
+wd849:: db ; d849
+
+	ds $d84c - $d84a
+
+wd84c:: db ; d84c
+
+	ds $d852 - $d84d
+
+wd852:: db ; d852
+
+	ds $d855 - $d853
+
+wd855:: db ; d855
+
+	ds $d85b - $d856
+
+wd85b:: db ; d85b
+
+	ds $d863 - $d85c
+
+wd863:: db ; d863
+
+	ds $d868 - $d864
 
 wd868:: db ; d868
 
-	ds $d86a - $d869
+wd869:: db ; d869
 
 wd86a:: db ; d86a
 
-	ds $d86c - $d86b
+wd86b:: db ; d86b
 
 wd86c:: db ; d86c
 
-	ds $d877 - $d86d
+	ds $d86e - $d86d
+
+wd86e:: db ; d86e
+
+wd86f:: db ; d86f
+
+wd870:: db ; d870
+
+wd871:: db ; d871
+
+wd872:: db ; d872
+
+wd873:: db ; d873
+
+wd874:: db ; d874
+
+	ds $d876 - $d875
+
+wd876:: db ; d876
 
 wd877:: db ; d877
 
-	ds $d895 - $d878
+	ds $d894 - $d878
+
+wd894:: db ; d894
 
 wd895:: db ; d895
 
@@ -588,7 +635,13 @@ wdc8f:: db ; dc8f
 
 wdc90:: db ; dc90
 
-	ds $dc95 - $dc91
+wdc91:: db ; dc91
+
+wdc92:: db ; dc92
+
+wdc93:: db ; dc93
+
+wdc94:: db ; dc94
 
 wdc95:: db ; dc95
 

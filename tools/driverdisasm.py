@@ -573,7 +573,7 @@ class Disassembler(object):
 				which_map = ""
 				addr -= 0x9800
 			else:
-				which_map = ", vBGMap1"
+				which_map = ", v0BGMap1"
 				addr -= 0x9c00
 			y = addr // 0x20
 			x = addr % 0x20
@@ -586,13 +586,13 @@ class Disassembler(object):
 			addr = int(m[2], 16)
 			which_map = ""
 			if addr >= 0x9000:
-				which_map = "vTiles2"
+				which_map = "v0Tiles2"
 				addr -= 0x9000
 			elif addr >= 0x8800:
-				which_map = "vTiles1"
+				which_map = "v0Tiles1"
 				addr -= 0x8800
 			else:
-				which_map = "vTiles0"
+				which_map = "v0Tiles0"
 				addr -= 0x8000
 			tile = addr // 0x10
 			return f"ld {reg}, {which_map} tile ${tile:02x}"

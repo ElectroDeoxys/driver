@@ -381,7 +381,112 @@ Func_42ce:
 	ret
 ; 0x42e1
 
-SECTION "Func_4446", ROMX[$4446], BANK[$1]
+SECTION "Func_43be", ROMX[$43be], BANK[$1]
+
+Func_43be::
+	ld a, $0e
+	call GetEntityByteField_A
+	and $80
+	jr z, .asm_43cc
+	call Func_29e0
+	jr .asm_43cf
+.asm_43cc
+	call Func_29d6
+.asm_43cf
+	push hl
+	ld h, b
+	ld l, c
+	call Func_4436
+	ld c, h
+	ld h, d
+	ld l, e
+	call Func_4436
+	ld e, h
+	pop hl
+	ld b, $00
+	bit 7, c
+	jr z, .asm_43e4
+	dec b
+.asm_43e4
+	ld d, $00
+	bit 7, e
+	jr z, .asm_43eb
+	dec d
+.asm_43eb
+	push hl
+	ld a, $07
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	ld bc, -$40
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, $0a
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, de
+	ld de, -$50
+	add hl, de
+	ld d, h
+	ld e, l
+	bit 7, d
+	jr z, .asm_440e
+	ld de, $0000
+.asm_440e
+	ld hl, wd805
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, h
+	cp d
+	jr nz, .asm_441a
+	ld a, l
+	cp e
+.asm_441a
+	jr nc, .asm_441e
+	ld d, h
+	ld e, l
+.asm_441e
+	bit 7, b
+	jr z, .asm_4425
+	ld bc, $0000
+.asm_4425
+	ld hl, wd807
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, h
+	cp b
+	jr nz, .asm_4431
+	ld a, l
+	cp c
+.asm_4431
+	jr nc, .asm_4435
+	ld b, h
+	ld c, l
+.asm_4435
+	ret
+
+Func_4436:
+	ld a, [wd81f]
+	cp $06
+	ret z
+	push de
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld d, h
+	ld e, l
+	add hl, hl
+	add hl, de
+	pop de
+	ret
 
 Func_4446:
 	call Func_1598
@@ -1108,6 +1213,17 @@ Func_490d:
 	ret
 ; 0x491d
 
+SECTION "Func_5471", ROMX[$5471], BANK[$1]
+
+Func_5471::
+	ld hl, wda9c
+	ld a, [hl]
+	and a
+	ret z
+	dec [hl]
+	ret
+; 0x5479
+
 SECTION "Func_56a2", ROMX[$56a2], BANK[$1]
 
 Func_56a2:
@@ -1210,6 +1326,23 @@ Func_613b:
 	pop af
 	ret
 ; 0x6186
+
+SECTION "Func_642c", ROMX[$642c], BANK[$1]
+
+Func_642c::
+	ld a, [wd820]
+	cp $01
+	ret nz
+	ld a, [wd868]
+	cp $38
+	ret c
+	ld a, $0b
+	call FindEntity
+	ld de, $6446
+	ld a, $01
+	call Func_1569
+	ret
+; 0x6446
 
 SECTION "CheckSkipCompanies", ROMX[$7cff], BANK[$1]
 

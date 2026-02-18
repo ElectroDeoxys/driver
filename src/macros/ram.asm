@@ -131,3 +131,10 @@ MACRO? audio_channel_struct
 \1Unk19:: db
 \1Unk1a:: db
 ENDM
+
+MACRO? lcd_struct
+\1SCX::  db
+\1SCY::  db
+\1LCDC:: db
+\1LYC::  db
+ENDM
