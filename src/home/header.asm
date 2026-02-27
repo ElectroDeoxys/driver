@@ -1,5 +1,7 @@
 SECTION "RST00", ROM0
 
+NULL::
+
 ; jumps to ath entry in following pointer table
 JumpTable::
 	pop hl

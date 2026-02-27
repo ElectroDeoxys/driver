@@ -7,7 +7,7 @@ Reset:
 	call InitTransferVirtualOAMAndClearWRAM
 	call Func_1084
 	call Func_1b5
-	call Func_cc2
+	call LoadDefaultPalettes
 	call Func_333
 	call EnableStatInterrupt
 	call ShowCompanies
@@ -281,11 +281,11 @@ Func_333:
 Scenes:
 	; SCENE_GB_DISCLAIMER
 	dmgpal SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK ; BGP (dgm only)
-	dbw $00, NULL  ; BG palettes (CGB only)
+	dba NULL  ; BG palettes (CGB only)
 	dbw $34, $68dd ; tiles VRAM0
 	dbw $34, $6b3c ; BG map
-	dbw $00, NULL  ; tiles VRAM1 (CGB only)
-	dbw $00, NULL  ; tile attributes (CGB only)
+	dba NULL  ; tiles VRAM1 (CGB only)
+	dba NULL  ; tile attributes (CGB only)
 
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
 	dbw $34, $6c17 ; BG palettes (CGB only)
@@ -1794,9 +1794,9 @@ EnableDoubleSpeed:
 	ret
 ; 0xca0
 
-SECTION "Func_cc2", ROM0[$cc2]
+SECTION "LoadDefaultPalettes", ROM0[$cc2]
 
-Func_cc2:
+LoadDefaultPalettes:
 	lddmgpal c, SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK
 	ld hl, Pals_ec5
 	jr FillPalettes ; useless jump
@@ -2188,7 +2188,7 @@ Func_ef1:
 
 ; input:
 ; - a = SFX_* constant
-Func_ef7::
+PlaySFX::
 	and a
 	ret z
 	push bc
@@ -4030,8 +4030,11 @@ Func_1cb9:
 	ld [wdc32], a
 	ld a, $01
 	ld [wdc33], a
+
+	; set default language
 	ld a, ENGLISH
 	ld [wLanguage], a
+
 	ld a, $01
 	ld [wdc31], a
 	ld a, $01
@@ -4241,32 +4244,32 @@ YieldEntityUpdateUntilFadeEnds::
 	jr .loop
 
 ; input:
-; - hl = data in bank $3c
-Func_1e4b::
+; - hl = texts pointer
+GetText1::
 	ldh a, [hROMBank]
 	push af
-	ld a, $3c
+	ld a, BANK("Texts 1")
 	bankswitch
-	jr Func_1e61
+	jr _GetTextCommon
 
 ; input:
-; - hl = data in bank $3d
-Func_1e57::
+; - hl = texts pointer
+GetText2::
 	ldh a, [hROMBank]
 	push af
-	ld a, $3d
+	ld a, BANK("Texts 2")
 	bankswitch
 ;	fallthrough
 
-Func_1e61:
+_GetTextCommon:
 	ld a, [wLanguage]
-	add a
+	add a ; *2
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	push de
-	ld de, wdcb6
+	ld de, wTextBuffer
 .loop_copy
 	ld a, [hli]
 	ld [de], a
@@ -4274,7 +4277,7 @@ Func_1e61:
 	and a
 	jr nz, .loop_copy
 	pop de
-	ld hl, wdcb6
+	ld hl, wTextBuffer
 	pop af
 	bankswitch
 	ret
@@ -4294,7 +4297,7 @@ Func_1e7e::
 	inc hl
 	jr .asm_1eae
 .asm_1e96
-	ld de, wdcb6
+	ld de, wTextBuffer
 	ld b, $00
 .asm_1e9b
 	ld a, [hli]
@@ -4317,7 +4320,7 @@ Func_1e7e::
 	ld a, h
 	ld [wdc94], a
 .asm_1eb6
-	ld hl, wdcb6
+	ld hl, wTextBuffer
 	pop af
 	bankswitch
 	ret

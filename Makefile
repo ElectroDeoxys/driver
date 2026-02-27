@@ -5,6 +5,7 @@ src/audio.o \
 src/gfx.o \
 src/home.o \
 src/main.o \
+src/text.o \
 src/ram.o
 
 driver_obj := $(rom_obj:.o=.o)

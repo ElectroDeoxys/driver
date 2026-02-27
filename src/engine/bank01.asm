@@ -172,7 +172,7 @@ Func_4119:
 	cp $30
 	jr c, .asm_41a5
 	ld a, SFX_2A
-	call Func_ef7
+	call PlaySFX
 	jr .asm_41b4
 .asm_41a5
 	push hl
@@ -181,7 +181,7 @@ Func_4119:
 	and $03
 	add_hl
 	ld a, [hl]
-	call Func_ef7
+	call PlaySFX
 	pop hl
 .asm_41b4
 	ld a, [wda93]
@@ -889,9 +889,9 @@ Func_470f:
 	call Random
 	and $01
 	ld a, SFX_27
-	jp z, Func_ef7
+	jp z, PlaySFX
 	ld a, SFX_29
-	jp Func_ef7
+	jp PlaySFX
 
 Func_471e:
 	ld a, [wda93]
@@ -900,9 +900,9 @@ Func_471e:
 	call Random
 	and $01
 	ld a, SFX_29
-	jp z, Func_ef7
+	jp z, PlaySFX
 	ld a, SFX_2B
-	jp Func_ef7
+	jp PlaySFX
 
 Func_4733:
 	ld a, $0c
@@ -1037,7 +1037,7 @@ Func_475f:
 	call .Func_489c
 	ld a, c
 	ld [wda94], a
-	call Func_ef7
+	call PlaySFX
 	xor a
 	ld [wda95], a
 	ld [wda96], a
@@ -1094,7 +1094,7 @@ Func_475f:
 	call .Func_489c
 	ld a, e
 	ld [wda94], a
-	call Func_ef7
+	call PlaySFX
 	ld a, b
 	ld [wda95], a
 	ld a, c

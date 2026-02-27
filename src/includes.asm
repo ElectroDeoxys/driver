@@ -1,5 +1,7 @@
 INCLUDE "constants/hardware.inc"
 
+INCLUDE "constants/charmap.asm"
+
 INCLUDE "macros/constants.asm"
 INCLUDE "macros/code.asm"
 INCLUDE "macros/coords.asm"
@@ -17,3 +19,4 @@ INCLUDE "constants/misc_constants.asm"
 INCLUDE "constants/menu_constants.asm"
 INCLUDE "constants/sound_constants.asm"
 INCLUDE "constants/sprite_constants.asm"
+INCLUDE "constants/text_constants.asm"

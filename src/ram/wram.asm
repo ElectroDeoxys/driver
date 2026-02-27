@@ -191,13 +191,8 @@ wd786:: db ; d786
 
 	ds $d7b1 - $d787
 
-wd7b1:: db ; d7b1
-
-	ds $d7c4 - $d7b2
-
-wd7c4:: db ; d7c4
-
-	ds $d7f1 - $d7c5
+wd7b1:: ; d7b1
+	ds $40
 
 wVRAMNumTiles::
 wVRAMNumTiles_v0_8000:: db ; d7f1
@@ -551,7 +546,11 @@ wdbdb:: db ; dbdb
 
 wdbdc:: db ; dbdc
 
-	ds $dbfa - $dbdd
+	ds $dbf7 - $dbdd
+
+wdbf7:: dw ; dbf7
+
+wdbf9:: db ; dbf9
 
 wdbfa:: db ; dbfa
 
@@ -577,19 +576,23 @@ wdc23:: db ; dc23
 
 	ds $dc25 - $dc24
 
-wdc25:: db ; dc25
+wTextLine:: db ; dc25
 
-wdc26:: db ; dc26
+wMainMenuEntry:: db ; dc26
 
 wdc27:: dw ; dc27
 
 wdc29:: db ; dc29
 
-wdc2a:: db ; dc2a
+; corresponds to the current entry in CheatInputCommands
+; keeps track of where in the command list the player is
+wMainMenuCheatInputProgress:: db ; dc2a
 
 wdc2b:: db ; dc2b
 
-	ds $dc2f - $dc2c
+	ds $dc2d - $dc2c
+
+wdc2d:: dw ; dc2d
 
 wdc2f:: db ; dc2f
 
@@ -647,6 +650,6 @@ wdc95:: db ; dc95
 
 	ds $dcb6 - $dc96
 
-wdcb6:: db ; dcb6
+wTextBuffer:: db ; dcb6
 
 	ds $e000 - $dcb7

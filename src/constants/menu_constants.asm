@@ -26,3 +26,13 @@ DEF GOTO_MAIN_MENU EQU $2
 	const GERMAN  ; $2
 	const ITALIAN ; $3
 	const SPANISH ; $4
+
+; Main Menu entries
+	const_def
+	const MAINMENU_TAKE_A_RIDE   ; $0
+	const MAINMENU_UNDERCOVER    ; $1
+	const MAINMENU_DRIVING_GAMES ; $2
+	const MAINMENU_OPTIONS       ; $3
+	const MAINMENU_BEST_TIMES    ; $4
+	const MAINMENU_LANGUAGE      ; $5
+	const MAINMENU_CHEATS        ; $6
