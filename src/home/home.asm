@@ -1038,7 +1038,7 @@ SafeCopyTile:
 	inc d
 	ret
 
-Func_74d:
+Func_74d::
 	bit 7, h
 	ret z
 	push af
@@ -1052,7 +1052,7 @@ Func_74d:
 	ret
 
 ; outputs hl = hl - de
-SubtractDEFromHL:
+SubtractDEFromHL::
 	push af
 	ld a, l
 	sub e
@@ -1067,7 +1067,7 @@ SubtractDEFromHL:
 	pop af
 	ret
 
-Func_767:
+Func_767::
 	push af
 	ld a, l
 	sub c
@@ -2536,7 +2536,7 @@ AddEntityWordField_DE::
 
 SECTION "GetEntityWordField_DE", ROM0[$10d0]
 
-GetEntityWordField_DE:
+GetEntityWordField_DE::
 	push hl
 	add_hl
 	ld e, [hl]
@@ -2595,7 +2595,14 @@ SetEntityByteField_C::
 	ld [hl], c
 	pop hl
 	ret
-; 0x10fc
+
+SetEntityByteField_B::
+	push hl
+	add_hl
+	ld [hl], b
+	pop hl
+	ret
+; 0x1101
 
 SECTION "Func_110b", ROM0[$110b]
 
@@ -3693,7 +3700,7 @@ Func_16e2:
 	dw Func_175b
 	dw Func_176e
 	dw Func_1784
-	dw $18c5
+	dw Func_18c5
 
 Func_16f4:
 	call Func_1972
@@ -3773,6 +3780,46 @@ Func_178e:
 	ld a, [wd81f]
 	jumptable
 ; 0x1792
+
+SECTION "Func_18c5", ROM0[$18c5]
+
+Func_18c5:
+	ld a, [wdc8e]
+	ld [wCity], a
+	ld a, $00
+	ld [wd826], a
+	ld a, $00
+	ld [wd827], a
+	call Func_1972
+	ld a, [wCity]
+	call Func_1a1d
+	ld hl, $7e73
+	call Func_1946
+	call Func_1a2e
+	ld hl, $71ae
+	ld a, [wdc8f]
+	and $01
+	jr z, .asm_18f4
+	ld hl, $7354
+.asm_18f4
+	ld a, l
+	ld [wdc93], a
+	ld a, h
+	ld [wdc94], a
+	ld hl, wdc8f
+	ld a, [hl]
+	xor $01
+	ld [hl], a
+	ld hl, wdc8e
+	ld a, [hl]
+	inc a
+	cp $03
+	jr c, .asm_190d
+	xor a
+.asm_190d
+	ld [hl], a
+	ret
+; 0x190f
 
 SECTION "Func_1937", ROM0[$1937]
 
@@ -4025,15 +4072,19 @@ Func_1b4e:
 	call Func_2026
 	call Func_32fb
 	homecall LoadHUD
-	ld hl, $4988
-	ld c, $01
+
+	ld hl, Func_4988
+	ld c, BANK(Func_4988)
 	ld b, $03
 	call SpawnEntity
+
 	homecall Func_4000
-	ld hl, $42e1
-	ld c, $01
+
+	ld hl, Func_42e1
+	ld c, BANK(Func_42e1)
 	ld b, $02
 	call SpawnEntity
+
 	ld a, [wda4a]
 	ld e, a
 	ld a, [wda4b]
@@ -5686,9 +5737,15 @@ Func_26b8::
 .asm_26c3
 	cp c
 	ret
-; 0x26c5
 
-SECTION "Func_26cd", ROM0[$26cd]
+Func_26c5:
+	push hl
+	ld a, $0e
+	add_hl
+	ld a, [hl]
+	and a
+	pop hl
+	ret
 
 Func_26cd::
 	push hl
@@ -5705,7 +5762,7 @@ Func_26cd::
 	pop hl
 	ret
 
-Func_26db:
+Func_26db::
 	push hl
 	ld a, $0c
 	add_hl
@@ -5861,7 +5918,44 @@ Func_27e5::
 	pop hl
 	pop de
 	ret
-; 0x284b
+
+Func_284b::
+	call Func_26c5
+	jr nz, .asm_2855
+	ld b, a
+	ld c, a
+	ld d, a
+	ld e, a
+	ret
+.asm_2855
+	call Func_29d6
+	ld a, b
+	or c
+	call nz, Func_286d
+	ld a, d
+	or e
+	jr z, .asm_286a
+	push bc
+	ld b, d
+	ld c, e
+	call Func_286d
+	ld d, b
+	ld e, c
+	pop bc
+.asm_286a
+	xor a
+	dec a
+	ret
+
+Func_286d:
+	ld a, $0e
+	push hl
+	add_hl
+	ld a, [hl]
+	call Func_2998
+	pop hl
+	ret
+; 0x2877
 
 SECTION "Func_289f", ROM0[$289f]
 

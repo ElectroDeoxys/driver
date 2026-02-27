@@ -379,10 +379,150 @@ Func_42ce:
 	call Func_613b
 	pop hl
 	ret
-; 0x42e1
 
-SECTION "Func_43be", ROMX[$43be], BANK[$1]
+Func_42e1::
+.asm_42e1
+	call Func_4382
+	ld a, [$d809]
+	cp $08
+	jr nc, .asm_42fc
+	ld a, [$d80a]
+	cp $08
+	jr nc, .asm_42fc
+.asm_42f2
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_42e1
+.asm_42f9
+	call Func_4382
+.asm_42fc
+	call Func_1598
+	call Func_284b
+	bit 7, b
+	jr z, .asm_4309
+	xor a
+	sub b
+	ld b, a
+.asm_4309
+	inc b
+	bit 7, d
+	jr z, .asm_4311
+	xor a
+	sub d
+	ld d, a
+.asm_4311
+	inc d
+	ld c, d
+	ld hl, $d809
+	ld a, [hli]
+	cp b
+	jr nc, .asm_431e
+	ld a, [hl]
+	cp c
+	jr c, .asm_42f2
+.asm_431e
+	ld a, [$d809]
+	and a
+	jr z, .asm_434c
+	cp b
+	jr nc, .asm_4328
+	ld b, a
+.asm_4328
+	ld hl, wd7f9
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wd7fd]
+	ld e, a
+	ld a, [wd7fe]
+	ld d, a
+	call SubtractDEFromHL
+	bit 7, h
+	ld h, d
+	ld l, e
+	ld a, b
+	jr z, .asm_4343
+	sub_hl
+	jr .asm_4344
+.asm_4343
+	add_hl
+.asm_4344
+	ld a, l
+	ld [wd7f9], a
+	ld a, h
+	ld [wd7fa], a
+.asm_434c
+	ld a, [$d80a]
+	and a
+	jr z, .asm_437a
+	cp c
+	jr nc, .asm_4356
+	ld c, a
+.asm_4356
+	ld hl, wd7fb
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wd7ff]
+	ld e, a
+	ld a, [wd800]
+	ld d, a
+	call SubtractDEFromHL
+	bit 7, h
+	ld h, d
+	ld l, e
+	ld a, c
+	jr z, .asm_4371
+	sub_hl
+	jr .asm_4372
+.asm_4371
+	add_hl
+.asm_4372
+	ld a, l
+	ld [wd7fb], a
+	ld a, h
+	ld [wd7fc], a
+.asm_437a
+	ld a, $01
+	call YieldEntityUpdate
+	jp .asm_42f9
 
+Func_4382:
+	call Func_43bb
+	ld hl, wd7fd
+	call Func_43ac
+	ld a, l
+	ld [$d809], a
+	ld a, c
+	ld [wd7f9], a
+	ld a, b
+	ld [wd7fa], a
+	ld b, d
+	ld c, e
+	ld hl, wd7ff
+	call Func_43ac
+	ld a, l
+	ld [$d80a], a
+	ld a, c
+	ld [wd7fb], a
+	ld a, b
+	ld [wd7fc], a
+	ret
+
+Func_43ac:
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call Func_767
+	call Func_74d
+	ld a, h
+	and a
+	ret z
+	ld l, $7f
+	ret
+
+Func_43bb:
+	call Func_1598
 Func_43be::
 	ld a, $0e
 	call GetEntityByteField_A
@@ -1213,6 +1353,212 @@ Func_490d:
 	ret
 ; 0x491d
 
+SECTION "Func_4988", ROMX[$4988], BANK[$1]
+
+Func_4988::
+	xor a
+	ld [$da56], a
+	ld [$da55], a
+	call Random
+	and $03
+	ld [$da57], a
+.asm_4997
+	ld a, [$da56]
+	ld hl, wd82d
+	cp [hl]
+	jr nc, .asm_49bf
+	ld a, [$da55]
+	ld hl, wd830
+	cp [hl]
+	jr nc, .asm_49bc
+	ld hl, wd832
+	ld a, [hl]
+	and a
+	jr z, .asm_49b3
+	dec [hl]
+	jr .asm_49bc
+.asm_49b3
+	ld a, [wd831]
+	ld [hl], a
+	call Func_49c6
+	jr .asm_49bf
+.asm_49bc
+	call Func_49e3
+.asm_49bf
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_4997
+
+Func_49c6:
+.asm_49c6
+	ld hl, $4c0b
+	call Func_49fc
+	jr z, .asm_49dc
+	call Func_4a3d
+	jr c, .asm_49dc
+	ld hl, $da56
+	inc [hl]
+	ld hl, $da55
+	inc [hl]
+	ret
+.asm_49dc
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_49c6
+
+Func_49e3:
+.asm_49e3
+	ld hl, $4c0b
+	call Func_49fc
+	jr z, .asm_49f5
+	call Func_4a48
+	jr c, .asm_49f5
+	ld hl, $da56
+	inc [hl]
+	ret
+.asm_49f5
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_49e3
+
+Func_49fc:
+	ld a, l
+	ld [wdc7a + 0], a
+	ld a, h
+	ld [wdc7a + 1], a
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $0e
+	call GetEntityByteField_A
+	bit 7, a
+	jr z, .asm_4a15
+	cpl
+	inc a
+.asm_4a15
+	cp $10
+	jr c, .asm_4a38
+	call Func_26db
+	ld c, a
+	ld hl, wdc7a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, c
+	add a
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+.asm_4a29
+	ld a, [$da57]
+	inc a
+	and $03
+	ld [$da57], a
+	add a
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	jp hl
+.asm_4a38
+	ld hl, $4c2b
+	jr .asm_4a29
+
+Func_4a3d:
+	call Func_5662
+	ret c
+	ld b, $05
+	ld de, $4bff
+	jr Func_4a51
+Func_4a48:
+	call Func_5605
+	ret c
+	ld b, $04
+	ld de, $4bff
+Func_4a51:
+	push bc
+	push de
+	call Func_4a8f
+	pop de
+	pop bc
+	jr c, .asm_4a85
+	push hl
+	ld h, d
+	ld l, e
+	ld a, [wdc7a]
+	rlca
+	rlca
+	and $03
+	ld c, a
+	add a
+	add c
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call SpawnEntity
+	pop de
+	jr c, .asm_4a83
+	ld a, $06
+	call SetEntityWordField_DE
+	push de
+	ld e, l
+	ld d, h
+	pop hl
+	ld a, $23
+	call SetEntityWordField_DE
+	and a
+	ret
+.asm_4a83
+	ld h, d
+	ld l, e
+.asm_4a85
+	ld a, $25
+	call GetEntityWordField_DE
+	xor a
+	ld [hl], a
+	ld [de], a
+	scf
+	ret
+
+Func_4a8f:
+	ld b, $08
+	ld de, wd8eb
+.asm_4a94
+	push bc
+	ld a, [de]
+	and $01
+	jr z, .asm_4ab0
+	ld a, h
+	cp d
+	jr nz, .asm_4aa0
+	ld a, l
+	cp e
+.asm_4aa0
+	jr z, .asm_4ab0
+	call Func_27e5
+	ld a, $1f
+	cp c
+	jr c, .asm_4ab0
+	cp b
+	jr c, .asm_4ab0
+	pop bc
+	scf
+	ret
+.asm_4ab0
+	pop bc
+	ld a, $27
+	add_de
+	dec b
+	jr nz, .asm_4a94
+	and a
+	ret
+; 0x4ab9
+
 SECTION "Func_5471", ROMX[$5471], BANK[$1]
 
 Func_5471::
@@ -1223,6 +1569,82 @@ Func_5471::
 	dec [hl]
 	ret
 ; 0x5479
+
+SECTION "Func_5605", ROMX[$5605], BANK[$1]
+
+Func_5605:
+	push af
+	call Random
+	and $07
+	ld hl, $da87
+	add_hl
+	ld a, [hl]
+	cp $02
+	jr z, .asm_5622
+	push af
+	call Random
+	and $03
+	ld hl, $563f
+	add_hl
+	ld h, [hl]
+	pop af
+	jr .asm_5624
+.asm_5622
+	ld h, $05
+.asm_5624
+	ld l, a
+	pop af
+	call Func_2631
+	ret c
+	call Func_1124
+	jr c, .asm_563c
+	ld a, $25
+	call SetEntityWordField_DE
+	call Func_3047
+	call Func_5643
+	and a
+	ret
+.asm_563c
+	ld [hl], $00
+	ret
+; 0x563f
+
+SECTION "Func_5643", ROMX[$5643], BANK[$1]
+
+Func_5643:
+	call Random
+	and $07
+	ld de, $565a
+	add_de
+	ld a, [de]
+	ld b, a
+	ld a, $15
+	call SetEntityByteField_B
+	ld a, $0d
+	ld c, $00
+	jp SetEntityWordField_BC
+; 0x565a
+
+SECTION "Func_5662", ROMX[$5662], BANK[$1]
+
+Func_5662:
+	ld l, $01
+	ld h, $00
+	call Func_2631
+	ret c
+	set 2, [hl]
+	call Func_1124
+	jr c, .asm_567e
+	ld a, $25
+	call SetEntityWordField_DE
+	call Func_3047
+	call Func_5643
+	and a
+	ret
+.asm_567e
+	ld [hl], $00
+	ret
+; 0x5681
 
 SECTION "Func_56a2", ROMX[$56a2], BANK[$1]
 
@@ -1643,7 +2065,7 @@ Data_6949:
 	dw $796b ; MISSION_CROSS_TOWN_RECORD
 
 Data_6967:
-	dw $6997 ; MISSION_THE_BANK_JOB
+	dw Func_6997 ; MISSION_THE_BANK_JOB
 	dw $6a83 ; MISSION_HIDE_THE_EVIDENCE
 	dw $6ae7 ; MISSION_BOAT_CHASE
 	dw $6e5b ; MISSION_RAM_RAID_RACE
@@ -1673,8 +2095,8 @@ Func_6997:
 	ld hl, NULL
 	call Func_1eda
 	call LoadPersonGfx
-	ld hl, $69ae
-	ld c, $01
+	ld hl, Func_69ae
+	ld c, BANK(Func_69ae)
 	ld b, $0b
 	call SpawnEntity
 	ret
