@@ -285,6 +285,9 @@ Gfx_d0f9d:: INCBIN "gfx/gfx_d0f9d.2bpp"
 SECTION "Gfx_d115d", ROMX[$515d], BANK[$34]
 Gfx_d115d:: INCBIN "gfx/gfx_d115d.2bpp"
 
+SECTION "PersonGfx", ROMX[$671d], BANK[$34]
+
+PersonGfx:: INCBIN "gfx/person.2bpp"
 
 SECTION "Bank35", ROMX, BANK[$35]
 

@@ -36,3 +36,14 @@ DEF GOTO_MAIN_MENU EQU $2
 	const MAINMENU_BEST_TIMES    ; $4
 	const MAINMENU_LANGUAGE      ; $5
 	const MAINMENU_CHEATS        ; $6
+
+; mission code symbols
+	const_def
+	const BADGE         ; $0
+	const RED_SIREN     ; $1
+	const TIRE_MARK     ; $2
+	const WRENCH        ; $3
+	const FACE          ; $4
+	const BLUE_SIREN    ; $5
+	const CONE          ; $6
+	const TRAFFIC_LIGHT ; $7

@@ -194,24 +194,24 @@ BackTextIT:
 BackTextES:
 	db "ATR<BIG_À>S\0"
 
-LessThanTexts::
-	dw LessThanText
-	dw LessThanText
-	dw LessThanText
-	dw LessThanText
-	dw LessThanText
+LeftArrowTexts::
+	dw LeftArrowText
+	dw LeftArrowText
+	dw LeftArrowText
+	dw LeftArrowText
+	dw LeftArrowText
 
-LessThanText:
+LeftArrowText:
 	db "<\0"
 
-LargerThanTexts::
-	dw LargerThanText
-	dw LargerThanText
-	dw LargerThanText
-	dw LargerThanText
-	dw LargerThanText
+RightArrowTexts::
+	dw RightArrowText
+	dw RightArrowText
+	dw RightArrowText
+	dw RightArrowText
+	dw RightArrowText
 
-LargerThanText:
+RightArrowText:
 	db ">\0"
 
 SECTION "ChooseACityTexts", ROMX[$4d71], BANK[$3d]

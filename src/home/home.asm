@@ -1130,7 +1130,7 @@ SECTION "CopyTilesWithAlternatingBlackTiles", ROM0[$7d5]
 ; input:
 ; - c:hl = source gfx
 ; - de = destination
-CopyTilesWithAlternatingBlackTiles:
+CopyTilesWithAlternatingBlackTiles::
 	push bc
 	push hl
 	ld hl, wGfxBuffer
@@ -2958,29 +2958,37 @@ Func_1293:
 .asm_12fe
 	pop af
 	jr .asm_12f9
-; 0x1301
 
-SECTION "Func_1315", ROM0[$1315]
+WRAMSpritePtrTable:
+	FOR n, 0, NUM_SPRITES
+		dw wSprite{u:n}
+	ENDR
 
+; input:
+; - e = ?
+; - b = OAM y
+; - c = OAM x
 Func_1315:
 	push bc
 	push de
 	push hl
 	ld a, e
 	cp $02
-	jr z, .asm_1321
+	jr z, .subtract_y
+	; subtract 4 px from x
 	ld a, c
-	add $04
+	add 4
 	ld c, a
-.asm_1321
+.subtract_y
+	; subtract 4 px from y
 	ld a, b
-	sub $04
+	sub 4
 	ld b, a
-	ld de, $a70
+	lb de, 2 | OAM_BANK1, $70
 	ld a, [wc57a]
 	and $04
 	jr z, .asm_1331
-	ld d, $2b
+	ld d, 3 | OAM_BANK1 | OAM_XFLIP
 .asm_1331
 	call Func_139b
 	pop hl
@@ -3065,55 +3073,70 @@ Func_1338:
 	pop bc
 	ret
 
+; input:
+; - b = screen y
+; - c = screen x
+; - e = tile id
+; - d = attributes
 Func_1393::
 	ld a, c
-	add $08
+	add OAM_X_OFS
 	ld c, a
 	ld a, b
-	add $10
+	add OAM_Y_OFS
 	ld b, a
+;	fallthrough
+
+; input:
+; - b = OAM y
+; - c = OAM x
+; - e = tile id
+; - d = attributes
 Func_139b:
+	; first test if it's inside screen
 	ld a, b
 	and a
 	ret z
-	cp $a0
+	cp SCREEN_HEIGHT_PX + OAM_Y_OFS
 	ret nc
 	ld a, c
 	and a
 	ret z
-	cp $a8
+	cp SCREEN_WIDTH_PX + OAM_X_OFS
 	ret nc
+
+	; is inside, continue
 	ld a, b
 	swap a
 	and $0f
-	add a
-	add $01
+	add a ; *2
+	add LOW(WRAMSpritePtrTable)
 	ld l, a
-	ld a, $13
-	adc $00
+	ld a, HIGH(WRAMSpritePtrTable)
+	adc 0
 	ld h, a
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [hl]
-	cp $14
-	ret nc
+	ld a, [hl] ; OAM count
+	cp NUM_SPRITE_OAMS
+	ret nc ; already full
 	inc [hl]
 	inc hl
 	add a
-	add a
+	add a ; *OBJ_SIZE
 	add l
 	ld l, a
-	ld a, $00
+	ld a, 0
 	adc h
 	ld h, a
-	ld [hl], b
+	ld [hl], b ; y
 	inc hl
-	ld [hl], c
+	ld [hl], c ; x
 	inc hl
-	ld [hl], e
+	ld [hl], e ; tile id
 	inc hl
-	ld [hl], d
+	ld [hl], d ; attributes
 	ret
 
 ; zeroes out wSprites
@@ -3554,8 +3577,8 @@ Func_15bb:
 	ld [wd822], a
 	ld a, $05
 	ld [wd81f], a
-	ld a, $00
-	ld [wdc38], a
+	ld a, MISSION_THE_BANK_JOB
+	ld [wMission], a
 
 	call Func_1692
 
@@ -3606,7 +3629,7 @@ Func_15bb:
 	ld a, [wd81f]
 	cp $06
 	jr z, .asm_1684
-	ld a, $00
+	ld a, NONE
 	call PlayMusic
 	ld hl, wc579
 	ld a, [hl]
@@ -3626,11 +3649,11 @@ Func_15bb:
 	jp .titlescreen
 
 Func_1692:
-	ld a, [wdc38]
-	cp $07
+	ld a, [wMission]
+	cp LOS_ANGELES_MISSIONS
 	ret c
 	ld b, $02
-	cp $0a
+	cp NEW_YORK_MISSIONS
 	jr c, .asm_16a0
 	ld b, $06
 .asm_16a0
@@ -3664,16 +3687,148 @@ Func_16a8:
 Func_16e2:
 	ld a, [wd81f]
 	jumptable
-; 0x16e6
+	dw Func_16f4
+	dw Func_1735
+	dw Func_1748
+	dw Func_175b
+	dw Func_176e
+	dw Func_1784
+	dw $18c5
 
-SECTION "Func_178e", ROM0[$178e]
+Func_16f4:
+	call Func_1972
+	ld a, [wCity]
+	call Func_1a1d
+	ld a, $00
+	ld [wd827], a
+	ld a, [wd826]
+	ld c, a
+	cp $00
+	jr z, .asm_172b
+	cp $01
+	jr z, .asm_172b
+	cp $08
+	jr z, .asm_172b
+	ld a, $02
+	ld [wd827], a
+	ld a, c
+	cp $07
+	jr z, .asm_172b
+	ld a, $05
+	ld [wd827], a
+	ld a, c
+	cp $02
+	jr z, .asm_172b
+	ld a, $01
+	ld [wd827], a
+.asm_172b
+	ld hl, Data_7e88
+	call Func_1946
+	call Func_1a2e
+	ret
+
+Func_1735:
+	call Func_1977
+	ld a, [wCity]
+	call Func_1a1d
+	call Func_1a12
+	call Func_1937
+	call Func_1a2e
+	ret
+
+Func_1748:
+	call Func_1972
+	ld a, [wCity]
+	call Func_1a1d
+	call Func_1a12
+	call Func_193c
+	call Func_1a2e
+	ret
+
+Func_175b:
+	call Func_1977
+	ld a, [wCity]
+	call Func_1a1d
+	call Func_1a12
+	call Func_1941
+	call Func_1a2e
+	ret
+
+Func_176e:
+	call Func_1972
+	ld a, [wCity]
+	call Func_1a1d
+	call Func_1a12
+	ld hl, $7e9d
+	call Func_1946
+	call Func_1a2e
+	ret
+
+Func_1784:
+	ld a, BANK(Func_6921)
+	bankswitch
+	jp Func_6921
 
 Func_178e:
 	ld a, [wd81f]
 	jumptable
 ; 0x1792
 
-SECTION "Func_198f", ROM0[$198f]
+SECTION "Func_1937", ROM0[$1937]
+
+Func_1937:
+	ld hl, $7d05
+	jr Func_194f
+Func_193c:
+	ld hl, $7dbf
+	jr Func_194f
+Func_1941:
+	ld hl, $7e07
+	jr Func_194f
+
+Func_1946:
+	ld a, [wCity]
+	add a ; *2
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
+
+Func_194f:
+	ld a, [wCity]
+	add a
+	add a ; *8
+	add_hl
+	ld a, [wd822]
+	add a
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
+; 0x195e
+
+SECTION "Func_1972", ROM0[$1972]
+
+Func_1972::
+	ld hl, $1f97
+	jr Func_197c
+Func_1977:
+	ld hl, $1f67
+	jr Func_197c ; useless jump
+Func_197c:
+	call Random
+	and $03
+	add a
+	add a
+	ld c, a
+	add a
+	add c ; *12
+	add_hl
+	ld de, wda83
+	ld b, $0c
+	jp CopyHLtoDE
 
 Func_198f:
 	ld a, [wd81f]
@@ -3682,13 +3837,41 @@ Func_198f:
 
 SECTION "Func_1a12", ROM0[$1a12]
 
-Func_1a12:
+Func_1a12::
 	ld a, $00
 	ld [wd826], a
 	ld a, $00
 	ld [wd827], a
 	ret
-; 0x1a1d
+
+; input:
+; - a = city
+Func_1a1d::
+	ld [wCity], a
+	add a ; *2
+	ld hl, Data_7c48
+	add_hl
+	ld de, wd824
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ret
+
+Func_1a2e::
+	ld a, [hli]
+	ld [wd828], a
+	ld a, [hli]
+	ld [wd829], a
+	ld a, [hli]
+	ld [wd82a], a
+	ld a, [hli]
+	ld [wd82b], a
+	ld a, [hl]
+	ld [wd82c], a
+	ret
+; 0x1a43
 
 SECTION "Func_1a71", ROM0[$1a71]
 
@@ -3884,9 +4067,20 @@ Func_1b4e:
 	db MUSIC_MIAMI       ; MIAMI
 	db MUSIC_LOS_ANGELES ; LOS_ANGELES
 	db MUSIC_NEW_YORK    ; NEW_YORK
-; 0x1bd3
 
-SECTION "Func_1be7", ROM0[$1be7]
+Func_1bd3::
+	push hl
+	ld [wd86f], a
+	ld a, $01
+	ld [wd86e], a
+	ld hl, wd871
+	ld [hl], $00
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	ret
 
 Func_1be7::
 	push hl
@@ -3981,7 +4175,7 @@ Func_1c57:
 	ld a, c
 	ld [wc573], a
 	ld a, [wdc32]
-	and $10
+	and WDC32_UNK4
 	ret z
 	ld a, [wFadeActive]
 	and a
@@ -4042,7 +4236,7 @@ Func_1cb9:
 	ld a, $01
 	ld [wc545], a
 	xor a
-	ld [wdc38], a
+	ld [wMission], a
 	ld [wdc8e], a
 	ld [wdc8f], a
 
@@ -4086,7 +4280,7 @@ Func_1d16:
 	push bc
 	ld a, [hli]
 	push hl
-	add a
+	add a ; *2
 	ld c, a
 	ld hl, wdbdb
 	add_hl
@@ -4324,9 +4518,32 @@ Func_1e7e::
 	pop af
 	bankswitch
 	ret
-; 0x1ec0
 
-SECTION "Func_1eee", ROM0[$1eee]
+; input:
+; - hl = texts pointer
+Func_1ec0::
+	ldh a, [hROMBank]
+	push af
+	homecall Func_891e
+	pop af
+	bankswitch
+	ret
+
+Func_1ed4::
+	ld a, $05
+	ld [wd82d], a
+	ret
+
+Func_1eda::
+	ld a, l
+	ld [wd82e + 0], a
+	ld a, h
+	ld [wd82e + 1], a
+	call Func_1eee
+	ld a, [wd831]
+	srl a
+	ld [wd832], a
+	ret
 
 Func_1eee:
 	ld hl, wd82e
@@ -4834,7 +5051,7 @@ Func_225d:
 	call Func_22c2
 	ld a, BANK("VRAM1")
 	vramswitch
-	ld de, wd786
+	ld de, wGfxBuffer + $15
 	call Func_22c2
 	ld a, BANK("VRAM0")
 	vramswitch
@@ -4947,7 +5164,7 @@ Func_2315:
 	call Func_2378
 	ld a, BANK("VRAM1")
 	vramswitch
-	ld de, wd782
+	ld de, wGfxBuffer + $11
 	call Func_2378
 	ld a, BANK("VRAM0")
 	vramswitch
@@ -5567,7 +5784,7 @@ Func_2747::
 
 SECTION "Func_27e5", ROM0[$27e5]
 
-Func_27e5:
+Func_27e5::
 	push de
 	push hl
 	ld a, $07
@@ -6212,7 +6429,7 @@ Func_2d87:
 	ld a, $40
 	ret
 
-Func_2daf:
+Func_2daf::
 	ld a, b
 	and a
 	jr z, .asm_2dd1

@@ -307,7 +307,7 @@ Func_4258:
 Func_427c:
 	push hl
 	ld hl, wdc32
-	bit 1, [hl]
+	bit WDC32_UNK1_F, [hl]
 	jr nz, .asm_429e
 	ld l, a
 	ld a, [wd83b]
@@ -339,7 +339,7 @@ SECTION "Func_42a3", ROMX[$42a3], BANK[$1]
 Func_42a3:
 	push hl
 	ld hl, wdc32
-	bit 2, [hl]
+	bit WDC32_UNK2_F, [hl]
 	jr nz, .asm_42b6
 	ld hl, wd86a
 	add [hl]
@@ -1344,6 +1344,589 @@ Func_642c::
 	ret
 ; 0x6446
 
+SECTION "Func_6563", ROMX[$6563], BANK[$1]
+
+Func_6563:
+	xor a
+	ld [wda76], a
+	ld [wd86e], a
+	ld a, $02
+	ld [wd820], a
+	call Func_6575
+	jp Func_68b8
+
+Func_6575:
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $23
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, $408f
+	ld a, $01
+	call Func_1569
+	ld a, $01
+	ld [wd83f], a
+	ret
+
+Func_658f:
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $23
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, Func_4446
+	ld a, $01
+	call Func_1569
+	ld a, $00
+	ld [wd83f], a
+	ret
+; 0x65a9
+
+SECTION "Func_67dd", ROMX[$67dd], BANK[$1]
+
+Func_67dd:
+.loop
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wd8e5]
+	and a
+	jr nz, .loop
+	ret
+
+Func_67e9:
+.loop
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wd83f]
+	cp 2
+	jr nz, .loop
+	ret
+
+Func_67f6:
+	ld de, wda76
+	ld a, $01
+	ld [de], a
+	ld b, $04
+.asm_67fe
+	inc de
+	ld a, [hli]
+	ld [de], a
+	dec b
+	jr nz, .asm_67fe
+	ret
+
+Func_6805:
+	call Func_6889
+	ld a, $0c
+	cp c
+	ret c
+	cp b
+	ret c
+	call Func_2daf
+	ld c, a
+	ld a, $0c
+	cp c
+	ret
+
+Func_6816:
+	xor a
+	ld [wd837], a
+	ld hl, wda9a
+	ld a, [hl]
+	and a
+	jr z, .asm_6822
+	dec [hl]
+.asm_6822
+	call Func_6889
+	ld a, $40
+	cp c
+	jr c, .asm_684d
+	cp b
+	jr c, .asm_684d
+	ld a, $01
+	ld [wd837], a
+	call Func_2daf
+	ld c, a
+	ld a, $40
+	cp c
+	ret c
+	push bc
+	call Func_685a
+	pop bc
+	ld a, $0c
+	cp c
+	ret c
+	ld a, [wda97]
+	and a
+	jr nz, .asm_684b
+	and a
+	ret
+.asm_684b
+	scf
+	ret
+.asm_684d
+	ld a, $fe
+	cp c
+	ret c
+	cp b
+	ret c
+	ld a, $01
+	ld [wd837], a
+	jr .asm_684b
+
+Func_685a:
+	ld a, [wda97]
+	and a
+	ret z
+	ld a, [wd8e5]
+	and a
+	ret nz
+	ld hl, wda9a
+	ld a, [hl]
+	and a
+	ret nz
+	ld a, $20
+	call PlaySFX
+	ld [hl], $b4
+	ld hl, $5366
+	ld c, $3c
+	jp Func_1ec0
+
+Func_6879:
+	call Func_68b8
+	xor a
+	ld [wda76], a
+	ld [wd86e], a
+	call Func_6575
+	jp Func_67e9
+
+Func_6889:
+	ld hl, wda77
+	ld de, wda2d
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	ld de, wda2a
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, wda23
+	jp Func_27e5
+
+Func_68a8:
+	ld a, $01
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	jp Func_1bd3
+
+Func_68b0:
+	ld a, $02
+	lb bc, 0, 0
+	jp Func_1bd3
+
+Func_68b8:
+	ld hl, NULL
+	call Func_1eda
+	ld a, $01
+	ld [wd838], a
+	ld [wd837], a
+	ret
+
+Func_68c7:
+	push hl
+	call Func_6563
+	ld a, $08
+	call PlayMusic
+	pop hl
+	ld c, $5a
+	ld a, h
+	or l
+	jr z, .asm_68e1
+	ld c, $2d
+	call Func_1ec0
+	call Func_67dd
+	ld c, $2d
+.asm_68e1
+	ld hl, $5569
+	call Func_1ec0
+	ld a, $01
+	ld [wTitlescreenTransition], a
+	ld de, $64e2
+	ld a, $01
+	jp Func_157f
+
+Func_68f4:
+	ld a, $02
+	ld [wd820], a
+	ld a, $05
+	call PlayMusic
+	ld c, $5a
+	ld a, h
+	or l
+	jr z, .asm_690e
+	ld c, $2d
+	call Func_1ec0
+	call Func_67dd
+	ld c, $2d
+.asm_690e
+	ld hl, $55c5
+	call Func_1ec0
+	ld a, $02
+	ld [wTitlescreenTransition], a
+	ld de, $64e2
+	ld a, $01
+	jp Func_157f
+
+Func_6921::
+	ld hl, Data_6949
+	jr Func_692b
+	ld hl, Data_6967
+	jr Func_692b ; useless jump
+
+Func_692b:
+	ld d, h
+	ld e, l
+.asm_692d
+	ld a, [wMission]
+	cp NUM_MISSIONS
+	jr c, .valid_mission
+	xor a ; MISSION_THE_BANK_JOB
+	ld [wMission], a
+.valid_mission
+	add a ; *2
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	or h
+	jr z, .null
+	jp hl
+.null
+	ld hl, wMission
+	inc [hl]
+	ld h, d
+	ld l, e
+	jr .asm_692d
+
+Data_6949:
+	dw Func_6985 ; MISSION_THE_BANK_JOB
+	dw $6a6a ; MISSION_HIDE_THE_EVIDENCE
+	dw $6ad5 ; MISSION_BOAT_CHASE
+	dw $6e49 ; MISSION_RAM_RAID_RACE
+	dw $6f05 ; MISSION_SUPERFLY_DRIVE
+	dw $6f7b ; MISSION_BAIT_FOR_A_TRAP
+	dw $711a ; MISSION_TAKE_OUT_DIANGELO
+	dw $71d2 ; MISSION_STEAL_A_COP_CAR
+	dw $725e ; MISSION_GET_LUCKY_TO_THE_DOCS
+	dw $7331 ; MISSION_BEVERLY_HILLS_GET_AWAY
+	dw $7460 ; MISSION_GRAND_CENTRAL_STATION
+	dw $764a ; MISSION_TRASH_GRANGERS_WHEELS
+	dw $775c ; MISSION_STOP_GRANGERS_GANG
+	dw $7875 ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	dw $796b ; MISSION_CROSS_TOWN_RECORD
+
+Data_6967:
+	dw $6997 ; MISSION_THE_BANK_JOB
+	dw $6a83 ; MISSION_HIDE_THE_EVIDENCE
+	dw $6ae7 ; MISSION_BOAT_CHASE
+	dw $6e5b ; MISSION_RAM_RAID_RACE
+	dw $6f1e ; MISSION_SUPERFLY_DRIVE
+	dw $6f8d ; MISSION_BAIT_FOR_A_TRAP
+	dw $712c ; MISSION_TAKE_OUT_DIANGELO
+	dw $71eb ; MISSION_STEAL_A_COP_CAR
+	dw $7277 ; MISSION_GET_LUCKY_TO_THE_DOCS
+	dw $7343 ; MISSION_BEVERLY_HILLS_GET_AWAY
+	dw $7475 ; MISSION_GRAND_CENTRAL_STATION
+	dw $765c ; MISSION_TRASH_GRANGERS_WHEELS
+	dw $776e ; MISSION_STOP_GRANGERS_GANG
+	dw $788e ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	dw $7984 ; MISSION_CROSS_TOWN_RECORD
+
+Func_6985:
+	call Func_1972
+	ld a, $00
+	call Func_1a1d
+	call Func_1a12
+	ld hl, $7eb2
+	call Func_1a2e
+	ret
+
+Func_6997:
+	call Func_1ed4
+	ld hl, NULL
+	call Func_1eda
+	call LoadPersonGfx
+	ld hl, $69ae
+	ld c, $01
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_69ae:
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, $5625
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	ld a, $01
+	ld [wd820], a
+	ld hl, $7eb7
+	call Func_67f6
+	ld hl, $7ec7
+	call Func_68a8
+.asm_69cd
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wd86e]
+	and a
+	jp z, Func_6a32
+	call Func_6805
+	jr nc, .asm_69e0
+	jr .asm_69cd
+.asm_69e0
+	xor a
+	ld [wda76], a
+	ld [wd86e], a
+	call Func_6575
+	call Func_67e9
+	ld hl, $7ebb
+	call Func_6a38
+	ld hl, $5680
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	call Func_658f
+	call Func_68b0
+	ld hl, $7ebf
+	call Func_67f6
+	ld a, $0e
+	call Func_42a3
+	ld hl, $1f37
+	call Func_1eda
+	xor a
+	ld [wda9a], a
+.asm_6a19
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_6816
+	jr c, .asm_6a19
+	call Func_6879
+	ld hl, $7ec3
+	call Func_6a51
+	ld hl, NULL
+	jp Func_68f4
+
+Func_6a32:
+	ld hl, $5526
+	jp Func_68c7
+
+Func_6a38:
+	ld b, $03
+.asm_6a3a
+	push bc
+	push hl
+	call Func_79e5
+	pop hl
+	pop bc
+	call Random
+	and $0f
+	add $18
+	call YieldEntityUpdate
+	dec b
+	jr nz, .asm_6a3a
+	jp Func_79d8
+
+Func_6a51:
+	ld b, $03
+.asm_6a53
+	push bc
+	push hl
+	call Func_7a0c
+	pop hl
+	pop bc
+	call Random
+	and $0f
+	add $18
+	call YieldEntityUpdate
+	dec b
+	jr nz, .asm_6a53
+	jp Func_79d8
+; 0x6a6a
+
+SECTION "Data_79d8", ROMX[$79d8], BANK[$1]
+
+Func_79d8:
+.loop
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, $0e
+	call FindEntity
+	ret nc
+	jr .loop
+
+Func_79e5:
+	ld b, $04
+	ld de, wdc7a
+.asm_79ea
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_79ea
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call Func_26cd
+	ld a, c
+	ld [wdc7e], a
+	ld a, b
+	ld [wdc7f], a
+	ld a, e
+	ld [wdc80], a
+	ld a, d
+	ld [wdc81], a
+	jp Func_7a35
+
+Func_7a0c:
+	push hl
+	ld hl, wda4a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call Func_26cd
+	ld a, c
+	ld [wdc7a + 0], a
+	ld a, b
+	ld [wdc7a + 1], a
+	ld a, e
+	ld [wdc7c], a
+	ld a, d
+	ld [wdc7d], a
+	pop hl
+	ld b, $04
+	ld de, wdc7e
+.asm_7a2c
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_7a2c
+	jp Func_7a35
+
+Func_7a35:
+	call Func_1124
+	ret c
+	push de
+	ld hl, $7a94
+	ld c, $01
+	ld b, $0e
+	call SpawnEntity
+	pop de
+	ret c
+	ld a, $06
+	call SetEntityWordField_DE
+	inc de
+	xor a
+	ld [de], a
+	inc de
+	ld hl, wdc7c
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, -$4
+	add hl, bc
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+	inc de
+	xor a
+	ld [de], a
+	inc de
+	ld hl, wdc7a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, -$4
+	add hl, bc
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+	inc de
+	ld a, $10
+	ld [de], a
+	inc de
+	ld a, $08
+	ld [de], a
+	ld a, $05
+	add_de
+	ld hl, wdc80
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+	inc de
+	ld hl, wdc7e
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+	ret
+; 0x7a94
+
+SECTION "Data_7bb9", ROMX[$7bb9], BANK[$1]
+
+LoadPersonGfx:
+	ld a, $01
+	vramswitch
+	ld de, v0Tiles1 tile $48
+	ld hl, PersonGfx
+	ld c, BANK(PersonGfx)
+	ld b, 8 ; tiles
+	xor a
+	call CopyTilesWithAlternatingBlackTiles
+	ld a, $00
+	vramswitch
+	ret
+; 0x7bd4
+
+SECTION "Data_7c48", ROMX[$7c48], BANK[$1]
+
+Data_7c48::
+	dw $7c4e ; MIAMI
+	dw $7c89 ; LOS_ANGELES
+	dw $7cc4 ; NEW_YORK
+; 0x7c4e
+
 SECTION "CheckSkipCompanies", ROMX[$7cff], BANK[$1]
 
 ; whether to skip showing the initial companies screens
@@ -1356,3 +1939,11 @@ CheckSkipCompanies::
 .Value:
 	db FALSE
 ; 0x7d05
+
+SECTION "Data_7e88", ROMX[$7e88], BANK[$1]
+
+Data_7e88::
+	dw $7e8e ; MIAMI
+	dw $7e93 ; LOS_ANGELES
+	dw $7e98 ; NEW_YORK
+; 0x7e8e

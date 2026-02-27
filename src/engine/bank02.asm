@@ -105,7 +105,7 @@ LoadHUD::
 	ld [hl], a
 
 	ld a, [wdc32]
-	and $10
+	and WDC32_UNK4
 	jr z, .skip_numbers
 	; load number gfx
 	ld a, BANK("VRAM1")
@@ -177,7 +177,7 @@ Func_8162::
 
 Func_8189:
 	ld a, [wdc32]
-	and $10
+	and WDC32_UNK4
 	ret z
 	ld c, $8b
 	ld de, wd855
@@ -268,7 +268,7 @@ Func_81cd:
 
 Func_8220:
 	ld a, [wdc32]
-	and $10
+	and WDC32_UNK4
 	ret nz
 	ld a, [wd86f]
 	and a
@@ -596,6 +596,53 @@ Func_859d::
 	jumptable
 ; 0x85a1
 
+SECTION "Func_891e", ROMX[$491e], BANK[$2]
+
+; input:
+; - hl = texts pointer
+Func_891e::
+	call GetText2
+	push bc
+	call Func_8930
+	ld a, $01
+	ld [wd8e5], a
+	pop bc
+	ld a, c
+	ld [wd8e7], a
+	ret
+
+Func_8930:
+	xor a
+	ld [wd8e4], a
+	ld a, $10
+	push hl
+	call Func_8b94
+	pop hl
+	ld a, [wd8e3]
+	cp $11
+	jr nc, .asm_8948
+	ld a, [wd8e2]
+	cp $15
+	ret c
+.asm_8948
+	ld a, $01
+	ld [wd8e4], a
+	ld a, $20
+	call Func_8b94
+	ld a, [wd8e3]
+	cp $21
+	jr nc, .asm_895f
+	ld a, [wd8e2]
+	cp $29
+	ret c
+.asm_895f
+	ld hl, $496b
+	xor a
+	ld [wd8e4], a
+	ld a, $10
+	jp Func_8b94
+; 0x896b
+
 SECTION "Func_8977", ROMX[$4977], BANK[$2]
 
 Func_8977:
@@ -606,7 +653,73 @@ Func_8977:
 	jumptable
 ; 0x897e
 
-SECTION "Func_8bef", ROMX[$4bef], BANK[$2]
+SECTION "Func_8b94", ROMX[$4b94], BANK[$2]
+
+Func_8b94:
+	ld [wdc7a], a
+	push hl
+	ld b, a
+	ld hl, wd899
+	xor a
+.asm_8b9d
+	ld [hli], a
+	dec b
+	jr nz, .asm_8b9d
+	pop hl
+	xor a
+	ld [wd8e3], a
+	ld de, wd8b9
+.asm_8ba9
+	ld a, [hli]
+	and a
+	jr z, .asm_8bb6
+	push de
+	call .Func_8bc2
+	pop de
+	ld [de], a
+	inc de
+	jr .asm_8ba9
+.asm_8bb6
+	ld a, $ff
+	ld [de], a
+	ld hl, Func_2747
+	add hl, de
+	ld a, l
+	ld [wd8e2], a
+	ret
+
+.Func_8bc2:
+	sub $20
+	ret z
+	ld c, a
+	ld de, wd899
+	ld b, $00
+.asm_8bcb
+	ld a, [de]
+	and a
+	jr nz, .asm_8bdb
+	ld a, c
+	ld [de], a
+	ld a, [wd8e3]
+	inc a
+	ld [wd8e3], a
+.asm_8bd8
+	ld a, b
+	inc a
+	ret
+.asm_8bdb
+	cp c
+	jr z, .asm_8bd8
+	inc de
+	inc b
+	ld a, [wdc7a]
+	cp b
+	jr nz, .asm_8bcb
+	ld a, [wd8e3]
+	inc a
+	ld [wd8e3], a
+	xor a
+	ret
 
 Func_8bef:
 	xor a
@@ -926,8 +1039,8 @@ Func_90aa::
 	ret nz
 	call Func_8ddb
 
-	ld a, [wdc38]
-	ld hl, Data_a6cc
+	ld a, [wMission]
+	ld hl, MissionTextTable
 	get_pointer
 	call GetText1
 	call Func_9177
@@ -939,7 +1052,8 @@ Func_90aa::
 	ld de, wTempOBPals palette 3
 	call FarCopy
 
-	call Func_a14c
+	call LoadMissionCode
+
 	lb bc, 2 | BG_BANK1, $00
 	call Func_945c
 
@@ -953,8 +1067,8 @@ Func_90aa::
 	ld [hl], e ; wd54f
 	inc hl
 	ld [hl], d
-	ld hl, $5102
-	ld c, $02
+	ld hl, Func_9102
+	ld c, BANK(Func_9102)
 	ld b, $15
 	call SpawnEntity
 	ld a, $03
@@ -962,20 +1076,73 @@ Func_90aa::
 	ld a, MUSIC_BRIEFING
 	call PlayMusicIfNotPlaying
 	jp Func_94d8
-; 0x9102
 
-SECTION "Func_9159", ROMX[$5159], BANK[$2]
+Func_9102:
+	call YieldEntityUpdateUntilFadeEnds
+.loop
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wJoypadPressed]
+	and PAD_A | PAD_START
+	jr z, .asm_9119
+	ld a, SFX_06
+	call PlaySFX
+	jp ExitTitlescreenOrMainScreen
+.asm_9119
+	call .Func_911e
+	jr .loop
+
+.Func_911e:
+	ld a, [wTextLine]
+	cp $09
+	ret c
+	ld hl, wdbfe
+	ld a, [wJoypadPressed]
+	and PAD_UP | PAD_DOWN
+	and PAD_UP
+	jr nz, .d_up
+	ld a, [wJoypadPressed]
+	and PAD_DOWN
+	jr nz, .d_down
+	ret
+.d_up
+	ld a, [hl]
+	and a
+	ret z
+	sub $08
+	ld [hl], a
+	ld a, SFX_05
+	jp PlaySFX
+.d_down
+	ld a, [wTextLine]
+	add a
+	add a
+	add a ; *8
+	sub 64
+	ld c, a
+	; c = 8 * lines - 64
+	ld a, [hl]
+	cp c
+	ret nc
+	ret z
+	ld a, [hl]
+	add $08
+	ld [hl], a
+	ld a, SFX_05
+	jp PlaySFX
 
 Func_9159:
-	ld hl, wdc34
-	ld c, $38
+	ld hl, wMissionCode
+	ld c, 56 ; x
 	ld a, [wLanguage]
-	cp $03
-	jr c, .asm_9167
-	ld c, $40
-.asm_9167
-	ld b, $7e
-	call Func_a0e2
+	cp GERMAN + 1
+	jr c, .got_x
+	ld c, 64 ; x
+.got_x
+	; for English/French/German, x = 56
+	; for Italian/Spanish,       x = 64
+	ld b, 126 ; y
+	call LoadMissionCodeOAM
 	ld a, [wc57a]
 	and $04
 	jp z, Func_9d1a
@@ -1046,7 +1213,7 @@ Func_9177:
 	ld bc, $20
 	call ClearMemory
 	pop hl
-	ld de, wdbff
+	ld de, wTextLineLengths
 	ld a, [wTextLine]
 	add_de
 	pop af
@@ -1528,7 +1695,7 @@ InitMainMenu:
 	lb bc, BG_BANK1, $80
 	call FillBGMap1
 
-	ld hl, wdbff
+	ld hl, wTextLineLengths
 	ld a, l
 	ld [wdc7a + 0], a
 	ld a, h
@@ -1731,7 +1898,7 @@ Func_961f:
 ; unlocking the cheats option
 .HandleCheatsInput:
 	ld a, [wdc32]
-	and $01
+	and CHEATS_UNLOCKED
 	ret nz ; already unlocked
 	ld a, [wMainMenuEntry]
 	and a
@@ -1758,7 +1925,7 @@ Func_961f:
 	ret nz ; still awaiting rest of input
 	; yes we are done, unlock
 	ld hl, wdc32
-	set 0, [hl]
+	set CHEATS_UNLOCKED_F, [hl]
 	ld hl, MainMenuEntryTable
 	ld c, 0
 .loop_find_cheats_item
@@ -1822,7 +1989,7 @@ Func_961f:
 ; if yes, then return z
 .CheckIfCheatsUnlocked:
 	ld a, [wdc32]
-	and $01
+	and CHEATS_UNLOCKED
 	ret nz ; unlocked Cheats
 	push hl
 	ld a, [hl]
@@ -1885,7 +2052,7 @@ LoadMainMenuCursorOAM:
 .vram0
 	ld [wdc80], a
 	ld a, c
-	ld hl, wdbff
+	ld hl, wTextLineLengths
 	add_hl
 	ld a, [hl]
 	ld [wdc7e], a
@@ -2219,8 +2386,8 @@ Func_9962:
 	xor a
 	ld [wMainMenuEntry], a
 	push hl
-	ld hl, wdbff
-	ld b, $20
+	ld hl, wTextLineLengths
+	ld b, MAX_NUM_LINES
 	xor a
 .asm_996d
 	ld [hli], a
@@ -2320,7 +2487,7 @@ Func_99cb:
 
 .Func_99e5:
 	ld a, [wdc32]
-	and $08
+	and WDC32_UNK3
 	jr nz, .Func_99e3
 	ld a, [wdc33]
 	and $01
@@ -2330,7 +2497,7 @@ Func_99cb:
 
 .Func_99f5:
 	ld a, [wdc32]
-	and $08
+	and WDC32_UNK3
 	jr nz, .Func_99e3
 	ld a, [wdc33]
 	and $02
@@ -2340,7 +2507,7 @@ Func_99cb:
 
 .Func_9a05:
 	ld a, [wdc32]
-	and $08
+	and WDC32_UNK3
 	jr nz, .Func_99e3
 	ld a, [wdc33]
 	and $04
@@ -2434,7 +2601,7 @@ Func_9a2c:
 Func_9a89:
 	ld a, b
 	ld [hli], a
-	ld de, wdbff
+	ld de, wTextLineLengths
 	ld a, [wdc7a + 0]
 	add_de
 	ld a, [de]
@@ -2460,19 +2627,20 @@ Func_9a89:
 ; - hl = texts pointer
 ProcessTitleText:
 	call GetText2
+
 	push hl
 	ld hl, wGfxBuffer
-	ld b, MAX_TITLE_TEXT_SIZE * 2
+	ld b, MAX_LINE_SIZE * 2
 	xor a
-.asm_9ab3
+.loop_clear_buffer
 	ld [hli], a
 	dec b
-	jr nz, .asm_9ab3
+	jr nz, .loop_clear_buffer
 	pop hl
 
 	call Func_9c1d
 
-	ld a, MAX_TITLE_TEXT_SIZE
+	ld a, MAX_LINE_SIZE
 	sub c
 	jr c, .check_space_for_two_lines
 .got_big_text
@@ -2534,7 +2702,7 @@ ProcessTitleText:
 
 .check_space_for_two_lines
 	ld a, c
-	cp MAX_TITLE_TEXT_SIZE * 2 + 1
+	cp MAX_LINE_SIZE * 2 + 1
 	jr c, .two_lines
 	; print error text
 	ld hl, .TextErrorText
@@ -2549,7 +2717,7 @@ ProcessTitleText:
 	; we will use 2 lines
 	ld [wd8e2], a
 	ld hl, wd7b1 + $13
-	ld b, MAX_TITLE_TEXT_SIZE
+	ld b, MAX_LINE_SIZE
 .asm_9b31
 	ld a, [hld]
 	cp ' '
@@ -2587,7 +2755,7 @@ ProcessTitleText:
 	ld hl, wd7b1
 	ld a, [wdc7c]
 	add_hl
-	ld de, wd785
+	ld de, wGfxBuffer + $14
 	ld a, [wdc7e]
 	call .Func_9b96
 	ld a, [wdc7a]
@@ -2629,6 +2797,7 @@ ProcessTitleText:
 	ret
 
 ; input:
+; - a  = line number
 ; - hl = texts pointer
 Func_9bb9:
 	call Func_9bd1
@@ -2638,63 +2807,71 @@ Func_9bb9:
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl ; *$20
+	add hl, hl ; *TILEMAP_WIDTH
 	ld de, v0BGMap1
 	add hl, de
 	ld de, wGfxBuffer
-	lb bc, 1, 20
+	lb bc, 1, MAX_LINE_SIZE
 	jp CopyBGMapBox
 
 ; input:
+; - a  = line number
 ; - hl = texts pointer
 Func_9bd1:
 	push af
 	call GetText2
+
 	push hl
 	ld hl, wGfxBuffer
-	ld b, $14
+	ld b, MAX_LINE_SIZE
 	xor a
-.asm_9bdc
+.loop_clear_buffer
 	ld [hli], a
 	dec b
-	jr nz, .asm_9bdc
+	jr nz, .loop_clear_buffer
 	pop hl
+
 	call Func_9c1d
-	ld a, $14
+	; if exceeds MAX_LINE_SIZE, print error text
+	ld a, MAX_LINE_SIZE
 	sub c
-	jr c, .asm_9c07
-.asm_9be9
+	jr c, .error_text
+.got_text
+	; centered
 	srl a
 	ld de, wGfxBuffer
 	add_de
-.asm_9bef
+.loop_chars
 	ld a, [hli]
 	and a
-	jr z, .asm_9bfd
-	sub $20
-	jr z, .asm_9bf9
-	add $01
-.asm_9bf9
+	jr z, .null_terminator
+	; get character tile
+	sub ' '
+	jr z, .got_tile
+	add 1
+.got_tile
 	ld [de], a
 	inc de
-	jr .asm_9bef
-.asm_9bfd
+	jr .loop_chars
+
+.null_terminator
 	pop af
 	push af
-	ld de, wdbff
+	ld de, wTextLineLengths
 	add_de
 	ld a, c
 	ld [de], a
 	pop af
 	ret
-.asm_9c07
-	ld hl, $5c11
-	ld c, $0b
-	ld a, $09
-	jp .asm_9be9
-; 0x9c11
 
-SECTION "Func_9c1d", ROMX[$5c1d], BANK[$2]
+.error_text
+	ld hl, .TextErrorText
+	ld c, 11 ; text length
+	ld a, MAX_LINE_SIZE - 11
+	jp .got_text
+
+.TextErrorText:
+	db "TEXT ERROR!\0"
 
 ; copies text from hl to wd7b1
 ; input:
@@ -2747,44 +2924,44 @@ Func_9c1d:
 
 .Func_9c54:
 	ld a, [wc545]
-	jr .asm_9c7b
+	jr .insert_arrow
 
 .Func_9c59:
 	ld a, [wc544]
-	jr .asm_9c7b
+	jr .insert_arrow
 
 .Func_9c5e:
 	ret
 
 .Func_9c5f:
 	ld a, [wdc32]
-	and $02
-	jr .asm_9c7b
+	and WDC32_UNK1
+	jr .insert_arrow
 
 .Func_9c66:
 	ld a, [wdc32]
-	and $04
-	jr .asm_9c7b
+	and WDC32_UNK2
+	jr .insert_arrow
 
 .Func_9c6d:
 	ld a, [wdc32]
-	and $08
-	jr .asm_9c7b
+	and WDC32_UNK3
+	jr .insert_arrow
 
 .Func_9c74:
 	ld a, [wdc32]
-	and $10
-	jr .asm_9c7b ; useless jump
+	and WDC32_UNK4
+	jr .insert_arrow ; useless jump
 
-.asm_9c7b
-	ld hl, LargerThanTexts
+.insert_arrow
+	ld hl, RightArrowTexts ; ">"
 	and a
-	jr z, .get_data
-	ld hl, LessThanTexts
-	jr .get_data ; useless jump
-.get_data
+	jr z, .get_text
+	ld hl, LeftArrowTexts ; "<"
+	jr .get_text ; useless jump
+.get_text
 	call GetText2
-; copies hl to de until $00 byte
+; copies hl to de until \0
 .loop_copy
 	ld a, [hli]
 	and a
@@ -2810,7 +2987,7 @@ Func_9c91:
 	add $28
 	sub b
 	ld b, a
-	ld hl, wdbff
+	ld hl, wTextLineLengths
 	ld a, [wMainMenuEntry]
 	add_hl
 	ld a, [hl]
@@ -2818,9 +2995,10 @@ Func_9c91:
 	add a
 	cpl
 	inc a
-	add $48
+	add 72
 	ld c, a
-	ld de, $212
+	; c = 72 - 4 * (line length)
+	lb de, 2 | OAM_BANK0, $12
 	push bc
 	push hl
 	call Func_1393
@@ -2829,11 +3007,12 @@ Func_9c91:
 	ld a, [hl]
 	add a
 	add a
-	add a
+	add a ; *8
 	add c
-	add $08
+	add 8
 	ld c, a
-	ld de, $2212
+	; c = 72 + 4 * (line length) + 8
+	lb de, 2 | OAM_BANK0 | OAM_XFLIP, $12
 	call Func_1393
 ;	fallthrough
 
@@ -2844,50 +3023,51 @@ Func_9cd4:
 	ld a, [wdbfe]
 	and a
 	jr z, .asm_9cf5
-	ld bc, $2048
+	lb bc, 32, 72 ; y, x
 	ld e, $10
-	ld d, $02
+	ld d, 2 | OAM_BANK0
 	call Func_1393
-	ld bc, $2050
+	lb bc, 32, 80 ; y, x
 	ld e, $10
-	ld d, $22
+	ld d, 2 | OAM_BANK0 | OAM_XFLIP
 	call Func_1393
 .asm_9cf5
 	ld a, [wTextLine]
 	add a
 	add a
-	add a
-	sub $40
+	add a ; *8
+	sub 64
 	ld c, a
+	; c = 8 * lines - 64
 	ld a, [wdbfe]
 	cp c
 	jr nc, Func_9d1a
 	jr z, Func_9d1a
-	ld bc, $6048
+	lb bc, 96, 72 ; y, x
 	ld e, $10
-	ld d, $42
+	ld d, 2 | OAM_BANK0 | OAM_YFLIP
 	call Func_1393
-	ld bc, $6050
+	lb bc, 96, 80 ; y, x
 	ld e, $10
-	ld d, $62
+	ld d, 2 | OAM_BANK0 | OAM_XFLIP | OAM_YFLIP
 	call Func_1393
 ;	fallthrough
 
 Func_9d1a:
-	ld hl, $5d38
-	call .Func_9d23
-	ld hl, $5d48
-.Func_9d23:
-	ld b, $04
+	ld hl, .OAMData1
+	call .LoadOAM
+	ld hl, .OAMData2
+.LoadOAM:
+	ld b, 4
 .loop
 	push bc
-	ld c, [hl]
+	ld c, [hl] ; x
 	inc hl
-	ld b, [hl]
+	ld b, [hl] ; y
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; tile id
 	inc hl
-	ld d, [hl]
+	ld d, [hl] ; attributes
 	inc hl
 	push hl
 	call Func_1393
@@ -2896,7 +3076,19 @@ Func_9d1a:
 	dec b
 	jr nz, .loop
 	ret
-; 0x9d38
+
+.OAMData1:
+	db   0, 40, $00, 1 | OAM_BANK0
+	db   0, 56, $02, 1 | OAM_BANK0
+	db   0, 72, $04, 1 | OAM_BANK0
+	db   0, 88, $06, 1 | OAM_BANK0
+
+.OAMData2:
+	db 152, 40, $08, 0 | OAM_BANK0
+	db 152, 56, $0a, 0 | OAM_BANK0
+	db 152, 72, $0c, 0 | OAM_BANK0
+	db 152, 88, $0e, 0 | OAM_BANK0
+; 0x9d58
 
 SECTION "TakeARideMenu", ROMX[$5d8b], BANK[$2]
 
@@ -3043,32 +3235,38 @@ Func_a096:
 	jp SafeCopyFarTiles
 ; 0xa0a3
 
-SECTION "Func_a0e2", ROMX[$60e2], BANK[$2]
+SECTION "LoadMissionCodeOAM", ROMX[$60e2], BANK[$2]
 
-Func_a0e2:
-	ld a, $04
+; input:
+; - hl = mission code
+; - b = screen y
+; - c = screen x
+LoadMissionCodeOAM:
+	ld a, 4 ; num code symbols
 .loop
 	push af
 	ld a, [hli]
 	push af
-	ld de, $6114
+	ld de, .OAMPals
 	add_de
 	ld a, [de]
-	add $03
-	ld d, a
+	add 3
+	ld d, a ; attribute
 	pop af
 	add a
-	add a
+	add a ; *4
 	add $80
-	ld e, a
+	ld e, a ; tile
 	push hl
 	push bc
 	push de
 	call Func_1393
 	pop de
 	pop bc
+
+	; add 8 px to x
 	ld a, c
-	add $08
+	add 8
 	ld c, a
 	inc e
 	inc e
@@ -3077,34 +3275,66 @@ Func_a0e2:
 	call Func_1393
 	pop de
 	pop bc
+
+	; add 16 px to x
 	ld a, c
-	add $10
+	add 16
 	ld c, a
 	pop hl
 	pop af
 	dec a
 	jr nz, .loop
 	ret
-; 0xa114
 
-SECTION "Func_a14c", ROMX[$614c], BANK[$2]
+.OAMPals:
+	db 3 ; BADGE
+	db 2 ; RED_SIREN
+	db 0 ; TIRE_MARK
+	db 0 ; WRENCH
+	db 0 ; FACE
+	db 4 ; BLUE_SIREN
+	db 2 ; CONE
+	db 1 ; TRAFFIC_LIGHT
+; 0xa11c
 
-Func_a14c:
-	ld a, [wdc38]
+SECTION "LoadMissionCode", ROMX[$614c], BANK[$2]
+
+LoadMissionCode:
+	ld a, [wMission]
 	add a
-	add a
-	ld hl, $6189
+	add a ; *4
+	ld hl, MissionCodes
 	add_hl
-	ld de, wdc34
-	ld b, $04
-.asm_a15a
+	ld de, wMissionCode
+	ld b, 4
+.loop_copy
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec b
-	jr nz, .asm_a15a
+	jr nz, .loop_copy
 	ret
 ; 0xa161
+
+SECTION "MissionCodes", ROMX[$6189], BANK[$2]
+
+MissionCodes:
+	db FACE,          FACE,       FACE,          FACE          ; MISSION_THE_BANK_JOB
+	db TIRE_MARK,     BADGE,      CONE,          RED_SIREN     ; MISSION_HIDE_THE_EVIDENCE
+	db TRAFFIC_LIGHT, WRENCH,     WRENCH,        BLUE_SIREN    ; MISSION_BOAT_CHASE
+	db CONE,          CONE,       CONE,          BADGE         ; MISSION_RAM_RAID_RACE
+	db WRENCH,        RED_SIREN,  RED_SIREN,     TRAFFIC_LIGHT ; MISSION_SUPERFLY_DRIVE
+	db WRENCH,        BADGE,      TIRE_MARK,     BLUE_SIREN    ; MISSION_BAIT_FOR_A_TRAP
+	db BADGE,         CONE,       BADGE,         RED_SIREN     ; MISSION_TAKE_OUT_DIANGELO
+	db RED_SIREN,     BADGE,      WRENCH,        TIRE_MARK     ; MISSION_STEAL_A_COP_CAR
+	db CONE,          BLUE_SIREN, RED_SIREN,     RED_SIREN     ; MISSION_GET_LUCKY_TO_THE_DOCS
+	db BADGE,         BADGE,      TRAFFIC_LIGHT, CONE          ; MISSION_BEVERLY_HILLS_GET_AWAY
+	db BLUE_SIREN,    WRENCH,     WRENCH,        WRENCH        ; MISSION_GRAND_CENTRAL_STATION
+	db TRAFFIC_LIGHT, TIRE_MARK,  RED_SIREN,     BADGE         ; MISSION_TRASH_GRANGERS_WHEELS
+	db WRENCH,        BADGE,      BADGE,         CONE          ; MISSION_STOP_GRANGERS_GANG
+	db RED_SIREN,     BLUE_SIREN, RED_SIREN,     BLUE_SIREN    ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	db TIRE_MARK,     WRENCH,     CONE,          TRAFFIC_LIGHT ; MISSION_CROSS_TOWN_RECORD
+; 0xa1c5
 
 SECTION "Func_a3cc", ROMX[$63cc], BANK[$2]
 
@@ -3221,8 +3451,8 @@ Func_a577:
 	; being here means A or Start was pressed
 	ld a, $05
 	ld [wd81f], a
-	xor a
-	ld [wdc38], a
+	xor a ; MISSION_THE_BANK_JOB
+	ld [wMission], a
 	ld de, ExitTitlescreenOrMainScreen
 	ld a, BANK(ExitTitlescreenOrMainScreen)
 	jp Func_157f
@@ -3284,22 +3514,22 @@ Data_a654:
 	db -1 ; end
 ; 0xa66d
 
-SECTION "Data_a6cc", ROMX[$66cc], BANK[$2]
+SECTION "MissionTextTable", ROMX[$66cc], BANK[$2]
 
-Data_a6cc:
-	dw $4000 ; $0
-	dw $4333 ; $1
-	dw $46ae ; $2
-	dw $49f2 ; $3
-	dw $4eab ; $4
-	dw $51de ; $5
-	dw $55b4 ; $6
-	dw $583a ; $7
-	dw $5aca ; $8
-	dw $5d19 ; $9
-	dw $6034 ; $a
-	dw $6348 ; $b
-	dw $6837 ; $c
-	dw $6b1a ; $d
-	dw $6e3c ; $e
+MissionTextTable:
+	dw TheBankJobTexts             ; MISSION_THE_BANK_JOB
+	dw HideTheEvidenceTexts        ; MISSION_HIDE_THE_EVIDENCE
+	dw BoatChaseTexts              ; MISSION_BOAT_CHASE
+	dw RamRaidRaceTexts            ; MISSION_RAM_RAID_RACE
+	dw SuperflyDriveTexts          ; MISSION_SUPERFLY_DRIVE
+	dw BaitForATrapTexts           ; MISSION_BAIT_FOR_A_TRAP
+	dw TakeOutDiAngeloTexts        ; MISSION_TAKE_OUT_DIANGELO
+	dw StealACopCarTexts           ; MISSION_STEAL_A_COP_CAR
+	dw GetLuckyToTheDocsTexts      ; MISSION_GET_LUCKY_TO_THE_DOCS
+	dw BeverlyHillsGetAwayTexts    ; MISSION_BEVERLY_HILLS_GET_AWAY
+	dw GrandCentralStationTexts    ; MISSION_GRAND_CENTRAL_STATION
+	dw TrashGrangersWheelsTexts    ; MISSION_TRASH_GRANGERS_WHEELS
+	dw StopGrangersGangTexts       ; MISSION_STOP_GRANGERS_GANG
+	dw ChaseOneOfGrangersBoysTexts ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	dw CrossTownRecordTexts        ; MISSION_CROSS_TOWN_RECORD
 

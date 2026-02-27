@@ -177,19 +177,8 @@ wd551:: db ; d551
 
 ; multipurpose buffer for temporarily
 ; holding tile/bg map data
-wGfxBuffer:: db ; d771
-
-	ds $d782 - $d772
-
-wd782:: db ; d782
-
-	ds $d785 - $d783
-
-wd785:: db ; d785
-
-wd786:: db ; d786
-
-	ds $d7b1 - $d787
+wGfxBuffer:: ; d771
+	ds $40
 
 wd7b1:: ; d7b1
 	ds $40
@@ -282,17 +271,15 @@ wd82b:: db ; d82b
 
 wd82c:: db ; d82c
 
-	ds $d82e - $d82d
+wd82d:: db ; d82d
 
-wd82e:: db ; d82e
-
-	ds $d830 - $d82f
+wd82e:: dw ; d82e
 
 wd830:: db ; d830
 
 wd831:: db ; d831
 
-	ds $d833 - $d832
+wd832:: db ; d832
 
 wd833:: db ; d833
 
@@ -388,15 +375,27 @@ wd896:: db ; d896
 
 wd897:: db ; d897
 
-	ds $d8e2 - $d898
+	ds $d899 - $d898
+
+wd899:: db ; d899
+
+	ds $d8b9 - $d89a
+
+wd8b9:: db ; d8b9
+
+	ds $d8e2 - $d8ba
 
 wd8e2:: db ; d8e2
 
-	ds $d8e5 - $d8e3
+wd8e3:: db ; d8e3
+
+wd8e4:: db ; d8e4
 
 wd8e5:: db ; d8e5
 
-	ds $d8e8 - $d8e6
+	ds $d8e7 - $d8e6
+
+wd8e7:: db ; d8e7
 
 wd8e8:: db ; d8e8
 
@@ -482,7 +481,9 @@ wda6e:: db ; da6e
 
 wda76:: db ; da76
 
-	ds $da7b - $da77
+wda77:: db ; da77
+
+	ds $da7b - $da78
 
 wda7b:: db ; da7b
 
@@ -516,7 +517,7 @@ wda98:: db ; da98
 
 wda99:: db ; da99
 
-	ds $da9b - $da9a
+wda9a:: db ; da9a
 
 wda9b:: db ; da9b
 
@@ -560,9 +561,8 @@ wTitleScreenFinished:: db ; dbfd
 
 wdbfe:: db ; dbfe
 
-wdbff:: db ; dbff
-
-	ds $dc1f - $dc00
+wTextLineLengths:: ; dbff
+	ds MAX_NUM_LINES
 
 wdc1f:: db ; dc1f
 
@@ -604,11 +604,11 @@ wdc32:: db ; dc32
 
 wdc33:: db ; dc33
 
-wdc34:: db ; dc34
+wMissionCode:: db ; dc34
 
 	ds $dc38 - $dc35
 
-wdc38:: db ; dc38
+wMission:: db ; dc38
 
 wdc39:: db ; dc39
 
@@ -622,11 +622,11 @@ wdc7d:: db ; dc7d
 
 wdc7e:: db ; dc7e
 
-	ds $dc80 - $dc7f
+wdc7f:: db ; dc7f
 
 wdc80:: db ; dc80
 
-	ds $dc82 - $dc81
+wdc81:: db ; dc81
 
 wdc82:: db ; dc82
 
