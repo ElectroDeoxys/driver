@@ -31,6 +31,8 @@ ROMX $1
 	"Bank01"
 ROMX $2
 	"Bank02"
+ROMX $3
+	"Bank03"
 ROMX $4
 	"Bank04"
 ROMX $5

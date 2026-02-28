@@ -6,6 +6,12 @@ Gfx_cdff0:: INCBIN "gfx/gfx_c7ff0.2bpp"
 
 SECTION "Bank32", ROMX, BANK[$32]
 
+SECTION "Car01Gfx", ROMX[$78c0], BANK[$32]
+
+Car01Gfx:: INCBIN "gfx/cars/car01.2bpp"
+Car02Gfx:: INCBIN "gfx/cars/car02.2bpp"
+Car03Gfx:: INCBIN "gfx/cars/car03.2bpp"
+
 SECTION "Pals_cbec0", ROMX[$7ec0], BANK[$32]
 Pals_cbec0::
 	rgb 28, 28, 28
@@ -97,6 +103,15 @@ Gfx_cbfc0:: INCBIN "gfx/gfx_cbfc0.2bpp"
 
 
 SECTION "Bank33", ROMX, BANK[$33]
+
+Car04Gfx:: INCBIN "gfx/cars/car04.2bpp"
+Car05Gfx:: INCBIN "gfx/cars/car05.2bpp"
+Car06Gfx:: INCBIN "gfx/cars/car06.2bpp"
+Car07Gfx:: INCBIN "gfx/cars/car07.2bpp"
+Car08Gfx:: INCBIN "gfx/cars/car08.2bpp"
+Car09Gfx:: INCBIN "gfx/cars/car09.2bpp"
+Car10Gfx:: INCBIN "gfx/cars/car10.2bpp"
+Car11Gfx:: INCBIN "gfx/cars/car11.2bpp"
 
 SECTION "Gfx_cd000", ROMX[$5000], BANK[$33]
 Gfx_cd000:: INCBIN "gfx/gfx_cd000.2bpp"
@@ -284,10 +299,26 @@ Gfx_d0f9d:: INCBIN "gfx/gfx_d0f9d.2bpp"
 
 SECTION "Gfx_d115d", ROMX[$515d], BANK[$34]
 Gfx_d115d:: INCBIN "gfx/gfx_d115d.2bpp"
+Gfx_d119d:: INCBIN "gfx/gfx_d119d.2bpp"
+Gfx_d11dd:: INCBIN "gfx/gfx_d11dd.2bpp"
 
-SECTION "PersonGfx", ROMX[$671d], BANK[$34]
-
+SECTION "Gfx_d235d", ROMX[$635d], BANK[$34]
+Gfx_d235d:: INCBIN "gfx/gfx_d235d.2bpp"
+Gfx_d239d:: INCBIN "gfx/gfx_d239d.2bpp"
+Gfx_d23dd:: INCBIN "gfx/gfx_d23dd.2bpp"
+Gfx_d241d:: INCBIN "gfx/gfx_d241d.2bpp"
+Gfx_d245d:: INCBIN "gfx/gfx_d245d.2bpp"
+Gfx_d249d:: INCBIN "gfx/gfx_d249d.2bpp"
+Gfx_d24dd:: INCBIN "gfx/gfx_d24dd.2bpp"
+Gfx_d252d:: INCBIN "gfx/gfx_d252d.2bpp"
+Gfx_d257d:: INCBIN "gfx/gfx_d257d.2bpp"
+Gfx_d25cd:: INCBIN "gfx/gfx_d25cd.2bpp"
+Gfx_d260d:: INCBIN "gfx/gfx_d260d.2bpp"
+Gfx_d264d:: INCBIN "gfx/gfx_d264d.2bpp"
+Gfx_d268d:: INCBIN "gfx/gfx_d268d.2bpp"
+Gfx_d26dd:: INCBIN "gfx/gfx_d26dd.2bpp"
 PersonGfx:: INCBIN "gfx/person.2bpp"
+BoatGfx:: INCBIN "gfx/boat.2bpp"
 
 SECTION "Bank35", ROMX, BANK[$35]
 

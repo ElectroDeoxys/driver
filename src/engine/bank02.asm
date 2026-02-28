@@ -120,8 +120,8 @@ LoadHUD::
 	vramswitch
 
 .skip_numbers
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	jp z, Func_8bef
 	ret
 
@@ -158,8 +158,8 @@ LoadHUD::
 	db 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1, 7 | BG_BANK1
 
 Func_8162::
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	jp z, Func_8c64
 	ld a, [wc579]
 	and a
@@ -442,6 +442,20 @@ Func_8318:
 	jumptable
 ; 0x831f
 
+SECTION "Func_83b2", ROMX[$43b2], BANK[$2]
+
+Func_83b2::
+	ld a, c
+	ld [wd877], a
+	and a
+	ret z
+	push af
+	call Func_88b1
+	pop af
+	dec a
+	jumptable
+; 0x83bf
+
 SECTION "Func_84a7", ROMX[$44a7], BANK[$2]
 
 Func_84a7:
@@ -595,6 +609,33 @@ Func_859d::
 	ld a, [wd895]
 	jumptable
 ; 0x85a1
+
+SECTION "Func_88b1", ROMX[$48b1], BANK[$2]
+
+Func_88b1:
+	ld hl, wGfxBuffer
+	ld a, $80
+	ld bc, $14
+	call FillMemory
+	ld de, wGfxBuffer
+	call .Func_88e0
+	ld hl, wGfxBuffer
+	ld a, $0f
+	ld bc, $14
+	call FillMemory
+	ld de, wGfxBuffer
+	ld a, $01
+	vramswitch
+	call .Func_88e0
+	ld a, $00
+	vramswitch
+	ret
+
+.Func_88e0:
+	ld hl, v0BGMap1
+	lb bc, $1, $14
+	jp CopyBGMapBox
+; 0x88e9
 
 SECTION "Func_891e", ROMX[$491e], BANK[$2]
 
@@ -880,8 +921,8 @@ Titlescreen::
 	jr z, MainMenu
 
 ; start credits
-	ld a, $06
-	ld [wd81f], a
+	ld a, MODE_CREDITS
+	ld [wGameMode], a
 	xor a
 	ld [wResetDisabled], a
 	ret
@@ -916,8 +957,8 @@ MainMenu::
 
 	call Func_94d8
 
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	jr nz, .asm_8d40
 	ld a, MUSIC_TITLESCREEN
 	call PlayMusicIfNotPlaying
@@ -956,8 +997,8 @@ EntUpdate_MainMenuTimer:
 	ld a, BANK(ExitTitlescreenOrMainScreen)
 	call Func_1569
 
-	ld a, $06
-	ld [wd81f], a
+	ld a, MODE_CREDITS
+	ld [wGameMode], a
 	jp YieldEntityUpdateIndefinitely
 
 Func_8d7d:
@@ -1034,8 +1075,8 @@ Func_8ddb:
 SECTION "Func_90aa", ROMX[$50aa], BANK[$2]
 
 Func_90aa::
-	ld a, [wd81f]
-	cp $05
+	ld a, [wGameMode]
+	cp MODE_UNDERCOVER
 	ret nz
 	call Func_8ddb
 
@@ -3098,8 +3139,8 @@ TakeARideMenu:
 	ld [wdbf7 + 0], a
 	ld a, h
 	ld [wdbf7 + 1], a
-	ld a, $00
-	ld [wd81f], a
+	ld a, MODE_TAKE_A_RIDE
+	ld [wGameMode], a
 	call Func_98c5
 	ld hl, Data_a654
 	call Func_9962
@@ -3405,8 +3446,8 @@ Func_a45f:
 
 Func_a467:
 	ld [wCity], a
-	ld a, [wd81f]
-	cp $00
+	ld a, [wGameMode]
+	cp MODE_TAKE_A_RIDE
 	jp nz, ExitTitlescreenOrMainScreen
 	ld de, $61c5
 	ld a, $02
@@ -3449,8 +3490,8 @@ Func_a56c:
 Func_a577:
 	call Func_a3cc
 	; being here means A or Start was pressed
-	ld a, $05
-	ld [wd81f], a
+	ld a, MODE_UNDERCOVER
+	ld [wGameMode], a
 	xor a ; MISSION_THE_BANK_JOB
 	ld [wMission], a
 	ld de, ExitTitlescreenOrMainScreen

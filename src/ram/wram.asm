@@ -227,7 +227,9 @@ wd807:: db ; d807
 
 wd808:: db ; d808
 
-	ds $d80b - $d809
+wd809:: db ; d809
+
+wd80a:: db ; d80a
 
 wd80b:: db ; d80b
 
@@ -243,7 +245,7 @@ wd80f:: db ; d80f
 
 wd81e:: db ; d81e
 
-wd81f:: db ; d81f
+wGameMode:: db ; d81f
 
 wd820:: db ; d820
 
@@ -257,7 +259,8 @@ wd824:: db ; d824
 
 	ds $d826 - $d825
 
-wd826:: db ; d826
+; which CAR_* player is driving
+wPlayerCar:: db ; d826
 
 wd827:: db ; d827
 
@@ -299,7 +302,11 @@ wd83a:: db ; d83a
 
 wd83b:: db ; d83b
 
-	ds $d83f - $d83c
+	ds $d83d - $d83c
+
+wd83d:: db ; d83d
+
+	ds $d83f - $d83e
 
 wd83f:: db ; d83f
 
@@ -365,7 +372,15 @@ wd876:: db ; d876
 
 wd877:: db ; d877
 
-	ds $d894 - $d878
+	ds $d88c - $d878
+
+wd88c:: db ; d88c
+
+	ds $d892 - $d88d
+
+wd892:: db ; d892
+
+	ds $d894 - $d893
 
 wd894:: db ; d894
 
@@ -441,7 +456,15 @@ wda4d:: db ; da4d
 
 wda51:: db ; da51
 
-	ds $da59 - $da52
+	ds $da55 - $da52
+
+wda55:: db ; da55
+
+wda56:: db ; da56
+
+wda57:: db ; da57
+
+	ds $da59 - $da58
 
 wda59:: db ; da59
 
@@ -483,17 +506,33 @@ wda76:: db ; da76
 
 wda77:: db ; da77
 
-	ds $da7b - $da78
+wda78:: db ; da78
+
+	ds $da7b - $da79
 
 wda7b:: db ; da7b
 
-	ds $da82 - $da7c
+wda7c:: db ; da7c
+
+wda7d:: db ; da7d
+
+wda7e:: db ; da7e
+
+wda7f:: db ; da7f
+
+wda80:: db ; da80
+
+wda81:: db ; da81
 
 wda82:: db ; da82
 
 wda83:: db ; da83
 
-	ds $da8f - $da84
+	ds $da87 - $da84
+
+wda87:: db ; da87
+
+	ds $da8f - $da88
 
 wda8f:: db ; da8f
 
@@ -543,11 +582,8 @@ wdbc5:: db ; dbc5
 
 	ds $dbdb - $dbc6
 
-wdbdb:: db ; dbdb
-
-wdbdc:: db ; dbdc
-
-	ds $dbf7 - $dbdd
+wdbdb:: ; dbdb
+	ds (NUM_CITY_PROPS + 6) * $2
 
 wdbf7:: dw ; dbf7
 
@@ -612,7 +648,11 @@ wMission:: db ; dc38
 
 wdc39:: db ; dc39
 
-	ds $dc7a - $dc3a
+	ds $dc6f - $dc3a
+
+wdc6f:: db ; dc6f
+
+	ds $dc7a - $dc70
 
 wdc7a:: dw ; dc7a
 
@@ -630,7 +670,19 @@ wdc81:: db ; dc81
 
 wdc82:: db ; dc82
 
-	ds $dc8e - $dc83
+	ds $dc84 - $dc83
+
+wdc84:: db ; dc84
+
+	ds $dc86 - $dc85
+
+wdc86:: db ; dc86
+
+	ds $dc88 - $dc87
+
+wdc88:: db ; dc88
+
+	ds $dc8e - $dc89
 
 wdc8e:: db ; dc8e
 

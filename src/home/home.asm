@@ -1690,28 +1690,92 @@ VRAMBlockAddresses:
 	db HIGH(v0Tiles1) ; V0TILES_8800 | V1TILES_8800
 ; 0xb34
 
-SECTION "Func_c28", ROM0[$c28]
+SECTION "Func_bdd", ROM0[$bdd]
 
-Func_c28::
-	ld a, d
+Func_bdd::
+	push hl
+	ld hl, wdc7a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, bc
+	bit 7, h
+	jr nz, .asm_c25
+	ld a, [wdc7c]
+	ld c, a
+	ld a, [wdc7d]
+	ld b, a
+	ld a, h
+	cp b
+	jr nz, .asm_bfe
+	ld a, l
+	cp c
+.asm_bfe
+	jr nc, .asm_c25
+	ld hl, wdc7e
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, de
+	bit 7, h
+	jr nz, .asm_c25
+	ld a, [wdc80]
+	ld e, a
+	ld a, [wdc81]
+	ld d, a
+	ld a, h
+	cp d
+	jr nz, .asm_c20
+	ld a, l
 	cp e
-	jr c, Func_c2e
+.asm_c20
+	jr nc, .asm_c25
+	pop hl
+	scf
+	ret
+.asm_c25
+	pop hl
+	and a
+	ret
+
+; returns de = d * e
+DTimesE::
+	ld a, d
+	cp e ; d < e?
+	jr c, ATimeE ; yes
+	; d >= e, swap values
 	ld a, e
 	ld e, d
-Func_c2e:
+;	fallthrough
+
+; returns de = a * e
+; condition: a <= e
+ATimeE:
 	push hl
-	ld d, $00
-	ld h, d
-	ld l, d
-.asm_c33
+	ld d, 0
+	ld h, d ; 0
+	ld l, d ; 0
+.loop
 	srl a
-	jr nc, .asm_c38
+	jr nc, .skip_add
 	add hl, de
-.asm_c38
+.skip_add
 	sla e
 	rl d
 	and a
-	jr nz, .asm_c33
+	jr nz, .loop
 	ld d, h
 	ld e, l
 	pop hl
@@ -1721,7 +1785,7 @@ Func_c43:
 	cp $02
 	jr c, .asm_c4a
 	ld e, a
-	jr Func_c2e
+	jr ATimeE
 .asm_c4a
 	ld e, a
 	ld d, $00
@@ -2176,7 +2240,7 @@ Data_ee1:
 	db $3e, $02 ; MUSIC_MAIN_MENU
 	db $3e, $03 ; MUSIC_BRIEFING
 	db $3e, $04 ; MUSIC_MIAMI
-	db $3e, $05 ; MUSIC_MISSION_COMPLETE
+	db $3e, $05 ; MUSIC_MISSION_SUCCESS
 	db $3f, $01 ; MUSIC_LOS_ANGELES
 	db $3f, $02 ; MUSIC_NEW_YORK
 	db $3f, $03 ; MUSIC_MISSION_FAILED
@@ -2477,7 +2541,7 @@ Func_1084:
 	ld [wc541], a
 	jp ClearAudioQueue
 
-GetEntityWordField_BC::
+GetStructWord_BC::
 	push hl
 	add_hl
 	ld c, [hl]
@@ -2486,7 +2550,7 @@ GetEntityWordField_BC::
 	pop hl
 	ret
 
-SetEntityWordField_BC::
+SetStructWord_BC::
 	push hl
 	add_hl
 	ld [hl], c
@@ -2507,7 +2571,7 @@ Func_109f:
 	ld [hld], a
 	ret
 
-AddEntityWordField_BC:
+AddStructWord_BC:
 	push hl
 	add_hl
 	call Func_109f
@@ -2526,7 +2590,7 @@ Func_10b0:
 	ld [hld], a
 	ret
 
-AddEntityWordField_DE::
+AddStructWord_DE::
 	push hl
 	add_hl
 	call Func_10b0
@@ -2534,9 +2598,9 @@ AddEntityWordField_DE::
 	ret
 ; 0x10c1
 
-SECTION "GetEntityWordField_DE", ROM0[$10d0]
+SECTION "GetStructWord_DE", ROM0[$10d0]
 
-GetEntityWordField_DE::
+GetStructWord_DE::
 	push hl
 	add_hl
 	ld e, [hl]
@@ -2545,7 +2609,7 @@ GetEntityWordField_DE::
 	pop hl
 	ret
 
-SetEntityWordField_DE::
+SetStructWord_DE::
 	push hl
 	add_hl
 	ld [hl], e
@@ -2554,49 +2618,49 @@ SetEntityWordField_DE::
 	pop hl
 	ret
 
-GetEntityByteField_A::
+GetStructByte_A::
 	push hl
 	add_hl
 	ld a, [hl]
 	pop hl
 	ret
 
-GetEntityByteField_C::
+GetStructByte_C::
 	push hl
 	add_hl
 	ld c, [hl]
 	pop hl
 	ret
 
-GetEntityByteField_B::
+GetStructByte_B::
 	push hl
 	add_hl
 	ld b, [hl]
 	pop hl
 	ret
 
-GetEntityByteField_E::
+GetStructByte_E::
 	push hl
 	add_hl
 	ld e, [hl]
 	pop hl
 	ret
 
-GetEntityByteField_D::
+GetStructByte_D::
 	push hl
 	add_hl
 	ld d, [hl]
 	pop hl
 	ret
 
-SetEntityByteField_C::
+SetStructByte_C::
 	push hl
 	add_hl
 	ld [hl], c
 	pop hl
 	ret
 
-SetEntityByteField_B::
+SetStructByte_B::
 	push hl
 	add_hl
 	ld [hl], b
@@ -3275,7 +3339,7 @@ LoadSprites:
 
 SECTION "Func_146c", ROM0[$146c]
 
-Func_146c:
+Func_146c::
 	push hl
 	add_hl
 	ld d, h
@@ -3441,7 +3505,7 @@ StartEntityUpdate:
 	pop bc
 	ret
 
-DespawnEntity:
+DespawnEntity::
 	ld hl, wEntityPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -3537,9 +3601,13 @@ Func_157f::
 	ld h, d
 	ld l, e
 	jp hl
-; 0x1591
 
-SECTION "Func_1598", ROM0[$1598]
+Func_1591::
+	ld hl, wEntityPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
 
 Func_1598::
 	ld hl, wEntityPtr
@@ -3582,8 +3650,8 @@ Func_15bb:
 
 	ld a, $00
 	ld [wd822], a
-	ld a, $05
-	ld [wd81f], a
+	ld a, MODE_UNDERCOVER
+	ld [wGameMode], a
 	ld a, MISSION_THE_BANK_JOB
 	ld [wMission], a
 
@@ -3633,8 +3701,8 @@ Func_15bb:
 	jr .asm_1610
 
 .asm_1669
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	jr z, .asm_1684
 	ld a, NONE
 	call PlayMusic
@@ -3682,25 +3750,27 @@ Func_16a8:
 	ld [wd839], a
 	ld [wd83a], a
 	ld [wd83b], a
+
 	ld a, $01
 	bankswitch
 	call Func_16e2
 	call Func_1b4e
+
 	ld a, $01
 	bankswitch
 	call Func_178e
 	ret
 
 Func_16e2:
-	ld a, [wd81f]
+	ld a, [wGameMode]
 	jumptable
-	dw Func_16f4
-	dw Func_1735
-	dw Func_1748
-	dw Func_175b
-	dw Func_176e
-	dw Func_1784
-	dw Func_18c5
+	dw Func_16f4 ; MODE_TAKE_A_RIDE
+	dw Func_1735 ; MODE_UNK1
+	dw Func_1748 ; MODE_UNK2
+	dw Func_175b ; MODE_UNK3
+	dw Func_176e ; MODE_UNK4
+	dw Func_1784 ; MODE_UNDERCOVER
+	dw Func_18c5 ; MODE_CREDITS
 
 Func_16f4:
 	call Func_1972
@@ -3708,23 +3778,23 @@ Func_16f4:
 	call Func_1a1d
 	ld a, $00
 	ld [wd827], a
-	ld a, [wd826]
+	ld a, [wPlayerCar]
 	ld c, a
-	cp $00
+	cp CAR_00
 	jr z, .asm_172b
-	cp $01
+	cp CAR_01
 	jr z, .asm_172b
-	cp $08
+	cp CAR_08
 	jr z, .asm_172b
 	ld a, $02
 	ld [wd827], a
 	ld a, c
-	cp $07
+	cp CAR_07
 	jr z, .asm_172b
 	ld a, $05
 	ld [wd827], a
 	ld a, c
-	cp $02
+	cp CAR_02
 	jr z, .asm_172b
 	ld a, $01
 	ld [wd827], a
@@ -3777,17 +3847,161 @@ Func_1784:
 	jp Func_6921
 
 Func_178e:
-	ld a, [wd81f]
+	ld a, [wGameMode]
 	jumptable
-; 0x1792
+	dw Func_17a0 ; MODE_TAKE_A_RIDE
+	dw Func_17b4 ; MODE_UNK1
+	dw Func_1808 ; MODE_UNK2
+	dw Func_184b ; MODE_UNK3
+	dw Func_1899 ; MODE_UNK4
+	dw Func_18bb ; MODE_UNDERCOVER
+	dw Func_190f ; MODE_CREDITS
 
-SECTION "Func_18c5", ROM0[$18c5]
+Func_17a0:
+	call Func_1ed4
+	ld hl, Data_1f37
+	call Func_1eda
+	ld hl, Func_65a9
+	ld c, BANK(Func_65a9)
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_17b4:
+	ld a, $01
+	vramswitch
+	ld hl, $505d
+	ld de, v0Tiles1 tile $4a
+	ld c, $34
+	ld b, $10
+	call SafeCopyFarTiles
+	ld hl, $7efd
+	ld de, v0Tiles1 tile $5a
+	ld c, $35
+	ld b, $0a
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+
+	call Func_1ed4
+	ld hl, $0
+	call Func_1eda
+	call Func_1928
+	call Func_1937
+	ld a, $05
+	add_hl
+	ld de, wd83d
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+	xor a
+	ld [wd892], a
+	ld c, $01
+	call Func_195e
+	ld hl, $65b4
+	ld c, $01
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_1808:
+	call Func_1ed4
+	ld hl, $0
+	call Func_1eda
+	ld a, $01
+	ld [wd839], a
+	ld a, $0e
+	ld [wd86a], a
+	xor a
+	ld [wda7b], a
+	call Func_1928
+	ld c, $02
+	call Func_195e
+	ld hl, $5805
+	ld c, $01
+	ld b, $05
+	call SpawnEntity
+	push hl
+	call Func_193c
+	ld a, $05
+	add_hl
+	ld d, h
+	ld e, l
+	pop hl
+	ld a, $06
+	call SetStructWord_DE
+	ld hl, $66fa
+	ld c, $01
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_184b:
+	ld a, $04
+	ld [wd82d], a
+	ld hl, $0
+	call Func_1eda
+	xor a
+	ld [wd86c], a
+	ld [wda7b], a
+	call Func_1928
+	ld c, $03
+	call Func_195e
+	call Func_1941
+	ld a, $05
+	add_hl
+	ld e, [hl] ; palette ptr
+	inc hl
+	ld d, [hl]
+	inc hl
+	ld a, [hl] ; car
+	push hl
+	ld h, d
+	ld l, e
+	call Func_1ced
+	pop hl
+	homecall Func_5bce
+
+	ld a, $02
+	ld [wda76], a
+	ld a, l
+	ld [wda77], a
+	ld a, h
+	ld [wda78], a
+	ld hl, $6732
+	ld c, $01
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_1899:
+	xor a
+	ld [wd82d], a
+	ld hl, $0
+	call Func_1eda
+	ld a, $38
+	ld [wd86a], a
+	call Func_1928
+	ld c, $04
+	call Func_195e
+	ld hl, $67aa
+	ld c, $01
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_18bb:
+	ld a, $01
+	bankswitch
+	jp Func_6926
 
 Func_18c5:
 	ld a, [wdc8e]
 	ld [wCity], a
-	ld a, $00
-	ld [wd826], a
+	ld a, CAR_00
+	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
 	call Func_1972
@@ -3819,18 +4033,40 @@ Func_18c5:
 .asm_190d
 	ld [hl], a
 	ret
-; 0x190f
 
-SECTION "Func_1937", ROM0[$1937]
+Func_190f:
+	call Func_1ed4
+	ld hl, Data_1f37
+	call Func_1eda
+	ld a, $38
+	ld [wd86a], a
+	ld hl, $7c17
+	ld c, $01
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_1928:
+	call Func_1a43
+	ld de, wd88c
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	ret
 
 Func_1937:
-	ld hl, $7d05
+	ld hl, Data_7d05
 	jr Func_194f
 Func_193c:
 	ld hl, $7dbf
 	jr Func_194f
 Func_1941:
-	ld hl, $7e07
+	ld hl, Data_7e07
 	jr Func_194f
 
 Func_1946:
@@ -3845,24 +4081,29 @@ Func_1946:
 Func_194f:
 	ld a, [wCity]
 	add a
-	add a ; *8
+	add a ; *4
 	add_hl
 	ld a, [wd822]
-	add a
+	add a ; *2
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ret
-; 0x195e
 
-SECTION "Func_1972", ROM0[$1972]
+Func_195e:
+	ldh a, [hROMBank]
+	push af
+	homecall Func_83b2
+	pop af
+	bankswitch
+	ret
 
 Func_1972::
-	ld hl, $1f97
+	ld hl, Data_1f97
 	jr Func_197c
 Func_1977:
-	ld hl, $1f67
+	ld hl, Data_1f67
 	jr Func_197c ; useless jump
 Func_197c:
 	call Random
@@ -3878,15 +4119,15 @@ Func_197c:
 	jp CopyHLtoDE
 
 Func_198f:
-	ld a, [wd81f]
+	ld a, [wGameMode]
 	jumptable
 ; 0x1993
 
 SECTION "Func_1a12", ROM0[$1a12]
 
 Func_1a12::
-	ld a, $00
-	ld [wd826], a
+	ld a, CAR_00
+	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
 	ret
@@ -3918,9 +4159,40 @@ Func_1a2e::
 	ld a, [hl]
 	ld [wd82c], a
 	ret
-; 0x1a43
 
-SECTION "Func_1a71", ROM0[$1a71]
+Func_1a43:
+	ld a, [wGameMode]
+	cp MODE_UNK4
+	jr z, .asm_1a66
+	sub $01
+	ld hl, wdc39
+	add a
+	ld c, a
+	add a
+	add a
+	add a
+	add c
+	add_hl
+	ld a, [wCity]
+	add a
+	ld c, a
+	add a
+	add c
+	add_hl
+	ld a, [wd822]
+	ld c, a
+	add a
+	add c
+	add_hl
+	ret
+.asm_1a66
+	ld hl, wdc6f
+	ld a, [wCity]
+	ld c, a
+	add a
+	add c
+	add_hl
+	ret
 
 Func_1a71:
 	ld hl, wc683
@@ -3956,8 +4228,8 @@ Func_1a71:
 	ldh a, [hff99]
 	ld [hli], a
 .asm_1aa6
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	jr z, .asm_1adf
 	ld a, [wd8e5]
 	cp $04
@@ -4089,8 +4361,8 @@ Func_1b4e:
 	ld e, a
 	ld a, [wda4b]
 	ld d, a
-	ld a, $06
-	call SetEntityWordField_DE
+	ld a, ENT_UNK06
+	call SetStructWord_DE
 	xor a
 	ld [wda76], a
 	ld hl, $5f27
@@ -4101,8 +4373,8 @@ Func_1b4e:
 	ld c, $01
 	ld b, $08
 	call SpawnEntity
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	jr z, .asm_1bcb
 	call Func_f41
 	ld a, [wCity]
@@ -4237,8 +4509,8 @@ Func_1c57:
 	ret
 
 Func_1c7b:
-	ld a, [wd81f]
-	cp $06
+	ld a, [wGameMode]
+	cp MODE_CREDITS
 	ret z
 	ld a, [wFadeActive]
 	and a
@@ -4300,9 +4572,31 @@ Func_1cb9:
 	dec b
 	jr nz, .loop
 	ret
-; 0x1ced
 
-SECTION "Func_1d16", ROM0[$1d16]
+; input:
+; - a  = CAR_* constant
+; - hl = palette to load
+Func_1ced:
+	push hl
+	ld c, a
+	ld a, $48
+	ld [wVRAMNumTiles_v1_8800], a
+	ld b, V1TILES_8800
+	call LoadCarGfx
+	pop hl
+	ld a, h
+	or l
+	ret z
+	ldh a, [hROMBank]
+	push af
+	ld a, $03
+	bankswitch
+	ld de, wTempOBPals palette 1
+	ld b, 1 palettes
+	call CopyHLtoDE
+	pop af
+	bankswitch
+	ret
 
 Func_1d16:
 	ld hl, wda83
@@ -4310,14 +4604,16 @@ Func_1d16:
 .asm_1d1b
 	ld a, [hli]
 	push bc
-	ld b, $00
+	ld b, V0TILES_8000
 	call Func_1e38
 	pop bc
 	dec b
 	jr nz, .asm_1d1b
-	ld a, [wd826]
-	ld b, $03
+
+	ld a, [wPlayerCar]
+	ld b, V1TILES_8000
 	call Func_1e38
+
 	ld a, $01
 	bankswitch
 	ld hl, wd824
@@ -4326,10 +4622,10 @@ Func_1d16:
 	ld l, a
 	ld a, BANK("VRAM1")
 	vramswitch
-	ld b, $08
-.asm_1d43
+	ld b, NUM_CITY_PROPS
+.loop_load_props
 	push bc
-	ld a, [hli]
+	ld a, [hli] ; which prop to load
 	push hl
 	add a ; *2
 	ld c, a
@@ -4341,13 +4637,13 @@ Func_1d16:
 	ld [hl], a
 	ld a, c
 	add a
-	ld hl, $382c
+	ld hl, Data_382c
 	add_hl
-	ld b, [hl]
+	ld b, [hl] ; num tiles
 	inc hl
-	ld c, [hl]
+	ld c, [hl] ; bank
 	inc hl
-	ld a, [hli]
+	ld a, [hli] ; pointer
 	ld h, [hl]
 	ld l, a
 	push hl
@@ -4365,19 +4661,20 @@ Func_1d16:
 	pop hl
 	ld a, [wVRAMNumTiles_v1_8000]
 	add b
-	add b
+	add b ; *2
 	ld [wVRAMNumTiles_v1_8000], a
 	xor a
 	call CopyTilesWithAlternatingBlackTiles
 	pop hl
 	pop bc
 	dec b
-	jr nz, .asm_1d43
+	jr nz, .loop_load_props
 	ld a, BANK("VRAM0")
 	vramswitch
+
 	ld de, wTempOBPals
-	ld b, $08
-.asm_1d8e
+	ld b, 8 ; palettes
+.loop_load_pals
 	push bc
 	ld c, [hl]
 	inc hl
@@ -4390,34 +4687,36 @@ Func_1d16:
 	push af
 	ld a, $03
 	bankswitch
-	ld b, $08
-.asm_1da2
+	ld b, PAL_SIZE
+.loop_pal_copy
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec b
-	jr nz, .asm_1da2
+	jr nz, .loop_pal_copy
 	pop af
 	bankswitch
 	pop hl
 	pop bc
 	dec b
-	jr nz, .asm_1d8e
-	ld a, [wd826]
-	cp $06
+	jr nz, .loop_load_pals
+
+	ld a, [wPlayerCar]
+	cp CAR_06
 	jr nz, .asm_1dd7
 	push hl
 	ldh a, [hROMBank]
 	push af
-	ld a, $03
+	ld a, BANK(Pals_f644)
 	bankswitch
-	ld hl, $767c
+	ld hl, Pals_f644 palette 7
 	ld de, wTempOBPals palette 1
 	ld b, 1 palettes
 	call CopyHLtoDE
 	pop af
 	bankswitch
 	pop hl
+
 .asm_1dd7
 	ld de, wdb85
 .asm_1dda
@@ -4427,10 +4726,11 @@ Func_1d16:
 	ld [de], a
 	inc de
 	jr .asm_1dda
+
 .asm_1de3
-	ld hl, $3864
-	ld de, wdbdc
-	ld b, $0e
+	ld hl, Data_3864
+	ld de, wdbdb + 1
+	ld b, NUM_CITY_PROPS + 6
 .asm_1deb
 	ld a, [de]
 	or [hl]
@@ -4472,10 +4772,14 @@ Func_1d16:
 	vramswitch
 	ret
 
+; input:
+; - a  = CAR_* constant
+; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
+;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
 Func_1e38:
 	push hl
 	ld c, a
-	call Func_30f1
+	call LoadCarGfx
 	pop hl
 	ret
 
@@ -4585,6 +4889,8 @@ Func_1ed4::
 	ld [wd82d], a
 	ret
 
+; input:
+; - hl = some data used in Func_1eee
 Func_1eda::
 	ld a, l
 	ld [wd82e + 0], a
@@ -4632,13 +4938,32 @@ Func_1eee:
 	ld a, [hl]
 	ld [wd836], a
 	ret
+
 .asm_1f32
 	xor a
 	ld [wd830], a
 	ret
-; 0x1f37
 
-SECTION "Func_1fc7", ROM0[$1fc7]
+Data_1f37::
+	db $01, $04, $1e, $20, $b4, $00
+	db $01, $03, $15, $1c, $f0, $00
+	db $01, $02, $0f, $18, $2c, $01
+	db $02, $02, $07, $14, $68, $01
+; 0x1f4f
+
+SECTION "Func_1f67", ROM0[$1f67]
+
+Data_1f67:
+	db $03, $04, $05, $02, $03, $03, $04, $04, $05, $05, $02, $02
+	db $03, $04, $02, $0a, $03, $03, $04, $04, $02, $02, $0a, $0a
+	db $03, $09, $0a, $02, $03, $03, $09, $09, $0a, $0a, $02, $02
+	db $04, $09, $0a, $02, $04, $04, $09, $09, $0a, $0a, $02, $02
+
+Data_1f97:
+	db $01, $02, $03, $04, $03, $03, $03, $04, $04, $04, $02, $02
+	db $01, $03, $04, $05, $03, $03, $04, $04, $05, $05, $03, $03
+	db $01, $03, $09, $02, $03, $03, $03, $03, $09, $09, $02, $02
+	db $01, $05, $0a, $02, $05, $05, $05, $05, $0a, $0a, $02, $02
 
 Func_1fc7:
 	ld a, [wd895]
@@ -5647,18 +5972,18 @@ Func_25f4:
 .asm_260a
 	ld [hl], $01
 	lb bc, 0, 0
-	ld a, $22
-	call SetEntityByteField_C
-	ld a, $21
-	call SetEntityByteField_C
-	ld a, $12
-	call SetEntityByteField_C
-	ld a, $20
-	call SetEntityByteField_C
-	ld a, $0d
-	call SetEntityWordField_BC
-	ld a, $10
-	call SetEntityWordField_BC
+	ld a, ENT_UNK22
+	call SetStructByte_C
+	ld a, ENT_UNK21
+	call SetStructByte_C
+	ld a, ENT_UNK12
+	call SetStructByte_C
+	ld a, ENT_UNK20
+	call SetStructByte_C
+	ld a, ENT_UNK0D
+	call SetStructWord_BC
+	ld a, ENT_UNK10
+	call SetStructWord_BC
 	pop de
 	pop bc
 	and a
@@ -5699,8 +6024,8 @@ Func_2631::
 	ret
 
 Func_265f::
-	ld a, $0e
-	call GetEntityByteField_A
+	ld a, ENT_UNK0E
+	call GetStructByte_A
 	ld e, a
 	and $80
 	jr nz, .asm_2670
@@ -5713,23 +6038,23 @@ Func_265f::
 .asm_2670
 	push de
 	ld a, $0d
-	call AddEntityWordField_BC
+	call AddStructWord_BC
 	pop de
-	ld a, $0e
-	call GetEntityByteField_A
+	ld a, ENT_UNK0E
+	call GetStructByte_A
 	xor e
 	and $80
 	ret z
 	ld de, $0000
-	ld a, $0d
-	jp SetEntityWordField_DE
+	ld a, ENT_UNK0D
+	jp SetStructWord_DE
 ; 0x2688
 
 SECTION "Func_26b8", ROM0[$26b8]
 
 Func_26b8::
-	ld a, $0e
-	call GetEntityByteField_A
+	ld a, ENT_UNK0E
+	call GetStructByte_A
 	bit 7, a
 	jr z, .asm_26c3
 	cpl
@@ -5839,7 +6164,116 @@ Func_2747::
 	ret
 ; 0x274f
 
-SECTION "Func_27e5", ROM0[$27e5]
+SECTION "Func_275f", ROM0[$275f]
+
+Func_275f::
+	push de
+	push hl
+	ld a, $07
+	add_hl
+	ld a, [hli]
+	push hl
+	ld h, [hl]
+	ld l, a
+	ld a, $07
+	add_de
+	ld a, [de]
+	ld c, a
+	inc de
+	ld a, [de]
+	ld b, a
+	inc de
+	inc de
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, bc
+	bit 7, h
+	jr z, .asm_2785
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+.asm_2785
+	ld a, l
+	ld [wdc7a + 0], a
+	ld a, h
+	ld [wdc7a + 1], a
+	pop hl
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [de]
+	ld c, a
+	inc de
+	ld a, [de]
+	ld b, a
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, bc
+	bit 7, h
+	jr z, .asm_27ab
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+.asm_27ab
+	ld b, h
+	ld c, l
+	ld a, [wdc7a + 0]
+	ld e, a
+	ld a, [wdc7a + 1]
+	ld d, a
+	ld h, $00
+.asm_27b7
+	ld a, b
+	or d
+	jr z, .asm_27c6
+	inc h
+	srl b
+	rr c
+	srl d
+	rr e
+	jr .asm_27b7
+.asm_27c6
+	ld b, e
+	ld a, b
+	or c
+	and $80
+	jr z, .asm_27d2
+	inc h
+	srl b
+	srl c
+.asm_27d2
+	call Func_2daf
+	ld l, a
+	ld a, h
+	ld h, $00
+.asm_27d9
+	and a
+	jr z, .asm_27e0
+	add hl, hl
+	dec a
+	jr .asm_27d9
+.asm_27e0
+	ld b, h
+	ld c, l
+	pop hl
+	pop de
+	ret
 
 Func_27e5::
 	push de
@@ -5973,12 +6407,12 @@ Func_289f::
 	pop af
 .asm_28ae
 	push af
-	ld a, $10
-	call SetEntityWordField_BC
+	ld a, ENT_UNK10
+	call SetStructWord_BC
 	pop af
 	ld c, a
-	ld a, $0f
-	jp SetEntityByteField_C
+	ld a, ENT_UNK0F
+	jp SetStructByte_C
 
 Func_28bb::
 	push hl
@@ -6117,23 +6551,23 @@ Func_2944:
 	and a
 	ret z
 	ld d, l
-	jp Func_c28
+	jp DTimesE
 
 Func_2967::
-	ld a, $11
-	call GetEntityByteField_A
+	ld a, ENT_UNK11
+	call GetStructByte_A
 	and a
 	jr z, .asm_2978
 	ld d, a
-	ld a, $0f
-	call GetEntityByteField_E
+	ld a, ENT_UNK0F
+	call GetStructByte_E
 	call Func_28d1
 .asm_2978
-	ld a, $0f
-	call SetEntityByteField_C
+	ld a, ENT_UNK0F
+	call SetStructByte_C
 	ld c, $00
-	ld a, $10
-	jp SetEntityWordField_BC
+	ld a, ENT_UNK10
+	jp SetStructWord_BC
 ; 0x2984
 
 SECTION "Func_298c", ROM0[$298c]
@@ -6146,7 +6580,7 @@ Func_298c:
 	ld a, $09
 	jp Func_146c
 
-Func_2998:
+Func_2998::
 	ld hl, $0000
 	bit 7, a
 	jr z, .Func_29ac
@@ -6209,7 +6643,7 @@ Func_29e0::
 	pop hl
 	ret
 
-Func_29ea:
+Func_29ea::
 	ld c, a
 	swap a
 	and $0c
@@ -6369,22 +6803,22 @@ Func_2c37:
 SECTION "Func_2cbb", ROM0[$2cbb]
 
 Func_2cbb:
-	ld a, $0e
-	call GetEntityByteField_A
+	ld a, ENT_UNK0E
+	call GetStructByte_A
 	and a
 	jr z, .asm_2cf5
 	ld [wdc7a], a
-	ld a, $0c
-	call GetEntityByteField_A
+	ld a, ENT_UNK0C
+	call GetStructByte_A
 	ld [wdc7c], a
 	call Func_2d2c
-	ld a, $11
-	call GetEntityByteField_A
+	ld a, ENT_UNK11
+	call GetStructByte_A
 	and a
 	jr z, .asm_2d08
 	ld [wdc7a], a
-	ld a, $0f
-	call GetEntityByteField_A
+	ld a, ENT_UNK0F
+	call GetStructByte_A
 	ld [wdc7c], a
 	push hl
 	push de
@@ -6401,11 +6835,11 @@ Func_2cbb:
 	pop hl
 	jr .asm_2d08
 .asm_2cf5
-	ld a, $11
-	call GetEntityByteField_A
+	ld a, ENT_UNK11
+	call GetStructByte_A
 	ld [wdc7a], a
-	ld a, $0f
-	call GetEntityByteField_A
+	ld a, ENT_UNK0F
+	call GetStructByte_A
 	ld [wdc7c], a
 	call Func_2d2c
 .asm_2d08
@@ -6731,7 +7165,7 @@ Func_3047::
 	ld a, $03
 	bankswitch
 	ld a, $25
-	call GetEntityWordField_DE
+	call GetStructWord_DE
 	push de
 	push hl
 	inc de
@@ -6757,8 +7191,8 @@ Func_3047::
 	ld [de], a
 	pop hl
 	pop de
-	ld a, $0c
-	call GetEntityByteField_A
+	ld a, ENT_UNK0C
+	call GetStructByte_A
 	add $04
 	rrca
 	rrca
@@ -6860,17 +7294,17 @@ Func_3047::
 	ret
 
 ; input:
-; - c  = ?
+; - c  = CAR_* constant
 ; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
 ;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
-Func_30f1:
+LoadCarGfx:
 	ldh a, [hROMBank]
 	push af
 	ld a, $03
 	bankswitch
 	ld hl, wdbc5
 	ld a, c
-	add a
+	add a ; *2
 	add_hl
 	ld de, wVRAMNumTiles
 	ld a, b
@@ -6879,9 +7313,9 @@ Func_30f1:
 	ld [hl], a
 	ld a, b
 	cp V0TILES_8800
-	jr z, .asm_3138
+	jr z, .add_80_to_tile_id
 	cp V1TILES_8800
-	jr z, .asm_3138
+	jr z, .add_80_to_tile_id
 .asm_3111
 	inc hl
 	ld a, b
@@ -6894,24 +7328,24 @@ Func_30f1:
 	ld a, c
 	add a
 	add a
-	add c
-	ld hl, $75ed
+	add c ; *3
+	ld hl, CarGfxTable
 	add_hl
-	ld c, [hl]
+	ld c, [hl] ; bank
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; pointer
 	inc hl
 	ld d, [hl]
 	inc hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [hl]
+	ld a, [hl] ; num of tiles
 	call PushTilesToVRAM
 	pop af
 	bankswitch
 	ret
-.asm_3138
+.add_80_to_tile_id
 	ld a, [hl]
 	add $80
 	ld [hl], a
@@ -6998,7 +7432,7 @@ Func_3161:
 	ld [de], a
 	inc de
 	ld a, $0d
-	call GetEntityWordField_BC
+	call GetStructWord_BC
 	bit 7, b
 	jr z, .asm_31c8
 	xor a
@@ -7814,18 +8248,18 @@ Func_35ad:
 	call SpawnEntity
 	pop de
 	jr c, .asm_362b
-	ld a, $06
-	call SetEntityWordField_DE
+	ld a, ENT_UNK06
+	call SetStructWord_DE
 	push de
 	ld e, l
 	ld d, h
 	pop hl
-	ld a, $0f
-	call SetEntityWordField_DE
+	ld a, ENT_UNK0F
+	call SetStructWord_DE
 	call Func_1124
 	jr c, .asm_362e
-	ld a, $11
-	call SetEntityWordField_DE
+	ld a, ENT_UNK11
+	call SetStructWord_DE
 	ld a, [de]
 	or $06
 	ld [de], a
@@ -7844,7 +8278,7 @@ Func_35ad:
 .asm_362e
 	ld [hl], $00
 	ld a, $0f
-	call GetEntityWordField_DE
+	call GetStructWord_DE
 	jr .asm_362b
 
 Func_3637:
@@ -7870,7 +8304,7 @@ Func_3637:
 	ld a, e
 	push af
 	ld a, c
-	add a
+	add a ; *2
 	ld de, wdbdb
 	add_de
 	pop af
@@ -8000,7 +8434,7 @@ Func_3637:
 Func_36ea:
 	push de
 	ld a, $11
-	call GetEntityWordField_DE
+	call GetStructWord_DE
 	ld a, [de]
 	and $08
 	pop de
@@ -8068,16 +8502,16 @@ Func_3743:
 	ld [hl], a
 	pop hl
 	ld a, $07
-	call GetEntityWordField_BC
+	call GetStructWord_BC
 	srl b
 	rr c
 	ld a, $07
-	call SetEntityWordField_BC
+	call SetStructWord_BC
 	jp Func_37f0
 
 Func_3773:
-	ld a, $08
-	call GetEntityByteField_A
+	ld a, ENT_UNK08
+	call GetStructByte_A
 	rrca
 	rrca
 	and $3f
@@ -8140,8 +8574,8 @@ Func_3798:
 
 Func_37be:
 	call Func_37fb
-	ld a, $05
-	call GetEntityByteField_A
+	ld a, ENT_UNK05
+	call GetStructByte_A
 	push hl
 	call Func_29ea
 	pop hl
@@ -8161,8 +8595,8 @@ Func_37be:
 	jp Func_146c
 
 Func_37e3:
-	ld a, $08
-	call GetEntityByteField_A
+	ld a, ENT_UNK08
+	call GetStructByte_A
 	push de
 	push hl
 	call Func_2998
@@ -8207,7 +8641,7 @@ Func_3802:
 Func_3815:
 	call Func_1598
 	ld a, $11
-	call GetEntityWordField_DE
+	call GetStructWord_DE
 	xor a
 	ld [de], a
 	ld [hl], a
@@ -8217,4 +8651,32 @@ PtrTable_3823:
 	dba Data_10000 ; MIAMI
 	dba Data_14000 ; LOS_ANGELES
 	dba Data_c0000 ; NEW_YORK
+
+MACRO? data_382c
+	db \1 ; num of tiles
+	dba \2 ; graphics
+ENDM
+
+Data_382c:
+	data_382c 4, Gfx_d235d ; PROP_0
+	data_382c 4, Gfx_d239d ; PROP_1
+	data_382c 4, Gfx_d23dd ; PROP_2
+	data_382c 4, Gfx_d241d ; PROP_3
+	data_382c 4, Gfx_d245d ; PROP_4
+	data_382c 4, Gfx_d249d ; PROP_5
+	data_382c 4, Gfx_d25cd ; PROP_6
+	data_382c 4, Gfx_d260d ; PROP_7
+	data_382c 4, Gfx_d264d ; PROP_8
+	data_382c 4, Gfx_d26dd ; PROP_9
+	data_382c 5, Gfx_d24dd ; PROP_A
+	data_382c 5, Gfx_d252d ; PROP_B
+	data_382c 5, Gfx_d257d ; PROP_C
+	data_382c 5, Gfx_d268d ; PROP_D
 ; 0x382c
+
+SECTION "Data_3864", ROM0[$3864]
+
+Data_3864:
+    db $04, $04, $04, $02, $02, $03, $00, $02
+	db $05, $02, $02, $03, $02, $02
+; 0x3872
