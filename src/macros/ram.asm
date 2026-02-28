@@ -5,7 +5,7 @@ MACRO? entity_struct
 \1Unk02:: db
 \1Unk03:: dw
 \1Unk05:: db
-\1Unk06:: dw
+\1CarPtr:: dw
 \1Unk08:: db
 \1Unk09:: db
 \1Unk0a:: db

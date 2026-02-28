@@ -444,9 +444,7 @@ wda31:: db ; da31
 
 	ds $da4a - $da32
 
-wda4a:: db ; da4a
-
-wda4b:: db ; da4b
+wCarPtr:: dw ; da4a
 
 	ds $da4d - $da4c
 
@@ -656,9 +654,7 @@ wdc6f:: db ; dc6f
 
 wdc7a:: dw ; dc7a
 
-wdc7c:: db ; dc7c
-
-wdc7d:: db ; dc7d
+wdc7c:: dw ; dc7c
 
 wdc7e:: db ; dc7e
 

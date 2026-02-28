@@ -181,22 +181,22 @@ Func_8189:
 	ret z
 	ld c, $8b
 	ld de, wd855
-	ld hl, wda4a
+	ld hl, wCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $0a
+	ld a, CARSTRUCT_0A
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	call Func_82db
 	ld de, wd863
-	ld hl, wda4a
+	ld hl, wCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $07
+	ld a, CARSTRUCT_07
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -2082,9 +2082,9 @@ LoadMainMenuCursorOAM:
 	ld a, [hli]
 	ld [wdc7a], a
 	ld a, [hli]
-	ld [wdc7c], a
+	ld [wdc7c + 0], a
 	ld a, [hli]
-	ld [wdc7d], a
+	ld [wdc7c + 1], a
 	ld a, [hl]
 	cp 0
 	ld a, OAM_BANK0
@@ -2183,9 +2183,9 @@ LoadMainMenuCursorOAM:
 	ld b, SCREEN_WIDTH
 	call FarCopy
 	ld a, l
-	ld [wdc7c], a
+	ld [wdc7c + 0], a
 	ld a, h
-	ld [wdc7d], a
+	ld [wdc7c + 1], a
 
 	ld b, SCREEN_WIDTH
 	ld hl, wGfxBuffer
@@ -2773,7 +2773,7 @@ ProcessTitleText:
 	jr z, .asm_9b55
 	ld [wdc7a], a
 	inc a
-	ld [wdc7c], a
+	ld [wdc7c + 0], a
 	ld b, a
 	ld a, [wd8e2]
 	sub b
@@ -2784,7 +2784,7 @@ ProcessTitleText:
 .asm_9b55
 	ld a, $14
 	ld [wdc7a], a
-	ld [wdc7c], a
+	ld [wdc7c + 0], a
 	ld a, [wd8e2]
 	sub $14
 	ld [wdc7e], a
@@ -2794,7 +2794,7 @@ ProcessTitleText:
 	ld a, [wdc7a]
 	call .Func_9b96
 	ld hl, wd7b1
-	ld a, [wdc7c]
+	ld a, [wdc7c + 0]
 	add_hl
 	ld de, wGfxBuffer + $14
 	ld a, [wdc7e]

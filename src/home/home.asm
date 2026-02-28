@@ -1038,44 +1038,46 @@ SafeCopyTile:
 	inc d
 	ret
 
-Func_74d::
-	bit 7, h
-	ret z
+; returns hl = abs(hl)
+GetAbsHL::
+	bit 7, h ; negative?
+	ret z ; is positive, exit
 	push af
 	xor a
 	sub l
 	ld l, a
-	ld a, $00
+	ld a, 0
 	sbc h
 	ld h, a
 	pop af
 	ret
 
-; outputs hl = hl - de
-SubtractDEFromHL::
+; returns hl = hl - de
+HLMinusDE::
 	push af
 	ld a, l
 	sub e
 	ld l, a
 	ld a, h
-	jr nc, .asm_762
+	jr nc, .no_carry
 	dec h
-.asm_762
+.no_carry
 	ld a, h
 	sub d
 	ld h, a
 	pop af
 	ret
 
-Func_767::
+; returns hl = hl - bc
+HLMinusBC::
 	push af
 	ld a, l
 	sub c
 	ld l, a
 	ld a, h
-	jr nc, .asm_76f
+	jr nc, .no_carry
 	dec h
-.asm_76f
+.no_carry
 	ld a, h
 	sub b
 	ld h, a
@@ -1549,7 +1551,7 @@ PushTilesToVRAM_Compressed::
 	ld h, d
 	ld l, e
 	pop de
-	call SubtractDEFromHL
+	call HLMinusDE
 	srl l
 	srl l
 	srl l
@@ -1707,9 +1709,9 @@ Func_bdd::
 	add hl, bc
 	bit 7, h
 	jr nz, .asm_c25
-	ld a, [wdc7c]
+	ld a, [wdc7c + 0]
 	ld c, a
-	ld a, [wdc7d]
+	ld a, [wdc7c + 1]
 	ld b, a
 	ld a, h
 	cp b
@@ -3614,7 +3616,7 @@ Func_1598::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, ENT_UNK06
+	ld a, ENT_CAR_PTR
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -3949,6 +3951,7 @@ Func_184b:
 	call Func_1928
 	ld c, $03
 	call Func_195e
+
 	call Func_1941
 	ld a, $05
 	add_hl
@@ -4357,11 +4360,11 @@ Func_1b4e:
 	ld b, $02
 	call SpawnEntity
 
-	ld a, [wda4a]
+	ld a, [wCarPtr + 0]
 	ld e, a
-	ld a, [wda4b]
+	ld a, [wCarPtr + 1]
 	ld d, a
-	ld a, ENT_UNK06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	xor a
 	ld [wda76], a
@@ -4575,7 +4578,7 @@ Func_1cb9:
 
 ; input:
 ; - a  = CAR_* constant
-; - hl = palette to load
+; - hl = palette to load (can be NULL)
 Func_1ced:
 	push hl
 	ld c, a
@@ -4584,9 +4587,10 @@ Func_1ced:
 	ld b, V1TILES_8800
 	call LoadCarGfx
 	pop hl
+
 	ld a, h
 	or l
-	ret z
+	ret z ; no palette
 	ldh a, [hROMBank]
 	push af
 	ld a, $03
@@ -4954,16 +4958,16 @@ Data_1f37::
 SECTION "Func_1f67", ROM0[$1f67]
 
 Data_1f67:
-	db $03, $04, $05, $02, $03, $03, $04, $04, $05, $05, $02, $02
-	db $03, $04, $02, $0a, $03, $03, $04, $04, $02, $02, $0a, $0a
-	db $03, $09, $0a, $02, $03, $03, $09, $09, $0a, $0a, $02, $02
-	db $04, $09, $0a, $02, $04, $04, $09, $09, $0a, $0a, $02, $02
+	db CAR_03, CAR_04, CAR_05, CAR_02, $03, $03, $04, $04, $05, $05, $02, $02
+	db CAR_03, CAR_04, CAR_02, CAR_10, $03, $03, $04, $04, $02, $02, $0a, $0a
+	db CAR_03, CAR_09, CAR_10, CAR_02, $03, $03, $09, $09, $0a, $0a, $02, $02
+	db CAR_04, CAR_09, CAR_10, CAR_02, $04, $04, $09, $09, $0a, $0a, $02, $02
 
 Data_1f97:
-	db $01, $02, $03, $04, $03, $03, $03, $04, $04, $04, $02, $02
-	db $01, $03, $04, $05, $03, $03, $04, $04, $05, $05, $03, $03
-	db $01, $03, $09, $02, $03, $03, $03, $03, $09, $09, $02, $02
-	db $01, $05, $0a, $02, $05, $05, $05, $05, $0a, $0a, $02, $02
+	db CAR_01, CAR_02, CAR_03, CAR_04, $03, $03, $03, $04, $04, $04, $02, $02
+	db CAR_01, CAR_03, CAR_04, CAR_05, $03, $03, $04, $04, $05, $05, $03, $03
+	db CAR_01, CAR_03, CAR_09, CAR_02, $03, $03, $03, $03, $09, $09, $02, $02
+	db CAR_01, CAR_05, CAR_10, CAR_02, $05, $05, $05, $05, $0a, $0a, $02, $02
 
 Func_1fc7:
 	ld a, [wd895]
@@ -5016,9 +5020,9 @@ Func_2026:
 	ld a, [hli]
 	ld [wdc7a], a
 	ld a, [hli]
-	ld [wdc7c], a
+	ld [wdc7c + 0], a
 	ld a, [hli]
-	ld [wdc7d], a
+	ld [wdc7c + 1], a
 	ld a, [hli]
 	ld [wd80d], a
 	ld a, [hli]
@@ -5119,9 +5123,9 @@ Func_20dc:
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	ld a, [wdc7c]
+	ld a, [wdc7c + 0]
 	ld e, a
-	ld a, [wdc7d]
+	ld a, [wdc7c + 1]
 	ld d, a
 	add hl, de
 	ld a, [wdc7a]
@@ -5655,13 +5659,13 @@ Func_2410:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call SubtractDEFromHL
+	call HLMinusDE
 	ld a, l
 	or h
 	ret z
 	ld e, l
 	ld d, h
-	call Func_74d
+	call GetAbsHL
 	ld a, h
 	and a
 	jr nz, .asm_2430
@@ -5944,7 +5948,7 @@ SECTION "Func_25e5", ROM0[$25e5]
 Func_25e5:
 	ld b, $08
 	ld hl, wd8eb
-	ld de, $27
+	ld de, CAR_STRUCT_SIZE
 	xor a
 .asm_25ee
 	ld [hl], a
@@ -5958,37 +5962,45 @@ Func_25f4:
 	push de
 	ld b, $08
 	ld hl, wd8eb
-	ld de, $27
-.asm_25fe
-	bit 0, [hl]
-	jr z, .asm_260a
+	ld de, CAR_STRUCT_SIZE
+.loop_cars
+	bit CARFLAG_ACTIVE_F, [hl] ; CARSTRUCT_FLAGS
+	jr z, .inactive
 	add hl, de
 	dec b
-	jr nz, .asm_25fe
+	jr nz, .loop_cars
+	; all active
 	pop de
 	pop bc
 	scf
 	ret
-.asm_260a
-	ld [hl], $01
+
+.inactive
+	ld [hl], CARFLAG_ACTIVE ; CARSTRUCT_FLAGS
 	lb bc, 0, 0
-	ld a, ENT_UNK22
+	ld a, CARSTRUCT_22
 	call SetStructByte_C
-	ld a, ENT_UNK21
+	ld a, CARSTRUCT_21
 	call SetStructByte_C
-	ld a, ENT_UNK12
+	ld a, CARSTRUCT_12
 	call SetStructByte_C
-	ld a, ENT_UNK20
+	ld a, CARSTRUCT_20
 	call SetStructByte_C
-	ld a, ENT_UNK0D
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
-	ld a, ENT_UNK10
+	ld a, CARSTRUCT_10
 	call SetStructWord_BC
 	pop de
 	pop bc
 	and a
 	ret
 
+; input:
+; - a  = ?
+; - h  = ?
+; - l  = ?
+; - de = ?
+; - bc = ?
 Func_2631::
 	ld [wdc7a], a
 	ld a, l
@@ -6000,60 +6012,61 @@ Func_2631::
 	push hl
 	inc hl
 	ld a, [wdc7c]
-	ld [hli], a
+	ld [hli], a ; CARSTRUCT_01
 	ld a, [wdc7e]
-	ld [hli], a
+	ld [hli], a ; CARSTRUCT_02
 	xor a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hl], e
+	ld [hli], a ; CARSTRUCT_03
+	ld [hli], a ; CARSTRUCT_04
+	ld [hli], a ; CARSTRUCT_05
+	ld [hli], a ; CARSTRUCT_06
+	ld [hl], e  ; CARSTRUCT_07
 	inc hl
 	ld [hl], d
 	inc hl
-	ld [hli], a
-	ld [hl], c
+	ld [hli], a ; CARSTRUCT_09
+	ld [hl], c  ; CARSTRUCT_0A
 	inc hl
 	ld [hl], b
 	inc hl
 	ld a, [wdc7a]
-	ld [hl], a
+	ld [hl], a ; CARSTRUCT_0C
 	pop hl
 	and a
 	ret
 
 Func_265f::
-	ld a, ENT_UNK0E
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	ld e, a
-	and $80
-	jr nz, .asm_2670
+	and $80 ; negative?
+	jr nz, .negative
+; positive
 	xor a
 	sub c
 	ld c, a
-	ld a, $00
+	ld a, 0
 	sbc b
 	ld b, a
-.asm_2670
+.negative
 	push de
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call AddStructWord_BC
 	pop de
-	ld a, ENT_UNK0E
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	xor e
 	and $80
 	ret z
-	ld de, $0000
-	ld a, ENT_UNK0D
+	ld de, 0
+	ld a, CARSTRUCT_SPEED
 	jp SetStructWord_DE
 ; 0x2688
 
 SECTION "Func_26b8", ROM0[$26b8]
 
 Func_26b8::
-	ld a, ENT_UNK0E
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	bit 7, a
 	jr z, .asm_26c3
@@ -6065,7 +6078,7 @@ Func_26b8::
 
 Func_26c5:
 	push hl
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	add_hl
 	ld a, [hl]
 	and a
@@ -6074,14 +6087,14 @@ Func_26c5:
 
 Func_26cd::
 	push hl
-	ld a, $07
+	ld a, CARSTRUCT_07
 	add_hl
-	ld e, [hl]
+	ld e, [hl] ; CARSTRUCT_07
 	inc hl
 	ld d, [hl]
 	inc hl
 	inc hl
-	ld c, [hl]
+	ld c, [hl] ; CARSTRUCT_0A
 	inc hl
 	ld b, [hl]
 	pop hl
@@ -6089,14 +6102,14 @@ Func_26cd::
 
 Func_26db::
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	add_hl
 	ld a, [hl]
 	pop hl
 	call Func_271b
 	push hl
 	push de
-	ld de, $e
+	ld de, CARSTRUCT_SPEED + 1
 	add hl, de
 	bit 7, [hl]
 	pop de
@@ -6114,7 +6127,7 @@ SECTION "Func_270f", ROM0[$270f]
 
 Func_270f::
 	push hl
-	ld a, $25
+	ld a, CARSTRUCT_25
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -6169,9 +6182,9 @@ SECTION "Func_275f", ROM0[$275f]
 Func_275f::
 	push de
 	push hl
-	ld a, $07
+	ld a, CARSTRUCT_07
 	add_hl
-	ld a, [hli]
+	ld a, [hli] ; CARSTRUCT_07
 	push hl
 	ld h, [hl]
 	ld l, a
@@ -6278,33 +6291,33 @@ Func_275f::
 Func_27e5::
 	push de
 	push hl
-	ld a, $07
+	ld a, CARSTRUCT_07
 	add_hl
-	ld a, $07
+	ld a, CARSTRUCT_07
 	add_de
 	push de
 	push hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [de]
+	ld a, [de] ; CARSTRUCT_07
 	ld c, a
 	inc de
 	ld a, [de]
 	ld b, a
-	call Func_767
+	call HLMinusBC
 	ld a, l
-	or h
+	or h ; zero?
 	jr z, .asm_2807
 	ld c, $04
-	bit 7, h
+	bit 7, h ; negative?
 	jr nz, .asm_2806
 	ld c, $01
 .asm_2806
 	ld a, c
 .asm_2807
 	ld [wda59], a
-	call Func_74d
+	call GetAbsHL
 	ld b, l
 	ld a, h
 	and a
@@ -6322,18 +6335,18 @@ Func_27e5::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [de]
+	ld a, [de] ; CARSTRUCT_0A
 	ld c, a
 	inc de
 	ld a, [de]
 	ld d, a
 	ld e, c
-	call SubtractDEFromHL
+	call HLMinusDE
 	ld a, l
-	or h
+	or h ; zero?
 	jr z, .asm_283b
 	ld c, $02
-	bit 7, h
+	bit 7, h ; negative?
 	jr nz, .asm_2834
 	ld c, $08
 .asm_2834
@@ -6341,7 +6354,7 @@ Func_27e5::
 	or c
 	ld [wda59], a
 .asm_283b
-	call Func_74d
+	call GetAbsHL
 	ld c, l
 	ld a, h
 	and a
@@ -6382,7 +6395,7 @@ Func_284b::
 	ret
 
 Func_286d:
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	push hl
 	add_hl
 	ld a, [hl]
@@ -6423,9 +6436,9 @@ Func_28bb::
 	ld l, a
 	add hl, bc
 	bit 7, h
-	jr z, .asm_28c9
-	ld hl, $0000
-.asm_28c9
+	jr z, .capped
+	ld hl, 0
+.capped
 	ld b, h
 	ld c, l
 	pop hl
@@ -6554,19 +6567,19 @@ Func_2944:
 	jp DTimesE
 
 Func_2967::
-	ld a, ENT_UNK11
+	ld a, CARSTRUCT_10 + 1
 	call GetStructByte_A
 	and a
 	jr z, .asm_2978
 	ld d, a
-	ld a, ENT_UNK0F
+	ld a, CARSTRUCT_0F
 	call GetStructByte_E
 	call Func_28d1
 .asm_2978
-	ld a, ENT_UNK0F
+	ld a, CARSTRUCT_0F
 	call SetStructByte_C
 	ld c, $00
-	ld a, ENT_UNK10
+	ld a, CARSTRUCT_10
 	jp SetStructWord_BC
 ; 0x2984
 
@@ -6581,24 +6594,28 @@ Func_298c:
 	jp Func_146c
 
 Func_2998::
-	ld hl, $0000
-	bit 7, a
+	ld hl, 0
+	bit 7, a ; negative?
 	jr z, .Func_29ac
+	; get absolute value
 	cpl
 	inc a
 	call .Func_29ac
+	; output bc = -bc
 	xor a
 	sub c
 	ld c, a
-	ld a, $00
+	ld a, 0
 	sbc b
 	ld b, a
 	ret
+
+; calculates bc = bc * (a / 16)
 .Func_29ac:
 	push af
 	and $0f
 	jr z, .asm_29c4
-	call Func_29d1
+	call .HLPlusBC_ATimes
 	sra h
 	rr l
 	sra h
@@ -6606,19 +6623,20 @@ Func_2998::
 	sra h
 	rr l
 	sra h
-	rr l
+	rr l ; / 16
 .asm_29c4
 	pop af
 	swap a
 	and $0f
-	jr z, .asm_29ce
-	call Func_29d1
-.asm_29ce
+	jr z, .skip
+	call .HLPlusBC_ATimes
+.skip
 	ld b, h
 	ld c, l
 	ret
 
-Func_29d1:
+; does hl = hl + bc * a
+.HLPlusBC_ATimes:
 .asm_29d1
 	add hl, bc
 	dec a
@@ -6627,7 +6645,7 @@ Func_29d1:
 
 Func_29d6::
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	add_hl
 	ld a, [hl]
 	call Func_29ea
@@ -6636,7 +6654,7 @@ Func_29d6::
 
 Func_29e0::
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	add_hl
 	ld a, [hl]
 	call Func_2a7e
@@ -6803,21 +6821,21 @@ Func_2c37:
 SECTION "Func_2cbb", ROM0[$2cbb]
 
 Func_2cbb:
-	ld a, ENT_UNK0E
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	and a
 	jr z, .asm_2cf5
 	ld [wdc7a], a
-	ld a, ENT_UNK0C
+	ld a, CARSTRUCT_0C
 	call GetStructByte_A
 	ld [wdc7c], a
 	call Func_2d2c
-	ld a, ENT_UNK11
+	ld a, CARSTRUCT_10 + 1
 	call GetStructByte_A
 	and a
 	jr z, .asm_2d08
 	ld [wdc7a], a
-	ld a, ENT_UNK0F
+	ld a, CARSTRUCT_0F
 	call GetStructByte_A
 	ld [wdc7c], a
 	push hl
@@ -6835,10 +6853,10 @@ Func_2cbb:
 	pop hl
 	jr .asm_2d08
 .asm_2cf5
-	ld a, ENT_UNK11
+	ld a, CARSTRUCT_10 + 1
 	call GetStructByte_A
 	ld [wdc7a], a
-	ld a, ENT_UNK0F
+	ld a, CARSTRUCT_0F
 	call GetStructByte_A
 	ld [wdc7c], a
 	call Func_2d2c
@@ -6871,7 +6889,7 @@ Func_2cbb:
 
 Func_2d2c:
 	push hl
-	ld a, [wdc7c]
+	ld a, [wdc7c + 0]
 	call Func_29ea
 	ld a, b
 	or c
@@ -7164,7 +7182,7 @@ Func_3047::
 	push af
 	ld a, $03
 	bankswitch
-	ld a, $25
+	ld a, CARSTRUCT_25
 	call GetStructWord_DE
 	push de
 	push hl
@@ -7191,7 +7209,7 @@ Func_3047::
 	ld [de], a
 	pop hl
 	pop de
-	ld a, ENT_UNK0C
+	ld a, CARSTRUCT_0C
 	call GetStructByte_A
 	add $04
 	rrca
@@ -7211,10 +7229,10 @@ Func_3047::
 	ld a, [hl]
 	pop hl
 	inc hl
-	ld b, [hl]
+	ld b, [hl] ; CARSTRUCT_01
 	inc hl
 	inc hl
-	ld [hli], a
+	ld [hli], a ; CARSTRUCT_03
 	push hl
 	ld a, b
 	add a
@@ -7230,10 +7248,10 @@ Func_3047::
 	inc hl
 	ld b, [hl]
 	pop hl
-	ld [hl], c
+	ld [hl], c ; CARSTRUCT_04
 	inc hl
-	ld [hl], b
-	ld a, $05
+	ld [hl], b ; CARSTRUCT_05
+	ld a, CARSTRUCT_05
 	sub_hl
 	ld a, [bc]
 	push af
@@ -7266,10 +7284,10 @@ Func_3047::
 	inc de
 	push hl
 	inc hl
-	ld a, [hli]
-	ld b, [hl]
+	ld a, [hli] ; CARSTRUCT_01
+	ld b, [hl]  ; CARSTRUCT_02
 	ld hl, wdbc5
-	add a
+	add a ; *2
 	add_hl
 	ld a, [hli]
 	add c
@@ -7431,7 +7449,7 @@ Func_3161:
 .asm_31b6
 	ld [de], a
 	inc de
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call GetStructWord_BC
 	bit 7, b
 	jr z, .asm_31c8
@@ -7457,8 +7475,8 @@ Func_3161:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, $3705
-	ld a, $00
+	ld de, Func_3705
+	ld a, BANK(Func_3705)
 	call Func_1569
 	pop hl
 	pop de
@@ -7886,10 +7904,10 @@ Func_33bf:
 	ret nc
 	call Func_3425
 	call c, Func_3574
-	ld a, [wdc7c]
+	ld a, [wdc7c + 0]
 	cp l
 	jr nz, .asm_340d
-	ld a, [wdc7d]
+	ld a, [wdc7c + 1]
 	cp h
 	ret z
 .asm_340d
@@ -8014,10 +8032,10 @@ Func_342f:
 	jr .asm_34bd
 
 Func_34cf:
-	ld a, [wdc7c]
+	ld a, [wdc7c + 0]
 	cp l
 	jr nz, .asm_34da
-	ld a, [wdc7d]
+	ld a, [wdc7c + 1]
 	cp h
 	ret z
 .asm_34da
@@ -8248,7 +8266,7 @@ Func_35ad:
 	call SpawnEntity
 	pop de
 	jr c, .asm_362b
-	ld a, ENT_UNK06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	push de
 	ld e, l
