@@ -58,6 +58,9 @@
 
 	charmap "<BIG_Á>",   $5b
 	charmap "<BIG_É>",   $5c
+	charmap "<BIG_Í>",   $5d
+	charmap "<BIG_Ó>",   $5e
+	charmap "<BIG_Ú>",   $5f
 	charmap "<BIG_À>",   $60
 
 	; lowercase letters represent highlighted uppercase letters
@@ -87,6 +90,14 @@
 	charmap "x",         $78
 	charmap "y",         $79
 	charmap "z",         $7a
+
+	charmap "<CTRL_80>", $80
+	charmap "<CTRL_81>", $81
+	charmap "<CTRL_82>", $82
+	charmap "<CTRL_83>", $83
+	charmap "<CTRL_84>", $84
+	charmap "<CTRL_85>", $85
+	charmap "<CTRL_86>", $86
 
 	charmap "Á",         $9b
 	charmap "É",         $9c

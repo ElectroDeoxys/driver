@@ -2344,7 +2344,7 @@ Func_685a:
 	ld a, $20
 	call PlaySFX
 	ld [hl], $b4
-	ld hl, $5366
+	ld hl, LoseTheTailTexts
 	ld c, $3c
 	jp Func_1ec0
 
@@ -2413,7 +2413,7 @@ SetMissionFailed:
 	call Func_67dd
 	ld c, $2d
 .asm_68e1
-	ld hl, $5569
+	ld hl, MissionFailedTexts
 	call Func_1ec0
 
 	ld a, $01
@@ -2422,7 +2422,7 @@ SetMissionFailed:
 	ld a, BANK(Func_64e2)
 	jp Func_157f
 
-SetMissionSuccess:
+SetMissionComplete:
 	ld a, $02
 	ld [wd820], a
 
@@ -2438,7 +2438,7 @@ SetMissionSuccess:
 	call Func_67dd
 	ld c, $2d
 .asm_690e
-	ld hl, $55c5
+	ld hl, MissionCompleteTexts
 	call Func_1ec0
 
 	ld a, $02
@@ -2535,7 +2535,7 @@ Func_6997:
 
 Func_69ae:
 	call YieldEntityUpdateUntilFadeEnds
-	ld hl, $5625
+	ld hl, GetToTheBankTexts
 	ld c, $5a
 	call Func_1ec0
 	call Func_67dd
@@ -2562,7 +2562,7 @@ Func_69ae:
 	call Func_67e9
 	ld hl, $7ebb
 	call Func_6a38
-	ld hl, $5680
+	ld hl, GetToTheLockUpTexts
 	ld c, $5a
 	call Func_1ec0
 	call Func_67dd
@@ -2585,10 +2585,10 @@ Func_69ae:
 	ld hl, $7ec3
 	call Func_6a51
 	ld hl, NULL
-	jp SetMissionSuccess
+	jp SetMissionComplete
 
 Func_6a32:
-	ld hl, $5526
+	ld hl, TooLateTexts
 	jp SetMissionFailed
 
 Func_6a38:
@@ -2647,7 +2647,7 @@ Func_6a83:
 
 Func_6a97:
 	call YieldEntityUpdateUntilFadeEnds
-	ld hl, $56ed
+	ld hl, GoToTheBreakersTexts
 	ld c, $5a
 	call Func_1ec0
 	call Func_67dd
@@ -2669,7 +2669,7 @@ Func_6a97:
 	jr c, .asm_6ac2
 	call Func_6879
 	ld hl, NULL
-	jp SetMissionSuccess
+	jp SetMissionComplete
 
 Func_6ad5:
 	call Func_1972
@@ -2699,7 +2699,7 @@ Func_6ae7:
 
 Func_6b0c:
 	call YieldEntityUpdateUntilFadeEnds
-	ld hl, $6764
+	ld hl, WeNeedThatKeyTexts
 	ld c, $5a
 	call Func_1ec0
 	ld a, $56
@@ -2742,7 +2742,7 @@ Func_6b0c:
 	jr c, .asm_6b5a
 	call Func_6879
 	ld hl, NULL
-	jp SetMissionSuccess
+	jp SetMissionComplete
 
 .Func_6b73:
 	ld hl, $6bb3
@@ -2773,10 +2773,10 @@ Func_6b0c:
 	ld de, wda23
 	jp Func_275f
 .asm_6ba7
-	ld hl, $54cc
+	ld hl, YouLostHimTexts
 	jp SetMissionFailed
 .asm_6bad
-	ld hl, $5526
+	ld hl, TooLateTexts
 	jp SetMissionFailed
 ; 0x6bb3
 
@@ -3181,20 +3181,24 @@ Func_6e72:
 .asm_6eba
 	call Func_6879
 	ld hl, NULL
-	jp SetMissionSuccess
+	jp SetMissionComplete
 .asm_6ec3
-	ld hl, $5526
+	ld hl, TooLateTexts
 	jp SetMissionFailed
 
 .Func_6ec9:
 	ld a, [wda81]
-	ld hl, $6ed5
+	ld hl, .TextsTable
 	get_pointer
 	ld c, $5a
 	jp Func_1ec0
-; 0x6ed5
 
-SECTION "Data_6edf", ROMX[$6edf], BANK[$1]
+.TextsTable:
+	dw GetToTheFirstRestaurantTexts
+	dw GetToTheSecondRestaurantTexts
+	dw GetToTheThirdRestaurantTexts
+	dw GetToTheFourthRestaurantTexts
+	dw GetToTheLastRestaurantTexts
 
 Func_6edf:
 	ld hl, $7ee6
