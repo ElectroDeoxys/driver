@@ -639,12 +639,10 @@ Func_88b1:
 
 SECTION "Func_891e", ROMX[$491e], BANK[$2]
 
-; input:
-; - hl = texts pointer
 Func_891e::
 	call GetText2
 	push bc
-	call Func_8930
+	call .Func_8930
 	ld a, $01
 	ld [wd8e5], a
 	pop bc
@@ -652,39 +650,41 @@ Func_891e::
 	ld [wd8e7], a
 	ret
 
-Func_8930:
+.Func_8930:
 	xor a
 	ld [wd8e4], a
 	ld a, $10
 	push hl
 	call Func_8b94
 	pop hl
-	ld a, [wd8e3]
+	ld a, [wCharacterSetSize]
 	cp $11
 	jr nc, .asm_8948
 	ld a, [wd8e2]
-	cp $15
+	; return if < 21
+	cp 21
 	ret c
 .asm_8948
 	ld a, $01
 	ld [wd8e4], a
 	ld a, $20
 	call Func_8b94
-	ld a, [wd8e3]
+	ld a, [wCharacterSetSize]
 	cp $21
-	jr nc, .asm_895f
+	jr nc, .text_error
 	ld a, [wd8e2]
+	; return if < 41
 	cp $29
 	ret c
-.asm_895f
-	ld hl, $496b
+.text_error
+	ld hl, .TextErrorText
 	xor a
 	ld [wd8e4], a
 	ld a, $10
 	jp Func_8b94
-; 0x896b
 
-SECTION "Func_8977", ROMX[$4977], BANK[$2]
+.TextErrorText:
+	db "TEXT ERROR!\0"
 
 Func_8977:
 	ld a, [wd8e5]
@@ -692,73 +692,399 @@ Func_8977:
 	ret z
 	dec a
 	jumptable
-; 0x897e
+	dw .Func_8986 ; $1
+	dw .Func_89a1 ; $2
+	dw $49ef ; $3
+	dw $4a52 ; $4
 
-SECTION "Func_8b94", ROMX[$4b94], BANK[$2]
+.Func_8986:
+	ld a, $80
+	call .Func_8a76
+	call .Func_8a7f
+	xor a
+	ld [wd8ea], a
+	ld [wd8e8], a
+	ld [wd8e9], a
+	ld [$d8e6], a
+	ld a, $02
+	ld [wd8e5], a
+	ret
 
+.Func_89a1:
+	ld a, [wd8e4]
+	and $01
+	jp nz, .asm_8a8b
+
+	; load tiles that are in the character set
+	ld a, [$d8e6]
+	ld c, a
+	ld hl, wCharacterSet
+	add_hl
+	ld a, [hl]
+	and a
+	jr nz, .asm_89bb
+	ld a, $03
+	ld [wd8e5], a
+	ret
+.asm_89bb
+	ld l, a
+	ld h, $00
+	ld de, $521d
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl ; *32
+	add hl, de
+	push hl
+	ld l, c
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl ; *32
+	ld de, v0Tiles1 tile $28
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	ld c, $34
+	ld b, 2 ; tiles
+	ld a, $01
+	vramswitch
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	ld hl, $d8e6
+	inc [hl]
+	ret
+
+.Func_89ef:
+	ld a, $0f
+	call .Func_8a76
+	ld a, $01
+	vramswitch
+	call .Func_8a7f
+	ld a, $00
+	vramswitch
+	ld a, $80
+	call .Func_8a76
+	ld a, [wd8e4]
+	and a
+	jp nz, .Func_8ada
+	ld a, [wd8e2]
+	ld c, a
+	and $01
+	jr z, .asm_8a19
+	ld a, $fc
+.asm_8a19
+	ld [wd8e8], a
+	ld [wd8e9], a
+	ld a, c
+	cpl
+	inc a
+	add $14
+	srl a
+	ld de, wGfxBuffer
+	add_de
+	ld hl, wd8b9
+.asm_8a2d
+	ld a, [hli]
+	cp $ff
+	jr z, .asm_8a46
+	and a
+	jr z, .asm_8a43
+	dec a
+	add a
+	add $a8
+	ld [de], a
+	ld c, a
+	push de
+	ld a, $14
+	add_de
+	ld a, c
+	inc a
+	ld [de], a
+	pop de
+.asm_8a43
+	inc de
+	jr .asm_8a2d
+
+.asm_8a46
+	xor a
+	ld [$d8e6], a
+	ld a, $04
+	ld [wd8e5], a
+	call .Func_8a7f
+	ld hl, $d8e6
+	inc [hl]
+	ld a, [hl]
+	and $08
+	ld a, $10
+	jr z, .asm_8a5f
+	ld a, $20
+.asm_8a5f
+	ld [wd8ea], a
+	ld a, [hl]
+	ld hl, wd8e7
+	cp [hl]
+	ret c
+	xor a
+	ld [wd8ea], a
+	ld [wd8e8], a
+	ld [wd8e9], a
+	ld [wd8e5], a
+	ret
+
+.Func_8a76:
+	ld hl, wGfxBuffer
+	ld bc, 2 * SCREEN_WIDTH
+	jp FillMemory
+
+.Func_8a7f:
+	ld de, wGfxBuffer
+	hlbgcoord 0, 18, v0BGMap1
+	lb bc, 2, SCREEN_WIDTH
+	jp CopyBGMapBox
+
+.asm_8a8b
+	ld b, $02
+.asm_8a8d
+	; load tiles that are in the character set
+	ld a, [$d8e6]
+	ld c, a
+	ld hl, wCharacterSet
+	add_hl
+	ld a, [hl]
+	and a
+	jr z, .asm_8aa2
+	push bc
+	call .Func_8aa8
+	pop bc
+	dec b
+	jr nz, .asm_8a8d
+	ret
+.asm_8aa2
+	ld a, $03
+	ld [wd8e5], a
+	ret
+
+.Func_8aa8:
+	ld de, $5e1d
+	ld l, a
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl ; *16
+	add hl, de
+	push hl
+	ld l, c
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl ; *16
+	ld de, v0Tiles1 tile $28
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	ld c, $34
+	ld b, 1 ; tile
+	ld a, $01
+	vramswitch
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	ld hl, $d8e6
+	inc [hl]
+	ret
+
+.Func_8ada:
+	ld a, [wd8e2]
+	cp $15
+	jr nc, .asm_8b17
+	ld hl, wd8b9
+	ld de, wGfxBuffer
+	call .Func_8afa
+	ld a, [wd8e2]
+	ld hl, wd8e8
+	call .Func_8b0f
+	xor a
+	ld [wd8e9], a
+	jp .asm_8a46
+
+.Func_8afa:
+	cpl
+	inc a
+	add $14
+	srl a
+	add_de
+.asm_8b01
+	ld a, [hli]
+	cp $ff
+	ret z
+	and a
+	jr z, .asm_8b0c
+	dec a
+	add $a8
+	ld [de], a
+.asm_8b0c
+	inc de
+	jr .asm_8b01
+
+.Func_8b0f:
+	and $01
+	jr z, .asm_8b15
+	ld a, $fc
+.asm_8b15
+	ld [hl], a
+	ret
+.asm_8b17
+	ld hl, $d8cc
+	ld b, $14
+.asm_8b1c
+	ld a, [hld]
+	and a
+	jr z, .asm_8b23
+	dec b
+	jr nz, .asm_8b1c
+.asm_8b23
+	ld a, b
+	and a
+	jr z, .asm_8b3f
+	dec a
+	jr z, .asm_8b3f
+	ld [wdc7a], a
+	inc a
+	ld [wdc7c], a
+	ld b, a
+	ld a, [wd8e2]
+	sub b
+	cp $15
+	jr nc, .asm_8b3f
+	ld [wdc7e], a
+	jr .asm_8b4f
+.asm_8b3f
+	ld a, $14
+	ld [wdc7a], a
+	ld [wdc7c], a
+	ld a, [wd8e2]
+	sub $14
+	ld [wdc7e], a
+.asm_8b4f
+	ld hl, wd8b9
+	ld de, wGfxBuffer
+	ld a, [wdc7a]
+	call .Func_8b80
+	ld hl, wd8b9
+	ld a, [wdc7c]
+	add_hl
+	ld de, $d785
+	ld a, [wdc7e]
+	call .Func_8b80
+	ld a, [wdc7a]
+	ld hl, wd8e8
+	call .Func_8b0f
+	ld a, [wdc7e]
+	ld hl, wd8e9
+	call .Func_8b0f
+	jp .asm_8a46
+
+.Func_8b80:
+	push af
+	push de
+	ld de, wd7b1
+	ld b, a
+	call CopyHLtoDE
+	ld a, $ff
+	ld [de], a
+	pop de
+	pop af
+	ld hl, wd7b1
+	jp .Func_8afa
+
+; input:
+; - a = ?
 Func_8b94:
 	ld [wdc7a], a
 	push hl
+
+	; clear character set
 	ld b, a
-	ld hl, wd899
+	ld hl, wCharacterSet
 	xor a
-.asm_8b9d
+.loop_clear
 	ld [hli], a
 	dec b
-	jr nz, .asm_8b9d
+	jr nz, .loop_clear
 	pop hl
+
 	xor a
-	ld [wd8e3], a
+	ld [wCharacterSetSize], a
 	ld de, wd8b9
-.asm_8ba9
+.loop_chars
 	ld a, [hli]
 	and a
-	jr z, .asm_8bb6
+	jr z, .null_terminator
 	push de
-	call .Func_8bc2
+	call .AddToSet
 	pop de
-	ld [de], a
+	ld [de], a ; add char index
 	inc de
-	jr .asm_8ba9
-.asm_8bb6
+	jr .loop_chars
+.null_terminator
 	ld a, $ff
 	ld [de], a
-	ld hl, Func_2747
+
+	ld hl, -wd8b9
 	add hl, de
+	; hl = size of wd8b9 (excluding terminating byte)
 	ld a, l
 	ld [wd8e2], a
 	ret
 
-.Func_8bc2:
-	sub $20
-	ret z
+.AddToSet:
+	sub ' '
+	ret z ; is space
+	; non-space character
 	ld c, a
-	ld de, wd899
-	ld b, $00
-.asm_8bcb
+	ld de, wCharacterSet
+	ld b, 0
+.loop_character_set
+	; is this index taken already?
 	ld a, [de]
 	and a
-	jr nz, .asm_8bdb
+	jr nz, .compare_chars
+	; not taken, we can add this character to the set
 	ld a, c
 	ld [de], a
-	ld a, [wd8e3]
+	ld a, [wCharacterSetSize]
 	inc a
-	ld [wd8e3], a
-.asm_8bd8
+	ld [wCharacterSetSize], a
+.return_index
 	ld a, b
 	inc a
 	ret
-.asm_8bdb
+.compare_chars
+	; if it's the same as current character,
+	; just return its index (nothing to add)
 	cp c
-	jr z, .asm_8bd8
+	jr z, .return_index
+	; is different, let's continue comparing
+	; with rest of the set...
 	inc de
-	inc b
+	inc b ; increment index
+	; are we at maximum size alread?
 	ld a, [wdc7a]
 	cp b
-	jr nz, .asm_8bcb
-	ld a, [wd8e3]
+	jr nz, .loop_character_set ; no
+	; yes, return 0 index
+	ld a, [wCharacterSetSize]
 	inc a
-	ld [wd8e3], a
+	ld [wCharacterSetSize], a
 	xor a
 	ret
 

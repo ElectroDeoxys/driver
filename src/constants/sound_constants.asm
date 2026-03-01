@@ -52,3 +52,5 @@
 	const SFX_29 ; $29
 	const SFX_2A ; $2a
 	const SFX_2B ; $2b
+	const SFX_2C ; $2c
+	const SFX_2D ; $2d

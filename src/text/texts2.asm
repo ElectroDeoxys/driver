@@ -1231,22 +1231,22 @@ TextIT_f5406:
 TextES_f5406:
 	db "¡EL COCHE EST<BIG_Á> HECHO POLVO!\0"
 
-Texts_f5490:
-	dw TextEN_f5490
-	dw TextFR_f5490
-	dw TextDE_f5490
-	dw TextIT_f5490
-	dw TextES_f5490
+RamHimTexts::
+	dw RamHimTextEN
+	dw RamHimTextFR
+	dw RamHimTextDE
+	dw RamHimTextIT
+	dw RamHimTextES
 
-TextFR_f5490:
+RamHimTextFR:
 	db "DESCENDS-LE!\0"
-TextDE_f5490:
+RamHimTextDE:
 	db "RAMM IHN!\0"
-TextIT_f5490:
+RamHimTextIT:
 	db "SPERONALO!\0"
-TextES_f5490:
+RamHimTextES:
 	db "COGELE\0"
-TextEN_f5490:
+RamHimTextEN:
 	db "RAM HIM!\0"
 
 YouLostHimTexts::
@@ -1465,22 +1465,22 @@ GetToTheLastRestaurantTextIT:
 GetToTheLastRestaurantTextES:
 	db "VE AL <BIG_Ú>LTIMO RESTAURANTE\0"
 
-Texts_f5a45:
-	dw TextEN_f5a45
-	dw TextFR_f5a45
-	dw TextDE_f5a45
-	dw TextIT_f5a45
-	dw TextES_f5a45
+TakeThisPuppyHomeTexts::
+	dw TakeThisPuppyHomeTextEN
+	dw TakeThisPuppyHomeTextFR
+	dw TakeThisPuppyHomeTextDE
+	dw TakeThisPuppyHomeTextIT
+	dw TakeThisPuppyHomeTextES
 
-TextFR_f5a45:
+TakeThisPuppyHomeTextFR:
 	db "CHEZ ELLE LA POUPEE\0"
-TextDE_f5a45:
+TakeThisPuppyHomeTextDE:
 	db "BRING DAS ZU PUPPY\0"
-TextIT_f5a45:
+TakeThisPuppyHomeTextIT:
 	db "PORTALO A CASA\0"
-TextES_f5a45:
+TakeThisPuppyHomeTextES:
 	db "LLEVA ESTA MARAVILLA A LA CASA\0"
-TextEN_f5a45:
+TakeThisPuppyHomeTextEN:
 	db "TAKE THIS PUPPY HOME\0"
 
 Texts_f5ab9:
@@ -1501,22 +1501,22 @@ TextIT_f5ab9:
 TextES_f5ab9:
 	db "HAS DESTROZADO EL COCHE\0"
 
-Texts_f5b40:
-	dw TextEN_f5b40
-	dw TextFR_f5b40
-	dw TextDE_f5b40
-	dw TextIT_f5b40
-	dw TextES_f5b40
+WatchThePaintworkTexts::
+	dw WatchThePaintworkTextEN
+	dw WatchThePaintworkTextFR
+	dw WatchThePaintworkTextDE
+	dw WatchThePaintworkTextIT
+	dw WatchThePaintworkTextES
 
-TextEN_f5b40:
+WatchThePaintworkTextEN:
 	db "WATCH THE PAINTWORK!\0"
-TextFR_f5b40:
+WatchThePaintworkTextFR:
 	db "FAIS GAFFE <BIG_À> LA CARROSSERIE\0"
-TextDE_f5b40:
+WatchThePaintworkTextDE:
 	db "ACHTE AUF DIE LACKIERUNG\0"
-TextIT_f5b40:
+WatchThePaintworkTextIT:
 	db "OCCHIO ALLA VERNICIATURA!\0"
-TextES_f5b40:
+WatchThePaintworkTextES:
 	db "CUIDADO CON LA PINTURA\0"
 
 Texts_f5bc5:
@@ -1609,40 +1609,40 @@ TextES_f5dbe:
 TextEN_f5dbe:
 	db "GET ACROSS TOWN AS QUICK AS YOU CAN\0"
 
-Texts_f5e37:
-	dw TextEN_f5e37
-	dw TextFR_f5e37
-	dw TextDE_f5e37
-	dw TextIT_f5e37
-	dw TextES_f5e37
+TooSlowTexts::
+	dw TooSlowTextEN
+	dw TooSlowTextFR
+	dw TooSlowTextDE
+	dw TooSlowTextIT
+	dw TooSlowTextES
 
-TextEN_f5e37:
+TooSlowTextEN:
 	db "TOO SLOW\0"
-TextFR_f5e37:
+TooSlowTextFR:
 	db "TROP LENT\0"
-TextDE_f5e37:
+TooSlowTextDE:
 	db "ZU LANGSAM\0"
-TextIT_f5e37:
+TooSlowTextIT:
 	db "TROPPO LENTO\0"
-TextES_f5e37:
+TooSlowTextES:
 	db "DEMASIADO LENTO\0"
 
-Texts_f5e7c:
-	dw TextEN_f5e7c
-	dw TextFR_f5e7c
-	dw TextDE_f5e7c
-	dw TextIT_f5e7c
-	dw TextES_f5e7c
+GetToBalHarbourTexts::
+	dw GetToBalHarbourTextEN
+	dw GetToBalHarbourTextFR
+	dw GetToBalHarbourTextDE
+	dw GetToBalHarbourTextIT
+	dw GetToBalHarbourTextES
 
-TextEN_f5e7c:
+GetToBalHarbourTextEN:
 	db "GET TO BAL HARBOUR\0"
-TextFR_f5e7c:
+GetToBalHarbourTextFR:
 	db "AMaNE-TOI AU PORT DE BAL\0"
-TextDE_f5e7c:
+GetToBalHarbourTextDE:
 	db "BEGIB DICH NACH BAL HARBOUR\0"
-TextIT_f5e7c:
+GetToBalHarbourTextIT:
 	db "VAI A BAL HARBOUR\0"
-TextES_f5e7c:
+GetToBalHarbourTextES:
 	db "VE A BAL HARBOUR\0"
 
 Texts_f5ef1:

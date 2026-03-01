@@ -392,9 +392,9 @@ wd897:: db ; d897
 
 	ds $d899 - $d898
 
-wd899:: db ; d899
-
-	ds $d8b9 - $d89a
+; holds set of characters of a given text
+wCharacterSet:: ; d899
+	ds $20
 
 wd8b9:: db ; d8b9
 
@@ -402,7 +402,8 @@ wd8b9:: db ; d8b9
 
 wd8e2:: db ; d8e2
 
-wd8e3:: db ; d8e3
+; number of characters in wCharacterSet
+wCharacterSetSize:: db ; d8e3
 
 wd8e4:: db ; d8e4
 
@@ -653,7 +654,6 @@ wdc6f:: db ; dc6f
 	ds $dc7a - $dc70
 
 wdc7a:: dw ; dc7a
-
 wdc7c:: dw ; dc7c
 
 wdc7e:: db ; dc7e

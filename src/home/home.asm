@@ -2287,9 +2287,12 @@ Func_f0c::
 	pop de
 	pop bc
 	ret
-; 0xf1f
 
-SECTION "PlayMusicIfNotPlaying", ROM0[$f27]
+Func_f1f::
+	push af
+	call Func_f0c
+	pop af
+	jp PlaySFX
 
 ; input:
 ; - a = MUSIC_* constant
@@ -3341,6 +3344,8 @@ LoadSprites:
 
 SECTION "Func_146c", ROM0[$146c]
 
+; input:
+; - a = CARSTRUCT_* constant
 Func_146c::
 	push hl
 	add_hl
@@ -3611,7 +3616,7 @@ Func_1591::
 	ld l, a
 	ret
 
-Func_1598::
+GetEntityCarPtr::
 	ld hl, wEntityPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -3645,7 +3650,7 @@ Func_15bb:
 	xor a
 	ld [wResetDisabled], a
 
-	call Func_1a12
+	call SetDefaultPlayerCar
 
 	ld a, NEW_YORK
 	ld [wCity], a
@@ -3777,7 +3782,7 @@ Func_16e2:
 Func_16f4:
 	call Func_1972
 	ld a, [wCity]
-	call Func_1a1d
+	call SetCity
 	ld a, $00
 	ld [wd827], a
 	ld a, [wPlayerCar]
@@ -3809,8 +3814,8 @@ Func_16f4:
 Func_1735:
 	call Func_1977
 	ld a, [wCity]
-	call Func_1a1d
-	call Func_1a12
+	call SetCity
+	call SetDefaultPlayerCar
 	call Func_1937
 	call Func_1a2e
 	ret
@@ -3818,8 +3823,8 @@ Func_1735:
 Func_1748:
 	call Func_1972
 	ld a, [wCity]
-	call Func_1a1d
-	call Func_1a12
+	call SetCity
+	call SetDefaultPlayerCar
 	call Func_193c
 	call Func_1a2e
 	ret
@@ -3827,8 +3832,8 @@ Func_1748:
 Func_175b:
 	call Func_1977
 	ld a, [wCity]
-	call Func_1a1d
-	call Func_1a12
+	call SetCity
+	call SetDefaultPlayerCar
 	call Func_1941
 	call Func_1a2e
 	ret
@@ -3836,8 +3841,8 @@ Func_175b:
 Func_176e:
 	call Func_1972
 	ld a, [wCity]
-	call Func_1a1d
-	call Func_1a12
+	call SetCity
+	call SetDefaultPlayerCar
 	ld hl, $7e9d
 	call Func_1946
 	call Func_1a2e
@@ -3902,8 +3907,8 @@ Func_17b4:
 	ld [wd892], a
 	ld c, $01
 	call Func_195e
-	ld hl, $65b4
-	ld c, $01
+	ld hl, Func_65b4
+	ld c, BANK(Func_65b4)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -4009,7 +4014,7 @@ Func_18c5:
 	ld [wd827], a
 	call Func_1972
 	ld a, [wCity]
-	call Func_1a1d
+	call SetCity
 	ld hl, $7e73
 	call Func_1946
 	call Func_1a2e
@@ -4094,7 +4099,7 @@ Func_194f:
 	ld l, a
 	ret
 
-Func_195e:
+Func_195e::
 	ldh a, [hROMBank]
 	push af
 	homecall Func_83b2
@@ -4105,7 +4110,7 @@ Func_195e:
 Func_1972::
 	ld hl, Data_1f97
 	jr Func_197c
-Func_1977:
+Func_1977::
 	ld hl, Data_1f67
 	jr Func_197c ; useless jump
 Func_197c:
@@ -4126,18 +4131,20 @@ Func_198f:
 	jumptable
 ; 0x1993
 
-SECTION "Func_1a12", ROM0[$1a12]
+SECTION "SetDefaultPlayerCar", ROM0[$1a12]
 
-Func_1a12::
+; sets the default car as the car driven by the player
+SetDefaultPlayerCar::
 	ld a, CAR_00
 	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
 	ret
 
+; set city to be played, and loads data related to it
 ; input:
 ; - a = city
-Func_1a1d::
+SetCity::
 	ld [wCity], a
 	add a ; *2
 	ld hl, Data_7c48
@@ -4579,7 +4586,7 @@ Func_1cb9:
 ; input:
 ; - a  = CAR_* constant
 ; - hl = palette to load (can be NULL)
-Func_1ced:
+Func_1ced::
 	push hl
 	ld c, a
 	ld a, $48
@@ -4880,6 +4887,7 @@ Func_1e7e::
 
 ; input:
 ; - hl = texts pointer
+; - c  = ?
 Func_1ec0::
 	ldh a, [hROMBank]
 	push af
@@ -4929,6 +4937,7 @@ Func_1eee:
 	ld de, $12
 .asm_1f18
 	add hl, de
+.Func_1f19::
 	ld a, [hli]
 	ld [wd830], a
 	ld a, [hli]
@@ -6137,7 +6146,7 @@ Func_270f::
 	pop hl
 	ret
 
-Func_271b:
+Func_271b::
 	cp $40
 	jr c, .asm_273f
 	cp $80
@@ -6567,7 +6576,7 @@ Func_2944:
 	jp DTimesE
 
 Func_2967::
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_A
 	and a
 	jr z, .asm_2978
@@ -6723,7 +6732,7 @@ Func_2a90::
 	ret c
 	jp Func_2fc1
 
-Func_2ab5:
+Func_2ab5::
 	call Func_26cd
 	call Func_2558
 	cp $00
@@ -6830,7 +6839,7 @@ Func_2cbb:
 	call GetStructByte_A
 	ld [wdc7c], a
 	call Func_2d2c
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_A
 	and a
 	jr z, .asm_2d08
@@ -6853,7 +6862,7 @@ Func_2cbb:
 	pop hl
 	jr .asm_2d08
 .asm_2cf5
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_A
 	ld [wdc7a], a
 	ld a, CARSTRUCT_0F
@@ -7007,7 +7016,72 @@ Func_2daf::
 .asm_2dd3
 	ld a, b
 	ret
-; 0x2dd5
+
+Func_2dd5::
+	ld a, [wda76]
+	and a
+	ret z
+	cp $01
+	jr z, .asm_2df7
+	cp $03
+	jr z, .asm_2e05
+	push hl
+	ld hl, wda77
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $07
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	scf
+	ret
+
+.asm_2df7
+	push hl
+	ld hl, wda77
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	pop hl
+	scf
+	ret
+
+.asm_2e05
+	push hl
+	ld hl, wda7f
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	ld a, $08
+	add_de
+	ld a, $08
+	add_bc
+	pop hl
+	scf
+	ret
+; 0x2e1f
 
 SECTION "Func_2f5f", ROM0[$2f5f]
 
@@ -8260,8 +8334,8 @@ Func_35ad:
 	ld a, $0e
 	sub_hl
 	push hl
-	ld hl, $36f5
-	ld c, $00
+	ld hl, Func_36f5
+	ld c, BANK(Func_36f5)
 	ld b, $0a
 	call SpawnEntity
 	pop de
@@ -8272,7 +8346,7 @@ Func_35ad:
 	ld e, l
 	ld d, h
 	pop hl
-	ld a, ENT_UNK0F
+	ld a, CARSTRUCT_0F
 	call SetStructWord_DE
 	call Func_1124
 	jr c, .asm_362e
@@ -8451,18 +8525,24 @@ Func_3637:
 
 Func_36ea:
 	push de
-	ld a, $11
+	ld a, CARSTRUCT_11
 	call GetStructWord_DE
 	ld a, [de]
 	and $08
 	pop de
 	ret
-; 0x36f5
 
-SECTION "Func_3705", ROM0[$3705]
+Func_36f5:
+	call GetEntityCarPtr
+.asm_36f8
+	ld a, 1
+	call YieldEntityUpdate
+	call Func_36ea
+	jp nz, Func_3815
+	jr .asm_36f8
 
 Func_3705:
-	call Func_1598
+	call GetEntityCarPtr
 	set 1, [hl]
 .asm_370a
 	call Func_3773
@@ -8657,8 +8737,8 @@ Func_3802:
 	ret
 
 Func_3815:
-	call Func_1598
-	ld a, $11
+	call GetEntityCarPtr
+	ld a, CARSTRUCT_11
 	call GetStructWord_DE
 	xor a
 	ld [de], a

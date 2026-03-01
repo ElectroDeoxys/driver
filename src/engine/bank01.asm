@@ -51,7 +51,7 @@ Func_4000::
 SECTION "Func_4066", ROMX[$4066], BANK[$1]
 
 Func_4066:
-	call Func_1598
+	call GetEntityCarPtr
 	xor a
 	ld [wda94], a
 	ld [wda95], a
@@ -301,7 +301,7 @@ Func_4258:
 	pop hl
 	ret
 .asm_4270
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_B
 	ld a, CARSTRUCT_0F
 	call GetStructByte_C
@@ -336,15 +336,16 @@ Func_427c:
 .asm_429e
 	pop hl
 	ret
-; 0x42a0
 
-SECTION "Func_42a3", ROMX[$42a3], BANK[$1]
-
+Func_42a0:
+	push hl
+	jr Func_42ab
 Func_42a3:
 	push hl
 	ld hl, wdc32
 	bit WDC32_UNK2_F, [hl]
-	jr nz, .asm_42b6
+	jr nz, Func_42ab.asm_42b6
+Func_42ab:
 	ld hl, wd86a
 	add [hl]
 	cp $38
@@ -400,7 +401,7 @@ Func_42e1::
 .asm_42f9
 	call Func_4382
 .asm_42fc
-	call Func_1598
+	call GetEntityCarPtr
 	call Func_284b
 	bit 7, b
 	jr z, .asm_4309
@@ -526,7 +527,7 @@ Func_43ac:
 	ret
 
 Func_43bb:
-	call Func_1598
+	call GetEntityCarPtr
 Func_43be::
 	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
@@ -633,7 +634,7 @@ Func_4436:
 	ret
 
 Func_4446:
-	call Func_1598
+	call GetEntityCarPtr
 
 	ld bc, 0
 	ld a, CARSTRUCT_SPEED
@@ -687,7 +688,7 @@ Func_44a8:
 .asm_44b4
 	xor a
 	ld [wda8f], a
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_A
 	cp $08
 	jr c, .asm_44c4
@@ -1081,7 +1082,7 @@ Func_4733:
 .asm_4749
 	ld a, CARSTRUCT_0F
 	call GetStructByte_E
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_D
 	call Func_28d1
 	ld a, c
@@ -1131,7 +1132,7 @@ Func_475f:
 	ld a, [wJoypadDown]
 	and PAD_RIGHT | PAD_LEFT
 	jr z, .asm_47c3
-	ld a, CARSTRUCT_10 + 1
+	ld a, CARSTRUCT_11
 	call GetStructByte_A
 	cp $08
 	jr c, .asm_47c3
@@ -1801,6 +1802,60 @@ Func_56a2:
 	ret
 ; 0x56db
 
+SECTION "Func_5b7a", ROMX[$5b7a], BANK[$1]
+
+Func_5b7a:
+	xor a
+	ld [wda5d], a
+	call Func_2f5f
+	ld de, wd8eb
+	ld b, $08
+.asm_5b86
+	ld a, [de]
+	and $01
+	jr z, .asm_5b9f
+	bit 3, [hl]
+	jr nz, .asm_5b94
+	ld a, [de]
+	and $02
+	jr nz, .asm_5b9f
+.asm_5b94
+	ld a, h
+	cp d
+	jr nz, .asm_5b9a
+	ld a, l
+	cp e
+.asm_5b9a
+	jr z, .asm_5b9f
+	call .Func_5baa
+.asm_5b9f
+	ld a, $27
+	add_de
+	dec b
+	jr nz, .asm_5b86
+	ld a, [wda5d]
+	and a
+	ret
+
+.Func_5baa:
+	push bc
+	call Func_2a90
+	jr c, .asm_5bc2
+	call Func_2d66
+	push af
+	call Func_271b
+	push hl
+	ld hl, wda5d
+	or [hl]
+	ld [hl], a
+	pop hl
+	pop af
+	call Func_31fb
+.asm_5bc2
+	pop bc
+	ret
+; 0x5bc4
+
 SECTION "Func_5bce", ROMX[$5bce], BANK[$1]
 
 Func_5bce::
@@ -1831,8 +1886,8 @@ Func_5bce::
 	call Func_2631
 	set 3, [hl]
 	push hl
-	ld hl, $5c32
-	ld c, $01
+	ld hl, Func_5c32
+	ld c, BANK(Func_5c32)
 	ld b, $06
 	call SpawnEntity
 	pop de
@@ -1859,7 +1914,362 @@ Func_5bce::
 	ld a, ENT_UNK15
 	call SetStructByte_C
 	ret
-; 0x5c32
+
+Func_5c32:
+	call GetEntityCarPtr
+	set CARFLAG_UNK4_F, [hl]
+.asm_5c37
+	ld a, [wda7b]
+	and a
+	jr nz, .asm_5c44
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_5c37
+.asm_5c44
+	res CARFLAG_UNK4_F, [hl]
+	set CARFLAG_UNK7_F, [hl]
+	ld c, $20
+	ld a, CARSTRUCT_20
+	call SetStructByte_C
+	ld c, $00
+	ld a, CARSTRUCT_1C
+	call SetStructByte_C
+	ld c, $00
+	ld a, CARSTRUCT_1F
+	call SetStructByte_C
+.asm_5c5d
+	call .Func_5d36
+	call .Func_5d04
+	call .Func_5cbb
+	ld c, $00
+	ld a, CARSTRUCT_1F
+	call SetStructByte_C
+	call .Func_5daa
+	call GetEntityCarPtr
+	ld a, $ff
+	call Func_2abe
+	call .Func_5da0
+	call Func_5b7a
+	call .Func_5da0
+	call Func_313e
+	call Func_3047
+	call .Func_5c92
+	ld a, 1
+	call YieldEntityUpdate
+	jp .asm_5c5d
+
+.Func_5c92:
+	ld a, [wGameMode]
+	cp MODE_CREDITS
+	ret nz ; not credits
+	ld a, [wda8f]
+	inc a
+	cp $02
+	jr nc, .asm_5ca4
+	ld [wda8f], a
+	ret
+.asm_5ca4
+	xor a
+	ld [wda8f], a
+	ld a, CARSTRUCT_1C
+	call GetStructByte_A
+	cp $08
+	ret nc
+	ld a, CARSTRUCT_SPEED + 1
+	call GetStructByte_A
+	cp $08
+	ret c
+	jp Func_42c3
+
+.Func_5cbb:
+	ld a, CARSTRUCT_1D
+	call GetStructByte_A
+	and a
+	jr nz, .asm_5ce2
+	ld a, CARSTRUCT_15
+	call GetStructByte_D
+	push hl
+	ld a, CARSTRUCT_SPEED
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, $80
+	add hl, bc
+	ld a, h
+	cp d
+	jr c, .asm_5cda
+	ld h, d
+	ld l, $00
+.asm_5cda
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, CARSTRUCT_SPEED
+	jp SetStructWord_BC
+.asm_5ce2
+	push hl
+	ld a, CARSTRUCT_SPEED
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, -$100
+	add hl, bc
+	bit 7, h
+	jr z, .asm_5cf4
+	ld hl, NULL
+.asm_5cf4
+	ld a, h
+	cp $10
+	jr nc, .asm_5cfc
+	ld hl, $1000
+.asm_5cfc
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, CARSTRUCT_SPEED
+	jp SetStructWord_BC
+
+.Func_5d04:
+	ld a, CARSTRUCT_1C
+	call GetStructByte_A
+	cp $08
+	ret c
+	ld a, CARSTRUCT_20
+	ld c, $20
+	call SetStructByte_C
+	push hl
+	ld a, CARSTRUCT_0C
+	add_hl
+	ld a, [hl]
+	pop hl
+	and $3f
+	ret z
+	ld c, $01
+	cp $20
+	jr nc, .asm_5d24
+	ld c, $ff
+.asm_5d24
+	push hl
+	ld b, $02
+	ld a, $0c
+	add_hl
+.asm_5d2a
+	ld a, [hl]
+	add c
+	ld [hl], a
+	and $3f
+	jr z, .asm_5d34
+	dec b
+	jr nz, .asm_5d2a
+.asm_5d34
+	pop hl
+	ret
+
+.Func_5d36:
+	push hl
+	ld a, CARSTRUCT_1C
+	add_hl
+	ld a, [hl]
+	cp $ff
+	jr z, .asm_5d40
+	inc [hl]
+.asm_5d40
+	inc hl
+	ld [hl], $00 ; CARSTRUCT_1D
+	pop hl
+	ld a, CARSTRUCT_1F
+	call GetStructByte_A
+	and a
+	ret z
+	ld c, a
+	call Func_26db
+	ld b, a
+	and c
+	ret z
+	push af
+	push hl
+	ld a, CARSTRUCT_1C
+	add_hl
+	ld [hl], $00 ; CARSTRUCT_1C
+	inc hl
+	ld [hl], $01 ; CARSTRUCT_1D
+	pop hl
+	pop af
+	cpl
+	and b
+	jr z, .asm_5d91
+	call Func_2747
+	ld c, a
+	ld a, CARSTRUCT_0C
+	call GetStructByte_A
+	sub c
+	ld b, $fc
+	jr nc, .asm_5d74
+	cpl
+	inc a
+	ld b, $04
+.asm_5d74
+	cp $80
+	jr c, .asm_5d7c
+	ld a, b
+	cpl
+	inc a
+	ld b, a
+.asm_5d7c
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	add b
+	ld [hl], a
+	pop hl
+	ld c, $20
+	bit 7, b
+	jr nz, .asm_5d8c
+	ld c, $10
+.asm_5d8c
+	ld a, $20
+	jp SetStructByte_C
+.asm_5d91
+	ld b, $04
+	ld a, CARSTRUCT_20
+	call GetStructByte_A
+	and $10
+	jr nz, .asm_5d7c
+	ld b, $fc
+	jr .asm_5d7c
+
+.Func_5da0:
+	push hl
+	ld c, a
+	ld a, CARSTRUCT_1F
+	add_hl
+	ld a, c
+	or [hl]
+	ld [hl], a
+	pop hl
+	ret
+
+.Func_5daa:
+	ld a, CARSTRUCT_0C
+	add_hl
+	ld a, [hl]
+	call Func_5dfd
+	ret nz
+	ld a, [wdc7a]
+	ld c, a
+	and $3f
+	jr z, .asm_5ddf
+	ld a, c
+	call Func_271b
+	ld c, a
+	and $05
+	call Func_2747
+	push bc
+	call Func_5dfd
+	pop bc
+	jr nz, .asm_5deb
+	ld a, c
+	and $0a
+	call Func_2747
+	push bc
+	call Func_5dfd
+	pop bc
+	jr nz, .asm_5df4
+	call GetEntityCarPtr
+	ld a, c
+	jp .Func_5da0
+.asm_5ddf
+	call GetEntityCarPtr
+	ld a, [wdc7a]
+	call Func_271b
+	jp .Func_5da0
+.asm_5deb
+	call GetEntityCarPtr
+	ld a, c
+	and $0a
+	jp .Func_5da0
+.asm_5df4
+	call GetEntityCarPtr
+	ld a, c
+	and $05
+	jp .Func_5da0
+
+Func_5dfd:
+	call .Func_5e54
+	call .Func_5e29
+	call GetEntityCarPtr
+	ld a, CARSTRUCT_SPEED + 1
+	call GetStructByte_A
+	srl a
+	srl a
+	srl a
+	and $0f
+	inc a
+	ld b, a
+.asm_5e15
+	push bc
+	call .Func_5e37
+	call .Func_5e23
+	pop bc
+	ret z
+	dec b
+	jr nz, .asm_5e15
+	dec b
+	ret
+
+.Func_5e23:
+	ld hl, wda23
+	jp Func_2ab5
+
+.Func_5e29:
+	call GetEntityCarPtr
+	ld a, CARSTRUCT_06
+	add_hl
+	ld de, wda29
+	ld b, $06
+	jp CopyHLtoDE
+
+.Func_5e37:
+	ld hl, wda23
+	ld a, [wdc7c + 0]
+	ld c, a
+	ld a, [wdc7c + 1]
+	ld b, a
+	ld a, $09
+	call Func_146c
+	ld a, [wdc7e]
+	ld c, a
+	ld a, [wdc7f]
+	ld b, a
+	ld a, $06
+	jp Func_146c
+
+.Func_5e54:
+	ld [wdc7a], a
+	call Func_29ea
+	ld h, b
+	ld l, c
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld a, l
+	ld [wdc7e], a
+	ld a, h
+	ld [wdc7f], a
+	ld h, d
+	ld l, e
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld a, l
+	ld [wdc7c + 0], a
+	ld a, h
+	ld [wdc7c + 1], a
+	ret
+; 0x5e75
 
 SECTION "Func_613b", ROMX[$613b], BANK[$1]
 
@@ -1875,8 +2285,8 @@ Func_613b:
 	ld e, l
 	push bc
 	push de
-	ld hl, $6186
-	ld c, $01
+	ld hl, Func_6186
+	ld c, BANK(Func_6186)
 	ld b, $09
 	call SpawnEntity
 	jr c, .asm_6182
@@ -1917,9 +2327,131 @@ Func_613b:
 	pop bc
 	pop af
 	ret
-; 0x6186
 
-SECTION "Func_623d", ROMX[$623d], BANK[$1]
+Func_6186:
+	call GetEntityCarPtr
+	set CARFLAG_PLAYER_F, [hl]
+	call Random
+	and $03
+	add $02
+	ld c, a
+	ld a, CARSTRUCT_SPEED + 1
+	call SetStructByte_C
+	ld b, $00
+	ld a, CARSTRUCT_0F
+	call SetStructWord_BC
+	ld a, CARSTRUCT_SPEED
+	call GetStructByte_A
+	push hl
+	call Func_29ea
+	ld h, b
+	ld l, c
+	call .Func_6239
+	ld b, h
+	ld c, l
+	ld h, d
+	ld l, e
+	call .Func_6239
+	ld d, h
+	ld e, l
+	pop hl
+	call .Func_6228
+	ld a, CARSTRUCT_SPEED
+	call GetStructByte_A
+	push hl
+	call Func_29ea
+	call Random
+	and $03
+	jumptable
+	dw .Func_61e6
+	dw .Func_61ee
+	dw .Func_61d1
+	dw .Func_61ee
+
+.Func_61d1:
+.asm_61d1
+	pop hl
+.asm_61d2
+	call .Func_6213
+	ld a, 1
+	call YieldEntityUpdate
+	bit CARFLAG_UNK3_F, [hl]
+	jr nz, .asm_61f8
+	call .Func_61fd
+	call .Func_6228
+	jr .asm_61d2
+.Func_61e6:
+	sra d
+	rr e
+	sra b
+	rr c
+.Func_61ee:
+	sra d
+	rr e
+	sra b
+	rr c
+	jr .asm_61d1
+
+.asm_61f8
+	ld [hl], $00
+	jp DespawnEntity
+
+.Func_61fd:
+	push hl
+	ld a, CARSTRUCT_SPEED + 1
+	add_hl
+	ld a, [hl]
+	inc hl
+	dec [hl] ; CARSTRUCT_0F
+	jr nz, .asm_620e
+	ld [hl], a
+	inc hl
+	inc [hl]
+	ld a, [hl]
+	cp $04
+	jr nc, .asm_6210
+.asm_620e
+	pop hl
+	ret
+.asm_6210
+	pop hl
+	jr .asm_61f8
+
+.Func_6213:
+	push de
+	ld d, h
+	ld e, l
+	ld a, CARSTRUCT_09
+	add_de
+	ld a, CARSTRUCT_10
+	call GetStructByte_A
+	add a ; *2
+	add $72
+	ld [de], a
+	inc de
+	ld a, $08
+	ld [de], a
+	pop de
+	ret
+
+.Func_6228:
+	push bc
+	push de
+	push de
+	ld a, $01
+	call Func_146c
+	pop bc
+	ld a, $04
+	call Func_146c
+	pop de
+	pop bc
+	ret
+
+.Func_6239:
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ret
 
 Func_623d:
 	push af
@@ -1933,8 +2465,8 @@ Func_623d:
 	ld e, l
 	push bc
 	push de
-	ld hl, $6288
-	ld c, $01
+	ld hl, Func_6288
+	ld c, BANK(Func_6288)
 	ld b, $10
 	call SpawnEntity
 	jr c, .asm_6284
@@ -1975,9 +2507,64 @@ Func_623d:
 	pop bc
 	pop af
 	ret
-; 0x6288
 
-SECTION "Func_633f", ROMX[$633f], BANK[$1]
+Func_6288:
+	call GetEntityCarPtr
+	set CARFLAG_PLAYER_F, [hl]
+	call Random
+	and $03
+	add $04
+	ld c, a
+	ld a, CARSTRUCT_SPEED + 1
+	call SetStructByte_C
+	ld b, $00
+	ld a, CARSTRUCT_0F
+	call SetStructWord_BC
+	ld a, CARSTRUCT_SPEED
+	call GetStructByte_A
+	push hl
+	call Func_29ea
+	ld h, b
+	ld l, c
+	call Func_633b
+	ld b, h
+	ld c, l
+	ld h, d
+	ld l, e
+	call Func_633b
+	ld d, h
+	ld e, l
+	pop hl
+	call Func_632a
+	ld a, $0d
+	call GetStructByte_A
+	push hl
+	call Func_29ea
+	call Random
+	and $03
+	jumptable
+; 0x62cb
+
+SECTION "Func_632a", ROMX[$632a], BANK[$1]
+
+Func_632a:
+	push bc
+	push de
+	push de
+	ld a, $01
+	call Func_146c
+	pop bc
+	ld a, $04
+	call Func_146c
+	pop de
+	pop bc
+	ret
+
+Func_633b:
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ret
 
 Func_633f:
 	push hl
@@ -2051,7 +2638,7 @@ Func_635e:
 	ret
 
 Func_6398:
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, [hl]
 	or $06
 	ld [hl], a
@@ -2083,16 +2670,16 @@ Func_6398:
 	call .Func_6409
 	jr c, .asm_63d7
 	call .Func_6413
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_63c5
 .asm_63d7
-	call Func_1598
+	call GetEntityCarPtr
 	ld [hl], $00
 	jp DespawnEntity
 
 .Func_63df:
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $0d
 	add_hl
 	ld a, [hli]
@@ -2110,7 +2697,7 @@ Func_6398:
 	ld e, c
 	pop bc
 	call Func_2998
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $01
 	push de
 	call Func_146c
@@ -2119,7 +2706,7 @@ Func_6398:
 	jp Func_146c
 
 .Func_6409:
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $0f
 	add_hl
 	ld a, [hli]
@@ -2128,7 +2715,7 @@ Func_6398:
 	ret
 
 .Func_6413:
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $10
 	add_hl
 	ld a, [hl]
@@ -2236,7 +2823,211 @@ Func_65a9::
 	ld a, $01
 	ld [wd820], a
 	jp YieldEntityUpdateIndefinitely
-; 0x65b4
+
+Func_65b4::
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, Func_667a
+	ld c, BANK(Func_667a)
+	ld b, $0c
+	call SpawnEntity
+	ld a, $06
+	add_hl
+	ld [hl], $5a
+.asm_65c6
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wd820]
+	cp $01
+	jr nz, .asm_65c6
+	ld a, $02
+	ld bc, NULL
+	call Func_1bd3
+	ld hl, Func_6620
+	ld c, BANK(Func_6620)
+	ld b, $0d
+	call SpawnEntity
+.asm_65e4
+	ld hl, wd83d
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wd892]
+	add a
+	add a
+	add_hl
+	ld de, wda76
+	ld a, $01
+	ld [de], a
+	ld b, $04
+.asm_65f8
+	inc de
+	ld a, [hli]
+	ld [de], a
+	dec b
+	jr nz, .asm_65f8
+.asm_65fe
+	call Func_6805
+	jr c, .asm_6619
+	ld a, SFX_2C
+	call PlaySFX
+	ld hl, wd892
+	inc [hl]
+	ld a, [hl]
+	cp $06
+	jr nz, .asm_65e4
+	ld de, $64b1
+	ld a, $01
+	jp Func_157f
+.asm_6619
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_65fe
+
+Func_6620:
+	call Func_1124
+	ld h, d
+	ld l, e
+	push hl
+	ld a, [hl]
+	or $06
+	ld [hl], a
+	ld a, $07
+	add_hl
+	ld [hl], $10
+	inc hl
+	ld [hl], $10
+	pop hl
+.asm_6633
+	call Func_2dd5
+	jr c, .asm_663c
+	res 1, [hl]
+	jr .asm_6659
+.asm_663c
+	set 1, [hl]
+	call .Func_6660
+	push hl
+	ld hl, -$8
+	add hl, de
+	ld d, h
+	ld e, l
+	ld hl, -$8
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, $05
+	call SetStructWord_BC
+	ld a, $02
+	call SetStructWord_DE
+.asm_6659
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_6633
+
+.Func_6660:
+	push hl
+	ld a, $09
+	add_hl
+	ld a, [wc57a]
+	rrca
+	rrca
+	and $03
+	add a
+	add a
+	add $ca
+	ld [hli], a
+	ld [hl], $0a
+	inc hl
+	inc a
+	inc a
+	ld [hli], a
+	ld [hl], $0a
+	pop hl
+	ret
+
+Func_667a:
+	call Func_1591
+	ld a, $06
+	add_hl
+	ld c, [hl]
+	call Func_1124
+	ld h, d
+	ld l, e
+	inc hl
+	inc hl
+	ld [hl], $38
+	inc hl
+	inc hl
+	inc hl
+	ld [hl], $4c
+	inc hl
+	inc hl
+	ld [hl], $10
+	inc hl
+	ld [hl], $08
+	inc hl
+	ld a, c
+	add $88
+	ld [hli], a
+	ld [hl], $0a
+	dec hl
+	ld b, $03
+.asm_66a0
+	ld a, [de]
+	or $02
+	ld [de], a
+	call .Func_66f5
+	ld a, $0f
+	call YieldEntityUpdate
+	ld a, [de]
+	and $fd
+	ld [de], a
+	ld a, $0f
+	call YieldEntityUpdate
+	dec [hl]
+	dec [hl]
+	dec b
+	jr nz, .asm_66a0
+	ld a, $01
+	ld [wd820], a
+	ld h, d
+	ld l, e
+	ld a, $05
+	add_hl
+	ld [hl], $48
+	ld a, $03
+	add_hl
+	ld [hl], $10
+	inc hl
+	ld a, c
+	add $80
+	ld [hli], a
+	ld [hl], $0a
+	inc hl
+	inc a
+	inc a
+	ld [hli], a
+	ld [hl], $0a
+	ld h, d
+	ld l, e
+	ld b, $03
+.asm_66dc
+	set 1, [hl]
+	call .Func_66f5
+	ld a, $07
+	call YieldEntityUpdate
+	res 1, [hl]
+	ld a, $07
+	call YieldEntityUpdate
+	dec b
+	jr nz, .asm_66dc
+	ld [hl], $00
+	jp DespawnEntity
+
+.Func_66f5:
+	ld a, SFX_2D
+	jp Func_f1f
+; 0x66fa
 
 SECTION "Func_67dd", ROMX[$67dd], BANK[$1]
 
@@ -2481,11 +3272,11 @@ Func_692b:
 
 Data_6949:
 	dw Func_6985 ; MISSION_THE_BANK_JOB
-	dw $6a6a ; MISSION_HIDE_THE_EVIDENCE
-	dw $6ad5 ; MISSION_BOAT_CHASE
-	dw $6e49 ; MISSION_RAM_RAID_RACE
-	dw $6f05 ; MISSION_SUPERFLY_DRIVE
-	dw $6f7b ; MISSION_BAIT_FOR_A_TRAP
+	dw Func_6a6a ; MISSION_HIDE_THE_EVIDENCE
+	dw Func_6ad5 ; MISSION_BOAT_CHASE
+	dw Func_6e49 ; MISSION_RAM_RAID_RACE
+	dw Func_6f05 ; MISSION_SUPERFLY_DRIVE
+	dw Func_6f7b ; MISSION_BAIT_FOR_A_TRAP
 	dw $711a ; MISSION_TAKE_OUT_DIANGELO
 	dw $71d2 ; MISSION_STEAL_A_COP_CAR
 	dw $725e ; MISSION_GET_LUCKY_TO_THE_DOCS
@@ -2498,11 +3289,11 @@ Data_6949:
 
 Data_6967:
 	dw Func_6997 ; MISSION_THE_BANK_JOB
-	dw $6a83 ; MISSION_HIDE_THE_EVIDENCE
-	dw $6ae7 ; MISSION_BOAT_CHASE
-	dw $6e5b ; MISSION_RAM_RAID_RACE
-	dw $6f1e ; MISSION_SUPERFLY_DRIVE
-	dw $6f8d ; MISSION_BAIT_FOR_A_TRAP
+	dw Func_6a83 ; MISSION_HIDE_THE_EVIDENCE
+	dw Func_6ae7 ; MISSION_BOAT_CHASE
+	dw Func_6e5b ; MISSION_RAM_RAID_RACE
+	dw Func_6f1e ; MISSION_SUPERFLY_DRIVE
+	dw Func_6f8d ; MISSION_BAIT_FOR_A_TRAP
 	dw $712c ; MISSION_TAKE_OUT_DIANGELO
 	dw $71eb ; MISSION_STEAL_A_COP_CAR
 	dw $7277 ; MISSION_GET_LUCKY_TO_THE_DOCS
@@ -2516,8 +3307,8 @@ Data_6967:
 Func_6985:
 	call Func_1972
 	ld a, MIAMI
-	call Func_1a1d
-	call Func_1a12
+	call SetCity
+	call SetDefaultPlayerCar
 	ld hl, $7eb2
 	call Func_1a2e
 	ret
@@ -2550,7 +3341,7 @@ Func_69ae:
 	call YieldEntityUpdate
 	ld a, [wd86e]
 	and a
-	jp z, Func_6a32
+	jp z, .too_late
 	call Func_6805
 	jr nc, .asm_69e0
 	jr .asm_69cd
@@ -2561,7 +3352,7 @@ Func_69ae:
 	call Func_6575
 	call Func_67e9
 	ld hl, $7ebb
-	call Func_6a38
+	call .Func_6a38
 	ld hl, GetToTheLockUpTexts
 	ld c, $5a
 	call Func_1ec0
@@ -2583,15 +3374,15 @@ Func_69ae:
 	jr c, .asm_6a19
 	call Func_6879
 	ld hl, $7ec3
-	call Func_6a51
+	call .Func_6a51
 	ld hl, NULL
 	jp SetMissionComplete
 
-Func_6a32:
+.too_late
 	ld hl, TooLateTexts
 	jp SetMissionFailed
 
-Func_6a38:
+.Func_6a38:
 	ld b, $03
 .asm_6a3a
 	push bc
@@ -2607,7 +3398,7 @@ Func_6a38:
 	jr nz, .asm_6a3a
 	jp Func_79d8
 
-Func_6a51:
+.Func_6a51:
 	ld b, $03
 .asm_6a53
 	push bc
@@ -2626,7 +3417,7 @@ Func_6a51:
 Func_6a6a:
 	call Func_1972
 	ld a, MIAMI
-	call Func_1a1d
+	call SetCity
 	ld a, CAR_07
 	ld [wPlayerCar], a
 	ld a, $02
@@ -2674,8 +3465,8 @@ Func_6a97:
 Func_6ad5:
 	call Func_1972
 	ld a, MIAMI
-	call Func_1a1d
-	call Func_1a12
+	call SetCity
+	call SetDefaultPlayerCar
 	ld hl, $7ed2
 	call Func_1a2e
 	ret
@@ -2724,7 +3515,7 @@ Func_6b0c:
 	jr z, .asm_6ba7
 	call .Func_6b73
 	jr c, .asm_6b50
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_6b36
 .asm_6b50
@@ -2733,7 +3524,7 @@ Func_6b0c:
 	xor a
 	ld [wda9a], a
 .asm_6b5a
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wd86e]
 	and a
@@ -2835,7 +3626,7 @@ Func_6bbb:
 	ld a, $00
 	ld [wda7c], a
 	call .Func_6d55
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $02
 	add_hl
 .asm_6c0f
@@ -2860,7 +3651,7 @@ Func_6bbb:
 .Func_6c33:
 	ld b, a
 .asm_6c34
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wda7b]
 	and a
@@ -2880,7 +3671,7 @@ Func_6bbb:
 	call .Func_6d2d
 	jr z, .asm_6c72
 .asm_6c57
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	call .Func_6d24
 	call .Func_6cff
@@ -2903,13 +3694,13 @@ Func_6bbb:
 	and a
 	jr z, .asm_6c91
 	dec [hl]
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_6c7c
 .asm_6c91
 	xor a
 	ld [wda7b], a
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $05
 	add_hl
 	jp .asm_6c0f
@@ -2917,7 +3708,7 @@ Func_6bbb:
 .Func_6c9e:
 	ld a, [wda7c]
 	call Func_29ea
-	call Func_1598
+	call GetEntityCarPtr
 	push de
 	ld a, $01
 	call .Func_6cb0
@@ -3014,12 +3805,12 @@ Func_6bbb:
 	ret
 
 .Func_6d24:
-	call Func_1598
+	call GetEntityCarPtr
 	call .Func_6da8
 	jp Func_7b62
 
 .Func_6d2d:
-	call Func_1598
+	call GetEntityCarPtr
 	ld a, $0d
 	add_hl
 	ld d, h
@@ -3054,7 +3845,7 @@ Func_6bbb:
 	ret
 
 .Func_6d55:
-	call Func_1598
+	call GetEntityCarPtr
 	call .Func_6d95
 	jr nc, .asm_6d60
 	res 1, [hl]
@@ -3087,7 +3878,7 @@ Func_6bbb:
 	ld a, [wc57a]
 	and $03
 	ret nz
-	call Func_1598
+	call GetEntityCarPtr
 	call .Func_6da8
 	ld a, [wda7c]
 	add $80
@@ -3127,9 +3918,9 @@ SECTION "Data_6e49", ROMX[$6e49], BANK[$1]
 
 Func_6e49:
 	call Func_1972
-	ld a, $00
-	call Func_1a1d
-	call Func_1a12
+	ld a, MIAMI
+	call SetCity
+	call SetDefaultPlayerCar
 	ld hl, $7ee1
 	call Func_1a2e
 	ret
@@ -3158,10 +3949,10 @@ Func_6e72:
 	ld hl, $7eff
 	call Func_68a8
 .asm_6e8e
-	call Func_6edf
+	call .Func_6edf
 	call Func_67f6
 .asm_6e94
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wd86e]
 	and a
@@ -3170,7 +3961,7 @@ Func_6e72:
 	jr c, .asm_6e94
 	ld a, $0b
 	call Func_42a3
-	call Func_6ee9
+	call .Func_6ee9
 	ld hl, wda81
 	inc [hl]
 	ld a, [hl]
@@ -3200,7 +3991,7 @@ Func_6e72:
 	dw GetToTheFourthRestaurantTexts
 	dw GetToTheLastRestaurantTexts
 
-Func_6edf:
+.Func_6edf:
 	ld hl, $7ee6
 	ld a, [wda81]
 	add a
@@ -3208,8 +3999,8 @@ Func_6edf:
 	add_hl
 	ret
 
-Func_6ee9:
-	call Func_6edf
+.Func_6ee9:
+	call .Func_6edf
 	ld c, [hl]
 	inc hl
 	ld b, [hl]
@@ -3225,7 +4016,441 @@ Func_6ee9:
 	call Func_633f
 	ld a, SFX_26
 	jp PlaySFX
-; 0x6f05
+
+Func_6f05:
+	call Func_1972
+	ld a, MIAMI
+	call SetCity
+	ld a, CAR_08
+	ld [wPlayerCar], a
+	ld a, $00
+	ld [wd827], a
+	ld hl, $7f01
+	call Func_1a2e
+	ret
+
+Func_6f1e:
+	call Func_1ed4
+	ld hl, Data_1f37
+	call Func_1eda
+	ld hl, Func_6f32
+	ld c, BANK(Func_6f32)
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_6f32:
+	call YieldEntityUpdateUntilFadeEnds
+	ld a, $05
+	ld [wd83b], a
+	ld hl, TakeThisPuppyHomeTexts
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	ld a, $01
+	ld [wd820], a
+	ld hl, $7f06
+	call Func_67f6
+	ld hl, $7f0a
+	call Func_68a8
+	xor a
+	ld [wda9a], a
+.asm_6f5a
+	ld a, [wd86e]
+	and a
+	jr z, .asm_6f6c
+	call Func_6816
+	jr nc, .asm_6f72
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_6f5a
+.asm_6f6c
+	ld hl, TooLateTexts
+	jp SetMissionFailed
+.asm_6f72
+	call Func_6879
+	ld hl, NULL
+	jp SetMissionComplete
+
+Func_6f7b:
+	call Func_1972
+	ld a, MIAMI
+	call SetCity
+	call SetDefaultPlayerCar
+	ld hl, $7f0c
+	call Func_1a2e
+	ret
+
+Func_6f8d:
+	call Func_1ed4
+	ld hl, Data_1f37
+	call Func_1eda
+	ld a, CAR_06
+	ld hl, NULL
+	call Func_1ced
+	ld hl, Func_6fa9
+	ld c, BANK(Func_6fa9)
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_6fa9:
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, GetToBalHarbourTexts
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	ld a, $01
+	ld [wd820], a
+	ld hl, $7f11
+	call Func_67f6
+	ld hl, $7f1a
+	call Func_68a8
+.asm_6fc8
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wd86e]
+	and a
+	jp z, .asm_70a9
+	call .Func_70af
+	ld de, $300
+	ld a, h
+	cp d
+	jr nz, .asm_6fe0
+	ld a, l
+	cp e
+.asm_6fe0
+	call c, .Func_709d
+	ld de, $a0
+	ld a, h
+	cp d
+	jr nz, .asm_6fec
+	ld a, l
+	cp e
+.asm_6fec
+	jr nc, .asm_6fc8
+	ld hl, $7f11
+	ld de, $6
+	call Func_70f9
+	push hl
+	ld hl, Func_70cc
+	ld c, BANK(Func_70cc)
+	ld b, $05
+	call SpawnEntity
+	pop de
+	call Func_70eb
+	set 2, [hl]
+	set 4, [hl]
+	ld a, $02
+	ld [wda76], a
+	ld a, l
+	ld [wda77], a
+	ld a, h
+	ld [wda78], a
+	ld hl, wda55
+	inc [hl]
+	call .Func_7084
+.asm_701e
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wd86e]
+	and a
+	jp z, .asm_70a9
+	call .Func_70af
+	ld de, $80
+	ld a, h
+	cp d
+	jr nz, .asm_7036
+	ld a, l
+	cp e
+.asm_7036
+	jr nc, .asm_701e
+	ld hl, $5490
+	ld c, $5a
+	call Func_1ec0
+	ld hl, wda7b
+.asm_7043
+	ld [hl], $00
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wd86e]
+	and a
+	jr z, .asm_70a9
+	ld a, [hl]
+	and a
+	jr nz, .asm_7043
+	ld a, $01
+	call Func_42a0
+	ld hl, $5ef1
+	ld c, $5a
+	call Func_1ec0
+	ld hl, $7f16
+	call Func_67f6
+	call Func_68b0
+.asm_706a
+	ld a, 1
+	call YieldEntityUpdate
+	ld hl, wda55
+	ld a, [hl]
+	and a
+	jr z, .asm_70a3
+	call Func_6805
+	jr c, .asm_706a
+	call Func_6879
+	ld hl, NULL
+	jp SetMissionComplete
+
+.Func_7084:
+	ld hl, $7097
+	call Func_1eee.Func_1f19
+	xor a
+	ld hl, wd82e
+	ld [hli], a
+	ld [hl], a
+	ld [wd837], a
+	ld [wd838], a
+	ret
+	nop
+	nop
+	inc b
+	inc e
+	add_bc
+	add_bc
+.Func_709d:
+	push hl
+	call Func_68b8
+	pop hl
+	ret
+.asm_70a3
+	ld hl, YouLostHimTexts
+	jp SetMissionFailed
+.asm_70a9
+	ld hl, TooLateTexts
+	jp SetMissionFailed
+
+.Func_70af:
+	call Func_2dd5
+	ld hl, wda2a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	ld hl, wCarPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, wda23
+	call Func_275f
+	ld h, b
+	ld l, c
+	ret
+
+Func_70cc:
+.asm_70cc
+	ld a, $01
+	ld [wda7b], a
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_70cc
+; 0x70d8
+
+SECTION "Data_70eb", ROMX[$70eb], BANK[$1]
+
+Func_70eb:
+	ld a, ENT_CAR_PTR
+	call SetStructWord_DE
+	push de
+	ld e, l
+	ld d, h
+	pop hl
+	ld a, CARSTRUCT_ENT_PTR
+	jp SetStructWord_DE
+
+Func_70f9:
+	push de
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	ld a, [hl]
+	pop hl
+	call Func_2631
+	call Func_1124
+	ld a, $25
+	call SetStructWord_DE
+	call Func_3047
+	ld a, [wda56]
+	inc a
+	ld [wda56], a
+	ret
+
+Func_711a:
+	call Func_1977
+	ld a, MIAMI
+	call SetCity
+	call SetDefaultPlayerCar
+	ld hl, $7f1c
+	call Func_1a2e
+	ret
+
+Func_712c:
+	call Func_1ed4
+	ld hl, NULL
+	call Func_1eda
+	ld a, CAR_07
+	ld hl, NULL
+	call Func_1ced
+	xor a
+	ld [wd86c], a
+	ld c, $05
+	call Func_195e
+	ld hl, Func_7151
+	ld c, BANK(Func_7151)
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_7151:
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, RamHimTexts
+	ld c, $5a
+	call Func_1ec0
+	ld hl, $7f21
+	call Func_5bce
+	ld d, h
+	ld e, l
+	ld hl, wda76
+	ld [hl], $02
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld hl, wda56
+	inc [hl]
+	xor a
+	ld [wda7b], a
+	ld a, $1e
+	call YieldEntityUpdate
+	ld a, $01
+	ld [wda7b], a
+	ld a, $1e
+	call YieldEntityUpdate
+	ld a, $01
+	ld [wd820], a
+	ld hl, $7f2a
+	call Func_68a8
+.asm_718f
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wd86c]
+	cp $38
+	jr nc, .asm_71c9
+	ld a, [wd86e]
+	and a
+	jr z, .asm_71c3
+	ld hl, wCarPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wda77]
+	ld e, a
+	ld a, [wda78]
+	ld d, a
+	call Func_275f
+	ld hl, $128
+	ld a, h
+	cp b
+	jr nz, .asm_71bb
+	ld a, l
+	cp c
+.asm_71bb
+	jr nc, .asm_718f
+	ld hl, YouLostHimTexts
+	jp SetMissionFailed
+.asm_71c3
+	ld hl, TooSlowTexts
+	jp SetMissionFailed
+.asm_71c9
+	call Func_6879
+	ld hl, NULL
+	jp SetMissionComplete
+
+Func_71d2:
+	call Func_1972
+	ld a, LOS_ANGELES
+	call SetCity
+	ld a, CAR_01
+	ld [wPlayerCar], a
+	ld a, $00
+	ld [wd827], a
+	ld hl, $7f2c
+	call Func_1a2e
+	ret
+
+Func_71eb:
+	call Func_1ed4
+	ld hl, NULL
+	call Func_1eda
+	ld hl, Func_71ff
+	ld c, BANK(Func_71ff)
+	ld b, $0b
+	call SpawnEntity
+	ret
+
+Func_71ff:
+	call YieldEntityUpdateUntilFadeEnds
+	ld a, $03
+	ld [wd83b], a
+	ld hl, GetToTheLockUpTexts
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	ld a, $01
+	ld [wd820], a
+	ld hl, $7f31
+	call Func_67f6
+	call Func_68b0
+	ld a, $0e
+	call Func_42a3
+	ld hl, Data_1f37
+	call Func_1eda
+	xor a
+	ld [wda9a], a
+	ld c, $00
+.asm_7231
+	push bc
+	call Func_6816
+	pop bc
+	jr nc, .asm_7255
+	call .Func_7242
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_7231
+.Func_7242:
+	ld a, c
+	and a
+	ret nz
+	ld a, [wd868]
+	and a
+	ret z
+	ld hl, WatchThePaintworkTexts
+	ld c, $5a
+	call Func_1ec0
+	ld c, $01
+	ret
+.asm_7255
+	call Func_6879
+	ld hl, NULL
+	jp SetMissionComplete
+; 0x725e
 
 SECTION "Data_79d8", ROMX[$79d8], BANK[$1]
 
@@ -3292,8 +4517,8 @@ Func_7a35:
 	call Func_1124
 	ret c
 	push de
-	ld hl, $7a94
-	ld c, $01
+	ld hl, Func_7a94
+	ld c, BANK(Func_7a94)
 	ld b, $0e
 	call SpawnEntity
 	pop de
@@ -3358,9 +4583,139 @@ Func_7a35:
 	ld a, h
 	ld [de], a
 	ret
-; 0x7a94
 
-SECTION "Data_7b62", ROMX[$7b62], BANK[$1]
+Func_7a94:
+	call GetEntityCarPtr
+	ld a, [hl]
+	or CARFLAG_PLAYER | CARFLAG_UNK2
+	ld [hl], a
+.asm_7a9b
+	call .Func_7af8
+	call .Func_7b21
+	ld a, [wda59]
+	and a
+	jr z, .asm_7ab4
+	call .Func_7abc
+	call .Func_7b31
+	ld a, 1
+	call YieldEntityUpdate
+	jr .asm_7a9b
+.asm_7ab4
+	call GetEntityCarPtr
+	ld [hl], $00
+	jp DespawnEntity
+
+.Func_7abc:
+	ld de, NULL
+	ld bc, NULL
+	ld a, [wda59]
+	bit 0, a
+	call nz, .Func_7ae8
+	bit 2, a
+	call nz, .Func_7aec
+	bit 1, a
+	call nz, .Func_7af4
+	bit 3, a
+	call nz, .Func_7af0
+	call GetEntityCarPtr
+	push de
+	ld a, $01
+	call Func_146c
+	pop bc
+	ld a, $04
+	jp Func_146c
+
+.Func_7ae8:
+	ld bc, -$80
+	ret
+
+.Func_7aec:
+	ld bc, $80
+	ret
+
+.Func_7af0:
+	ld de, -$80
+	ret
+
+.Func_7af4:
+	ld de, $80
+	ret
+
+.Func_7af8:
+	call GetEntityCarPtr
+	push hl
+	inc hl
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	ld a, $04
+	add_bc
+	ld a, $04
+	add_de
+	pop hl
+	call Func_7b62
+	ld a, c
+	ld [wdc7a + 0], a
+	ld a, b
+	ld [wdc7a + 1], a
+	ld a, e
+	ld [wdc7c + 0], a
+	ld a, d
+	ld [wdc7c + 1], a
+	ret
+
+.Func_7b21:
+	ld a, d
+	or b
+	ret nz
+	ld a, c
+	cp $02
+	ret nc
+	ld a, e
+	cp $02
+	ret nc
+	xor a
+	ld [wda59], a
+	ret
+
+.Func_7b31:
+	call GetEntityCarPtr
+	ld a, $09
+	add_hl
+	ld a, [wdc7a + 0]
+	ld c, a
+	ld a, [wdc7a + 1]
+	ld b, a
+	ld a, [wdc7c + 0]
+	ld e, a
+	ld a, [wdc7c + 1]
+	ld d, a
+	ld a, d
+	cp b
+	jr nz, .asm_7b4d
+	ld a, e
+	cp c
+.asm_7b4d
+	ld c, $00
+	jr nc, .asm_7b53
+	ld c, $08
+.asm_7b53
+	ld a, [wc57a]
+	rrca
+	rrca
+	and $03
+	add a
+	add $c8
+	add c
+	ld [hli], a
+	ld [hl], $0a
+	ret
 
 Func_7b62:
 	xor a
