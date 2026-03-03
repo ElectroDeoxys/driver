@@ -21,9 +21,9 @@ Func_4000::
 	; set it controlled by player
 	set CARFLAG_PLAYER_F, [hl] ; CARSTRUCT_FLAGS
 	ld a, l
-	ld [wCarPtr + 0], a
+	ld [wPlayerCarPtr + 0], a
 	ld a, h
-	ld [wCarPtr + 1], a
+	ld [wPlayerCarPtr + 1], a
 	push hl
 	ld hl, Func_4066
 	ld c, BANK(Func_4066)
@@ -661,8 +661,8 @@ Func_4446:
 	set CARFLAG_UNK3_F, [hl] ; CARSTRUCT_FLAGS
 	; remove player control flag
 	res CARFLAG_PLAYER_F, [hl]
-	ld de, $5c32
-	ld a, $01
+	ld de, Func_5c32
+	ld a, BANK(Func_5c32)
 	jp Func_157f
 
 .asm_4489
@@ -1537,7 +1537,7 @@ Func_49fc:
 	ld [wdc7a + 0], a
 	ld a, h
 	ld [wdc7a + 1], a
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -2778,14 +2778,14 @@ SECTION "Func_6563", ROMX[$6563], BANK[$1]
 Func_6563:
 	xor a
 	ld [wda76], a
-	ld [wd86e], a
+	ld [wTimerActive], a
 	ld a, $02
 	ld [wd820], a
 	call Func_6575
 	jp Func_68b8
 
 Func_6575:
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -2802,7 +2802,7 @@ Func_6575:
 	ret
 
 Func_658f:
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -2839,9 +2839,9 @@ Func_65b4::
 	ld a, [wd820]
 	cp $01
 	jr nz, .asm_65c6
-	ld a, $02
-	ld bc, NULL
-	call Func_1bd3
+	ld a, TIMER_MODE_COUNT_UP
+	lb bc, $0, $00
+	call StartTimer
 	ld hl, Func_6620
 	ld c, BANK(Func_6620)
 	ld b, $0d
@@ -3143,7 +3143,7 @@ Func_6879:
 	call Func_68b8
 	xor a
 	ld [wda76], a
-	ld [wd86e], a
+	ld [wTimerActive], a
 	call Func_6575
 	jp Func_67e9
 
@@ -3161,24 +3161,27 @@ Func_6889:
 	inc de
 	ld a, [hl]
 	ld [de], a
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld de, wda23
 	jp Func_27e5
 
-Func_68a8:
-	ld a, $01
-	ld c, [hl]
+; input:
+; - hl = pointer to seconds and minutes
+StartCountDownTimer:
+	ld a, TIMER_MODE_COUNT_DOWN
+	ld c, [hl] ; seconds
 	inc hl
-	ld b, [hl]
-	jp Func_1bd3
+	ld b, [hl] ; minutes
+	jp StartTimer
 
-Func_68b0:
-	ld a, $02
-	lb bc, 0, 0
-	jp Func_1bd3
+; starts count up timer, starts at 0:00
+StartCountUpTimer:
+	ld a, TIMER_MODE_COUNT_UP
+	lb bc, $0, $00
+	jp StartTimer
 
 Func_68b8:
 	ld hl, NULL
@@ -3277,7 +3280,7 @@ Data_6949:
 	dw Func_6e49 ; MISSION_RAM_RAID_RACE
 	dw Func_6f05 ; MISSION_SUPERFLY_DRIVE
 	dw Func_6f7b ; MISSION_BAIT_FOR_A_TRAP
-	dw $711a ; MISSION_TAKE_OUT_DIANGELO
+	dw Func_711a ; MISSION_TAKE_OUT_DIANGELO
 	dw $71d2 ; MISSION_STEAL_A_COP_CAR
 	dw $725e ; MISSION_GET_LUCKY_TO_THE_DOCS
 	dw $7331 ; MISSION_BEVERLY_HILLS_GET_AWAY
@@ -3294,7 +3297,7 @@ Data_6967:
 	dw Func_6e5b ; MISSION_RAM_RAID_RACE
 	dw Func_6f1e ; MISSION_SUPERFLY_DRIVE
 	dw Func_6f8d ; MISSION_BAIT_FOR_A_TRAP
-	dw $712c ; MISSION_TAKE_OUT_DIANGELO
+	dw Func_712c ; MISSION_TAKE_OUT_DIANGELO
 	dw $71eb ; MISSION_STEAL_A_COP_CAR
 	dw $7277 ; MISSION_GET_LUCKY_TO_THE_DOCS
 	dw $7343 ; MISSION_BEVERLY_HILLS_GET_AWAY
@@ -3326,45 +3329,53 @@ Func_6997:
 
 Func_69ae:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, GetToTheBankTexts
 	ld c, $5a
 	call Func_1ec0
 	call Func_67dd
+
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7eb7
 	call Func_67f6
-	ld hl, $7ec7
-	call Func_68a8
+
+	ld hl, Timer_MissionTheBankJob
+	call StartCountDownTimer
+
 .asm_69cd
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jp z, .too_late
 	call Func_6805
 	jr nc, .asm_69e0
 	jr .asm_69cd
+
 .asm_69e0
 	xor a
 	ld [wda76], a
-	ld [wd86e], a
+	ld [wTimerActive], a
 	call Func_6575
 	call Func_67e9
 	ld hl, $7ebb
 	call .Func_6a38
+
 	ld hl, GetToTheLockUpTexts
 	ld c, $5a
 	call Func_1ec0
 	call Func_67dd
+
 	call Func_658f
-	call Func_68b0
+	call StartCountUpTimer
 	ld hl, $7ebf
 	call Func_67f6
 	ld a, $0e
 	call Func_42a3
 	ld hl, Data_1f37
 	call Func_1eda
+
 	xor a
 	ld [wda9a], a
 .asm_6a19
@@ -3392,7 +3403,8 @@ Func_69ae:
 	pop bc
 	call Random
 	and $0f
-	add $18
+	add 24
+	; a = number in [24, 39]
 	call YieldEntityUpdate
 	dec b
 	jr nz, .asm_6a3a
@@ -3408,7 +3420,8 @@ Func_69ae:
 	pop bc
 	call Random
 	and $0f
-	add $18
+	add 24
+	; a = number in [24, 39]
 	call YieldEntityUpdate
 	dec b
 	jr nz, .asm_6a53
@@ -3446,7 +3459,7 @@ Func_6a97:
 	ld [wd820], a
 	ld hl, $7ece
 	call Func_67f6
-	call Func_68b0
+	call StartCountUpTimer
 	ld a, $0e
 	call Func_42a3
 	ld hl, Data_1f37
@@ -3501,8 +3514,8 @@ Func_6b0c:
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wd820], a
-	ld hl, $7edf
-	call Func_68a8
+	ld hl, Timer_MissionBoatChase
+	call StartCountDownTimer
 	ld a, $03
 	ld [wda76], a
 .asm_6b36
@@ -3510,7 +3523,7 @@ Func_6b0c:
 	ld a, b
 	cp $02
 	jr nc, .asm_6ba7
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_6ba7
 	call .Func_6b73
@@ -3526,7 +3539,7 @@ Func_6b0c:
 .asm_6b5a
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_6bad
 	call Func_6816
@@ -3540,7 +3553,7 @@ Func_6b0c:
 	ld de, wdc7a
 	ld b, $08
 	call CopyHLtoDE
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -3557,7 +3570,7 @@ Func_6b0c:
 	ld de, wda29
 	ld b, $06
 	call CopyHLtoDE
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -3946,15 +3959,15 @@ Func_6e72:
 	call Func_67dd
 	ld a, $01
 	ld [wd820], a
-	ld hl, $7eff
-	call Func_68a8
+	ld hl, Timer_MissionRamRaidRace
+	call StartCountDownTimer
 .asm_6e8e
 	call .Func_6edf
 	call Func_67f6
 .asm_6e94
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_6ec3
 	call Func_6805
@@ -4051,12 +4064,12 @@ Func_6f32:
 	ld [wd820], a
 	ld hl, $7f06
 	call Func_67f6
-	ld hl, $7f0a
-	call Func_68a8
+	ld hl, Timer_MissionSuperflyDrive
+	call StartCountDownTimer
 	xor a
 	ld [wda9a], a
 .asm_6f5a
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_6f6c
 	call Func_6816
@@ -4104,12 +4117,12 @@ Func_6fa9:
 	ld [wd820], a
 	ld hl, $7f11
 	call Func_67f6
-	ld hl, $7f1a
-	call Func_68a8
+	ld hl, Timer_MissionBaitForATrap
+	call StartCountDownTimer
 .asm_6fc8
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jp z, .asm_70a9
 	call .Func_70af
@@ -4153,7 +4166,7 @@ Func_6fa9:
 .asm_701e
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jp z, .asm_70a9
 	call .Func_70af
@@ -4173,7 +4186,7 @@ Func_6fa9:
 	ld [hl], $00
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_70a9
 	ld a, [hl]
@@ -4186,7 +4199,7 @@ Func_6fa9:
 	call Func_1ec0
 	ld hl, $7f16
 	call Func_67f6
-	call Func_68b0
+	call StartCountUpTimer
 .asm_706a
 	ld a, 1
 	call YieldEntityUpdate
@@ -4239,7 +4252,7 @@ Func_6fa9:
 	ld [hl], c
 	inc hl
 	ld [hl], b
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -4345,18 +4358,18 @@ Func_7151:
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wd820], a
-	ld hl, $7f2a
-	call Func_68a8
+	ld hl, Timer_MissionTakeOutDiAngelo
+	call StartCountDownTimer
 .asm_718f
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wd86c]
 	cp $38
 	jr nc, .asm_71c9
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_71c3
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -4417,7 +4430,7 @@ Func_71ff:
 	ld [wd820], a
 	ld hl, $7f31
 	call Func_67f6
-	call Func_68b0
+	call StartCountUpTimer
 	ld a, $0e
 	call Func_42a3
 	ld hl, Data_1f37
@@ -4472,7 +4485,7 @@ Func_79e5:
 	inc de
 	dec b
 	jr nz, .asm_79ea
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -4489,7 +4502,7 @@ Func_79e5:
 
 Func_7a0c:
 	push hl
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -4899,6 +4912,42 @@ Data_7e07::
 	db CAR_08 ; car
 	db $00, $32, $00, $40, $58, $11, $94, $0c
 ; 0x7e73
+
+SECTION "Timer_MissionTheBankJob", ROMX[$7ec7], BANK[$1]
+
+Timer_MissionTheBankJob:
+	dw $1_00
+; 0x7ec9
+
+SECTION "Timer_MissionBoatChase", ROMX[$7edf], BANK[$1]
+
+Timer_MissionBoatChase:
+	dw $0_45
+; 0x7ee1
+
+SECTION "Timer_MissionRamRaidRace", ROMX[$7eff], BANK[$1]
+
+Timer_MissionRamRaidRace:
+	dw $2_15
+; 0x7f01
+
+SECTION "Timer_MissionSuperflyDrive", ROMX[$7f0a], BANK[$1]
+
+Timer_MissionSuperflyDrive:
+	dw $1_50
+; 0x7f0c
+
+SECTION "Timer_MissionBaitForATrap", ROMX[$7f1a], BANK[$1]
+
+Timer_MissionBaitForATrap:
+	dw $1_50
+; 0x7f1c
+
+SECTION "Timer_MissionTakeOutDiAngelo", ROMX[$7f2a], BANK[$1]
+
+Timer_MissionTakeOutDiAngelo:
+	dw $1_30
+; 0x7f2c
 
 SECTION "Data_7e88", ROMX[$7e88], BANK[$1]
 

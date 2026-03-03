@@ -352,17 +352,18 @@ wd86c:: db ; d86c
 
 	ds $d86e - $d86d
 
-wd86e:: db ; d86e
-
-wd86f:: db ; d86f
+wTimerActive:: db ; d86e
+wTimerMode::   db ; d86f
 
 wd870:: db ; d870
 
-wd871:: db ; d871
-
-wd872:: db ; d872
-
-wd873:: db ; d873
+; mission timer
+; all values are in decimal form
+; byte 0: 100th of second
+; byte 1: seconds
+; byte 2: minutes
+wTimer:: ; d871
+	ds $3
 
 wd874:: db ; d874
 
@@ -398,7 +399,11 @@ wCharacterSet:: ; d899
 
 wd8b9:: db ; d8b9
 
-	ds $d8e2 - $d8ba
+	ds $d8cc - $d8ba
+
+wd8cc:: db ; d8cc
+
+	ds $d8e2 - $d8cd
 
 wd8e2:: db ; d8e2
 
@@ -409,7 +414,7 @@ wd8e4:: db ; d8e4
 
 wd8e5:: db ; d8e5
 
-	ds $d8e7 - $d8e6
+wd8e6:: db ; d8e6
 
 wd8e7:: db ; d8e7
 
@@ -445,7 +450,7 @@ wda31:: db ; da31
 
 	ds $da4a - $da32
 
-wCarPtr:: dw ; da4a
+wPlayerCarPtr:: dw ; da4a
 
 	ds $da4d - $da4c
 

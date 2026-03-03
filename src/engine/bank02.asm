@@ -88,8 +88,8 @@ LoadHUD::
 	xor a
 	ld [wd869], a
 	ld [wd86b], a
-	ld [wd86f], a
-	ld [wd86e], a
+	ld [wTimerMode], a
+	ld [wTimerActive], a
 	ld [wd870], a
 	ld [wd8e5], a
 	ld [wd8ea], a
@@ -164,7 +164,7 @@ Func_8162::
 	ld a, [wc579]
 	and a
 	jr nz, .asm_8185
-	call Func_1be7
+	call UpdateTimer
 	call Func_8189
 	call Func_8273
 	call Func_829d
@@ -181,7 +181,7 @@ Func_8189:
 	ret z
 	ld c, $8b
 	ld de, wd855
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -192,7 +192,7 @@ Func_8189:
 	ld l, a
 	call Func_82db
 	ld de, wd863
-	ld hl, wCarPtr
+	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -212,10 +212,10 @@ Func_8189:
 	jp CopyBGMapBox
 
 Func_81cd:
-	ld a, [wd86f]
+	ld a, [wTimerMode]
 	and a
-	jr z, .asm_81ff
-	ld de, wd871
+	jr z, .no_timer
+	ld de, wTimer
 	ld hl, wd874
 	ld a, [de]
 	cp [hl]
@@ -227,7 +227,7 @@ Func_81cd:
 	ret z
 .asm_81e2
 	ld b, $9c
-	ld hl, wd873
+	ld hl, wTimer + $2
 	ld de, wd876
 	call Func_84a7
 	ld hl, wd85b
@@ -244,7 +244,7 @@ Func_81cd:
 	inc a
 	ld [hl], a
 	jr .asm_8214
-.asm_81ff
+.no_timer
 	ld hl, wd874
 	ld a, $ff
 	cp [hl]
@@ -270,15 +270,15 @@ Func_8220:
 	ld a, [wdc32]
 	and WDC32_UNK4
 	ret nz
-	ld a, [wd86f]
+	ld a, [wTimerMode]
 	and a
 	jr z, .asm_8256
-	cp $02
+	cp TIMER_MODE_COUNT_UP
 	jr z, .asm_8249
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
 	jr z, .asm_8249
-	ld hl, wd873
+	ld hl, wTimer + $2
 	ld a, [hld]
 	and a
 	jr nz, .asm_8249
@@ -460,20 +460,20 @@ SECTION "Func_84a7", ROMX[$44a7], BANK[$2]
 
 Func_84a7:
 	ld a, [hl]
-	and $f0
+	and $f0 ; tens
 	ld c, a
 	ld a, [de]
 	and $f0
 	cp c
 	jr z, .asm_84be
 	ld a, [de]
-	and $0f
+	and $0f ; ones
 	or c
 	ld [de], a
 	ld a, c
 	swap a
 	ld c, $00
-	call Func_8530
+	call .Func_8530
 .asm_84be
 	inc b
 	ld a, [hl]
@@ -489,7 +489,7 @@ Func_84a7:
 	ld [de], a
 	ld a, c
 	ld c, $0b
-	call Func_8530
+	call .Func_8530
 .asm_84d4
 	inc b
 	dec hl
@@ -508,7 +508,7 @@ Func_84a7:
 	ld a, c
 	swap a
 	ld c, $00
-	call Func_8530
+	call .Func_8530
 .asm_84ee
 	inc b
 	ld a, [hl]
@@ -524,7 +524,7 @@ Func_84a7:
 	ld [de], a
 	ld a, c
 	ld c, $0b
-	call Func_8530
+	call .Func_8530
 .asm_8504
 	inc b
 	dec hl
@@ -543,7 +543,7 @@ Func_84a7:
 	ld a, c
 	swap a
 	ld c, $00
-	call Func_8530
+	call .Func_8530
 .asm_851e
 	inc b
 	ld a, [hl]
@@ -559,7 +559,7 @@ Func_84a7:
 	ld [de], a
 	ld a, c
 	ld c, $16
-Func_8530:
+.Func_8530:
 	push de
 	push hl
 	ld l, a
@@ -694,8 +694,8 @@ Func_8977:
 	jumptable
 	dw .Func_8986 ; $1
 	dw .Func_89a1 ; $2
-	dw $49ef ; $3
-	dw $4a52 ; $4
+	dw .Func_89ef ; $3
+	dw .Func_8a52 ; $4
 
 .Func_8986:
 	ld a, $80
@@ -705,7 +705,7 @@ Func_8977:
 	ld [wd8ea], a
 	ld [wd8e8], a
 	ld [wd8e9], a
-	ld [$d8e6], a
+	ld [wd8e6], a
 	ld a, $02
 	ld [wd8e5], a
 	ret
@@ -716,7 +716,7 @@ Func_8977:
 	jp nz, .asm_8a8b
 
 	; load tiles that are in the character set
-	ld a, [$d8e6]
+	ld a, [wd8e6]
 	ld c, a
 	ld hl, wCharacterSet
 	add_hl
@@ -756,7 +756,7 @@ Func_8977:
 	call SafeCopyFarTiles
 	ld a, $00
 	vramswitch
-	ld hl, $d8e6
+	ld hl, wd8e6
 	inc [hl]
 	ret
 
@@ -813,11 +813,12 @@ Func_8977:
 
 .asm_8a46
 	xor a
-	ld [$d8e6], a
+	ld [wd8e6], a
 	ld a, $04
 	ld [wd8e5], a
 	call .Func_8a7f
-	ld hl, $d8e6
+.Func_8a52:
+	ld hl, wd8e6
 	inc [hl]
 	ld a, [hl]
 	and $08
@@ -852,7 +853,7 @@ Func_8977:
 	ld b, $02
 .asm_8a8d
 	; load tiles that are in the character set
-	ld a, [$d8e6]
+	ld a, [wd8e6]
 	ld c, a
 	ld hl, wCharacterSet
 	add_hl
@@ -898,7 +899,7 @@ Func_8977:
 	call SafeCopyFarTiles
 	ld a, $00
 	vramswitch
-	ld hl, $d8e6
+	ld hl, wd8e6
 	inc [hl]
 	ret
 
@@ -943,7 +944,7 @@ Func_8977:
 	ld [hl], a
 	ret
 .asm_8b17
-	ld hl, $d8cc
+	ld hl, wd8cc
 	ld b, $14
 .asm_8b1c
 	ld a, [hld]
@@ -982,7 +983,7 @@ Func_8977:
 	ld hl, wd8b9
 	ld a, [wdc7c]
 	add_hl
-	ld de, $d785
+	ld de, wGfxBuffer + $14
 	ld a, [wdc7e]
 	call .Func_8b80
 	ld a, [wdc7a]

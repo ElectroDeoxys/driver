@@ -141,3 +141,7 @@ DEF CARFLAG_UNK7 EQU 1 << CARFLAG_UNK7_F
 	const PROP_D ; $d
 
 DEF NUM_CITY_PROPS EQU 8 ; how many props in stage
+
+; wTimerMode constants
+DEF TIMER_MODE_COUNT_DOWN EQU $1
+DEF TIMER_MODE_COUNT_UP   EQU $2

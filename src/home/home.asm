@@ -4367,9 +4367,9 @@ Func_1b4e:
 	ld b, $02
 	call SpawnEntity
 
-	ld a, [wCarPtr + 0]
+	ld a, [wPlayerCarPtr + 0]
 	ld e, a
-	ld a, [wCarPtr + 1]
+	ld a, [wPlayerCarPtr + 1]
 	ld d, a
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
@@ -4401,96 +4401,106 @@ Func_1b4e:
 	db MUSIC_LOS_ANGELES ; LOS_ANGELES
 	db MUSIC_NEW_YORK    ; NEW_YORK
 
-Func_1bd3::
+; sets timer to b minutes and c seconds
+; and timer mode given in a
+StartTimer::
 	push hl
-	ld [wd86f], a
-	ld a, $01
-	ld [wd86e], a
-	ld hl, wd871
+	ld [wTimerMode], a
+	ld a, TRUE
+	ld [wTimerActive], a
+	ld hl, wTimer
 	ld [hl], $00
 	inc hl
-	ld [hl], c
+	ld [hl], c ; seconds
 	inc hl
-	ld [hl], b
+	ld [hl], b ; minutes
 	pop hl
 	ret
 
-Func_1be7::
+UpdateTimer::
 	push hl
-	ld a, [wd86e]
+	ld a, [wTimerActive]
 	and a
-	jr z, .asm_1c00
-	ld a, [wd86f]
+	jr z, .done
+	ld a, [wTimerMode]
 	and a
-	jr z, .asm_1c00
-	cp $02
-	jr z, .asm_1bfd
-	call Func_1c02
-	jr .asm_1c00
-.asm_1bfd
-	call Func_1c28
-.asm_1c00
+	jr z, .done
+	cp TIMER_MODE_COUNT_UP
+	jr z, .tick_up
+; tick down
+	call .TickDownTimer
+	jr .done
+.tick_up
+	call .TickUpTimer
+.done
 	pop hl
 	ret
 
-Func_1c02:
-	ld hl, wd871
+.TickDownTimer:
+	; subtract 3 from hundredth of seconds
+	ld hl, wTimer
 	ld a, [hl]
-	sub $03
+	sub $3
 	daa
 	ld [hl], a
 	ret nc
+	; hundredths are zero, are we still counting down?
 	inc hl
-	ld a, [hli]
-	or [hl]
-	jr nz, .asm_1c18
+	ld a, [hli] ; seconds
+	or [hl] ; minutes
+	jr nz, .decrement_minute
 	xor a
-	ld [wd871], a
-	ld [wd86e], a
+	ld [wTimer], a ; hundredths
+	ld [wTimerActive], a
 	ret
-.asm_1c18
-	ld hl, wd872
-	ld a, [hl]
+.decrement_minute
+	ld hl, wTimer + $1
+	ld a, [hl] ; minutes
 	and a
-	jr nz, .asm_1c23
+	jr nz, .decrement
+	; roll back to 59 seconds
 	ld [hl], $59
 	inc hl
 	ld a, [hl]
-.asm_1c23
-	sub $01
+.decrement
+	; decrement second/minute
+	sub $1
 	daa
 	ld [hl], a
 	ret
 
-Func_1c28:
-	ld hl, wd871
+.TickUpTimer:
+	; add 3 to hundredth of seconds
+	ld hl, wTimer
 	ld a, [hl]
-	add $03
+	add $3
 	daa
 	ld [hl], a
 	ret nc
+	; hundredths overflow, increment minute
 	inc hl
 	ld a, [hli]
 	cp $59
-	jr nz, .asm_1c46
+	jr nz, .not_at_max
 	ld a, [hl]
 	cp $59
-	jr nz, .asm_1c46
+	jr nz, .not_at_max
+	; at maximum time, keep hundredths of seconds at 99
 	ld a, $99
-	ld [wd871], a
+	ld [wTimer], a
 	xor a
-	ld [wd86e], a
+	ld [wTimerActive], a
 	ret
-.asm_1c46
-	ld hl, wd872
-	ld a, [hl]
+.not_at_max
+	ld hl, wTimer + $1
+	ld a, [hl] ; seconds
 	cp $59
-	jr nz, .asm_1c52
+	jr nz, .increment
 	ld [hl], $00
 	inc hl
 	ld a, [hl]
-.asm_1c52
-	add $01
+.increment
+	add $1
 	daa
 	ld [hl], a
 	ret
