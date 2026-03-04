@@ -72,3 +72,14 @@ MACRO? call_hl
 	jp hl
 :
 ENDM
+
+MACRO? maskbits
+; masks just enough bits to cover values 0 to \1 - 1
+; \2 is an optional shift amount
+	ASSERT 0 < (\1) && (\1) <= $100, "bitmask must be 8-bit"
+	DEF x = (1 << BITWIDTH((\1) - 1)) - 1
+	IF _NARG == 2
+		DEF x <<= \2
+	ENDC
+	and x
+ENDM

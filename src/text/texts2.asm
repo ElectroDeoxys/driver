@@ -44,58 +44,58 @@ YesNoTextES:
 YesNoTextEN:
 	db "YES / NO\0"
 
-Texts_f4099:
-	dw TextEN_f4099
-	dw TextFR_f4099
-	dw TextDE_f4099
-	dw TextIT_f4099
-	dw TextES_f4099
+SweetDrivinLAHereWeComeTexts::
+	dw SweetDrivinLAHereWeComeTextEN
+	dw SweetDrivinLAHereWeComeTextFR
+	dw SweetDrivinLAHereWeComeTextDE
+	dw SweetDrivinLAHereWeComeTextIT
+	dw SweetDrivinLAHereWeComeTextES
 
-TextFR_f4099:
+SweetDrivinLAHereWeComeTextFR:
 	db "L.A. NOUS VOIL<BIG_À>!\0"
-TextDE_f4099:
+SweetDrivinLAHereWeComeTextDE:
 	db "COOL! L.A., WIR KOMMEN.\0"
-TextIT_f4099:
+SweetDrivinLAHereWeComeTextIT:
 	db "FANTASTICO! L.A., ARRIVIAMO!\0"
-TextES_f4099:
+SweetDrivinLAHereWeComeTextES:
 	db "FEL<BIG_Í>Z VIAJE, L.A. AQUI ESTAMOS.\0"
-TextEN_f4099:
+SweetDrivinLAHereWeComeTextEN:
 	db " SWEET DRIVIN'. L.A. HERE WE COME!\0"
 
-Texts_f412c:
-	dw TextEN_f412c
-	dw TextFR_f412c
-	dw TextDE_f412c
-	dw TextIT_f412c
-	dw TextES_f412c
+TheBigAppleWannHaveSomeRealFunTexts::
+	dw TheBigAppleWannHaveSomeRealFunTextEN
+	dw TheBigAppleWannHaveSomeRealFunTextFR
+	dw TheBigAppleWannHaveSomeRealFunTextDE
+	dw TheBigAppleWannHaveSomeRealFunTextIT
+	dw TheBigAppleWannHaveSomeRealFunTextES
 
-TextFR_f412c:
+TheBigAppleWannHaveSomeRealFunTextFR:
 	db "LA BIG APPLE, TU VEUX T'AMUSER?\0"
-TextDE_f412c:
+TheBigAppleWannHaveSomeRealFunTextDE:
 	db "THE BIG APPLE. NUN GEHT'S LOS...\0"
-TextIT_f412c:
+TheBigAppleWannHaveSomeRealFunTextIT:
 	db "LA GRANDE MELA, VUOI DIVERTIRTI DAVVERO?\0"
-TextES_f412c:
+TheBigAppleWannHaveSomeRealFunTextES:
 	db "NUEVA YORK S<BIG_Í> QUIERES DIVVERTIRSE.\0"
-TextEN_f412c:
+TheBigAppleWannHaveSomeRealFunTextEN:
 	db "THE BIG APPLE, WANNAHAVE SOME REAL FUN?\0"
 
-Texts_f41eb:
-	dw TextEN_f41eb
-	dw TextFR_f41eb
-	dw TextDE_f41eb
-	dw TextIT_f41eb
-	dw TextES_f41eb
+GoodWorkYouGotWheelsOfGoldTexts::
+	dw GoodWorkYouGotWheelsOfGoldTextEN
+	dw GoodWorkYouGotWheelsOfGoldTextFR
+	dw GoodWorkYouGotWheelsOfGoldTextDE
+	dw GoodWorkYouGotWheelsOfGoldTextIT
+	dw GoodWorkYouGotWheelsOfGoldTextES
 
-TextFR_f41eb:
+GoodWorkYouGotWheelsOfGoldTextFR:
 	db "BON TRAVAIL, T'AS DES ROUES EN OR.\0"
-TextDE_f41eb:
+GoodWorkYouGotWheelsOfGoldTextDE:
 	db "SUPER! DU BIST EINFACH DER BESTE.\0"
-TextIT_f41eb:
+GoodWorkYouGotWheelsOfGoldTextIT:
 	db "BEN FATTO, HAI VINTO LA RUOTA D'ORO.\0"
-TextES_f41eb:
+GoodWorkYouGotWheelsOfGoldTextES:
 	db "BIEN HECHO, TIENES RUEDAS DE ORO.\0"
-TextEN_f41eb:
+GoodWorkYouGotWheelsOfGoldTextEN:
 	db "GOOD WORK, YOU GOT WHEELS OF GOLD.\0"
 
 Texts_f42a4:
@@ -825,40 +825,40 @@ ContinueGameTextES:
 ContinueGameTextEN:	
 	db "CONTINUE GAME\0"
 
-Texts_f4ee2:
-	dw TextEN_f4ee2
-	dw TextFR_f4ee2
-	dw TextDE_f4ee2
-	dw TextIT_f4ee2
-	dw TextES_f4ee2
+EnterCodeTexts::
+	dw EnterCodeTextEN
+	dw EnterCodeTextFR
+	dw EnterCodeTextDE
+	dw EnterCodeTextIT
+	dw EnterCodeTextES
 
-TextFR_f4ee2:
+EnterCodeTextFR:
 	db "ENTRER CODE\0"
-TextDE_f4ee2:
+EnterCodeTextDE:
 	db "CODE EINGEBEN\0"
-TextIT_f4ee2:
+EnterCodeTextIT:
 	db "INSERISCI IL CODICE\0"
-TextES_f4ee2:
+EnterCodeTextES:
 	db "INTRODUCE C<BIG_Ó>DIGO\0"
-TextEN_f4ee2:
+EnterCodeTextEN:
 	db "ENTER CODE\0"
 
-Texts_f4f36:
-	dw TextEN_f4f36
-	dw TextFR_f4f36
-	dw TextDE_f4f36
-	dw TextIT_f4f36
-	dw TextES_f4f36
+InvalidCodeTexts::
+	dw InvalidCodeTextEN
+	dw InvalidCodeTextFR
+	dw InvalidCodeTextDE
+	dw InvalidCodeTextIT
+	dw InvalidCodeTextES
 
-TextFR_f4f36:
+InvalidCodeTextFR:
 	db "CODE INVALIDE\0"
-TextDE_f4f36:
+InvalidCodeTextDE:
 	db "CODE UNGiLTIG\0"
-TextIT_f4f36:
+InvalidCodeTextIT:
 	db "CODICE ERRATO\0"
-TextES_f4f36:
+InvalidCodeTextES:
 	db "CODIGO INV<BIG_Á>LIDO\0"
-TextEN_f4f36:
+InvalidCodeTextEN:
 	db "INVALID CODE\0"
 
 NewGameTexts::

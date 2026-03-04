@@ -47,3 +47,4 @@ DEF GOTO_MAIN_MENU EQU $2
 	const BLUE_SIREN    ; $5
 	const CONE          ; $6
 	const TRAFFIC_LIGHT ; $7
+DEF NUM_MISSION_CODE_SYMBOLS EQU const_value

@@ -4,6 +4,16 @@
 	const LOS_ANGELES ; $1
 	const NEW_YORK    ; $2
 
+; wGameMode constants
+	const_def
+	const MODE_TAKE_A_RIDE ; $0
+	const MODE_UNK1        ; $1
+	const MODE_UNK2        ; $2
+	const MODE_UNK3        ; $3
+	const MODE_UNK4        ; $4
+	const MODE_UNDERCOVER  ; $5
+	const MODE_CREDITS     ; $6
+
 ; mission constants
 	const_def
 DEF MIAMI_MISSIONS EQU const_value
@@ -25,16 +35,6 @@ DEF NEW_YORK_MISSIONS EQU const_value
 	const MISSION_CHASE_ONE_OF_GRANGERS_BOYS ; $d
 	const MISSION_CROSS_TOWN_RECORD          ; $e
 DEF NUM_MISSIONS EQU const_value
-
-; wGameMode constants
-	const_def
-	const MODE_TAKE_A_RIDE ; $0
-	const MODE_UNK1        ; $1
-	const MODE_UNK2        ; $2
-	const MODE_UNK3        ; $3
-	const MODE_UNK4        ; $4
-	const MODE_UNDERCOVER  ; $5
-	const MODE_CREDITS     ; $6
 
 ; car constants
 	const_def

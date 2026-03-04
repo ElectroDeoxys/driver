@@ -96,7 +96,7 @@ wc57a:: db ; c57a
 UNION
 wCGBPals::
 wBGPals:: ds 8 palettes ; c57d
-wOBPals:: ds 8 palettes ; c58d
+wOBPals:: ds 8 palettes ; c5bd
 NEXTU
 wDMGPals::
 wBGP::  db ; c57d
@@ -302,7 +302,7 @@ wd83a:: db ; d83a
 
 wd83b:: db ; d83b
 
-	ds $d83d - $d83c
+wd83c:: db ; d83c
 
 wd83d:: db ; d83d
 
@@ -350,7 +350,7 @@ wd86b:: db ; d86b
 
 wd86c:: db ; d86c
 
-	ds $d86e - $d86d
+wd86d:: db ; d86d
 
 wTimerActive:: db ; d86e
 wTimerMode::   db ; d86f
@@ -391,7 +391,7 @@ wd896:: db ; d896
 
 wd897:: db ; d897
 
-	ds $d899 - $d898
+wd898:: db ; d898
 
 ; holds set of characters of a given text
 wCharacterSet:: ; d899
@@ -644,9 +644,8 @@ wdc32:: db ; dc32
 
 wdc33:: db ; dc33
 
-wMissionCode:: db ; dc34
-
-	ds $dc38 - $dc35
+wMissionCode:: ; dc34
+	ds $4
 
 wMission:: db ; dc38
 
@@ -683,7 +682,11 @@ wdc86:: db ; dc86
 
 wdc88:: db ; dc88
 
-	ds $dc8e - $dc89
+	ds $dc8c - $dc89
+
+wdc8c:: db ; dc8c
+
+wdc8d:: db ; dc8d
 
 wdc8e:: db ; dc8e
 
@@ -701,7 +704,9 @@ wdc94:: db ; dc94
 
 wdc95:: db ; dc95
 
-	ds $dcb6 - $dc96
+	ds $dcb5 - $dc96
+
+wdcb5:: db ; dcb5
 
 wTextBuffer:: db ; dcb6
 

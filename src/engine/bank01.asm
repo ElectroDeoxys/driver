@@ -2314,7 +2314,7 @@ Func_5e97::
 	ld a, [wda76]
 	cp $01
 	jr nz, .asm_5f21
-	ld a, [$d83c]
+	ld a, [wd83c]
 	and a
 	jr nz, .asm_5f21
 	ld a, [wda82]
@@ -2366,7 +2366,7 @@ Func_5e97::
 
 Func_5f27::
 	xor a
-	ld [$d83c], a
+	ld [wd83c], a
 
 	ld a, [wGameMode]
 	cp MODE_UNDERCOVER
@@ -2407,7 +2407,7 @@ Func_5f27::
 
 .Func_5f73:
 	xor a
-	ld [$d83c], a
+	ld [wd83c], a
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -2539,7 +2539,7 @@ Func_5f27::
 	ret
 .asm_604b
 	ld a, $01
-	ld [$d83c], a
+	ld [wd83c], a
 	call Func_2dd5
 	ld a, [wc57a]
 	rrca
@@ -5553,7 +5553,7 @@ Func_7793:
 	xor a
 	ld [wd86c], a
 	inc a
-	ld [$d86d], a
+	ld [wd86d], a
 	jr .asm_77bc
 
 .Func_77f9:
@@ -5736,9 +5736,9 @@ Func_78b3:
 	ld d, a
 	call Func_275f
 	ld a, c
-	ld [$dc8c], a
+	ld [wdc8c], a
 	ld a, b
-	ld [$dc8d], a
+	ld [wdc8d], a
 	ld hl, $160
 	ld a, h
 	cp b

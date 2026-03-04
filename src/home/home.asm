@@ -2152,7 +2152,7 @@ Func_de7:
 	ld a, c
 	ret
 
-FlushCGBPalettes:
+FlushCGBPalettes::
 	ld hl, wCGBPals
 	; hl = wBGPals
 	ld a, BGPI_AUTOINC
@@ -3730,7 +3730,7 @@ Func_15bb:
 	jp z, .main_menu
 	jp .titlescreen
 
-Func_1692:
+Func_1692::
 	ld a, [wMission]
 	cp LOS_ANGELES_MISSIONS
 	ret c
@@ -4131,20 +4131,20 @@ Func_1987::
 Func_198f:
 	ld a, [wGameMode]
 	jumptable
-	dw .Func_19a9 ; MODE_TAKE_A_RIDE
+	dw .TakeARide  ; MODE_TAKE_A_RIDE
 	dw .Func_19ab ; MODE_UNK1
 	dw .Func_19ab ; MODE_UNK2
 	dw .Func_19ab ; MODE_UNK3
 	dw .Func_19ab ; MODE_UNK4
-	dw .Func_19d2 ; MODE_UNDERCOVER
-	dw .Func_19a1 ; MODE_CREDITS
+	dw .Undercover ; MODE_UNDERCOVER
+	dw .Credits    ; MODE_CREDITS
 
-.Func_19a1:
-	ld a, [$dcb5]
+.Credits:
+	ld a, [wdcb5]
 	and a
 	jr z, .asm_1a0f
 	jr .asm_1a0c
-.Func_19a9:
+.TakeARide:
 	jr .asm_1a0c
 .Func_19ab:
 	ld a, [wTitlescreenTransition]
@@ -4162,12 +4162,12 @@ Func_198f:
 	ld [hl], a
 .asm_19c0
 	homecall Func_8f78
-	ld a, [$d898]
+	ld a, [wd898]
 	and a
 	jr z, .asm_1a0c
 	jr .asm_1a0a
 
-.Func_19d2:
+.Undercover:
 	ld a, [wTitlescreenTransition]
 	cp $02
 	jr nz, .asm_19c0
@@ -4175,9 +4175,9 @@ Func_198f:
 	ld hl, wMission
 	ld a, [hl]
 	inc a
-	cp $0f
+	cp NUM_MISSIONS
 	jr c, .asm_19e9
-	ld [hl], $0e
+	ld [hl], NUM_MISSIONS - 1
 	jr .asm_1a0f
 .asm_19e9
 	ld [hl], a

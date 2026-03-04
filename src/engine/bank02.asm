@@ -624,10 +624,10 @@ Func_88b1:
 	ld bc, $14
 	call FillMemory
 	ld de, wGfxBuffer
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call .Func_88e0
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -751,10 +751,10 @@ Func_8977:
 	pop hl
 	ld c, $34
 	ld b, 2 ; tiles
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld hl, wd8e6
 	inc [hl]
@@ -763,10 +763,10 @@ Func_8977:
 .Func_89ef:
 	ld a, $0f
 	call .Func_8a76
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call .Func_8a7f
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld a, $80
 	call .Func_8a76
@@ -894,10 +894,10 @@ Func_8977:
 	pop hl
 	ld c, $34
 	ld b, 1 ; tile
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld hl, wd8e6
 	inc [hl]
@@ -1405,7 +1405,7 @@ Func_8f78::
 	ld a, MUSIC_BRIEFING
 	call PlayMusic
 	xor a
-	ld [$d898], a
+	ld [wd898], a
 	call Func_8ddb
 	ld de, Gfx_dbf00
 	ld c, BANK(Gfx_dbf00)
@@ -1819,18 +1819,18 @@ Func_92b5::
 	ld [hl], d
 	xor a
 	ld [wd54d], a
-	ld hl, $5317
+	ld hl, Pals_9317
 	ld de, wTempBGPals palette 7
 	ld b, 1 palettes
 	call CopyHLtoDE
 	ld bc, $f00
 	call Func_945c
 	ld a, [wCity]
-	ld hl, $531f
+	ld hl, Texts_931f
 	get_pointer
 	call ProcessTitleText
-	ld hl, $5305
-	ld c, $02
+	ld hl, Func_9305
+	ld c, BANK(Func_9305)
 	ld b, $14
 	call SpawnEntity
 	ld a, $03
@@ -1838,7 +1838,28 @@ Func_92b5::
 	ld a, MUSIC_BRIEFING
 	call PlayMusic
 	jp Func_94d8
-; 0x9305
+
+Func_9305:
+	call YieldEntityUpdateUntilFadeEnds
+.loop
+	ld a, [wJoypadPressed]
+	and PAD_A | PAD_START
+	jp nz, ExitTitlescreenOrMainScreen
+	ld a, 1
+	call YieldEntityUpdate
+	jr .loop
+
+Pals_9317:
+	rgb  0,  0,  0
+	rgb 31, 24,  0
+	rgb 24, 18,  1
+	rgb 16, 12,  2
+
+Texts_931f:
+	dw SweetDrivinLAHereWeComeTexts        ; MIAMI
+	dw TheBigAppleWannHaveSomeRealFunTexts ; LOS_ANGELES
+	dw GoodWorkYouGotWheelsOfGoldTexts     ; NEW_YORK
+; 0x9325
 
 SECTION "Func_935e", ROMX[$535e], BANK[$2]
 
@@ -1998,11 +2019,11 @@ Func_9434:
 	push bc
 	call .Func_944b
 	pop bc
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld a, b
 	call .Func_944b
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -2046,9 +2067,6 @@ Func_9473:
 	hlbgcoord 0, 15
 	ld b, 17 ; rows
 	jp Func_94ac
-; 0x9484
-
-SECTION "FillBGMap1", ROMX[$5484], BANK[$2]
 
 ; fills v0BGMap1 with c
 ; and   v1BGMap1 with b
@@ -2107,9 +2125,6 @@ Func_94c1:
 	call ClearMemory
 	ld a, $03
 	jp InitFade
-; 0x94d8
-
-SECTION "Func_94d8", ROMX[$54d8], BANK[$2]
 
 Func_94d8:
 	xor a
@@ -3705,9 +3720,298 @@ Func_9dce:
 	add $08
 	ld [wdbfe], a
 	ret
-; 0x9e6c
 
-SECTION "Func_a096", ROMX[$6096], BANK[$2]
+Func_9e6c:
+	push af
+	push hl
+	ld a, SFX_06
+	call PlaySFX
+	xor a
+	ld [wdbfa], a
+	ld hl, EmptyTexts
+	call ProcessTitleText
+	ld a, $04
+	call YieldEntityUpdate
+	ld bc, $c00
+	call FillBGMap1
+	ld a, $02
+	ld de, Func_9c91
+	ld hl, wd54e
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld de, Func_9a2c
+	ld hl, wMenuUpdateFunc
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	call Func_9962
+	ld a, $01
+	ld [wdbfa], a
+	pop af
+	ld [wMainMenuEntry], a
+	ld de, Func_9dce
+	ld a, $02
+	jp Func_157f
+
+Func_9eb2:
+	xor a
+	ld [wdbfa], a
+	ld hl, EmptyTexts
+	call ProcessTitleText
+	ld a, $04
+	call YieldEntityUpdate
+	lb bc, $c, $00
+	call FillBGMap1
+
+	xor a
+	call .Func_a01e
+	ld a, BANK("VRAM1")
+	vramswitch
+	ld a, $0d
+	call .Func_a01e
+	ld a, BANK("VRAM0")
+	vramswitch
+
+	call .Func_a03d
+	call Func_a096
+	ld hl, Pals_da3a0
+	ld c, BANK(Pals_da3a0)
+	ld b, 5 palettes
+	ld de, wOBPals palette 3
+	call FarCopy
+	call FlushCGBPalettes
+	ld de, $611c
+	ld hl, wMenuUpdateFunc
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld a, $02
+	ld de, $60a3
+	ld hl, wd54e
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld a, [wMission]
+	and a
+	jr nz, .asm_9f15
+	ld hl, EnterCodeTexts
+	call ProcessTitleText
+	jr .asm_9f18
+.asm_9f15
+	call .Func_a08c
+.asm_9f18
+	call LoadMissionCode
+	ld a, [wMission]
+	and a
+	ld a, $01
+	jr z, .asm_9f25
+	ld a, $05
+.asm_9f25
+	ld [wMainMenuEntry], a
+	ld a, $01
+	ld [$dc2c], a
+	ld a, $01
+	ld [wdbfa], a
+.asm_9f32
+	ld a, $01
+	ld [wdc2f], a
+	ld a, $01
+	call YieldEntityUpdate
+	xor a
+	ld [wdc2f], a
+	ld a, [wJoypadPressed]
+	and PAD_LEFT
+	call nz, .MoveLeft
+	ld a, [wJoypadPressed]
+	and PAD_RIGHT
+	call nz, .MoveRight
+	ld a, [wJoypadPressed]
+	and PAD_UP | PAD_DOWN
+	call nz, .ChangeSymbol
+	ld a, [wJoypadPressed]
+	and PAD_A | PAD_START
+	call nz, .ABtnOrStart
+	ld a, [wJoypadPressed]
+	and PAD_B
+	jr nz, .go_back
+	jr .asm_9f32
+
+.ABtnOrStart:
+	ld a, [wMainMenuEntry]
+	and a
+	jr z, .go_back
+	cp $05
+	ret nz
+	call CheckInputMissionCode
+	jr c, .valid_code
+; invalid code
+	ld a, SFX_20
+	call PlaySFX
+	xor a
+	ld [$dc2c], a
+	ld b, $03
+.asm_9f82
+	push bc
+	ld hl, InvalidCodeTexts
+	call ProcessTitleText
+	ld a, $04
+	call YieldEntityUpdate
+	ld hl, EmptyTexts
+	call ProcessTitleText
+	ld a, $04
+	call YieldEntityUpdate
+	pop bc
+	dec b
+	jr nz, .asm_9f82
+	ld a, $01
+	ld [$dc2c], a
+	ld hl, EnterCodeTexts
+	jp ProcessTitleText
+
+.valid_code
+	ld a, SFX_2C
+	call PlaySFX
+	ld a, c
+	ld [wMission], a
+	call Func_1692
+	ld a, MODE_UNDERCOVER
+	ld [wGameMode], a
+	xor a
+	ld [$dc2c], a
+	ld b, $05
+.asm_9fbf
+	push bc
+	call .Func_a08c
+	ld a, $04
+	call YieldEntityUpdate
+	ld hl, EmptyTexts
+	call ProcessTitleText
+	ld a, $04
+	call YieldEntityUpdate
+	pop bc
+	dec b
+	jr nz, .asm_9fbf
+	call .Func_a08c
+	jp ExitTitlescreenOrMainScreen
+
+.go_back
+	ld hl, Data_a622
+	ld a, $01
+	jp Func_9e6c
+
+.ChangeSymbol:
+	ld c, a
+	ld a, [wMainMenuEntry]
+	and a
+	ret z
+	cp $05
+	ret z
+	dec a
+	ld hl, wMissionCode
+	add_hl
+	ld a, c
+	and $40
+	jr nz, .asm_9fff
+	ld a, [hl]
+	inc a
+	maskbits NUM_MISSION_CODE_SYMBOLS
+	ld [hl], a
+	jr .asm_a019
+.asm_9fff
+	ld a, [hl]
+	dec a
+	maskbits NUM_MISSION_CODE_SYMBOLS
+	ld [hl], a
+	jr .asm_a019
+
+.MoveLeft:
+	ld hl, wMainMenuEntry
+	ld a, [hl]
+	and a
+	ret z
+	dec [hl]
+	jr .asm_a019
+
+.MoveRight:
+	ld hl, wMainMenuEntry
+	ld a, [hl]
+	cp $05
+	ret z
+	inc [hl]
+	jr .asm_a019 ; useless jump
+
+.asm_a019
+	ld a, SFX_05
+	jp PlaySFX
+
+.Func_a01e:
+	ld hl, wGfxBuffer
+	ld bc, $4
+	call FillMemory
+	hlbgcoord 3, 0, v0BGMap1
+	ld b, $04
+.asm_a02c
+	push bc
+	push hl
+	ld de, wGfxBuffer
+	call .Func_a086
+	pop hl
+	pop bc
+	inc hl
+	inc hl
+	inc hl
+	dec b
+	jr nz, .asm_a02c
+	ret
+
+.Func_a03d:
+	ld de, .Data_a07e
+	hlbgcoord 0, 0, v0BGMap1
+	call .Func_a086
+	ld a, $01
+	vramswitch
+	ld de, .Data_a082
+	hlbgcoord 0, 0, v0BGMap1
+	call .Func_a086
+	ld a, $00
+	vramswitch
+	ld de, .Data_a07a
+	hlbgcoord 15, 0, v0BGMap1
+	call .Func_a086
+	ld a, $01
+	vramswitch
+	ld de, .Data_a082
+	hlbgcoord 15, 0, v0BGMap1
+	call .Func_a086
+	ld a, $00
+	vramswitch
+	ret
+
+.Data_a07a:
+	db $a4, $a6
+	db $a5, $a7
+
+.Data_a07e:
+	db $a0, $a2
+	db $a1, $a3
+
+.Data_a082:
+	db $04, $04
+	db $04, $04
+
+.Func_a086:
+	lb bc, $2, $2
+	jp CopyBGMapBox
+
+.Func_a08c:
+	ld a, [wMission]
+	ld hl, $66ae
+	get_pointer
+	jp ProcessTitleText
 
 Func_a096:
 	ld hl, Gfx_da0e0
@@ -3796,9 +4100,43 @@ LoadMissionCode:
 	dec b
 	jr nz, .loop_copy
 	ret
-; 0xa161
 
-SECTION "MissionCodes", ROMX[$6189], BANK[$2]
+; checks if wMissionCode matches any of the entries in MissionCodes
+; if yes, then output carry set and mission ID in c
+; else, return nc
+CheckInputMissionCode:
+	ld b, NUM_MISSIONS
+	ld c, MISSION_THE_BANK_JOB
+	ld hl, MissionCodes
+.loop_codes
+	push bc
+	push hl
+	ld de, wMissionCode
+	ld b, $04
+.loop_symbols
+	ld a, [de]
+	cp [hl]
+	jr nz, .different
+	inc hl
+	inc de
+	dec b
+	jr nz, .loop_symbols
+	scf
+	jr .found
+.different
+	and a
+.found
+	pop hl
+	pop bc
+	jr c, .done
+	inc c
+	ld a, $04
+	add_hl
+	dec b
+	jr nz, .loop_codes
+	and a
+.done
+	ret
 
 MissionCodes:
 	db FACE,          FACE,       FACE,          FACE          ; MISSION_THE_BANK_JOB
@@ -3924,8 +4262,8 @@ SECTION "Func_a56c", ROMX[$656c], BANK[$2]
 Func_a56c:
 	call Func_a3cc
 	; being here means A or Start was pressed
-	ld de, $5eb2
-	ld a, $02
+	ld de, Func_9eb2
+	ld a, BANK(Func_9eb2)
 	jp Func_157f
 
 Func_a577:
