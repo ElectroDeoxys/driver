@@ -381,3 +381,7 @@ Pals_da3a0::
 	rgb  0, 11, 31
 	rgb 25, 25, 25
 ; 0xda3c8
+
+SECTION "Gfx_dbf00", ROMX[$7f00], BANK[$36]
+Gfx_dbf00:: INCBIN "gfx/gfx_dbf00.2bpp"
+; 0xbf20

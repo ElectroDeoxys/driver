@@ -3,7 +3,7 @@
 	const MUSIC_MAIN_MENU        ; $2
 	const MUSIC_BRIEFING         ; $3
 	const MUSIC_MIAMI            ; $4
-	const MUSIC_MISSION_SUCCESS ; $5
+	const MUSIC_MISSION_COMPLETE ; $5
 	const MUSIC_LOS_ANGELES      ; $6
 	const MUSIC_NEW_YORK         ; $7
 	const MUSIC_MISSION_FAILED   ; $8

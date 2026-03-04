@@ -314,50 +314,50 @@ Func_8220:
 	jp CopyBGMapBox
 
 Func_8273:
-	ld hl, wd868
+	ld hl, wDamage
 	call Func_82c7
 	ret z
 	ld hl, wd841
-	ld b, $07
-.asm_827f
-	sub $08
-	jr c, .asm_8287
-	ld [hl], $8a
-	jr .asm_828d
-.asm_8287
-	add $08
+	ld b, 7 ; bar length
+.loop
+	sub 8
+	jr c, .convert_to_tile
+	ld [hl], $8a ; full bar
+	jr .next
+.convert_to_tile
+	add 8
 	add $82
 	ld [hl], a
 	xor a
-.asm_828d
+.next
 	inc hl
 	dec b
-	jr nz, .asm_827f
+	jr nz, .loop
 	hlbgcoord 1, 16, v0BGMap1
 	ld de, wd841
 	lb bc, 1, 7
 	jp CopyBGMapBox
 
 Func_829d:
-	ld hl, wd86a
+	ld hl, wFelony
 	call Func_82c7
 	ret z
 	ld hl, wd852
-	ld b, $07
-.asm_82a9
-	sub $08
-	jr c, .asm_82b1
-	ld [hl], $8a
-	jr .asm_82b7
-.asm_82b1
-	add $08
+	ld b, 7 ; bar length
+.loop
+	sub 8
+	jr c, .convert_to_tile
+	ld [hl], $8a ; full bar
+	jr .next
+.convert_to_tile
+	add 8
 	add $82
 	ld [hl], a
 	xor a
-.asm_82b7
+.next
 	dec hl
 	dec b
-	jr nz, .asm_82a9
+	jr nz, .loop
 	hlbgcoord 12, 16, v0BGMap1
 	ld de, wd84c
 	lb bc, 1, 7
@@ -374,12 +374,12 @@ Func_82c7:
 	dec [hl]
 .asm_82d0
 	ld a, [hl]
-	cp $39
+	cp MAX_DAMAGE + 1
 	jr c, .asm_82d7
-	ld [hl], $38
+	ld [hl], MAX_DAMAGE
 .asm_82d7
 	xor a
-	dec a
+	dec a ; no z
 	ld a, [hl]
 	ret
 
@@ -1399,6 +1399,61 @@ Func_8ddb:
 	ret
 ; 0x8def
 
+SECTION "Func_8f78", ROMX[$4f78], BANK[$2]
+
+Func_8f78::
+	ld a, MUSIC_BRIEFING
+	call PlayMusic
+	xor a
+	ld [$d898], a
+	call Func_8ddb
+	ld de, Gfx_dbf00
+	ld c, BANK(Gfx_dbf00)
+	ld b, V0TILES_8000
+	ld a, 2 ; tiles
+	call PushTilesToVRAM
+	ld de, $5030
+	ld hl, wMenuUpdateFunc
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld a, $01
+	ld [wd54d], a
+	xor a
+	ld [wd54c], a
+	ld a, $02
+	ld de, $505c
+	ld hl, wd54e
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld hl, $509a
+	ld de, wTempDMGPals
+	ld b, $08
+	call CopyHLtoDE
+	ld hl, $50a2
+	ld de, wTempOBPals
+	ld b, $08
+	call CopyHLtoDE
+	ld bc, $800
+	call Func_9434
+	ld hl, TryAgainTexts
+	call ProcessTitleText
+	ld a, [wdc20]
+	xor $01
+	ld [wdc20], a
+	ld hl, YesNoTexts
+	call ProcessTitleText
+	ld hl, $4ff0
+	ld c, $02
+	ld b, $18
+	call SpawnEntity
+	ld a, $03
+	call InitFade
+	jp Func_94d8
+; 0x8ff0
+
 SECTION "Func_90aa", ROMX[$50aa], BANK[$2]
 
 Func_90aa::
@@ -1748,7 +1803,42 @@ Pals_92ad:
 	rgb 31, 31, 31
 	rgb 24, 24, 24
 	rgb 16, 16, 16
-; 0x92b5
+
+Func_92b5::
+	ld a, c
+	ld [wCity], a
+	call Func_8ddb
+	ld hl, $5325
+	ld a, [wCity]
+	get_pointer
+	call Func_935e
+	ld de, Func_9879
+	ld hl, wMenuUpdateFunc
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	xor a
+	ld [wd54d], a
+	ld hl, $5317
+	ld de, wTempBGPals palette 7
+	ld b, 1 palettes
+	call CopyHLtoDE
+	ld bc, $f00
+	call Func_945c
+	ld a, [wCity]
+	ld hl, $531f
+	get_pointer
+	call ProcessTitleText
+	ld hl, $5305
+	ld c, $02
+	ld b, $14
+	call SpawnEntity
+	ld a, $03
+	call InitFade
+	ld a, MUSIC_BRIEFING
+	call PlayMusic
+	jp Func_94d8
+; 0x9305
 
 SECTION "Func_935e", ROMX[$535e], BANK[$2]
 
@@ -1902,7 +1992,31 @@ Func_93f4:
 	dec a
 	jr nz, .loop_rows
 	ret
-; 0x9434
+
+Func_9434:
+	ld a, c
+	push bc
+	call .Func_944b
+	pop bc
+	ld a, $01
+	vramswitch
+	ld a, b
+	call .Func_944b
+	ld a, $00
+	vramswitch
+	ret
+
+.Func_944b:
+	ld hl, wGfxBuffer
+	ld b, $20
+.loop
+	ld [hli], a
+	dec b
+	jr nz, .loop
+	ld hl, v0BGMap0
+	ld b, $20
+	jp Func_94ac
+; 0x945c
 
 SECTION "Func_945c", ROMX[$545c], BANK[$2]
 

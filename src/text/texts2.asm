@@ -1213,22 +1213,22 @@ TextES_f53c2:
 TextEN_f53c2:
 	db "WELL DONE!\0"
 
-Texts_f5406:
-	dw TextEN_f5406
-	dw TextFR_f5406
-	dw TextDE_f5406
-	dw TextIT_f5406
-	dw TextES_f5406
+YouWreckedYourCarTexts::
+	dw YouWreckedYourCarTextEN
+	dw YouWreckedYourCarTextFR
+	dw YouWreckedYourCarTextDE
+	dw YouWreckedYourCarTextIT
+	dw YouWreckedYourCarTextES
 
-TextEN_f5406:
+YouWreckedYourCarTextEN:
 	db "YOU WRECKED YOUR CAR\0"
-TextFR_f5406:
+YouWreckedYourCarTextFR:
 	db "T'AS D<BIG_É>TRUIT SA CAISSE\0"
-TextDE_f5406:
+YouWreckedYourCarTextDE:
 	db "DU HAST DEN WAGEN GESCHROTTET\0"
-TextIT_f5406:
+YouWreckedYourCarTextIT:
 	db "HAI SFASCIATO LA MACCHINA\0"
-TextES_f5406:
+YouWreckedYourCarTextES:
 	db "¡EL COCHE EST<BIG_Á> HECHO POLVO!\0"
 
 RamHimTexts::
@@ -1483,22 +1483,22 @@ TakeThisPuppyHomeTextES:
 TakeThisPuppyHomeTextEN:
 	db "TAKE THIS PUPPY HOME\0"
 
-Texts_f5ab9:
-	dw TextEN_f5ab9
-	dw TextFR_f5ab9
-	dw TextDE_f5ab9
-	dw TextIT_f5ab9
-	dw TextES_f5ab9
+YouDamagedTheCarTexts::
+	dw YouDamagedTheCarTextEN
+	dw YouDamagedTheCarTextFR
+	dw YouDamagedTheCarTextDE
+	dw YouDamagedTheCarTextIT
+	dw YouDamagedTheCarTextES
 
-TextEN_f5ab9:
+YouDamagedTheCarTextEN:
 	db "YOU DAMAGED THE CAR\0"
-TextFR_f5ab9:
+YouDamagedTheCarTextFR:
 	db "T'AS ABlM<BIG_É> TA CAISSE\0"
-TextDE_f5ab9:
+YouDamagedTheCarTextDE:
 	db "DU HAST DEINEN WAGEN BESCHeDIGT\0"
-TextIT_f5ab9:
+YouDamagedTheCarTextIT:
 	db "HAI DANNEGGIATO LA MACCHINA\0"
-TextES_f5ab9:
+YouDamagedTheCarTextES:
 	db "HAS DESTROZADO EL COCHE\0"
 
 WatchThePaintworkTexts::
@@ -1519,94 +1519,94 @@ WatchThePaintworkTextIT:
 WatchThePaintworkTextES:
 	db "CUIDADO CON LA PINTURA\0"
 
-Texts_f5bc5:
-	dw TextEN_f5bc5
-	dw TextFR_f5bc5
-	dw TextDE_f5bc5
-	dw TextIT_f5bc5
-	dw TextES_f5bc5
+TheCarsTooBeatUpTexts::
+	dw TheCarsTooBeatUpTextEN
+	dw TheCarsTooBeatUpTextFR
+	dw TheCarsTooBeatUpTextDE
+	dw TheCarsTooBeatUpTextIT
+	dw TheCarsTooBeatUpTextES
 
-TextEN_f5bc5:
+TheCarsTooBeatUpTextEN:
 	db "THE CAR'S TOO BEAT-UP\0"
-TextFR_f5bc5:
+TheCarsTooBeatUpTextFR:
 	db "LA VOITURE EST TROP CABOSS<BIG_É>E\0"
-TextDE_f5bc5:
+TheCarsTooBeatUpTextDE:
 	db "DER WAGEN IST ZU BESCHeDIGT\0"
-TextIT_f5bc5:
+TheCarsTooBeatUpTextIT:
 	db "LA MACCHINA a TROPPO MALRIDOTTA\0"
-TextES_f5bc5:
+TheCarsTooBeatUpTextES:
 	db "¡EL COCHE EST<BIG_À> HECHO POLVO!\0"
 
-Texts_f5c5a:
-	dw TextEN_f5c5a
-	dw TextFR_f5c5a
-	dw TextDE_f5c5a
-	dw TextIT_f5c5a
-	dw TextES_f5c5a
+PickUpLuckyTexts::
+	dw PickUpLuckyTextEN
+	dw PickUpLuckyTextFR
+	dw PickUpLuckyTextDE
+	dw PickUpLuckyTextIT
+	dw PickUpLuckyTextES
 
-TextEN_f5c5a:
+PickUpLuckyTextEN:
 	db "PICK UP LUCKY\0"
-TextFR_f5c5a:
+PickUpLuckyTextFR:
 	db "FILE AU POINT DE RENDEZ-VOUS\0"
-TextDE_f5c5a:
+PickUpLuckyTextDE:
 	db "BEGIB DICH ZUM TREFFPUNKT\0"
-TextIT_f5c5a:
+PickUpLuckyTextIT:
 	db "VAI ALL'APPUNTAMENTO\0"
-TextES_f5c5a:
+PickUpLuckyTextES:
 	db "VE AL PUNTO DE RECOGIDA\0"
 
-Texts_f5cd6:
-	dw TextEN_f5cd6
-	dw TextFR_f5cd6
-	dw TextDE_f5cd6
-	dw TextIT_f5cd6
-	dw TextES_f5cd6
+LuckysBoughtItTexts::
+	dw LuckysBoughtItTextEN
+	dw LuckysBoughtItTextFR
+	dw LuckysBoughtItTextDE
+	dw LuckysBoughtItTextIT
+	dw LuckysBoughtItTextES
 
-TextEN_f5cd6:
+LuckysBoughtItTextEN:
 	db "LUCKY'S BOUGHT IT\0"
-TextFR_f5cd6:
+LuckysBoughtItTextFR:
 	db "LUCKY A MARCH<BIG_É>\0"
-TextDE_f5cd6:
+LuckysBoughtItTextDE:
 	db "ZU SPeT\0"
-TextIT_f5cd6:
+LuckysBoughtItTextIT:
 	db "LUCKY L'HA COMPRATO\0"
-TextES_f5cd6:
+LuckysBoughtItTextES:
 	db "LUCKY LA HA PALMADO\0"
 
-Texts_f5d31:
-	dw TextEN_f5d31
-	dw TextFR_f5d31
-	dw TextDE_f5d31
-	dw TextIT_f5d31
-	dw TextES_f5d31
+GetLuckyToTheDocsMsgTexts::
+	dw GetLuckyToTheDocsMsgTextEN
+	dw GetLuckyToTheDocsMsgTextFR
+	dw GetLuckyToTheDocsMsgTextDE
+	dw GetLuckyToTheDocsMsgTextIT
+	dw GetLuckyToTheDocsMsgTextES
 
-TextEN_f5d31:
+GetLuckyToTheDocsMsgTextEN:
 	db "GET LUCKY TO THE DOC'S!\0"
-TextFR_f5d31:
+GetLuckyToTheDocsMsgTextFR:
 	db "AMaNE LUCKY CHEZ LE TOUBIB\0"
-TextDE_f5d31:
+GetLuckyToTheDocsMsgTextDE:
 	db "BRING LUCKY ZU DEN DOCS\0"
-TextIT_f5d31:
+GetLuckyToTheDocsMsgTextIT:
 	db "PORTA LUCKY DA DOC\0"
-TextES_f5d31:
+GetLuckyToTheDocsMsgTextES:
 	db "LLEVA A LUCKY A QUE LO VEA UN M<BIG_É>DICO\0"
 
-Texts_f5dbe:
-	dw TextEN_f5dbe
-	dw TextFR_f5dbe
-	dw TextDE_f5dbe
-	dw TextIT_f5dbe
-	dw TextES_f5dbe
+GetAcrossTownAsQuickAsYouCanTexts::
+	dw GetAcrossTownAsQuickAsYouCanTextEN
+	dw GetAcrossTownAsQuickAsYouCanTextFR
+	dw GetAcrossTownAsQuickAsYouCanTextDE
+	dw GetAcrossTownAsQuickAsYouCanTextIT
+	dw GetAcrossTownAsQuickAsYouCanTextES
 
-TextFR_f5dbe:
+GetAcrossTownAsQuickAsYouCanTextFR:
 	db "TRAVERSE LA VILLE\0"
-TextDE_f5dbe:
+GetAcrossTownAsQuickAsYouCanTextDE:
 	db "FAHR DURCH DIE STADT\0"
-TextIT_f5dbe:
+GetAcrossTownAsQuickAsYouCanTextIT:
 	db "ATTRAVERSA LA CITT<BIG_À>\0"
-TextES_f5dbe:
+GetAcrossTownAsQuickAsYouCanTextES:
 	db "CRUZA EL PUEBLO\0"
-TextEN_f5dbe:
+GetAcrossTownAsQuickAsYouCanTextEN:
 	db "GET ACROSS TOWN AS QUICK AS YOU CAN\0"
 
 TooSlowTexts::
@@ -1645,274 +1645,274 @@ GetToBalHarbourTextIT:
 GetToBalHarbourTextES:
 	db "VE A BAL HARBOUR\0"
 
-Texts_f5ef1:
-	dw TextEN_f5ef1
-	dw TextFR_f5ef1
-	dw TextDE_f5ef1
-	dw TextIT_f5ef1
-	dw TextES_f5ef1
+DontLoseHimTexts::
+	dw DontLoseHimTextEN
+	dw DontLoseHimTextFR
+	dw DontLoseHimTextDE
+	dw DontLoseHimTextIT
+	dw DontLoseHimTextES
 
-TextEN_f5ef1:
+DontLoseHimTextEN:
 	db "DON'T LOSE HIM\0"
-TextFR_f5ef1:
+DontLoseHimTextFR:
 	db "LES PERDS PAS DE VUE!\0"
-TextDE_f5ef1:
+DontLoseHimTextDE:
 	db "LASS DICH NICHT ABSCHiTTELN\0"
-TextIT_f5ef1:
+DontLoseHimTextIT:
 	db " SEMINA IL PEDINATORE\0"
-TextES_f5ef1:
+DontLoseHimTextES:
 	db "NO LES PIERDAS DE VISTA\0"
 
-Texts_f5f6a:
-	dw TextEN_f5f6a
-	dw TextFR_f5f6a
-	dw TextDE_f5f6a
-	dw TextIT_f5f6a
-	dw TextES_f5f6a
+GetToBeverlyHillsTexts::
+	dw GetToBeverlyHillsTextEN
+	dw GetToBeverlyHillsTextFR
+	dw GetToBeverlyHillsTextDE
+	dw GetToBeverlyHillsTextIT
+	dw GetToBeverlyHillsTextES
 
-TextEN_f5f6a:
+GetToBeverlyHillsTextEN:
 	db "GET TO BEVERLY HILLS\0"
-TextFR_f5f6a:
+GetToBeverlyHillsTextFR:
 	db "FONCE <BIG_À> BEVERLY HILLS\0"
-TextDE_f5f6a:
+GetToBeverlyHillsTextDE:
 	db "BEGIB DICH NACH BEVERLY HILLS\0"
-TextIT_f5f6a:
+GetToBeverlyHillsTextIT:
 	db "VAI A BEVERLY HILLS\0"
-TextES_f5f6a:
+GetToBeverlyHillsTextES:
 	db "VE A BEVERLY HILLS\0"
 
-Texts_f5fe4:
-	dw TextEN_f5fe4
-	dw TextFR_f5fe4
-	dw TextDE_f5fe4
-	dw TextIT_f5fe4
-	dw TextES_f5fe4
+TooManyCopsGetToTheCribTexts::
+	dw TooManyCopsGetToTheCribTextEN
+	dw TooManyCopsGetToTheCribTextFR
+	dw TooManyCopsGetToTheCribTextDE
+	dw TooManyCopsGetToTheCribTextIT
+	dw TooManyCopsGetToTheCribTextES
 
-TextEN_f5fe4:
+TooManyCopsGetToTheCribTextEN:
 	db "TOO MANY COPS. GET TO THE CRIB!\0"
-TextFR_f5fe4:
+TooManyCopsGetToTheCribTextFR:
 	db "TROP DE FLICS RETOUR <BIG_À> LA CASE D<BIG_É>PART!\0"
-TextDE_f5fe4:
+TooManyCopsGetToTheCribTextDE:
 	db "ZU VIELE COPS!\0"
-TextIT_f5fe4:
+TooManyCopsGetToTheCribTextIT:
 	db "VAI ALLA TANA!\0"
-TextES_f5fe4:
+TooManyCopsGetToTheCribTextES:
 	db "DEMASIADOS POLIS ¡ESC<BIG_Ó>NDETE!\0"
 
-Texts_f6070:
-	dw TextEN_f6070
-	dw TextFR_f6070
-	dw TextDE_f6070
-	dw TextIT_f6070
-	dw TextES_f6070
+GetToThePickUpTexts::
+	dw GetToThePickUpTextEN
+	dw GetToThePickUpTextFR
+	dw GetToThePickUpTextDE
+	dw GetToThePickUpTextIT
+	dw GetToThePickUpTextES
 
-TextEN_f6070:
+GetToThePickUpTextEN:
 	db "GET TO THE PICK UP\0"
-TextFR_f6070:
+GetToThePickUpTextFR:
 	db "AMaNE-TOI AU POINT DE RENDEZ-VOUS\0"
-TextDE_f6070:
+GetToThePickUpTextDE:
 	db "BEGIB DICH ZUR GARAGE\0"
-TextIT_f6070:
+GetToThePickUpTextIT:
 	db "VAI ALL'APPUNTAMENTO\0"
-TextES_f6070:
+GetToThePickUpTextES:
 	db "VE AL PUNTO DE RECOGIDA\0"
 
-Texts_f60f2:
-	dw TextEN_f60f2
-	dw TextFR_f60f2
-	dw TextDE_f60f2
-	dw TextIT_f60f2
-	dw TextES_f60f2
+GetToGrandCentralStationTexts::
+	dw GetToGrandCentralStationTextEN
+	dw GetToGrandCentralStationTextFR
+	dw GetToGrandCentralStationTextDE
+	dw GetToGrandCentralStationTextIT
+	dw GetToGrandCentralStationTextES
 
-TextEN_f60f2:
+GetToGrandCentralStationTextEN:
 	db "GET TO GRAND CENTRAL STATION\0"
-TextFR_f60f2:
+GetToGrandCentralStationTextFR:
 	db "VA <BIG_À> LA GARE CENTRALE\0"
-TextDE_f60f2:
+GetToGrandCentralStationTextDE:
 	db "BEGIB DICH ZUR GRAND CENTRAL STATION\0"
-TextIT_f60f2:
+GetToGrandCentralStationTextIT:
 	db "VAI ALLA GRAND CENTRAL STATION\0"
-TextES_f60f2:
+GetToGrandCentralStationTextES:
 	db "VE A GRAND CENTRAL STATION\0"
 
-Texts_f618e:
-	dw TextEN_f618e
-	dw TextFR_f618e
-	dw TextDE_f618e
-	dw TextIT_f618e
-	dw TextES_f618e
+ReturnTheKeyToTheLockUpTexts::
+	dw ReturnTheKeyToTheLockUpTextEN
+	dw ReturnTheKeyToTheLockUpTextFR
+	dw ReturnTheKeyToTheLockUpTextDE
+	dw ReturnTheKeyToTheLockUpTextIT
+	dw ReturnTheKeyToTheLockUpTextES
 
-TextEN_f618e:
+ReturnTheKeyToTheLockUpTextEN:
 	db "RETURN THE KEY TO THE LOCK UP\0"
-TextFR_f618e:
+ReturnTheKeyToTheLockUpTextFR:
 	db "RAPPORTE LA CL<BIG_É> <BIG_À> L'ENTREPmT\0"
-TextDE_f618e:
+ReturnTheKeyToTheLockUpTextDE:
 	db "BRING DEN SCHLiSSEL ZURiCK ZUR GARAGE\0"
-TextIT_f618e:
+ReturnTheKeyToTheLockUpTextIT:
 	db "RIPORTA LA CHIAVE AL NASCONDIGLIO\0"
-TextES_f618e:
+ReturnTheKeyToTheLockUpTextES:
 	db "DEVUELVE LA LLAVE AL DEP<BIG_Ó>SITO\0"
 
-Texts_f6239:
-	dw TextEN_f6239
-	dw TextFR_f6239
-	dw TextDE_f6239
-	dw TextIT_f6239
-	dw TextES_f6239
+YouveBeenBuggedLoseTheTailTexts::
+	dw YouveBeenBuggedLoseTheTailTextEN
+	dw YouveBeenBuggedLoseTheTailTextFR
+	dw YouveBeenBuggedLoseTheTailTextDE
+	dw YouveBeenBuggedLoseTheTailTextIT
+	dw YouveBeenBuggedLoseTheTailTextES
 
-TextEN_f6239:
+YouveBeenBuggedLoseTheTailTextEN:
 	db "YOU'VE BEEN BUGGED! LOSE THE TAIL\0"
-TextFR_f6239:
+YouveBeenBuggedLoseTheTailTextFR:
 	db "TU T'ES FAIT AVOIR. ILS T'ONT SUIVI\0"
-TextDE_f6239:
+YouveBeenBuggedLoseTheTailTextDE:
 	db "DU WURDEST VERWANZT, MAN VERFOLGT DICH!\0"
-TextIT_f6239:
+YouveBeenBuggedLoseTheTailTextIT:
 	db "TI HANNO BECCATO, SEI INSEGUITO\0"
-TextES_f6239:
+YouveBeenBuggedLoseTheTailTextES:
 	db "¡TE HA LOCALIZADO!\0"
 
-Texts_f62e4:
-	dw TextEN_f62e4
-	dw TextFR_f62e4
-	dw TextDE_f62e4
-	dw TextIT_f62e4
-	dw TextES_f62e4
+TrackDownTheCarAndSmashIntoItTexts::
+	dw TrackDownTheCarAndSmashIntoItTextEN
+	dw TrackDownTheCarAndSmashIntoItTextFR
+	dw TrackDownTheCarAndSmashIntoItTextDE
+	dw TrackDownTheCarAndSmashIntoItTextIT
+	dw TrackDownTheCarAndSmashIntoItTextES
 
-TextEN_f62e4:
+TrackDownTheCarAndSmashIntoItTextEN:
 	db "TRACK DOWN THE CAR AND SMASH INTO IT\0"
-TextFR_f62e4:
+TrackDownTheCarAndSmashIntoItTextFR:
 	db "POURSUIS LA CAISSE ET RENTRE-LUI DEDANS\0"
-TextDE_f62e4:
+TrackDownTheCarAndSmashIntoItTextDE:
 	db "VERFOLGE DEN WAGEN UND SCHROTTE IHN\0"
-TextIT_f62e4:
+TrackDownTheCarAndSmashIntoItTextIT:
 	db "INSEGUI LA MACCHINA E URTALA\0"
-TextES_f62e4:
+TrackDownTheCarAndSmashIntoItTextES:
 	db "PERSIGUE EL COCHE Y CHOCA CONTRA <BIG_É>L\0"
 
-Texts_f63a0:
-	dw TextEN_f63a0
-	dw TextFR_f63a0
-	dw TextDE_f63a0
-	dw TextIT_f63a0
-	dw TextES_f63a0
+FourCardsLeftTexts::
+	dw FourCardsLeftTextEN
+	dw FourCardsLeftTextFR
+	dw FourCardsLeftTextDE
+	dw FourCardsLeftTextIT
+	dw FourCardsLeftTextES
 
-TextFR_f63a0:
+FourCardsLeftTextFR:
 	db "IL RESTE QUATRE VOITURES\0"
-TextDE_f63a0:
+FourCardsLeftTextDE:
 	db "NOCH VIER WAGEN\0"
-TextIT_f63a0:
+FourCardsLeftTextIT:
 	db "MENO QUATTRO\0"
-TextES_f63a0:
+FourCardsLeftTextES:
 	db "QUEDAN CUATRO COCHES\0"
-TextEN_f63a0:
+FourCardsLeftTextEN:
 	db "FOUR CARS LEFT\0"
 
-Texts_f6404:
-	dw TextEN_f6404
-	dw TextFR_f6404
-	dw TextDE_f6404
-	dw TextIT_f6404
-	dw TextES_f6404
+ThreeCardsLeftTexts::
+	dw ThreeCardsLeftTextEN
+	dw ThreeCardsLeftTextFR
+	dw ThreeCardsLeftTextDE
+	dw ThreeCardsLeftTextIT
+	dw ThreeCardsLeftTextES
 
-TextFR_f6404:
+ThreeCardsLeftTextFR:
 	db "IL RESTE TROIS VOITURES\0"
-TextDE_f6404:
+ThreeCardsLeftTextDE:
 	db "NOCH DREI WAGEN\0"
-TextIT_f6404:
+ThreeCardsLeftTextIT:
 	db "MENO TRE\0"
-TextES_f6404:
+ThreeCardsLeftTextES:
 	db "QUEDAN TRES COCHES\0"
-TextEN_f6404:
+ThreeCardsLeftTextEN:
 	db "THREE CARS LEFT\0"
 
-Texts_f6462:
-	dw TextEN_f6462
-	dw TextFR_f6462
-	dw TextDE_f6462
-	dw TextIT_f6462
-	dw TextES_f6462
+TwoCarsLeftTexts::
+	dw TwoCarsLeftTextEN
+	dw TwoCarsLeftTextFR
+	dw TwoCarsLeftTextDE
+	dw TwoCarsLeftTextIT
+	dw TwoCarsLeftTextES
 
-TextFR_f6462:
+TwoCarsLeftTextFR:
 	db "IL RESTE DEUX VOITURES\0"
-TextDE_f6462:
+TwoCarsLeftTextDE:
 	db "NOCH ZWEI WAGEN\0"
-TextIT_f6462:
+TwoCarsLeftTextIT:
 	db "MENO DUE\0"
-TextES_f6462:
+TwoCarsLeftTextES:
 	db "QUEDAN DOS COCHES\0"
-TextEN_f6462:
+TwoCarsLeftTextEN:
 	db "TWO CARS LEFT\0"
 
-Texts_f64bc:
-	dw TextEN_f64bc
-	dw TextFR_f64bc
-	dw TextDE_f64bc
-	dw TextIT_f64bc
-	dw TextES_f64bc
+OneCarLeftTexts::
+	dw OneCarLeftTextEN
+	dw OneCarLeftTextFR
+	dw OneCarLeftTextDE
+	dw OneCarLeftTextIT
+	dw OneCarLeftTextES
 
-TextFR_f64bc:
+OneCarLeftTextFR:
 	db "IL RESTE UNE VOITURE\0"
-TextDE_f64bc:
+OneCarLeftTextDE:
 	db "NOCH EIN WAGEN\0"
-TextIT_f64bc:
+OneCarLeftTextIT:
 	db "MENO UNA\0"
-TextES_f64bc:
+OneCarLeftTextES:
 	db "QUEDA UN COCHE\0"
-TextEN_f64bc:
+OneCarLeftTextEN:
 	db "ONE CAR LEFT\0"
 
-Texts_f650f:
-	dw TextEN_f650f
-	dw TextFR_f650f
-	dw TextDE_f650f
-	dw TextIT_f650f
-	dw TextES_f650f
+ACarGotThroughTexts::
+	dw ACarGotThroughTextEN
+	dw ACarGotThroughTextFR
+	dw ACarGotThroughTextDE
+	dw ACarGotThroughTextIT
+	dw ACarGotThroughTextES
 
-TextFR_f650f:
+ACarGotThroughTextFR:
 	db "UNE VOITURE S'EST <BIG_É>CHAPP<BIG_É>E\0"
-TextDE_f650f:
+ACarGotThroughTextDE:
 	db "EIN WAGEN HAT ES GESCHAFFT\0"
-TextIT_f650f:
+ACarGotThroughTextIT:
 	db "UNA MACCHINA a PASSATA\0"
-TextES_f650f:
+ACarGotThroughTextES:
 	db "HA PASADO UN COCHE\0"
-TextEN_f650f:
+ACarGotThroughTextEN:
 	db "A CAR GOT THROUGH\0"
 
-Texts_f658b:
-	dw TextEN_f658b
-	dw TextFR_f658b
-	dw TextDE_f658b
-	dw TextIT_f658b
-	dw TextES_f658b
+FindAndWreckGrangersCarTexts::
+	dw FindAndWreckGrangersCarTextEN
+	dw FindAndWreckGrangersCarTextFR
+	dw FindAndWreckGrangersCarTextDE
+	dw FindAndWreckGrangersCarTextIT
+	dw FindAndWreckGrangersCarTextES
 
-TextFR_f658b:
+FindAndWreckGrangersCarTextFR:
 	db "TROUVE ET D<BIG_É>TRUIT LA CAISSE DE GRANGER\0"
-TextDE_f658b:
+FindAndWreckGrangersCarTextDE:
 	db "FINDE UND SCHROTTE GRANGERS WAGEN\0"
-TextIT_f658b:
+FindAndWreckGrangersCarTextIT:
 	db "TROVA E DISTRUGGI LAMACCHINA DI GRANGER\0"
-TextES_f658b:
+FindAndWreckGrangersCarTextES:
 	db "BUSCA EL COCHE DE GRANGER Y DESTR<BIG_Ó>ZALO\0"
-TextEN_f658b:
+FindAndWreckGrangersCarTextEN:
 	db "FIND AND WRECK GRANGER'S CAR\0"
 
-Texts_f664a:
-	dw TextEN_f664a
-	dw TextFR_f664a
-	dw TextDE_f664a
-	dw TextIT_f664a
-	dw TextES_f664a
+GetBackToYourHotelTexts::
+	dw GetBackToYourHotelTextEN
+	dw GetBackToYourHotelTextFR
+	dw GetBackToYourHotelTextDE
+	dw GetBackToYourHotelTextIT
+	dw GetBackToYourHotelTextES
 
-TextFR_f664a:
+GetBackToYourHotelTextFR:
 	db "REVIENS <BIG_À> L'HmTEL\0"
-TextDE_f664a:
+GetBackToYourHotelTextDE:
 	db "BEGIB DICH ZURiCK ZUM HOTEL\0"
-TextIT_f664a:
+GetBackToYourHotelTextIT:
 	db "RITORNA ALL'HOTEL\0"
-TextES_f664a:
+GetBackToYourHotelTextES:
 	db "REGRESA AL HOTEL\0"
-TextEN_f664a:
+GetBackToYourHotelTextEN:
 	db "GET BACK TO YOUR HOTEL\0"
 
 Texts_f66bc:

@@ -140,6 +140,14 @@ DEF CARFLAG_UNK7 EQU 1 << CARFLAG_UNK7_F
 	const PROP_C ; $c
 	const PROP_D ; $d
 
+; maximum damage the player's car can take
+; corresponds to 8 pixels times 7 damage bar tiles
+DEF MAX_DAMAGE EQU 8 * 7
+
+; maximum felony the player can accumulate
+; corresponds to 8 pixels times 7 damage bar tiles
+DEF MAX_FELONY EQU 8 * 7
+
 DEF NUM_CITY_PROPS EQU 8 ; how many props in stage
 
 ; wTimerMode constants

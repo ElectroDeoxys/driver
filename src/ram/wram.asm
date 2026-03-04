@@ -340,11 +340,11 @@ wd863:: db ; d863
 
 	ds $d868 - $d864
 
-wd868:: db ; d868
+wDamage:: db ; d868
 
 wd869:: db ; d869
 
-wd86a:: db ; d86a
+wFelony:: db ; d86a
 
 wd86b:: db ; d86b
 

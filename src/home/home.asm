@@ -2242,7 +2242,7 @@ Data_ee1:
 	db $3e, $02 ; MUSIC_MAIN_MENU
 	db $3e, $03 ; MUSIC_BRIEFING
 	db $3e, $04 ; MUSIC_MIAMI
-	db $3e, $05 ; MUSIC_MISSION_SUCCESS
+	db $3e, $05 ; MUSIC_MISSION_COMPLETE
 	db $3f, $01 ; MUSIC_LOS_ANGELES
 	db $3f, $02 ; MUSIC_NEW_YORK
 	db $3f, $03 ; MUSIC_MISSION_FAILED
@@ -3761,6 +3761,7 @@ Func_16a8:
 	ld a, $01
 	bankswitch
 	call Func_16e2
+
 	call Func_1b4e
 
 	ld a, $01
@@ -3919,8 +3920,8 @@ Func_1808:
 	call Func_1eda
 	ld a, $01
 	ld [wd839], a
-	ld a, $0e
-	ld [wd86a], a
+	ld a, 14
+	ld [wFelony], a
 	xor a
 	ld [wda7b], a
 	call Func_1928
@@ -3989,8 +3990,8 @@ Func_1899:
 	ld [wd82d], a
 	ld hl, $0
 	call Func_1eda
-	ld a, $38
-	ld [wd86a], a
+	ld a, MAX_FELONY
+	ld [wFelony], a
 	call Func_1928
 	ld c, $04
 	call Func_195e
@@ -4001,7 +4002,7 @@ Func_1899:
 	ret
 
 Func_18bb:
-	ld a, $01
+	ld a, BANK(Func_6926)
 	bankswitch
 	jp Func_6926
 
@@ -4046,8 +4047,8 @@ Func_190f:
 	call Func_1ed4
 	ld hl, Data_1f37
 	call Func_1eda
-	ld a, $38
-	ld [wd86a], a
+	ld a, MAX_FELONY
+	ld [wFelony], a
 	ld hl, $7c17
 	ld c, $01
 	ld b, $0b
@@ -4122,6 +4123,7 @@ Func_197c:
 	add a
 	add c ; *12
 	add_hl
+Func_1987::
 	ld de, wda83
 	ld b, $0c
 	jp CopyHLtoDE
@@ -4129,9 +4131,83 @@ Func_197c:
 Func_198f:
 	ld a, [wGameMode]
 	jumptable
-; 0x1993
+	dw .Func_19a9 ; MODE_TAKE_A_RIDE
+	dw .Func_19ab ; MODE_UNK1
+	dw .Func_19ab ; MODE_UNK2
+	dw .Func_19ab ; MODE_UNK3
+	dw .Func_19ab ; MODE_UNK4
+	dw .Func_19d2 ; MODE_UNDERCOVER
+	dw .Func_19a1 ; MODE_CREDITS
 
-SECTION "SetDefaultPlayerCar", ROM0[$1a12]
+.Func_19a1:
+	ld a, [$dcb5]
+	and a
+	jr z, .asm_1a0f
+	jr .asm_1a0c
+.Func_19a9:
+	jr .asm_1a0c
+.Func_19ab:
+	ld a, [wTitlescreenTransition]
+	cp $02
+	jr nz, .asm_19c0
+	call Func_1a43
+	ld de, wd88c
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hli], a
+	inc de
+	ld a, [de]
+	ld [hl], a
+.asm_19c0
+	homecall Func_8f78
+	ld a, [$d898]
+	and a
+	jr z, .asm_1a0c
+	jr .asm_1a0a
+
+.Func_19d2:
+	ld a, [wTitlescreenTransition]
+	cp $02
+	jr nz, .asm_19c0
+	call .Func_19ec
+	ld hl, wMission
+	ld a, [hl]
+	inc a
+	cp $0f
+	jr c, .asm_19e9
+	ld [hl], $0e
+	jr .asm_1a0f
+.asm_19e9
+	ld [hl], a
+	jr .asm_1a0a
+
+.Func_19ec:
+	ld a, [wMission]
+	ld c, $00
+	cp LOS_ANGELES_MISSIONS - 1
+	jr z, .asm_1a00
+	ld c, $01
+	cp NEW_YORK_MISSIONS - 1
+	jr z, .asm_1a00
+	ld c, $02
+	cp NUM_MISSIONS - 1
+	ret nz
+.asm_1a00
+	ld a, BANK(Func_92b5)
+	bankswitch
+	jp Func_92b5
+
+.asm_1a0a
+	xor a
+	ret
+.asm_1a0c
+	ld a, $01
+	ret
+.asm_1a0f
+	ld a, $02
+	ret
 
 ; sets the default car as the car driven by the player
 SetDefaultPlayerCar::
@@ -4366,33 +4442,36 @@ Func_1b4e:
 	ld c, BANK(Func_42e1)
 	ld b, $02
 	call SpawnEntity
-
 	ld a, [wPlayerCarPtr + 0]
 	ld e, a
 	ld a, [wPlayerCarPtr + 1]
 	ld d, a
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
+
 	xor a
 	ld [wda76], a
-	ld hl, $5f27
-	ld c, $01
+
+	ld hl, Func_5f27
+	ld c, BANK(Func_5f27)
 	ld b, $07
 	call SpawnEntity
-	ld hl, $5e97
-	ld c, $01
+
+	ld hl, Func_5e97
+	ld c, BANK(Func_5e97)
 	ld b, $08
 	call SpawnEntity
+
 	ld a, [wGameMode]
 	cp MODE_CREDITS
-	jr z, .asm_1bcb
+	jr z, .skip_music
 	call Func_f41
 	ld a, [wCity]
 	ld hl, .MusicIDs
 	add_hl
 	ld a, [hl]
 	call PlayMusic
-.asm_1bcb
+.skip_music
 	ld a, $01
 	jp InitFade
 
@@ -4930,11 +5009,11 @@ Func_1eee:
 	ld h, [hl]
 	ld l, a
 	or h
-	jr z, .asm_1f32
+	jr z, Func_1f32
 	ld a, [wd837]
 	and a
-	jr nz, .asm_1f32
-	ld a, [wd86a]
+	jr nz, Func_1f32
+	ld a, [wFelony]
 	ld de, $0
 	cp $12
 	jr c, .asm_1f18
@@ -4947,7 +5026,7 @@ Func_1eee:
 	ld de, $12
 .asm_1f18
 	add hl, de
-.Func_1f19::
+Func_1f19::
 	ld a, [hli]
 	ld [wd830], a
 	ld a, [hli]
@@ -4962,7 +5041,7 @@ Func_1eee:
 	ld [wd836], a
 	ret
 
-.asm_1f32
+Func_1f32:
 	xor a
 	ld [wd830], a
 	ret
@@ -6604,7 +6683,7 @@ Func_2967::
 
 SECTION "Func_298c", ROM0[$298c]
 
-Func_298c:
+Func_298c::
 	push de
 	ld a, $06
 	call Func_146c
