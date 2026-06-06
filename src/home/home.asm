@@ -720,13 +720,13 @@ Func_59e:
 	ld h, d
 	ld l, e
 	ld de, v0BGMap0
-	jp Func_62b
+	jp Decompress
 
 .Func_5f1:
 	ld h, d
 	ld l, e
 	ld de, v0Tiles2
-	call Func_62b
+	call Decompress
 	ld a, d
 	cp HIGH(v0TilesEnd)
 	ret c ; within tile data
@@ -761,19 +761,18 @@ Func_59e:
 	jr nz, .loop_copy
 	ret
 
-Func_62b:
-	ld bc, $12
-	add hl, bc
-	scf
-	ld a, [hli]
-	adc a ; *2 + 1
-	add a ; *6
-	jp Decompress.asm_6ce
-
 ; the decompression algorithm is pretty complex
 ; it seems to obfuscate the way that command bits
 ; are processed and how bytes are copied literally or from lookback
 Decompress:
+	ld bc, $12
+	add hl, bc
+	scf
+	ld a, [hli]
+	adc a
+	add a ; *4 + 2
+	jp .next_cmd_bit
+
 .asm_636
 	ld a, [hli]
 	adc a
@@ -800,7 +799,8 @@ Decompress:
 	jr .asm_64f
 
 .copy_long
-	; will copy b*2^4 = 16*b bytes
+	; next 4 bits in command byte dictates how many bytes to copy
+	; bytes to copy = 2 * (%xxxx + 3) bytes
 	ld c, 4
 .loop_get_long_copy_count
 	add a
@@ -809,7 +809,7 @@ Decompress:
 	rl b
 	dec c
 	jr nz, .loop_get_long_copy_count
-	; copies 2*(3 + b) bytes
+	; set c = 2*(3 + b)
 	push af
 	ld a, 3
 	add b
@@ -826,46 +826,55 @@ Decompress:
 	dec c
 	jr nz, .loop_copy_long
 	pop af
-	jr .asm_6ce
+	jr .next_cmd_bit
 
 .asm_669
 	ld a, [hli]
 	adc a
 	jr c, .asm_6e6
 .asm_66d
-	add a
+	add a ; next bit set?
 	jr z, .asm_636
 .asm_670
-	rl c
-	add a
+	rl c ; *2 (if carry set +1)
+	add a ; next bit set?
 	jr z, .asm_63a
 .asm_675
-	jr nc, .asm_686
-	add a
+	jr nc, .asm_686 ; no
+	; yes
+	add a ; next bit set?
 	jr z, .asm_63e
 .asm_67a
+	; do c = 2*(c - 1) (if carry set +1)
 	dec c
 	push hl
-	ld h, a
+	ld h, a ; temp save a
 	ld a, c
 	adc a
 	ld c, a
 	cp $09
 	ld a, h
 	pop hl
+	; for c to be 9 here, bits needed to be %10111
 	jr z, .copy_long
+
 .asm_686
-	add a
+	add a ; next bit set?
 	jr z, .asm_642
 .asm_689
+	; if not set, then either do lookback with:
+	; - c = 4, if cmd byte was %10000
+	; - c = 5, if cmd byte was %10100
+	; - c = 8, if cmd byte was %10110
 	jr nc, .lookback
-	add a
+
+	add a ; next bit set?
 	jr nz, .asm_690
 	ld a, [hli]
 	adc a
 .asm_690
 	rl b
-	add a
+	add a ; next bit set?
 	jr nz, .asm_697
 	ld a, [hli]
 	adc a
@@ -910,11 +919,13 @@ Decompress:
 	pop hl
 	inc hl
 	pop af
-	jr .asm_6ce
+	jr .next_cmd_bit
+
 .asm_6c2
 	ld a, [hli]
 	adc a
 	jr c, .asm_6de
+
 .copy_byte
 	push af
 	call Func_d3
@@ -922,9 +933,10 @@ Decompress:
 	ld [de], a
 	inc de
 	pop af
-.asm_6ce
+.next_cmd_bit
+	; if top bit unset, copy byte...
 	add a
-	jr c, .asm_6dc
+	jr c, .special_cmd
 	; copy byte
 	push af
 	call Func_d3
@@ -932,37 +944,46 @@ Decompress:
 	ld [de], a
 	inc de
 	pop af
+	; if top bit unset, copy byte...
 	add a
 	jr nc, .copy_byte
-.asm_6dc
-	jr z, .asm_6c2
 
+.special_cmd
+	; bit set, set up lookback
+	jr z, .asm_6c2
 .asm_6de
 	lb bc, 0, 2
-	add a
+
+	add a ; next bit set?
 	jr z, .asm_669
-	jr nc, .asm_66d
+	jr nc, .asm_66d ; no, was %10
 .asm_6e6
-	add a
+	add a ; next bit set?
 	jr z, .asm_711
 .asm_6e9
-	jr nc, .lookback
+	jr nc, .lookback ; no, was %110
+	; yes, increment c
 	inc c
+	; is next bit set?
 	add a
 	jr z, .asm_715
 .asm_6ef
-	jr nc, .asm_686
+	jr nc, .asm_686 ; no, was %1110
+	; yes, then [hl] holds (lookback offset - 8)
 	ld c, [hl]
 	inc hl
+	; is it zero?
 	inc c
 	dec c
-	jr z, .asm_719
+	jr z, .asm_719 ; yes
+	; no, add $8 to it
 	push af
 	ld a, c
-	add $08
+	add $8
 	ld c, a
 	pop af
 	jr .asm_686
+
 .asm_6ff
 	add a
 	jr nz, .asm_704
@@ -978,21 +999,24 @@ Decompress:
 .asm_70d
 	jr c, .lookback
 	jr .asm_69e
+
 .asm_711
 	ld a, [hli]
 	adc a
 	jr .asm_6e9
+
 .asm_715
 	ld a, [hli]
 	adc a
 	jr .asm_6ef
+
 .asm_719
 	add a
 	jr nz, .asm_71e
 	ld a, [hli]
 	adc a
 .asm_71e
-	jr c, .asm_6ce
+	jr c, .next_cmd_bit
 	ret
 
 ClearVirtualOAM:
@@ -1547,7 +1571,7 @@ PushTilesToVRAM_Compressed::
 	ld d, a
 
 	push de
-	call Func_62b
+	call Decompress
 	ld h, d
 	ld l, e
 	pop de
@@ -2764,7 +2788,7 @@ Func_1147::
 Func_1186:
 	push hl
 	ld a, [hli]
-	ld [wd545], a
+	ld [wSpriteFlags], a
 	inc hl
 	and $04
 	jr z, .asm_11e6
@@ -2833,12 +2857,12 @@ Func_1186:
 	jr .asm_11f0
 .asm_11e6
 	ld a, [hli]
-	add $10
+	add OAM_Y_OFS
 	ld b, a
 	inc hl
 	inc hl
 	ld a, [hli]
-	add $08
+	add OAM_X_OFS
 	ld c, a
 .asm_11f0
 	inc hl
@@ -2851,10 +2875,10 @@ Func_1186:
 	ld e, a
 	rrca
 	ld [wd54b], a
-	ld a, [wd545]
+	ld a, [wSpriteFlags]
 	and $80
 	call nz, Func_1315
-	ld a, [wd545]
+	ld a, [wSpriteFlags]
 	and $10
 	jr z, .asm_120f
 	ld a, [hli]
@@ -2866,16 +2890,16 @@ Func_1186:
 	jr nz, .asm_1219
 	ld a, e
 	cp $02
-	jr z, .asm_1246
+	jr z, .screen_check
 .asm_1219
-	ld a, [wd545]
+	ld a, [wSpriteFlags]
 	and $60
 	call nz, Func_1338
 	xor a
 	ld [wd548], a
 .asm_1225
 	ld a, b
-	cp $90
+	cp SCREEN_HEIGHT_PX
 	call c, Func_1293
 	add $10
 	ld b, a
@@ -2890,70 +2914,81 @@ Func_1186:
 	ld a, [wd548]
 	and a
 	jr z, .asm_1242
+
 .asm_123e
 	pop hl
 	res 3, [hl]
 	ret
+
 .asm_1242
 	pop hl
 	set 3, [hl]
 	ret
-.asm_1246
-	ld a, [wd545]
+
+.screen_check
+	ld a, [wSpriteFlags]
 	and $04
-	jr nz, .asm_125d
+	jr nz, .skip_screen_check
+
+	; are we inside screen coordinates?
 	ld a, b
 	and a
 	jr z, .asm_1242
-	cp $a0
+	cp SCREEN_HEIGHT_PX + OAM_Y_OFS
 	jr nc, .asm_1242
 	ld a, c
 	and a
 	jr z, .asm_1242
-	cp $a8
+	cp SCREEN_WIDTH_PX + OAM_X_OFS
 	jr nc, .asm_1242
-.asm_125d
+
+.skip_screen_check
 	ld a, [hli]
 	bit 0, a
 	jr nz, .asm_123e
-	ld e, a
-	ld a, [wd545]
-	and $60
+	ld e, a ; tile ID
+
+	ld a, [wSpriteFlags]
+	and OAM_XFLIP | OAM_YFLIP
 	xor [hl]
-	ld d, a
+	ld d, a ; attributes
+
 	ld a, b
 	swap a
 	and $0f
-	add a
-	add $01
+	add a ; /8
+	add LOW(OAMGroupTable)
 	ld l, a
-	ld a, $13
-	adc $00
+	ld a, HIGH(OAMGroupTable)
+	adc 0
 	ld h, a
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [hl]
-	cp $14
-	jr nc, .asm_123e
+	ld a, [hl] ; OAM count
+	cp OAM_GROUP_SIZE
+	jr nc, .asm_123e ; already full
+
+	; add to OAM array
 	inc [hl]
 	inc hl
 	add a
-	add a
+	add a ; *OBJ_SIZE
 	add l
 	ld l, a
-	ld a, $00
+	ld a, 0
 	adc h
 	ld h, a
-	ld [hl], b
+	ld [hl], b ; y
 	inc hl
-	ld [hl], c
+	ld [hl], c ; x
 	inc hl
-	ld [hl], e
+	ld [hl], e ; tile ID
 	inc hl
-	ld [hl], d
+	ld [hl], d ; attributes
 	jr .asm_123e
 
+; a = screen y
 Func_1293:
 	and a
 	ret z
@@ -2964,11 +2999,11 @@ Func_1293:
 	ld e, l
 	swap a
 	and $0f
-	add a
-	add $01
+	add a ; /8
+	add LOW(OAMGroupTable)
 	ld l, a
-	ld a, $13
-	adc $00
+	ld a, HIGH(OAMGroupTable)
+	adc 0
 	ld h, a
 	ld a, [hli]
 	ld h, [hl]
@@ -2984,19 +3019,21 @@ Func_1293:
 	add a
 	add l
 	ld l, a
-	ld a, $00
+	ld a, 0
 	adc h
 	ld h, a
+
 	ld a, [wd54b]
 .asm_12c0
 	push af
 	ld a, [bc]
-	cp $14
-	jr z, .asm_12fe
+	cp OAM_GROUP_SIZE
+	jr z, .done_pop_af
+	; group not full
 	ld a, [wd546]
 	and a
 	jr z, .asm_12eb
-	cp $a8
+	cp SCREEN_WIDTH_PX + OAM_X_OFS
 	jr nc, .asm_12eb
 	ld a, $01
 	ld [wd548], a
@@ -3004,14 +3041,14 @@ Func_1293:
 	bit 0, a
 	jr nz, .asm_12eb
 	ld a, [wd547]
-	ld [hli], a
+	ld [hli], a ; y
 	ld a, [wd546]
-	ld [hli], a
+	ld [hli], a ; x
 	ld a, [de]
-	ld [hli], a
+	ld [hli], a ; tile ID
 	inc de
 	ld a, [de]
-	ld [hli], a
+	ld [hli], a ; attributes
 	dec de
 	ld a, [bc]
 	inc a
@@ -3025,19 +3062,19 @@ Func_1293:
 	pop af
 	dec a
 	jr nz, .asm_12c0
-.asm_12f9
+.done
 	pop hl
 	pop de
 	pop bc
 	ld a, b
 	ret
-.asm_12fe
+.done_pop_af
 	pop af
-	jr .asm_12f9
+	jr .done
 
-WRAMSpritePtrTable:
-	FOR n, 0, NUM_SPRITES
-		dw wSprite{u:n}
+OAMGroupTable:
+	FOR n, 1, NUM_OAM_GROUPS + 1
+		dw wOAMGroup{u:n}
 	ENDR
 
 ; input:
@@ -3185,17 +3222,17 @@ Func_139b:
 	ld a, b
 	swap a
 	and $0f
-	add a ; *2
-	add LOW(WRAMSpritePtrTable)
+	add a ; /8
+	add LOW(OAMGroupTable)
 	ld l, a
-	ld a, HIGH(WRAMSpritePtrTable)
+	ld a, HIGH(OAMGroupTable)
 	adc 0
 	ld h, a
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld a, [hl] ; OAM count
-	cp NUM_SPRITE_OAMS
+	cp OAM_GROUP_SIZE
 	ret nc ; already full
 	inc [hl]
 	inc hl
@@ -3210,16 +3247,16 @@ Func_139b:
 	inc hl
 	ld [hl], c ; x
 	inc hl
-	ld [hl], e ; tile id
+	ld [hl], e ; tile ID
 	inc hl
 	ld [hl], d ; attributes
 	ret
 
-; zeroes out wSprites
+; zeroes out wOAMGroups
 ClearSprites:
-	ld hl, wSprites
-	ld de, SPRITE_STRUCT_SIZE
-	ld b, NUM_SPRITES
+	ld hl, wOAMGroups
+	ld de, OAM_GROUP_STRUCT_SIZE
+	ld b, NUM_OAM_GROUPS
 	xor a
 .loop
 	ld [hl], a
@@ -3228,19 +3265,19 @@ ClearSprites:
 	jr nz, .loop
 	ret
 
-; goes through wSprites and loads them into Virtual OAM
+; goes through wOAMGroups and loads them into Virtual OAM
 LoadSprites:
 	ld a, [wActiveVirtualOAM]
 	ld d, a
 	ld e, 0
-	ld hl, wSprites
-	ld b, NUM_SPRITES
+	ld hl, wOAMGroups
+	ld b, NUM_OAM_GROUPS
 .loop_sprites
 	ld a, [hl]
 	and a
 	jr nz, .asm_1401
 .next_sprite
-	ld a, SPRITE_STRUCT_SIZE
+	ld a, OAM_GROUP_STRUCT_SIZE
 	add_hl
 	dec b
 	jr nz, .loop_sprites
@@ -3756,7 +3793,7 @@ Func_16a8:
 	ld [wd838], a
 	ld [wd839], a
 	ld [wd83a], a
-	ld [wd83b], a
+	ld [wDamageMultiplier], a
 
 	ld a, $01
 	bankswitch
@@ -3927,8 +3964,8 @@ Func_1808:
 	call Func_1928
 	ld c, $02
 	call Func_195e
-	ld hl, $5805
-	ld c, $01
+	ld hl, Func_5805
+	ld c, BANK(Func_5805)
 	ld b, $05
 	call SpawnEntity
 	push hl
@@ -3940,8 +3977,8 @@ Func_1808:
 	pop hl
 	ld a, $06
 	call SetStructWord_DE
-	ld hl, $66fa
-	ld c, $01
+	ld hl, Func_66fa
+	ld c, BANK(Func_66fa)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -3979,8 +4016,8 @@ Func_184b:
 	ld [wda77], a
 	ld a, h
 	ld [wda78], a
-	ld hl, $6732
-	ld c, $01
+	ld hl, Func_6732
+	ld c, BANK(Func_6732)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -3995,8 +4032,8 @@ Func_1899:
 	call Func_1928
 	ld c, $04
 	call Func_195e
-	ld hl, $67aa
-	ld c, $01
+	ld hl, Func_67aa
+	ld c, BANK(Func_67aa)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -4049,8 +4086,8 @@ Func_190f:
 	call Func_1eda
 	ld a, MAX_FELONY
 	ld [wFelony], a
-	ld hl, $7c17
-	ld c, $01
+	ld hl, Func_7c17
+	ld c, BANK(Func_7c17)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -6500,9 +6537,40 @@ Func_286d:
 	call Func_2998
 	pop hl
 	ret
-; 0x2877
 
-SECTION "Func_289f", ROM0[$289f]
+Func_2877::
+	push hl
+	ld a, $0f
+	add_hl
+	ld a, [hl]
+	call Func_29ea
+	pop hl
+	ld a, b
+	or c
+	call nz, .Func_2895
+	ld a, d
+	or e
+	jr z, .asm_2892
+	push bc
+	ld b, d
+	ld c, e
+	call .Func_2895
+	ld d, b
+	ld e, c
+	pop bc
+.asm_2892
+	xor a
+	dec a
+	ret
+
+.Func_2895:
+	ld a, $11
+	push hl
+	add_hl
+	ld a, [hl]
+	call Func_2998
+	pop hl
+	ret
 
 Func_289f::
 	bit 7, b
@@ -6679,9 +6747,15 @@ Func_2967::
 	ld c, $00
 	ld a, CARSTRUCT_10
 	jp SetStructWord_BC
-; 0x2984
 
-SECTION "Func_298c", ROM0[$298c]
+Func_2984::
+	push hl
+	add_hl
+	ld a, [hl]
+	add $80
+	ld [hl], a
+	pop hl
+	ret
 
 Func_298c::
 	push de

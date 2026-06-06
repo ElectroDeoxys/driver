@@ -1445,14 +1445,56 @@ Func_8f78::
 	ld [wdc20], a
 	ld hl, YesNoTexts
 	call ProcessTitleText
-	ld hl, $4ff0
-	ld c, $02
+	ld hl, Func_8ff0
+	ld c, BANK(Func_8ff0)
 	ld b, $18
 	call SpawnEntity
 	ld a, $03
 	call InitFade
 	jp Func_94d8
-; 0x8ff0
+
+Func_8ff0:
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, wJoypadPressed
+	ld de, wd898
+.asm_8ff9
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [hl]
+	and PAD_LEFT
+	call nz, .Func_9019
+	ld a, [hl]
+	and PAD_RIGHT
+	call nz, .Func_9025
+	ld a, [hl]
+	and PAD_A | PAD_START
+	jr nz, .asm_9011
+	jr .asm_8ff9
+.asm_9011
+	ld a, SFX_06
+	call PlaySFX
+	jp ExitTitlescreenOrMainScreen
+
+.Func_9019:
+	ld a, [de]
+	and a
+	ret nz
+	ld a, SFX_05
+	call PlaySFX
+	ld a, $01
+	ld [de], a
+	ret
+
+.Func_9025:
+	ld a, [de]
+	and a
+	ret z
+	ld a, SFX_05
+	call PlaySFX
+	xor a
+	ld [de], a
+	ret
+; 0x9030
 
 SECTION "Func_90aa", ROMX[$50aa], BANK[$2]
 
@@ -1463,7 +1505,7 @@ Func_90aa::
 	call Func_8ddb
 
 	ld a, [wMission]
-	ld hl, MissionTextTable
+	ld hl, MissionBriefingTextTable
 	get_pointer
 	call GetText1
 	call Func_9177
@@ -3734,7 +3776,7 @@ Func_9e6c:
 	call YieldEntityUpdate
 	ld bc, $c00
 	call FillBGMap1
-	ld a, $02
+	ld a, BANK(Func_9c91)
 	ld de, Func_9c91
 	ld hl, wd54e
 	ld [hli], a
@@ -3783,7 +3825,7 @@ Func_9eb2:
 	ld de, wOBPals palette 3
 	call FarCopy
 	call FlushCGBPalettes
-	ld de, $611c
+	ld de, Func_a11c
 	ld hl, wMenuUpdateFunc
 	ld [hl], e
 	inc hl
@@ -3813,7 +3855,7 @@ Func_9eb2:
 .asm_9f25
 	ld [wMainMenuEntry], a
 	ld a, $01
-	ld [$dc2c], a
+	ld [wdc2c], a
 	ld a, $01
 	ld [wdbfa], a
 .asm_9f32
@@ -3852,7 +3894,7 @@ Func_9eb2:
 	ld a, SFX_20
 	call PlaySFX
 	xor a
-	ld [$dc2c], a
+	ld [wdc2c], a
 	ld b, $03
 .asm_9f82
 	push bc
@@ -3868,7 +3910,7 @@ Func_9eb2:
 	dec b
 	jr nz, .asm_9f82
 	ld a, $01
-	ld [$dc2c], a
+	ld [wdc2c], a
 	ld hl, EnterCodeTexts
 	jp ProcessTitleText
 
@@ -3881,7 +3923,7 @@ Func_9eb2:
 	ld a, MODE_UNDERCOVER
 	ld [wGameMode], a
 	xor a
-	ld [$dc2c], a
+	ld [wdc2c], a
 	ld b, $05
 .asm_9fbf
 	push bc
@@ -4009,7 +4051,7 @@ Func_9eb2:
 
 .Func_a08c:
 	ld a, [wMission]
-	ld hl, $66ae
+	ld hl, MissionTitleTextTable
 	get_pointer
 	jp ProcessTitleText
 
@@ -4081,9 +4123,41 @@ LoadMissionCodeOAM:
 	db 4 ; BLUE_SIREN
 	db 2 ; CONE
 	db 1 ; TRAFFIC_LIGHT
-; 0xa11c
 
-SECTION "LoadMissionCode", ROMX[$614c], BANK[$2]
+Func_a11c:
+	ld hl, wc683
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+	ld a, [wdbfa]
+	and a
+	jr z, .asm_a143
+	ld a, $38
+	ld [hli], a
+	ld a, $f4
+	ld [hli], a
+	ld a, $c8
+	ld [hli], a
+	ld a, $0e
+	ld [hli], a
+	ld a, $48
+	ld [hli], a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+.asm_a143
+	ldh a, [hff99]
+	call Func_988e
+	ld a, $ff
+	ld [hl], a
+	ret
 
 LoadMissionCode:
 	ld a, [wMission]
@@ -4334,9 +4408,9 @@ Data_a654:
 	db -1 ; end
 ; 0xa66d
 
-SECTION "MissionTextTable", ROMX[$66cc], BANK[$2]
+SECTION "MissionTitleTextTable", ROMX[$66ae], BANK[$2]
 
-MissionTextTable:
+MissionTitleTextTable:
 	dw TheBankJobTexts             ; MISSION_THE_BANK_JOB
 	dw HideTheEvidenceTexts        ; MISSION_HIDE_THE_EVIDENCE
 	dw BoatChaseTexts              ; MISSION_BOAT_CHASE
@@ -4353,3 +4427,19 @@ MissionTextTable:
 	dw ChaseOneOfGrangersBoysTexts ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	dw CrossTownRecordTexts        ; MISSION_CROSS_TOWN_RECORD
 
+MissionBriefingTextTable:
+	dw TheBankJobBriefingTexts             ; MISSION_THE_BANK_JOB
+	dw HideTheEvidenceBriefingTexts        ; MISSION_HIDE_THE_EVIDENCE
+	dw BoatChaseBriefingTexts              ; MISSION_BOAT_CHASE
+	dw RamRaidRaceBriefingTexts            ; MISSION_RAM_RAID_RACE
+	dw SuperflyDriveBriefingTexts          ; MISSION_SUPERFLY_DRIVE
+	dw BaitForATrapBriefingTexts           ; MISSION_BAIT_FOR_A_TRAP
+	dw TakeOutDiAngeloBriefingTexts        ; MISSION_TAKE_OUT_DIANGELO
+	dw StealACopCarBriefingTexts           ; MISSION_STEAL_A_COP_CAR
+	dw GetLuckyToTheDocsBriefingTexts      ; MISSION_GET_LUCKY_TO_THE_DOCS
+	dw BeverlyHillsGetAwayBriefingTexts    ; MISSION_BEVERLY_HILLS_GET_AWAY
+	dw GrandCentralStationBriefingTexts    ; MISSION_GRAND_CENTRAL_STATION
+	dw TrashGrangersWheelsBriefingTexts    ; MISSION_TRASH_GRANGERS_WHEELS
+	dw StopGrangersGangBriefingTexts       ; MISSION_STOP_GRANGERS_GANG
+	dw ChaseOneOfGrangersBoysBriefingTexts ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	dw CrossTownRecordBriefingTexts        ; MISSION_CROSS_TOWN_RECORD

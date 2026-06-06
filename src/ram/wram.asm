@@ -145,14 +145,17 @@ wTempSP:: dw ; d217
 
 wEntityPtr:: dw ; d219
 
-; sprite structs with OAM data
-; see (src/constants/sprite_constants.asm)
-wSprites:: ; d21b
-FOR n, 0, NUM_SPRITES
-wSprite{u:n}:: sprite_struct wSprite{u:n}
+; OAM group structs, divided up along
+; 8 horizontal slices along the height of the screen
+; this makes it so that each screen slice
+; doesn't exceed a number of OAM data (20 each)
+; (see src/constants/sprite_constants.asm)
+wOAMGroups:: ; d21b
+FOR n, 1, NUM_OAM_GROUPS + 1
+wOAMGroup{u:n}:: oam_group_struct wOAMGroup{u:n}
 ENDR
 
-wd545:: db ; d545
+wSpriteFlags:: db ; d545
 
 wd546:: db ; d546
 
@@ -300,7 +303,9 @@ wd839:: db ; d839
 
 wd83a:: db ; d83a
 
-wd83b:: db ; d83b
+; if non-zero, damage taken to the car
+; is multiplied by this amount
+wDamageMultiplier:: db ; d83b
 
 wd83c:: db ; d83c
 
@@ -341,12 +346,10 @@ wd863:: db ; d863
 	ds $d868 - $d864
 
 wDamage:: db ; d868
-
-wd869:: db ; d869
+wd869::   db ; d869
 
 wFelony:: db ; d86a
-
-wd86b:: db ; d86b
+wd86b::   db ; d86b
 
 wd86c:: db ; d86c
 
@@ -630,7 +633,7 @@ wMainMenuCheatInputProgress:: db ; dc2a
 
 wdc2b:: db ; dc2b
 
-	ds $dc2d - $dc2c
+wdc2c:: db ; dc2c
 
 wdc2d:: dw ; dc2d
 

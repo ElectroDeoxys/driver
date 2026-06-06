@@ -98,271 +98,271 @@ GoodWorkYouGotWheelsOfGoldTextES:
 GoodWorkYouGotWheelsOfGoldTextEN:
 	db "GOOD WORK, YOU GOT WHEELS OF GOLD.\0"
 
-Texts_f42a4:
-	dw TextEN_f42a4
-	dw TextFR_f42a4
-	dw TextDE_f42a4
-	dw TextIT_f42a4
-	dw TextES_f42a4
+TheBankJobTexts::
+	dw TheBankJobTextEN
+	dw TheBankJobTextFR
+	dw TheBankJobTextDE
+	dw TheBankJobTextIT
+	dw TheBankJobTextES
 
-TextFR_f42a4:
+TheBankJobTextFR:
 	db "\"FONCE <BIG_À> LA BANQUE\"\0"
-TextDE_f42a4:
+TheBankJobTextDE:
 	db "\"BEGIB DICH ZUR BANK\"\0"
-TextIT_f42a4:
+TheBankJobTextIT:
 	db "\"VAI ALLA BANCA\"\0"
-TextES_f42a4:
+TheBankJobTextES:
 	db "\"VETE AL BANCO\"\0"
-TextEN_f42a4:
+TheBankJobTextEN:
 	db "\"THE BANK JOB\"\0"
 
-Texts_f4308:
-	dw TextEN_f4308
-	dw TextFR_f4308
-	dw TextDE_f4308
-	dw TextIT_f4308
-	dw TextES_f4308
+HideTheEvidenceTexts::
+	dw HideTheEvidenceTextEN
+	dw HideTheEvidenceTextFR
+	dw HideTheEvidenceTextDE
+	dw HideTheEvidenceTextIT
+	dw HideTheEvidenceTextES
 
-TextFR_f4308:
+HideTheEvidenceTextFR:
 	db "\"CACHE LES PREUVES\"\0"
-TextDE_f4308:
+HideTheEvidenceTextDE:
 	db "\"VERSTECK BEWEISE\"\0"
-TextIT_f4308:
+HideTheEvidenceTextIT:
 	db "\"NASCONDI LA PROVA\"\0"
-TextES_f4308:
+HideTheEvidenceTextES:
 	db "\"ESCONDE LA PRUEBA\"\0"
-TextEN_f4308:
+HideTheEvidenceTextEN:
 	db "\"HIDE THE EVIDENCE\"\0"
 
-Texts_f4375:
-	dw TextEN_f4375
-	dw TextFR_f4375
-	dw TextDE_f4375
-	dw TextIT_f4375
-	dw TextES_f4375
+BoatChaseTexts::
+	dw BoatChaseTextEN
+	dw BoatChaseTextFR
+	dw BoatChaseTextDE
+	dw BoatChaseTextIT
+	dw BoatChaseTextES
 
-TextFR_f4375:
+BoatChaseTextFR:
 	db "\"POURSUITE EN BATEAU\"\0"
-TextDE_f4375:
+BoatChaseTextDE:
 	db "\"BOOTVERFOLGUNG\"\0"
-TextIT_f4375:
+BoatChaseTextIT:
 	db "\"INSEGUIMENTO IN NAVE\"\0"
-TextES_f4375:
+BoatChaseTextES:
 	db "\"PERSECUCI<BIG_Ó>N EN BOTE\"\0"
-TextEN_f4375:
+BoatChaseTextEN:
 	db "\"BOAT CHASE\"\0"
 
-Texts_f43e0:
-	dw TextEN_f43e0
-	dw TextFR_f43e0
-	dw TextDE_f43e0
-	dw TextIT_f43e0
-	dw TextES_f43e0
+RamRaidRaceTexts::
+	dw RamRaidRaceTextEN
+	dw RamRaidRaceTextFR
+	dw RamRaidRaceTextDE
+	dw RamRaidRaceTextIT
+	dw RamRaidRaceTextES
 
-TextFR_f43e0:
+RamRaidRaceTextFR:
 	db "\"DESCENTE\"\0"
-TextDE_f43e0:
+RamRaidRaceTextDE:
 	db "\"DAS GROsE RAMMEN\"\0"
-TextIT_f43e0:
+RamRaidRaceTextIT:
 	db "\"AUTOSCONTRO\"\0"
-TextES_f43e0:
+RamRaidRaceTextES:
 	db "\"CARRERA DE DESTRUCCI<BIG_Ó>N\"\0"
-TextEN_f43e0:
+RamRaidRaceTextEN:
 	db "\"RAM RAID RACE\"\0"
 
-Texts_f443f:
-	dw TextEN_f443f
-	dw TextFR_f443f
-	dw TextDE_f443f
-	dw TextIT_f443f
-	dw TextES_f443f
+SuperflyDriveTexts::
+	dw SuperflyDriveTextEN
+	dw SuperflyDriveTextFR
+	dw SuperflyDriveTextDE
+	dw SuperflyDriveTextIT
+	dw SuperflyDriveTextES
 
-TextFR_f443f:
+SuperflyDriveTextFR:
 	db "\"LIVRAISON TURBO\"\0"
-TextDE_f443f:
+SuperflyDriveTextDE:
 	db "\"SUPERFLY-LIEFERUNG\"\0"
-TextIT_f443f:
+SuperflyDriveTextIT:
 	db "\"CONSEGNA SUPERVELOCE\"\0"
-TextES_f443f:
+SuperflyDriveTextES:
 	db "\"ENTREGA DE EXPR<BIG_É>S\"\0"
-TextEN_f443f:
+SuperflyDriveTextEN:
 	db "\"SUPERFLY DRIVE\"\0"
 
-Texts_f44ac:
-	dw TextEN_f44ac
-	dw TextFR_f44ac
-	dw TextDE_f44ac
-	dw TextIT_f44ac
-	dw TextES_f44ac
+BaitForATrapTexts::
+	dw BaitForATrapTextEN
+	dw BaitForATrapTextFR
+	dw BaitForATrapTextDE
+	dw BaitForATrapTextIT
+	dw BaitForATrapTextES
 
-TextFR_f44ac:
+BaitForATrapTextFR:
 	db "\"LE PIaGE\"\0"
-TextDE_f44ac:
+BaitForATrapTextDE:
 	db "\"SPIEL DEN KhDER\"\0"
-TextIT_f44ac:
+BaitForATrapTextIT:
 	db "\"FAI DA ESCA\"\0"
-TextES_f44ac:
+BaitForATrapTextES:
 	db "\"CEBO POR UNA TRAMPA\"\0"
-TextEN_f44ac:
+BaitForATrapTextEN:
 	db "\"BAIT FOR A TRAP\"\0"
 
-Texts_f4509:
-	dw TextEN_f4509
-	dw TextFR_f4509
-	dw TextDE_f4509
-	dw TextIT_f4509
-	dw TextES_f4509
+TakeOutDiAngeloTexts::
+	dw TakeOutDiAngeloTextEN
+	dw TakeOutDiAngeloTextFR
+	dw TakeOutDiAngeloTextDE
+	dw TakeOutDiAngeloTextIT
+	dw TakeOutDiAngeloTextES
 
-TextFR_f4509:
+TakeOutDiAngeloTextFR:
 	db "\"D<BIG_É>GAGE DI ANGELO\"\0"
-TextDE_f4509:
+TakeOutDiAngeloTextDE:
 	db "\"ERLEDIGE DI ANGELO\"\0"
-TextIT_f4509:
+TakeOutDiAngeloTextIT:
 	db "\"FAI FUORI DI ANGELO\"\0"
-TextES_f4509:
+TakeOutDiAngeloTextES:
 	db "\"ELIMINE DI ANGELO\"\0"
-TextEN_f4509:
+TakeOutDiAngeloTextEN:
 	db "\"TAKE OUT DI ANGELO\"\0"
 
-Texts_f457a:
-	dw TextEN_f457a
-	dw TextFR_f457a
-	dw TextDE_f457a
-	dw TextIT_f457a
-	dw TextES_f457a
+StealACopCarTexts::
+	dw StealACopCarTextEN
+	dw StealACopCarTextFR
+	dw StealACopCarTextDE
+	dw StealACopCarTextIT
+	dw StealACopCarTextES
 
-TextFR_f457a:
+StealACopCarTextFR:
 	db "\"VOLE LES FLICS\"\0"
-TextDE_f457a:
+StealACopCarTextDE:
 	db "\"KLAU POLIZEIWAGEN\"\0"
-TextIT_f457a:
+StealACopCarTextIT:
 	db "\"RUBA UN'AUTOPATTUGLIA\"\0"
-TextES_f457a:
+StealACopCarTextES:
 	db "\"ROBA UN COCHE DE POLI\"\0"
-TextEN_f457a:
+StealACopCarTextEN:
 	db "\"STEAL A COP CAR\"\0"
 
-Texts_f45eb:
-	dw TextEN_f45eb
-	dw TextFR_f45eb
-	dw TextDE_f45eb
-	dw TextIT_f45eb
-	dw TextES_f45eb
+GetLuckyToTheDocsTexts::
+	dw GetLuckyToTheDocsTextEN
+	dw GetLuckyToTheDocsTextFR
+	dw GetLuckyToTheDocsTextDE
+	dw GetLuckyToTheDocsTextIT
+	dw GetLuckyToTheDocsTextES
 
-TextFR_f45eb:
+GetLuckyToTheDocsTextFR:
 	db "\"LUCKY CHEZ LE TOUBIB\"\0"
-TextDE_f45eb:
+GetLuckyToTheDocsTextDE:
 	db "\"LUCKY ZUM DOC.\"\0"
-TextIT_f45eb:
+GetLuckyToTheDocsTextIT:
 	db "\"LUCKY DA DOC\"\0"
-TextES_f45eb:
+GetLuckyToTheDocsTextES:
 	db "\"LUCKY VA AL DOCTOR\"\0"
-TextEN_f45eb:
+GetLuckyToTheDocsTextEN:
 	db "\"GET LUCKY TO THE DOC'S\"\0"
 
-Texts_f465a:
-	dw TextEN_f465a
-	dw TextFR_f465a
-	dw TextDE_f465a
-	dw TextIT_f465a
-	dw TextES_f465a
+BeverlyHillsGetAwayTexts::
+	dw BeverlyHillsGetAwayTextEN
+	dw BeverlyHillsGetAwayTextFR
+	dw BeverlyHillsGetAwayTextDE
+	dw BeverlyHillsGetAwayTextIT
+	dw BeverlyHillsGetAwayTextES
 
-TextFR_f465a:
-TextDE_f465a:
-TextIT_f465a:
-TextES_f465a:
+BeverlyHillsGetAwayTextFR:
+BeverlyHillsGetAwayTextDE:
+BeverlyHillsGetAwayTextIT:
+BeverlyHillsGetAwayTextES:
 	db "\"BEVERLY HILLS\"\0"
-TextEN_f465a:
+BeverlyHillsGetAwayTextEN:
 	db "\"BEVERLY HILLS GET-AWAY\"\0"
 
-Texts_f468d:
-	dw TextEN_f468d
-	dw TextFR_f468d
-	dw TextDE_f468d
-	dw TextIT_f468d
-	dw TextES_f468d
+GrandCentralStationTexts::
+	dw GrandCentralStationTextEN
+	dw GrandCentralStationTextFR
+	dw GrandCentralStationTextDE
+	dw GrandCentralStationTextIT
+	dw GrandCentralStationTextES
 
-TextFR_f468d:
+GrandCentralStationTextFR:
 	db "\"LA GARE CENTRALE\"\0"
-TextDE_f468d:
+GrandCentralStationTextDE:
 	db "\"GRAND CENTRAL\"\0"
-TextIT_f468d:
+GrandCentralStationTextIT:
 	db "\"GRAND CENTRAL\"\0"
-TextES_f468d:
+GrandCentralStationTextES:
 	db "\"GRAN CENTRAL\"\0"
-TextEN_f468d:
+GrandCentralStationTextEN:
 	db "\"GRAND CENTRAL STATION\"\0"
 
-Texts_f46f1:
-	dw TextEN_f46f1
-	dw TextFR_f46f1
-	dw TextDE_f46f1
-	dw TextIT_f46f1
-	dw TextES_f46f1
+TrashGrangersWheelsTexts::
+	dw TrashGrangersWheelsTextEN
+	dw TrashGrangersWheelsTextFR
+	dw TrashGrangersWheelsTextDE
+	dw TrashGrangersWheelsTextIT
+	dw TrashGrangersWheelsTextES
 
-TextFR_f46f1:
+TrashGrangersWheelsTextFR:
 	db "\"LA CAISSE DE GRANGER\"\0"
-TextDE_f46f1:
+TrashGrangersWheelsTextDE:
 	db "\"GRANGERS ReDER\"\0"
-TextIT_f46f1:
+TrashGrangersWheelsTextIT:
 	db "\"LE AUTO DI GRANGER\"\0"
-TextES_f46f1:
+TrashGrangersWheelsTextES:
 	db "\"COCHE DE GRANGER\"\0"
-TextEN_f46f1:
+TrashGrangersWheelsTextEN:
 	db "\"TRASH GRANGER'S WHEELS\"\0"
 
-Texts_f4764:
-	dw TextEN_f4764
-	dw TextFR_f4764
-	dw TextDE_f4764
-	dw TextIT_f4764
-	dw TextES_f4764
+StopGrangersGangTexts::
+	dw StopGrangersGangTextEN
+	dw StopGrangersGangTextFR
+	dw StopGrangersGangTextDE
+	dw StopGrangersGangTextIT
+	dw StopGrangersGangTextES
 
-TextFR_f4764:
+StopGrangersGangTextFR:
 	db "\"LE GANG DE GRANGER\"\0"
-TextDE_f4764:
+StopGrangersGangTextDE:
 	db "\"GRANGERS GANG\"\0"
-TextIT_f4764:
+StopGrangersGangTextIT:
 	db "\"LA BANDA DI GRANGER\"\0"
-TextES_f4764:
+StopGrangersGangTextES:
 	db "\"BANDA DE GRANGER\"\0"
-TextEN_f4764:
+StopGrangersGangTextEN:
 	db "\"STOP GRANGER'S GANG\"\0"
 
-Texts_f47d2:
-	dw TextEN_f47d2
-	dw TextFR_f47d2
-	dw TextDE_f47d2
-	dw TextIT_f47d2
-	dw TextES_f47d2
+ChaseOneOfGrangersBoysTexts::
+	dw ChaseOneOfGrangersBoysTextEN
+	dw ChaseOneOfGrangersBoysTextFR
+	dw ChaseOneOfGrangersBoysTextDE
+	dw ChaseOneOfGrangersBoysTextIT
+	dw ChaseOneOfGrangersBoysTextES
 
-TextFR_f47d2:
+ChaseOneOfGrangersBoysTextFR:
 	db "\"LES GARS DE GRANGER\"\0"
-TextDE_f47d2:
+ChaseOneOfGrangersBoysTextDE:
 	db "\"GRANGERS JUNGE\"\0"
-TextIT_f47d2:
+ChaseOneOfGrangersBoysTextIT:
 	db "\"L'UOMO DI GRANGER\"\0"
-TextES_f47d2:
+ChaseOneOfGrangersBoysTextES:
 	db "\"BRAZO DERECHO DE GRANGER\"\0"
-TextEN_f47d2:
+ChaseOneOfGrangersBoysTextEN:
 	db "\"CHASE ONE OF GRANGER'S BOY\"\0"
 
-Texts_f484f:
-	dw TextEN_f484f
-	dw TextFR_f484f
-	dw TextDE_f484f
-	dw TextIT_f484f
-	dw TextES_f484f
+CrossTownRecordTexts::
+	dw CrossTownRecordTextEN
+	dw CrossTownRecordTextFR
+	dw CrossTownRecordTextDE
+	dw CrossTownRecordTextIT
+	dw CrossTownRecordTextES
 
-TextFR_f484f:
+CrossTownRecordTextFR:
 	db "\"LA TRAVERS<BIG_É>E\"\0"
-TextDE_f484f:
+CrossTownRecordTextDE:
 	db "\"STADTREKORD\"\0"
-TextIT_f484f:
+CrossTownRecordTextIT:
 	db "\"RECORD DI CROSS TOWN\"\0"
-TextES_f484f:
+CrossTownRecordTextES:
 	db "\"R<BIG_É>CORD DE LA CIUDAD\"\0"
-TextEN_f484f:
+CrossTownRecordTextEN:
 	db "\"CROSS TOWN RECORD\"\0"
 
 OptionsTexts::
@@ -1159,22 +1159,22 @@ TextES_f52b8:
 TextEN_f52b8:
 	db "NEW BEST TIME!\0"
 
-Texts_f5313:
-	dw TextEN_f5313
-	dw TextFR_f5313
-	dw TextDE_f5313
-	dw TextIT_f5313
-	dw TextES_f5313
+RaceOverTexts::
+	dw RaceOverTextEN
+	dw RaceOverTextFR
+	dw RaceOverTextDE
+	dw RaceOverTextIT
+	dw RaceOverTextES
 
-TextFR_f5313:
+RaceOverTextFR:
 	db "COURSE TERMINEE\0"
-TextDE_f5313:
+RaceOverTextDE:
 	db "RENNEN VORBEI\0"
-TextIT_f5313:
+RaceOverTextIT:
 	db "GARA TERMINATA\0"
-TextES_f5313:
+RaceOverTextES:
 	db "CARRERA TERMINADA\0"
-TextEN_f5313:
+RaceOverTextEN:
 	db "RACE OVER\0"
 
 LoseTheTailTexts::
@@ -1195,22 +1195,22 @@ LoseTheTailTextIT:
 LoseTheTailTextES:
 	db "DESHAZTE DE <BIG_É>L\0"
 
-Texts_f53c2:
-	dw TextEN_f53c2
-	dw TextFR_f53c2
-	dw TextDE_f53c2
-	dw TextIT_f53c2
-	dw TextES_f53c2
+WellDoneTexts::
+	dw WellDoneTextEN
+	dw WellDoneTextFR
+	dw WellDoneTextDE
+	dw WellDoneTextIT
+	dw WellDoneTextES
 
-TextFR_f53c2:
+WellDoneTextFR:
 	db "BIEN JOUEE!\0"
-TextDE_f53c2:
+WellDoneTextDE:
 	db "GUT GEMACHT!\0"
-TextIT_f53c2:
+WellDoneTextIT:
 	db "BEN FATTO!\0"
-TextES_f53c2:
+WellDoneTextES:
 	db "¡MUY BIEN!\0"
-TextEN_f53c2:
+WellDoneTextEN:
 	db "WELL DONE!\0"
 
 YouWreckedYourCarTexts::
@@ -1915,22 +1915,22 @@ GetBackToYourHotelTextES:
 GetBackToYourHotelTextEN:
 	db "GET BACK TO YOUR HOTEL\0"
 
-Texts_f66bc:
-	dw TextEN_f66bc
-	dw TextFR_f66bc
-	dw TextDE_f66bc
-	dw TextIT_f66bc
-	dw TextES_f66bc
+ItsTheCopsGetOutOfHereTexts::
+	dw ItsTheCopsGetOutOfHereTextEN
+	dw ItsTheCopsGetOutOfHereTextFR
+	dw ItsTheCopsGetOutOfHereTextDE
+	dw ItsTheCopsGetOutOfHereTextIT
+	dw ItsTheCopsGetOutOfHereTextES
 
-TextIT_f66bc:
+ItsTheCopsGetOutOfHereTextIT:
 	db "SONO I POLIZIOTTI. FUGGI DA LI!\0"
-TextES_f66bc:
+ItsTheCopsGetOutOfHereTextES:
 	db "VIENE LA POLI. ¡SAL DE ALL<BIG_Í>!\0"
-TextFR_f66bc:
+ItsTheCopsGetOutOfHereTextFR:
 	db "22, V'L<BIG_À> LES FLICS, SORS DE L<BIG_À>!\0"
-TextDE_f66bc:
+ItsTheCopsGetOutOfHereTextDE:
 	db "ACHTUNG, DIE COPS. SCHNELL WEG.\0"
-TextEN_f66bc:
+ItsTheCopsGetOutOfHereTextEN:
 	db "IT'S THE COPS! GET OUT OF THERE!\0"
 
 WeNeedThatKeyTexts::

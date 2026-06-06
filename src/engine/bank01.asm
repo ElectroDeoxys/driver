@@ -268,8 +268,8 @@ Func_421c:
 	swap a
 	and $0f
 	ret z
-	ld a, $01
-	jp Func_427c
+	ld a, 1
+	jp InflictDamage
 .asm_422f
 	swap a
 	and $0f
@@ -279,7 +279,7 @@ Func_421c:
 	srl a
 	add c
 	pop bc
-	jp Func_427c
+	jp InflictDamage
 ; 0x423d
 
 SECTION "Func_4258", ROMX[$4258], BANK[$1]
@@ -309,32 +309,40 @@ Func_4258:
 	pop hl
 	ret
 
-Func_427c:
+; inflicts damage to player's car
+; given by register a as base damage
+InflictDamage:
 	push hl
 	ld hl, wdc32
 	bit WDC32_UNK1_F, [hl]
-	jr nz, .asm_429e
-	ld l, a
-	ld a, [wd83b]
+	jr nz, .skip
+	ld l, a ; base damage
+
+	; do we have a multiplier?
+	ld a, [wDamageMultiplier]
 	and a
-	jr z, .asm_4292
+	jr z, .got_damage_to_add
+	; yes, multiply damage received
 	ld h, a
 	ld a, l
-.asm_428d
+.loop_mult
 	add l
 	dec h
-	jr nz, .asm_428d
+	jr nz, .loop_mult
 	ld l, a
-.asm_4292
+
+.got_damage_to_add
+	; l = damage to add
 	ld a, l
 	ld hl, wDamage
 	add [hl]
 	cp MAX_DAMAGE
-	jr c, .got_damage
+	jr c, .got_total_damage
 	ld a, MAX_DAMAGE
-.got_damage
+.got_total_damage
 	ld [hl], a
-.asm_429e
+
+.skip
 	pop hl
 	ret
 
@@ -771,7 +779,7 @@ Func_4531:
 	ld c, a
 	ld a, CARSTRUCT_20
 	call SetStructByte_C
-	ld a, CARDATASTRUCT_TURNING
+	ld a, CARDATASTRUCT_STEERING
 	call GetPlayerCarData_Byte
 	ld b, a
 	call Func_4591
@@ -912,7 +920,7 @@ Func_45c3:
 	call GetStructWord_BC
 	bit 7, b
 	jr nz, .going_reverse
-	ld a, CARDATASTRUCT_MAX_SPEED
+	ld a, CARDATASTRUCT_TOP_SPEED
 	call GetPlayerCarData_Byte
 	cp b
 	jr z, .limit_forward_speed
@@ -928,7 +936,7 @@ Func_45c3:
 	jp SetStructWord_BC
 
 .going_reverse
-	ld a, CARDATASTRUCT_MAX_SPEED_REVERSE
+	ld a, CARDATASTRUCT_TOP_SPEED_REVERSE
 	call GetPlayerCarData_Byte
 	cp b
 	jr z, .limit_backward_speed
@@ -1043,7 +1051,7 @@ Func_469c:
 	ld a, [wda93]
 	swap a
 	and $0f
-	call nz, Func_427c
+	call nz, InflictDamage
 .asm_4708
 	call Func_3047
 	call Func_40f4
@@ -1396,10 +1404,10 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_3
 	db $09 ; CARDATASTRUCT_4
 	db $09 ; CARDATASTRUCT_5
-	db $34 ; CARDATASTRUCT_MAX_SPEED
-	db $e0 ; CARDATASTRUCT_MAX_SPEED_REVERSE
+	db $34 ; CARDATASTRUCT_TOP_SPEED
+	db -$20 ; CARDATASTRUCT_TOP_SPEED_REVERSE
 	db $14 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_TURNING
+	db $04 ; CARDATASTRUCT_STEERING
 	db $02 ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
@@ -1412,10 +1420,10 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_3
 	db $0a ; CARDATASTRUCT_4
 	db $0a ; CARDATASTRUCT_5
-	db $38 ; CARDATASTRUCT_MAX_SPEED
-	db $dc ; CARDATASTRUCT_MAX_SPEED_REVERSE
+	db $38 ; CARDATASTRUCT_TOP_SPEED
+	db -$24 ; CARDATASTRUCT_TOP_SPEED_REVERSE
 	db $12 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_TURNING
+	db $04 ; CARDATASTRUCT_STEERING
 	db $02 ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
@@ -1428,10 +1436,10 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_3
 	db $09 ; CARDATASTRUCT_4
 	db $09 ; CARDATASTRUCT_5
-	db $38 ; CARDATASTRUCT_MAX_SPEED
-	db $dc ; CARDATASTRUCT_MAX_SPEED_REVERSE
+	db $38 ; CARDATASTRUCT_TOP_SPEED
+	db -$24 ; CARDATASTRUCT_TOP_SPEED_REVERSE
 	db $14 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_TURNING
+	db $04 ; CARDATASTRUCT_STEERING
 	db $02 ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
@@ -1444,10 +1452,10 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_3
 	db $08 ; CARDATASTRUCT_4
 	db $08 ; CARDATASTRUCT_5
-	db $3a ; CARDATASTRUCT_MAX_SPEED
-	db $e0 ; CARDATASTRUCT_MAX_SPEED_REVERSE
+	db $3a ; CARDATASTRUCT_TOP_SPEED
+	db -$20 ; CARDATASTRUCT_TOP_SPEED_REVERSE
 	db $14 ; CARDATASTRUCT_8
-	db $03 ; CARDATASTRUCT_TURNING
+	db $03 ; CARDATASTRUCT_STEERING
 	db $02 ; CARDATASTRUCT_A
 	db $90, $00 ; CARDATASTRUCT_B
 	db $38, $ff ; CARDATASTRUCT_D
@@ -1460,10 +1468,10 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_3
 	db $08 ; CARDATASTRUCT_4
 	db $08 ; CARDATASTRUCT_5
-	db $38 ; CARDATASTRUCT_MAX_SPEED
-	db $dc ; CARDATASTRUCT_MAX_SPEED_REVERSE
+	db $38 ; CARDATASTRUCT_TOP_SPEED
+	db -$24 ; CARDATASTRUCT_TOP_SPEED_REVERSE
 	db $12 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_TURNING
+	db $04 ; CARDATASTRUCT_STEERING
 	db $02 ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
@@ -1673,6 +1681,63 @@ Func_4a8f:
 	ret
 ; 0x4ab9
 
+SECTION "Func_4c73", ROMX[$4c73], BANK[$1]
+
+Func_4c73:
+	bit 3, [hl]
+	ret nz
+	call Func_270f
+	jr nz, .asm_4c83
+	push hl
+	ld a, $12
+	add_hl
+	ld [hl], $00
+	pop hl
+	ret
+.asm_4c83
+	ld c, $5a
+	bit 2, [hl]
+	jr z, .asm_4c8b
+	ld c, $78
+.asm_4c8b
+	push hl
+	ld a, $12
+	add_hl
+	ld a, [hl]
+	inc a
+	cp c
+	jr nc, .asm_4c97
+	ld [hl], a
+	pop hl
+	ret
+.asm_4c97
+	ld de, Func_4c9f
+	ld a, BANK(Func_4c9f)
+	jp Func_157f
+
+Func_4c9f:
+	ld hl, wda56
+	call .Func_4cbd
+	call GetEntityCarPtr
+	ld a, $25
+	call GetStructWord_DE
+	xor a
+	ld [de], a
+	ld a, [hl]
+	ld [hl], $00
+	ld hl, wda55
+	and $04
+	call nz, .Func_4cbd
+	jp DespawnEntity
+
+.Func_4cbd:
+	ld a, [hl]
+	and a
+	ret z
+	dec [hl]
+	ret
+; 0x4cc2
+
 SECTION "Func_5471", ROMX[$5471], BANK[$1]
 
 Func_5471::
@@ -1797,13 +1862,273 @@ Func_56a2:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, $56db
-	ld a, $01
+	ld de, Func_56db
+	ld a, BANK(Func_56db)
 	call Func_1569
 	pop hl
 	pop de
 	ret
-; 0x56db
+
+Func_56db:
+	call GetEntityCarPtr
+	ld a, [hl]
+	and $9f
+	or $10
+	ld [hl], a
+	ld bc, NULL
+	ld a, $0d
+	call SetStructWord_BC
+	call .Func_577d
+.asm_56ef
+	call .Func_573b
+	call .Func_5777
+	call Func_2ab5
+	call z, .Func_578a
+	ld a, $20
+	call GetStructByte_A
+	and a
+	jr z, .asm_5723
+	ld b, a
+	ld a, $11
+	call GetStructByte_A
+	swap a
+	and $0f
+	inc a
+	bit 7, b
+	jr z, .asm_5714
+	cpl
+	inc a
+.asm_5714
+	ld c, a
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	add c
+	ld [hl], a
+	ld a, $03
+	add_hl
+	ld a, [hl]
+	add c
+	ld [hl], a
+	pop hl
+.asm_5723
+	ld a, $10
+	ld bc, $ff80
+	call Func_28bb
+	call Func_3047
+	call .Func_57a8
+	call Func_4c73
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_56ef
+
+.Func_573b:
+	ld a, $11
+	call GetStructByte_A
+	bit 2, [hl]
+	jr nz, .asm_574c
+	bit 3, [hl]
+	jr nz, .asm_5756
+	and a
+	ret nz
+	jr .asm_576d
+.asm_574c
+	and a
+	ret nz
+	ld de, $5906
+	ld a, $01
+	jp Func_157f
+.asm_5756
+	ld c, a
+	ld a, [wd86c]
+	cp $38
+	jr z, .asm_576a
+	ld a, c
+	cp $10
+	ret nc
+	ld de, $5e75
+	ld a, $01
+	jp Func_157f
+.asm_576a
+	ld a, c
+	and a
+	ret nz
+.asm_576d
+	call Func_4c73
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_576d
+
+.Func_5777:
+	call Func_2877
+	jp Func_298c
+
+.Func_577d:
+	push hl
+	ld a, $11
+	add_hl
+	ld a, [hl]
+	cp $08
+	jr nc, .asm_5788
+	ld [hl], $08
+.asm_5788
+	pop hl
+	ret
+
+.Func_578a:
+	ld a, $0f
+	call Func_2984
+	call .Func_5777
+	ld a, $10
+	call GetStructWord_BC
+	srl b
+	rr c
+	ld a, $10
+	call SetStructWord_BC
+	push hl
+	ld a, $20
+	add_hl
+	ld [hl], $00
+	pop hl
+	ret
+
+.Func_57a8:
+	xor a
+	ld [wda5d], a
+	call Func_2f5f
+	ld b, $08
+	ld de, wd8eb
+.asm_57b4
+	ld a, [de]
+	and $01
+	jr z, .asm_57d1
+	ld a, h
+	cp d
+	jr nz, .asm_57bf
+	ld a, l
+	cp e
+.asm_57bf
+	jr z, .asm_57d1
+	ld a, [de]
+	bit 1, a
+	jr nz, .asm_57d1
+	bit 4, a
+	jr nz, .asm_57ce
+	and $80
+	jr nz, .asm_57d1
+.asm_57ce
+	call Func_57df
+.asm_57d1
+	ld a, $27
+	add_de
+	dec b
+	jr nz, .asm_57b4
+	ld a, [wda5d]
+	and a
+	ret z
+	jp Func_3047
+
+Func_57df:
+	push bc
+	call Func_2a90
+	jr nc, .asm_57e7
+	pop bc
+	ret
+.asm_57e7
+	call Func_2d66
+	call Func_31fb
+	ld a, $10
+	call GetStructWord_BC
+	sra b
+	rr c
+	ld a, $0f
+	call GetStructByte_A
+	call Func_56a2
+	ld a, $01
+	ld [wda5d], a
+	pop bc
+	ret
+
+Func_5805::
+	call GetEntityCarPtr
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	ld a, [hl]
+	call Func_5662
+	ld d, h
+	ld e, l
+	call Func_1591
+	ld a, $06
+	call SetStructWord_DE
+	push de
+	ld e, l
+	ld d, h
+	pop hl
+	ld a, $23
+	call SetStructWord_DE
+	ld bc, NULL
+	ld a, $0d
+	call SetStructWord_BC
+	call Func_58e2
+	ld hl, wda55
+	inc [hl]
+	ld hl, wda56
+	inc [hl]
+.asm_583a
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wda7b]
+	and a
+	jr z, .asm_583a
+	ld hl, $5866
+	ld a, [hli]
+	ld [wd833], a
+	ld a, [hli]
+	ld [wd834], a
+	ld a, [hli]
+	ld [wd835], a
+	ld a, [hl]
+	ld [wd836], a
+	call GetEntityCarPtr
+	call Func_5893
+	ld de, $5950
+	ld a, $01
+	jp Func_157f
+; 0x5866
+
+SECTION "Func_5893", ROMX[$5893], BANK[$1]
+
+Func_5893:
+	ld a, $1c
+	ld bc, NULL
+	jp SetStructWord_BC
+; 0x589b
+
+SECTION "Func_58e2", ROMX[$58e2], BANK[$1]
+
+Func_58e2:
+	ld a, [hl]
+	and $8f
+	or $80
+	ld [hl], a
+	ld a, $01
+	call GetStructByte_A
+	cp $01
+	ret nz
+	ld a, $25
+	call GetStructWord_DE
+	ld a, [de]
+	or $80
+	ld [de], a
+	ret
+; 0x58fa
 
 SECTION "Func_5b7a", ROMX[$5b7a], BANK[$1]
 
@@ -3184,9 +3509,41 @@ Func_6446:
 	ld de, $64b4
 	ld a, $01
 	jp Func_157f
-; 0x6499
 
-SECTION "Func_64e2", ROMX[$64e2], BANK[$1]
+Func_6499:
+	call Func_6563
+	ld hl, WellDoneTexts
+	ld c, $3c
+	call Func_1ec0
+.asm_64a4
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wd8e5]
+	and a
+	jr nz, .asm_64a4
+	jr .asm_64b4
+	call Func_6563
+.asm_64b4
+	call Func_6504
+	call Func_651b
+	jr nc, .asm_64d0
+	ld a, $02
+	ld [wTitlescreenTransition], a
+	ld hl, $52b8
+	ld c, $5a
+	call Func_1ec0
+	ld a, MUSIC_MISSION_COMPLETE
+	call PlayMusic
+	jr Func_64e2
+
+.asm_64d0
+	ld a, $01
+	ld [wTitlescreenTransition], a
+	ld hl, RaceOverTexts
+	ld c, $5a
+	ld a, MUSIC_MISSION_FAILED
+	call PlayMusic
+	call Func_1ec0
 
 Func_64e2:
 .loop
@@ -3206,9 +3563,72 @@ Func_64e2:
 	ld a, $03
 	ld [wd820], a
 	jp YieldEntityUpdateIndefinitely
-; 0x6504
 
-SECTION "Func_6563", ROMX[$6563], BANK[$1]
+Func_6504:
+	ld hl, wTimerMode
+	ld c, [hl]
+	ld b, $08
+.asm_650a
+	ld [hl], $00
+	ld a, $04
+	call YieldEntityUpdate
+	ld [hl], c
+	ld a, $04
+	call YieldEntityUpdate
+	dec b
+	jr nz, .asm_650a
+	ret
+
+Func_651b:
+	ld a, [wGameMode]
+	cp MODE_UNK4
+	jr nz, .asm_6531
+	ld a, [$d88e]
+	cp $aa
+	jr z, .asm_6551
+	ld hl, $d88e
+	ld de, $d873
+	jr .asm_6537
+.asm_6531
+	ld hl, $d873
+	ld de, $d88e
+.asm_6537
+	ld a, [de]
+	cp [hl]
+	jr c, .asm_6561
+	jr z, .asm_653f
+	jr .asm_6551
+.asm_653f
+	dec hl
+	dec de
+	ld a, [de]
+	cp [hl]
+	jr c, .asm_6561
+	jr z, .asm_6549
+	jr .asm_6551
+.asm_6549
+	dec hl
+	dec de
+	ld a, [de]
+	cp [hl]
+	jr c, .asm_6561
+	jr z, .asm_6561
+.asm_6551
+	ld hl, wTimer
+	ld de, wd88c
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+	scf
+	ret
+.asm_6561
+	and a
+	ret
 
 Func_6563:
 	xor a
@@ -3462,9 +3882,112 @@ Func_667a:
 .Func_66f5:
 	ld a, SFX_2D
 	jp Func_f1f
-; 0x66fa
 
-SECTION "Func_67dd", ROMX[$67dd], BANK[$1]
+Func_66fa::
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, LoseTheTailTexts
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	ld a, $02
+	ld bc, NULL
+	call StartTimer
+	ld a, $01
+	ld [wd820], a
+	ld a, $15
+	call YieldEntityUpdate
+	ld a, $01
+	ld [wda7b], a
+.asm_671f
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wda55]
+	and a
+	jr nz, .asm_671f
+	ld de, Func_6499
+	ld a, BANK(Func_6499)
+	jp Func_157f
+
+Func_6732::
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, RamHimTexts
+	ld c, $5a
+	call Func_1ec0
+	ld a, $3c
+	call YieldEntityUpdate
+	ld a, $01
+	ld [wda7b], a
+	call Func_67dd
+	ld a, $02
+	ld bc, NULL
+	call StartTimer
+	ld a, $01
+	ld [wd820], a
+.asm_6757
+	ld a, $01
+	call YieldEntityUpdate
+	call .Func_679c
+	call .Func_6764
+	jr .asm_6757
+
+.Func_6764:
+	ld hl, wPlayerCarPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wda77]
+	ld e, a
+	ld a, [wda78]
+	ld d, a
+	call Func_275f
+	ld hl, $128
+	ld a, h
+	cp b
+	jr nz, .asm_677e
+	ld a, l
+	cp c
+.asm_677e
+	ret nc
+	call Func_6563
+	ld a, $01
+	ld [wTitlescreenTransition], a
+	ld hl, YouLostHimTexts
+	ld c, $5a
+	call Func_1ec0
+	ld a, MUSIC_MISSION_FAILED
+	call PlayMusic
+	ld de, Func_64e2
+	ld a, $01
+	jp Func_157f
+
+.Func_679c:
+	ld a, [wd86c]
+	cp $38
+	ret c
+	ld de, Func_6499
+	ld a, $01
+	jp Func_157f
+
+Func_67aa::
+	ld a, $02
+	ld [wd82d], a
+	call YieldEntityUpdateUntilFadeEnds
+	ld hl, ItsTheCopsGetOutOfHereTexts
+	ld c, $5a
+	call Func_1ec0
+	call Func_67dd
+	ld a, $02
+	ld bc, NULL
+	call StartTimer
+	ld a, $01
+	ld [wd820], a
+	ld a, $1e
+	call YieldEntityUpdate
+	ld a, $05
+	ld [wd82d], a
+	ld hl, $1f4f
+	call Func_1eda
+	jp YieldEntityUpdateIndefinitely
 
 Func_67dd:
 .loop
@@ -4488,8 +5011,8 @@ Func_6f1e:
 
 Func_6f32:
 	call YieldEntityUpdateUntilFadeEnds
-	ld a, $05
-	ld [wd83b], a
+	ld a, 5
+	ld [wDamageMultiplier], a
 	ld hl, TakeThisPuppyHomeTexts
 	ld c, $5a
 	call Func_1ec0
@@ -4863,8 +5386,8 @@ Func_71eb:
 
 Func_71ff:
 	call YieldEntityUpdateUntilFadeEnds
-	ld a, $03
-	ld [wd83b], a
+	ld a, 3
+	ld [wDamageMultiplier], a
 	ld hl, GetToTheLockUpTexts
 	ld c, $5a
 	call Func_1ec0
@@ -5160,8 +5683,8 @@ Func_7475:
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
-	ld hl, $748c
-	ld c, $01
+	ld hl, Func_748c
+	ld c, BANK(Func_748c)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -5284,8 +5807,8 @@ Func_748c:
 	ld de, $40a
 	call Func_70f9
 	push hl
-	ld hl, $7637
-	ld c, $01
+	ld hl, Func_7637
+	ld c, BANK(Func_7637)
 	ld b, $05
 	call SpawnEntity
 	pop de
@@ -5335,6 +5858,18 @@ Func_761e:
 	ld [wd838], a
 	ret
 ; 0x7631
+
+SECTION "Data_7637", ROMX[$7637], BANK[$1]
+
+Func_7637:
+	call GetEntityCarPtr
+	ld bc, Func_4000
+	ld a, $0d
+	call SetStructWord_BC
+	ld de, $5950
+	ld a, $01
+	jp Func_157f
+; 0x764a
 
 SECTION "Data_764a", ROMX[$764a], BANK[$1]
 
@@ -6174,9 +6709,30 @@ Func_7bfc:
 	ld a, $00
 	vramswitch
 	ret
-; 0x7c17
 
-SECTION "Data_7c48", ROMX[$7c48], BANK[$1]
+Func_7c17::
+	ld a, $01
+	ld [wd820], a
+	call YieldEntityUpdateUntilFadeEnds
+	xor a
+	ld [wdcb5], a
+.asm_7c23
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wdc92]
+	and a
+	jr nz, .asm_7c3a
+	ld a, [wJoypadPressed]
+	and PAD_A | PAD_START
+	jr z, .asm_7c23
+	ld a, $01
+	ld [wdcb5], a
+.asm_7c3a
+	call FadeToWhite
+	call YieldEntityUpdateUntilFadeEnds
+	ld a, $03
+	ld [wd820], a
+	jp YieldEntityUpdateIndefinitely
 
 Data_7c48::
 	dw .Miami      ; MIAMI
