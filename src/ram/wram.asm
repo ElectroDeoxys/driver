@@ -157,9 +157,9 @@ ENDR
 
 wSpriteFlags:: db ; d545
 
-wd546:: db ; d546
+wTempOAMX:: db ; d546
 
-wd547:: db ; d547
+wTempOAMY:: db ; d547
 
 wd548:: db ; d548
 
@@ -174,9 +174,10 @@ wd54d:: db ; d54d
 wd54e:: db ; d54e
 wd54f:: dw ; d54f
 
-wd551:: db ; d551
-
-	ds $d771 - $d552
+wd551:: ; d551
+FOR n, 1, $20 + 1
+wd551{u:n}:: wd551_struct wd551{u:n}
+ENDR
 
 ; multipurpose buffer for temporarily
 ; holding tile/bg map data
@@ -206,13 +207,8 @@ wd7fb:: db ; d7fb
 
 wd7fc:: db ; d7fc
 
-wd7fd:: db ; d7fd
-
-wd7fe:: db ; d7fe
-
-wd7ff:: db ; d7ff
-
-wd800:: db ; d800
+wd7fd:: dw ; d7fd
+wd7ff:: dw ; d7ff
 
 wd801:: db ; d801
 

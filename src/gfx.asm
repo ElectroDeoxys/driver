@@ -320,7 +320,405 @@ Gfx_d26dd:: INCBIN "gfx/gfx_d26dd.2bpp"
 PersonGfx:: INCBIN "gfx/person.2bpp"
 BoatGfx:: INCBIN "gfx/boat.2bpp"
 
+SECTION "Pals_d2c17", ROMX[$6c17], BANK[$34]
+
+Pals_d2c17::
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+; 0xd2c57
+
+SECTION "Pals_d3567", ROMX[$7567], BANK[$34]
+
+Pals_d3567::
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+
+	rgb 31, 10,  0
+	rgb 23,  5,  0
+	rgb 14,  3,  0
+	rgb  0,  0,  0
+
+	rgb 16, 16, 16
+	rgb  8,  8,  8
+	rgb 23,  5,  0
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb  8,  8,  8
+	rgb 23,  5,  0
+	rgb  0,  0,  0
+
+	rgb 31, 17,  0
+	rgb 30, 12,  0
+	rgb 23,  6,  0
+	rgb 14,  3,  0
+
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+; 0xd35a7
+
+SECTION "Pals_d3e68", ROMX[$7e68], BANK[$34]
+
+Pals_d3e68::
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  9,  9,  9
+	rgb  0,  0,  0
+
+	rgb 31, 17,  0
+	rgb 25,  9,  0
+	rgb 17,  5,  0
+	rgb  0,  0,  0
+
+	rgb 16, 16, 16
+	rgb  9,  9,  9
+	rgb 23,  6,  0
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  9,  9,  9
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb  9,  9,  9
+	rgb 23,  6,  0
+	rgb  0,  0,  0
+
+	rgb 31, 17,  0
+	rgb 30, 12,  0
+	rgb 23,  6,  0
+	rgb 14,  3,  0
+
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb  9,  9,  9
+	rgb  0,  0,  0
+; 0xd3ea8
+
+
 SECTION "Bank35", ROMX, BANK[$35]
+
+SECTION "Pals_d4857", ROMX[$4857], BANK[$35]
+
+Pals_d4857::
+	rgb  8,  8,  8
+	rgb 31, 31, 31
+	rgb  0,  0,  0
+	rgb 17, 17, 17
+
+	rgb  0,  0,  0
+	rgb  0,  0, 19
+	rgb  0,  6, 27
+	rgb  0, 14, 31
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0, 19
+	rgb  0,  6, 27
+	rgb 31, 31, 31
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+; 0xd4897
+
+SECTION "Pals_d4dcb", ROMX[$4dcb], BANK[$35]
+
+Pals_d4dcb::
+	rgb  0,  0,  0
+	rgb 31, 31, 31
+	rgb 24, 24, 24
+	rgb 16, 16, 16
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+; 0xd4e0b
+
+SECTION "Pals_d5147", ROMX[$5147], BANK[$35]
+
+Pals_d5147::
+	rgb 31, 31, 31
+	rgb 24, 24, 24
+	rgb 16, 16, 16
+	rgb  0,  0,  0
+
+	rgb 31, 17, 14
+	rgb 31,  4,  0
+	rgb 21,  2,  0
+	rgb  0,  0,  0
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+; 0xd5187
+
+SECTION "Pals_d5315", ROMX[$5315], BANK[$35]
+
+Pals_d5315::
+	rgb  8,  8,  8
+	rgb 31, 31, 31
+	rgb  0,  0,  0
+	rgb 17, 17, 17
+
+	rgb  0,  0,  0
+	rgb  0,  0, 19
+	rgb  0,  6, 27
+	rgb  0, 14, 31
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0, 19
+	rgb  0,  6, 27
+	rgb 31, 31, 31
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+; 0xd5355
+
+SECTION "Pals_d589f", ROMX[$589f], BANK[$35]
+
+Pals_d589f::
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+
+	rgb 31, 10,  0
+	rgb 23,  5,  0
+	rgb 14,  3,  0
+	rgb  0,  0,  0
+
+	rgb 16, 16, 16
+	rgb  8,  8,  8
+	rgb 23,  5,  0
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+
+	rgb 23, 23, 23
+	rgb  8,  8,  8
+	rgb 23,  5,  0
+	rgb  0,  0,  0
+
+	rgb 31, 17,  0
+	rgb 30, 12,  0
+	rgb 23,  6,  0
+	rgb 14,  3,  0
+
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+; 0xd58df
+
+SECTION "Pals_d61a4", ROMX[$61a4], BANK[$35]
+
+Pals_d61a4::
+	rgb 31, 31, 31
+	rgb 23, 23, 23
+	rgb 16, 16, 16
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+; 0xd61e4
+
 
 SECTION "EnglishHUD", ROMX[$6b1d], BANK[$35]
 

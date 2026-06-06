@@ -87,7 +87,7 @@ ENDM
 
 MACRO? wd551_struct
 \1OAMFlags:: db
-
+	ds $10
 ENDM
 
 ; OAM group structs (see src/constants/sprite_constants.asm)

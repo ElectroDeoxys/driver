@@ -288,14 +288,14 @@ Scenes:
 	dba NULL  ; tile attributes (CGB only)
 
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $34, $6c17 ; BG palettes (CGB only)
+	dba Pals_d2c17 ; BG palettes (CGB only)
 	dbw $34, $6c57 ; tiles VRAM0
 	dbw $34, $7407 ; BG map
 	dbw $32, $7fd0 ; tiles VRAM1 (CGB only)
 	dbw $34, $7543 ; tile attributes (CGB only)
 
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $34, $7567 ; BG palettes (CGB only)
+	dba Pals_d3567 ; BG palettes (CGB only)
 	dbw $34, $75a7 ; tiles VRAM0
 	dbw $34, $7cb4 ; BG map
 	dbw $34, $7ddd ; tiles VRAM1 (CGB only)
@@ -303,14 +303,14 @@ Scenes:
 
 	; SCENE_CRAWFISH_INTERACTIVE
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $34, $7e68 ; BG palettes (CGB only)
+	dba Pals_d3e68 ; BG palettes (CGB only)
 	dbw $35, $4000 ; tiles VRAM0
 	dbw $34, $7ea8 ; BG map
 	dbw $35, $47f7 ; tiles VRAM1 (CGB only)
 	dbw $35, $4820 ; tile attributes (CGB only)
 
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $35, $4857 ; BG palettes (CGB only)
+	dba Pals_d4857 ; BG palettes (CGB only)
 	dbw $35, $4897 ; tiles VRAM0
 	dbw $35, $4c9d ; BG map
 	dbw $35, $4d7b ; tiles VRAM1 (CGB only)
@@ -318,7 +318,7 @@ Scenes:
 
 	; SCENE_LEGAL_INFO
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $35, $4dcb ; BG palettes (CGB only)
+	dba Pals_d4dcb ; BG palettes (CGB only)
 	dbw $35, $4e0b ; tiles VRAM0
 	dbw $35, $5086 ; BG map
 	dbw $35, $511e ; tiles VRAM1 (CGB only)
@@ -326,7 +326,7 @@ Scenes:
 
 	; SCENE_LICENSED_BY_NINTENDO
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $35, $5147 ; BG palettes (CGB only)
+	dba Pals_d5147 ; BG palettes (CGB only)
 	dbw $35, $5187 ; tiles VRAM0
 	dbw $35, $5284 ; BG map
 	dbw $35, $52c9 ; tiles VRAM1 (CGB only)
@@ -334,7 +334,7 @@ Scenes:
 
 	; SCENE_INFOGRAMES
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $35, $61a4 ; BG palettes (CGB only)
+	dba Pals_d61a4 ; BG palettes (CGB only)
 	dbw $35, $61e4 ; tiles VRAM0
 	dbw $35, $6994 ; BG map
 	dbw $35, $6ad0 ; tiles VRAM1 (CGB only)
@@ -342,7 +342,7 @@ Scenes:
 
 	; SCENE_REFLECTIONS
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $35, $589f ; BG palettes (CGB only)
+	dba Pals_d589f ; BG palettes (CGB only)
 	dbw $35, $58df ; tiles VRAM0
 	dbw $35, $5ff0 ; BG map
 	dbw $35, $6119 ; tiles VRAM1 (CGB only)
@@ -350,7 +350,7 @@ Scenes:
 
 	; SCENE_TITLESCREEN
 	dmgpal SHADE_WHITE, SHADE_WHITE, SHADE_WHITE, SHADE_WHITE ; BGP (dgm only)
-	dbw $35, $5315 ; BG palettes (CGB only)
+	dba Pals_d5315 ; BG palettes (CGB only)
 	dbw $35, $5355 ; tiles VRAM0
 	dbw $35, $5770 ; BG map
 	dbw $35, $584f ; tiles VRAM1 (CGB only)
@@ -2701,7 +2701,7 @@ SECTION "Func_110b", ROM0[$110b]
 
 Func_110b::
 	ld hl, wd551
-	ld bc, $220
+	ld bc, NUM_WDC32_STRUCTS * WDC32_STRUCT_SIZE
 	call ClearMemory
 
 	ld a, TRUE
@@ -2719,20 +2719,20 @@ Func_1124::
 	push hl
 	push bc
 	ld hl, wd551
-	ld de, $11
-	ld b, $20
-.asm_112e
-	bit 0, [hl]
-	jr z, .asm_113a
+	ld de, WDC32_STRUCT_SIZE
+	ld b, NUM_WDC32_STRUCTS
+.loop
+	bit WDC32FLAG_ACTIVE_F, [hl]
+	jr z, .found
 	add hl, de
 	dec b
-	jr nz, .asm_112e
+	jr nz, .loop
 	pop bc
 	pop hl
 	scf
 	ret
-.asm_113a
-	ld [hl], $01
+.found
+	ld [hl], WDC32FLAG_ACTIVE
 	ld d, h
 	ld e, l
 	pop bc
@@ -2757,20 +2757,20 @@ Func_1147::
 	jr z, .asm_116d
 
 	ld hl, wd551
-	ld b, $20
-.asm_115a
+	ld b, NUM_WDC32_STRUCTS
+.loop
 	ld a, [hl]
-	and $03
-	cp $03
-	jr nz, .asm_1166
+	and WDC32FLAG_ACTIVE | WDC32FLAG_UNK1
+	cp WDC32FLAG_ACTIVE | WDC32FLAG_UNK1
+	jr nz, .next
 	push bc
 	call Func_1186
 	pop bc
-.asm_1166
-	ld de, $11
+.next
+	ld de, WDC32_STRUCT_SIZE
 	add hl, de
 	dec b
-	jr nz, .asm_115a
+	jr nz, .loop
 
 .asm_116d
 	ld a, [wd54e]
@@ -2790,25 +2790,26 @@ Func_1186:
 	ld a, [hli]
 	ld [wSpriteFlags], a
 	inc hl
-	and $04
+	and WDC32FLAG_UNK2
 	jr z, .asm_11e6
 	ld d, h
 	ld e, l
+
 	ld hl, wd7fd
-	ld a, [de]
-	sub [hl]
+	ld a, [de] ; WDC32STRUCT_Y
+	sub [hl] ; wd7fd
 	ld b, a
 	inc de
 	inc hl
 	ld a, [de]
 	sbc [hl]
 	jr z, .asm_11b3
-	cp $ff
+	cp -1
 	jp nz, .asm_1242
 	push de
-	ld a, $04
+	ld a, WDC32STRUCT_UNK07 - (WDC32STRUCT_Y + 1)
 	add_de
-	ld a, [de]
+	ld a, [de] ; WDC32STRUCT_UNK07
 	add b
 	pop de
 	jp nc, .asm_1242
@@ -2820,23 +2821,24 @@ Func_1186:
 	cp $80
 	jp nc, .asm_1242
 .asm_11b9
-	add $10
+	add OAM_Y_OFS
 	ld b, a
 	inc de
 	inc de
 	inc hl
-	ld a, [de]
-	sub [hl]
+
+	ld a, [de] ; WDC32STRUCT_X
+	sub [hl] ; wd7ff
 	ld c, a
 	inc de
 	inc hl
 	ld a, [de]
 	sbc [hl]
 	jr z, .asm_11da
-	cp $ff
+	cp -1
 	jr nz, .asm_1242
 	push de
-	ld a, $02
+	ld a, WDC32STRUCT_UNK08 - (WDC32STRUCT_X + 1)
 	add_de
 	ld a, [de]
 	add c
@@ -2847,10 +2849,10 @@ Func_1186:
 	jr .asm_11df
 .asm_11da
 	ld a, c
-	cp $a0
+	cp SCREEN_WIDTH_PX
 	jr nc, .asm_1242
 .asm_11df
-	add $08
+	add OAM_X_OFS
 	ld c, a
 	ld h, d
 	ld l, e
@@ -2866,22 +2868,22 @@ Func_1186:
 	ld c, a
 .asm_11f0
 	inc hl
-	ld a, [hli]
+	ld a, [hli] ; WDC32STRUCT_UNK07
 	swap a
 	ld d, a
-	ld a, [hli]
+	ld a, [hli] ; WDC32STRUCT_UNK08
 	rrca
 	rrca
-	ld e, a
+	ld e, a ; /4
 	rrca
-	ld [wd54b], a
+	ld [wd54b], a ; /8
 	ld a, [wSpriteFlags]
-	and $80
+	and WDC32FLAG_UNK7
 	call nz, Func_1315
 	ld a, [wSpriteFlags]
-	and $10
+	and WDC32FLAG_UNK4
 	jr z, .asm_120f
-	ld a, [hli]
+	ld a, [hli] ; WDC32STRUCT_UNK09
 	ld h, [hl]
 	ld l, a
 .asm_120f
@@ -2893,7 +2895,7 @@ Func_1186:
 	jr z, .screen_check
 .asm_1219
 	ld a, [wSpriteFlags]
-	and $60
+	and WDC32FLAG_XFLIP | WDC32FLAG_YFLIP
 	call nz, Func_1338
 	xor a
 	ld [wd548], a
@@ -2917,17 +2919,17 @@ Func_1186:
 
 .asm_123e
 	pop hl
-	res 3, [hl]
+	res WDC32FLAG_UNK3_F, [hl]
 	ret
 
 .asm_1242
 	pop hl
-	set 3, [hl]
+	set WDC32FLAG_UNK3_F, [hl]
 	ret
 
 .screen_check
 	ld a, [wSpriteFlags]
-	and $04
+	and WDC32FLAG_UNK2
 	jr nz, .skip_screen_check
 
 	; are we inside screen coordinates?
@@ -2949,7 +2951,7 @@ Func_1186:
 	ld e, a ; tile ID
 
 	ld a, [wSpriteFlags]
-	and OAM_XFLIP | OAM_YFLIP
+	and WDC32FLAG_XFLIP | WDC32FLAG_YFLIP
 	xor [hl]
 	ld d, a ; attributes
 
@@ -3009,9 +3011,9 @@ Func_1293:
 	ld h, [hl]
 	ld l, a
 	ld a, b
-	ld [wd547], a
+	ld [wTempOAMY], a
 	ld a, c
-	ld [wd546], a
+	ld [wTempOAMX], a
 	ld b, h
 	ld c, l
 	ld a, [hli]
@@ -3024,25 +3026,25 @@ Func_1293:
 	ld h, a
 
 	ld a, [wd54b]
-.asm_12c0
+.loop
 	push af
 	ld a, [bc]
 	cp OAM_GROUP_SIZE
 	jr z, .done_pop_af
 	; group not full
-	ld a, [wd546]
+	ld a, [wTempOAMX]
 	and a
-	jr z, .asm_12eb
+	jr z, .next
 	cp SCREEN_WIDTH_PX + OAM_X_OFS
-	jr nc, .asm_12eb
+	jr nc, .next
 	ld a, $01
 	ld [wd548], a
 	ld a, [de]
 	bit 0, a
-	jr nz, .asm_12eb
-	ld a, [wd547]
+	jr nz, .next
+	ld a, [wTempOAMY]
 	ld [hli], a ; y
-	ld a, [wd546]
+	ld a, [wTempOAMX]
 	ld [hli], a ; x
 	ld a, [de]
 	ld [hli], a ; tile ID
@@ -3053,15 +3055,15 @@ Func_1293:
 	ld a, [bc]
 	inc a
 	ld [bc], a
-.asm_12eb
+.next
 	inc de
 	inc de
-	ld a, [wd546]
-	add $08
-	ld [wd546], a
+	ld a, [wTempOAMX]
+	add 8
+	ld [wTempOAMX], a
 	pop af
 	dec a
-	jr nz, .asm_12c0
+	jr nz, .loop
 .done
 	pop hl
 	pop de
@@ -3088,7 +3090,7 @@ Func_1315:
 	ld a, e
 	cp $02
 	jr z, .subtract_y
-	; subtract 4 px from x
+	; add 4 px to x
 	ld a, c
 	add 4
 	ld c, a
@@ -5188,16 +5190,16 @@ Func_2026:
 	pop hl
 	call Func_2101
 	ld a, c
-	ld [wd7ff], a
+	ld [wd7ff + 0], a
 	ld [wd7fb], a
 	ld a, b
-	ld [wd800], a
+	ld [wd7ff + 1], a
 	ld [wd7fc], a
 	ld a, e
-	ld [wd7fd], a
+	ld [wd7fd + 0], a
 	ld [wd7f9], a
 	ld a, d
-	ld [wd7fe], a
+	ld [wd7fd + 1], a
 	ld [wd7fa], a
 	call Func_2216
 	ld de, wd80f
@@ -7421,15 +7423,16 @@ Func_3047::
 	bankswitch
 	ld a, CARSTRUCT_25
 	call GetStructWord_DE
+
 	push de
 	push hl
 	inc de
 	inc de
-	ld a, $07
+	ld a, CARSTRUCT_07
 	add_hl
 	ld a, [hli]
 	sub $08
-	ld [de], a
+	ld [de], a ; WDC32STRUCT_Y
 	inc de
 	ld a, [hli]
 	sbc $00
@@ -7437,15 +7440,16 @@ Func_3047::
 	inc de
 	inc hl
 	inc de
-	ld a, [hli]
+	ld a, [hli] ; CARSTRUCT_0A
 	sub $08
-	ld [de], a
+	ld [de], a ; WDC32STRUCT_X
 	inc de
 	ld a, [hl]
 	sbc $00
 	ld [de], a
 	pop hl
 	pop de
+
 	ld a, CARSTRUCT_0C
 	call GetStructByte_A
 	add $04
@@ -7459,12 +7463,13 @@ Func_3047::
 	ld b, $00
 	add hl, bc
 	ld a, [de]
-	and $9f
+	and ~(WDC32FLAG_XFLIP | WDC32FLAG_YFLIP)
 	or [hl]
-	or $06
+	or WDC32FLAG_UNK1 | WDC32FLAG_UNK2
 	ld [de], a
 	ld a, [hl]
 	pop hl
+
 	inc hl
 	ld b, [hl] ; CARSTRUCT_01
 	inc hl
@@ -7497,7 +7502,7 @@ Func_3047::
 	ld b, a
 	pop af
 	ld c, a
-	ld a, $05
+	ld a, WDC32STRUCT_X
 	add_de
 	bit 4, b
 	jr nz, .asm_30c6
@@ -7514,10 +7519,10 @@ Func_3047::
 .asm_30c7
 	inc de
 	ld a, $10
-	ld [de], a
+	ld [de], a ; WDC32STRUCT_UNK07
 	inc de
 	ld a, b
-	ld [de], a
+	ld [de], a ; WDC32STRUCT_UNK08
 	inc de
 	push hl
 	inc hl
@@ -7534,13 +7539,13 @@ Func_3047::
 	ld b, a
 	ld h, d
 	ld l, e
-	ld [hl], c
+	ld [hl], c ; WDC32STRUCT_UNK09
 	inc hl
 	ld [hl], b
 	inc hl
 	inc c
 	inc c
-	ld [hl], c
+	ld [hl], c ; WDC32STRUCT_UNK0B
 	inc hl
 	ld [hl], b
 	pop hl

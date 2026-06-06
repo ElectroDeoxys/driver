@@ -448,9 +448,9 @@ Func_42e1::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wd7fd]
+	ld a, [wd7fd + 0]
 	ld e, a
-	ld a, [wd7fe]
+	ld a, [wd7fd + 1]
 	ld d, a
 	call HLMinusDE
 	bit 7, h
@@ -479,9 +479,9 @@ Func_42e1::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wd7ff]
+	ld a, [wd7ff + 0]
 	ld e, a
-	ld a, [wd800]
+	ld a, [wd7ff + 1]
 	ld d, a
 	call HLMinusDE
 	bit 7, h
@@ -1777,7 +1777,7 @@ Func_5605:
 	ret c
 	call Func_1124
 	jr c, .asm_563c
-	ld a, ENT_UNK25
+	ld a, CARSTRUCT_25
 	call SetStructWord_DE
 	call Func_3047
 	call Func_5643
@@ -1811,10 +1811,10 @@ Func_5662:
 	ld h, $00
 	call Func_2631
 	ret c
-	set 2, [hl]
+	set CARFLAG_UNK2_F, [hl]
 	call Func_1124
 	jr c, .asm_567e
-	ld a, ENT_UNK25
+	ld a, CARSTRUCT_25
 	call SetStructWord_DE
 	call Func_3047
 	call Func_5643
@@ -2228,7 +2228,7 @@ Func_5bce::
 	ld a, ENT_UNK23
 	call SetStructWord_DE
 	call Func_1124
-	ld a, ENT_UNK25
+	ld a, CARSTRUCT_25
 	call SetStructWord_DE
 	call Func_3047
 	pop de
@@ -2622,7 +2622,7 @@ Func_5e97::
 	jr .asm_5eae
 .asm_5eba
 	call Func_1591
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 .asm_5ec2
 	call .Func_5ed7
@@ -2717,7 +2717,7 @@ Func_5f27::
 	jr .asm_5f4a
 .asm_5f56
 	call Func_1591
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 .asm_5f5e
 	call .Func_5f73
@@ -3190,7 +3190,7 @@ Func_623d:
 	jr c, .asm_6284
 	call Func_1124
 	jr c, .asm_6282
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	ld h, d
 	ld l, e
@@ -3321,7 +3321,7 @@ Func_635e:
 	jr c, .asm_6394
 	call Func_1124
 	jr c, .asm_6394
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	ld h, d
 	ld l, e
@@ -3744,7 +3744,7 @@ Func_6620:
 	ld l, e
 	push hl
 	ld a, [hl]
-	or $06
+	or WDC32FLAG_UNK1 | WDC32FLAG_UNK2
 	ld [hl], a
 	ld a, $07
 	add_hl
@@ -4550,7 +4550,7 @@ Func_6bbb:
 	ld [wda7f], a
 	ld a, d
 	ld [wda80], a
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	ld h, d
 	ld l, e
@@ -4574,7 +4574,7 @@ Func_6bbb:
 	pop hl
 	push hl
 	ld a, [hl]
-	or $06
+	or WDC32FLAG_UNK1 | WDC32FLAG_UNK2
 	ld [hli], a
 	xor a
 	ld [hli], a

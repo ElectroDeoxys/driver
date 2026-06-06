@@ -1412,12 +1412,14 @@ Func_8f78::
 	ld b, V0TILES_8000
 	ld a, 2 ; tiles
 	call PushTilesToVRAM
+
 	ld de, $5030
 	ld hl, wMenuUpdateFunc
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld a, $01
+
+	ld a, TRUE
 	ld [wd54d], a
 	xor a
 	ld [wd54c], a
