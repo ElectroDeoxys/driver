@@ -69,9 +69,56 @@ Func_4066:
 	ld de, Func_4446
 	ld a, BANK(Func_4446)
 	jp Func_157f
-; 0x408f
 
-SECTION "Func_40f4", ROMX[$40f4], BANK[$1]
+Func_408f:
+	call GetEntityCarPtr
+	ld a, [wda94]
+	and a
+	call nz, Func_f0c
+	xor a
+	ld [wda94], a
+	ld [wda95], a
+	ld [wda96], a
+	ld c, $18
+	call Func_26b8
+	jr c, .asm_40af
+	ld a, SFX_1D
+	call PlaySFX
+.asm_40af
+	ld bc, $400
+	call Func_265f
+	ld a, CARSTRUCT_SPEED
+	call GetStructWord_BC
+	ld a, CARSTRUCT_10
+	call GetStructWord_DE
+	ld a, b
+	or c
+	or d
+	or e
+	jr z, .asm_40d9
+	ld c, $18
+	call Func_26b8
+	jr c, .asm_40d4
+	ld a, [wc57a]
+	and $01
+	call z, Func_42b8
+.asm_40d4
+	call .Func_40e3
+	jr .asm_40af
+.asm_40d9
+	ld a, $02
+	ld [wd83f], a
+	call .Func_40e3
+	jr .asm_40d9
+
+.Func_40e3:
+	ld bc, $fc00
+	ld a, CARSTRUCT_10
+	call Func_28bb
+	call Func_469c
+	ld a, 1
+	call YieldEntityUpdate
+	ret
 
 Func_40f4:
 	xor a
@@ -313,11 +360,13 @@ Func_4258:
 ; given by register a as base damage
 InflictDamage:
 	push hl
-	ld hl, wdc32
-	bit WDC32_UNK1_F, [hl]
-	jr nz, .skip
-	ld l, a ; base damage
 
+	; don't damage if No Damage cheat is active
+	ld hl, wActiveCheats
+	bit CHEAT_NO_DAMAGE_F, [hl]
+	jr nz, .skip
+
+	ld l, a ; base damage
 	; do we have a multiplier?
 	ld a, [wDamageMultiplier]
 	and a
@@ -353,8 +402,8 @@ Func_42a0:
 ; increases felony by amount given in a
 IncreaseFelony:
 	push hl
-	ld hl, wdc32
-	bit WDC32_UNK2_F, [hl]
+	ld hl, wActiveCheats
+	bit CHEAT_IMMUNITY_F, [hl]
 	jr nz, Func_42ab.asm_42b6
 Func_42ab:
 	ld hl, wFelony
@@ -370,14 +419,14 @@ Func_42ab:
 
 Func_42b8:
 	push hl
-	call Func_26cd
+	call GetCarCoordinates
 	ld a, CARSTRUCT_0C
 	call GetStructByte_A
 	jr Func_42ce
 
 Func_42c3:
 	push hl
-	call Func_26cd
+	call GetCarCoordinates
 	ld a, CARSTRUCT_0C
 	call GetStructByte_A
 	add $80
@@ -570,7 +619,7 @@ Func_43be::
 	dec d
 .asm_43eb
 	push hl
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -581,7 +630,7 @@ Func_43be::
 	ld b, h
 	ld c, l
 	pop hl
-	ld a, CARSTRUCT_0A
+	ld a, CARSTRUCT_X
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -1014,7 +1063,7 @@ Func_469c:
 	ld a, [wda5d]
 	cp $02
 	jr nz, .asm_46bf
-	call Func_470f
+	call .Func_470f
 	ld a, [wda98]
 	and a
 	jr z, .asm_46bf
@@ -1033,7 +1082,7 @@ Func_469c:
 	ld a, $10
 	call Func_2abe
 	jr z, .asm_4708
-	call Func_471e
+	call .Func_471e
 	ld a, [wda93]
 	ld b, a
 	srl b
@@ -1042,12 +1091,15 @@ Func_469c:
 	add $80
 	ld c, a
 	call Func_2967
+
+	; halve speed
 	ld a, CARSTRUCT_SPEED
 	call GetStructWord_BC
 	sra b
 	rr c
 	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
+
 	ld a, [wda93]
 	swap a
 	and $0f
@@ -1057,7 +1109,7 @@ Func_469c:
 	call Func_40f4
 	ret
 
-Func_470f:
+.Func_470f:
 	call Random
 	and $01
 	ld a, SFX_27
@@ -1065,7 +1117,7 @@ Func_470f:
 	ld a, SFX_29
 	jp PlaySFX
 
-Func_471e:
+.Func_471e:
 	ld a, [wda93]
 	cp $10
 	ret c
@@ -1594,11 +1646,17 @@ Func_4a3d:
 	ld b, $05
 	ld de, $4bff
 	jr Func_4a51
+
+; input:
+; - bc = x coordinate
+; - de = y coordinate
 Func_4a48:
 	call Func_5605
 	ret c
 	ld b, $04
 	ld de, $4bff
+;	fallthrough
+
 Func_4a51:
 	push bc
 	push de
@@ -1751,6 +1809,9 @@ Func_5471::
 
 SECTION "Func_5605", ROMX[$5605], BANK[$1]
 
+; input:
+; - bc = x coordinate
+; - de = y coordinate
 Func_5605:
 	push af
 	call Random
@@ -1806,6 +1867,9 @@ Func_5643:
 
 SECTION "Func_5662", ROMX[$5662], BANK[$1]
 
+; input:
+; - bc = x coordinate
+; - de = y coordinate
 Func_5662:
 	ld l, $01
 	ld h, $00
@@ -2696,9 +2760,9 @@ Func_5f27::
 	ld a, [wGameMode]
 	cp MODE_UNDERCOVER
 	jr z, .loop
-	cp MODE_UNK3
+	cp MODE_PURSUIT
 	jr z, .loop
-	cp MODE_UNK1
+	cp MODE_CHECKPOINT
 	jr z, .loop
 	jp DespawnEntity
 
@@ -2822,7 +2886,7 @@ Func_5f27::
 	ld a, l
 	and a
 	jr nz, .asm_600a
-	call Func_2daf
+	call CalculateEuclideanDistance
 	cp $40
 	jr c, .asm_605e
 .asm_600a
@@ -2856,7 +2920,7 @@ Func_5f27::
 	ld e, $00
 	ld hl, wda23
 	call Func_298c
-	call Func_26cd
+	call GetCarCoordinates
 	pop af
 	swap a
 	rrca
@@ -3488,7 +3552,7 @@ Func_6446:
 	call Func_1ec0
 
 	ld a, [wGameMode]
-	cp MODE_UNK4
+	cp MODE_SURVIVAL
 	jr z, .asm_6484
 	ld a, $01
 	ld [wTitlescreenTransition], a
@@ -3581,7 +3645,7 @@ Func_6504:
 
 Func_651b:
 	ld a, [wGameMode]
-	cp MODE_UNK4
+	cp MODE_SURVIVAL
 	jr nz, .asm_6531
 	ld a, [$d88e]
 	cp $aa
@@ -3649,8 +3713,8 @@ Func_6575:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, $408f
-	ld a, $01
+	ld de, Func_408f
+	ld a, BANK(Func_408f)
 	call Func_1569
 	ld a, $01
 	ld [wd83f], a
@@ -3721,7 +3785,7 @@ Func_65b4::
 	dec b
 	jr nz, .asm_65f8
 .asm_65fe
-	call Func_6805
+	call HasReachedDestination
 	jr c, .asm_6619
 	ld a, SFX_2C
 	call PlaySFX
@@ -3935,9 +3999,9 @@ Func_6732::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wda77]
+	ld a, [wDestinationCoords + 0]
 	ld e, a
-	ld a, [wda78]
+	ld a, [wDestinationCoords + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $128
@@ -3957,7 +4021,7 @@ Func_6732::
 	ld a, MUSIC_MISSION_FAILED
 	call PlayMusic
 	ld de, Func_64e2
-	ld a, $01
+	ld a, BANK(Func_64e2)
 	jp Func_157f
 
 .Func_679c:
@@ -3965,7 +4029,7 @@ Func_6732::
 	cp $38
 	ret c
 	ld de, Func_6499
-	ld a, $01
+	ld a, BANK(Func_6499)
 	jp Func_157f
 
 Func_67aa::
@@ -4007,29 +4071,33 @@ Func_67e9:
 	jr nz, .loop
 	ret
 
-Func_67f6:
+; input:
+; - hl = coordinate data (x and y)
+SetDestinationCoords:
 	ld de, wda76
 	ld a, $01
 	ld [de], a
-	ld b, $04
-.asm_67fe
+	ld b, $2 + $2
+.loop_copy
 	inc de
 	ld a, [hli]
 	ld [de], a
 	dec b
-	jr nz, .asm_67fe
+	jr nz, .loop_copy
 	ret
 
-Func_6805:
-	call Func_6889
-	ld a, $0c
+; returns nc if destination has been reached
+; i.e. player is within 12 pixels from wDestinationCoords
+HasReachedDestination:
+	call GetDistanceToDestination
+	ld a, 12
 	cp c
-	ret c
+	ret c ; x distance > 12
 	cp b
-	ret c
-	call Func_2daf
+	ret c ; y distance > 12
+	call CalculateEuclideanDistance
 	ld c, a
-	ld a, $0c
+	ld a, 12
 	cp c
 	ret
 
@@ -4042,7 +4110,7 @@ Func_6816:
 	jr z, .asm_6822
 	dec [hl]
 .asm_6822
-	call Func_6889
+	call GetDistanceToDestination
 	ld a, $40
 	cp c
 	jr c, .asm_684d
@@ -4050,13 +4118,13 @@ Func_6816:
 	jr c, .asm_684d
 	ld a, $01
 	ld [wd837], a
-	call Func_2daf
+	call CalculateEuclideanDistance
 	ld c, a
 	ld a, $40
 	cp c
 	ret c
 	push bc
-	call Func_685a
+	call .Func_685a
 	pop bc
 	ld a, $0c
 	cp c
@@ -4079,7 +4147,7 @@ Func_6816:
 	ld [wd837], a
 	jr .asm_684b
 
-Func_685a:
+.Func_685a:
 	ld a, [wda97]
 	and a
 	ret z
@@ -4090,9 +4158,9 @@ Func_685a:
 	ld a, [hl]
 	and a
 	ret nz
-	ld a, $20
+	ld a, SFX_20
 	call PlaySFX
-	ld [hl], $b4
+	ld [hl], $b4 ; wda9a
 	ld hl, LoseTheTailTexts
 	ld c, $3c
 	jp Func_1ec0
@@ -4105,16 +4173,16 @@ Func_6879:
 	call Func_6575
 	jp Func_67e9
 
-Func_6889:
-	ld hl, wda77
+GetDistanceToDestination:
+	ld hl, wDestinationCoords
 	ld de, wda2d
-	ld a, [hli]
+	ld a, [hli] ; wDestinationX
 	ld [de], a
 	inc de
 	ld a, [hli]
 	ld [de], a
 	ld de, wda2a
-	ld a, [hli]
+	ld a, [hli] ; wDestinationY
 	ld [de], a
 	inc de
 	ld a, [hl]
@@ -4294,23 +4362,23 @@ Func_69ae:
 
 	ld a, $01
 	ld [wd820], a
-	ld hl, $7eb7
-	call Func_67f6
+	ld hl, DestinationCoords_MissionTheBankJob_1
+	call SetDestinationCoords
 
 	ld hl, Timer_MissionTheBankJob
 	call StartCountDownTimer
 
-.asm_69cd
+.bank_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
 	jp z, .too_late
-	call Func_6805
-	jr nc, .asm_69e0
-	jr .asm_69cd
+	call HasReachedDestination
+	jr nc, .reached_bank
+	jr .bank_loop
 
-.asm_69e0
+.reached_bank
 	xor a
 	ld [wda76], a
 	ld [wTimerActive], a
@@ -4326,8 +4394,10 @@ Func_69ae:
 
 	call Func_658f
 	call StartCountUpTimer
-	ld hl, $7ebf
-	call Func_67f6
+
+	ld hl, DestinationCoords_MissionTheBankJob_2
+	call SetDestinationCoords
+
 	ld a, 14
 	call IncreaseFelony
 	ld hl, Data_1f37
@@ -4335,11 +4405,11 @@ Func_69ae:
 
 	xor a
 	ld [wda9a], a
-.asm_6a19
+.lock_up_loop
 	ld a, 1
 	call YieldEntityUpdate
 	call Func_6816
-	jr c, .asm_6a19
+	jr c, .lock_up_loop
 	call Func_6879
 	ld hl, $7ec3
 	call Func_6a51
@@ -4415,7 +4485,7 @@ Func_6a97:
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7ece
-	call Func_67f6
+	call SetDestinationCoords
 	call StartCountUpTimer
 	ld a, 14
 	call IncreaseFelony
@@ -4490,7 +4560,7 @@ Func_6b0c:
 	jr .asm_6b36
 .asm_6b50
 	ld hl, $7edb
-	call Func_67f6
+	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
 .asm_6b5a
@@ -4514,7 +4584,7 @@ Func_6b0c:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call Func_26cd
+	call GetCarCoordinates
 	jp Func_bdd
 
 .Func_6b8a:
@@ -4754,7 +4824,7 @@ Func_6bbb:
 	ret c
 	cp b
 	ret c
-	call Func_2daf
+	call CalculateEuclideanDistance
 	cp $0c
 	jr nc, .asm_6d22
 	and a
@@ -4920,14 +4990,14 @@ Func_6e72:
 	call StartCountDownTimer
 .asm_6e8e
 	call .Func_6edf
-	call Func_67f6
+	call SetDestinationCoords
 .asm_6e94
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
 	jr z, .asm_6ec3
-	call Func_6805
+	call HasReachedDestination
 	jr c, .asm_6e94
 	ld a, 11
 	call IncreaseFelony
@@ -5020,7 +5090,7 @@ Func_6f32:
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f06
-	call Func_67f6
+	call SetDestinationCoords
 	ld hl, Timer_MissionSuperflyDrive
 	call StartCountDownTimer
 	xor a
@@ -5073,7 +5143,7 @@ Func_6fa9:
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f11
-	call Func_67f6
+	call SetDestinationCoords
 	ld hl, Timer_MissionBaitForATrap
 	call StartCountDownTimer
 .asm_6fc8
@@ -5114,9 +5184,9 @@ Func_6fa9:
 	ld a, $02
 	ld [wda76], a
 	ld a, l
-	ld [wda77], a
+	ld [wDestinationCoords + 0], a
 	ld a, h
-	ld [wda78], a
+	ld [wDestinationCoords + 1], a
 	ld hl, wda55
 	inc [hl]
 	call .Func_7084
@@ -5149,13 +5219,13 @@ Func_6fa9:
 	ld a, [hl]
 	and a
 	jr nz, .asm_7043
-	ld a, $01
+	ld a, 1
 	call Func_42a0
 	ld hl, DontLoseHimTexts
 	ld c, $5a
 	call Func_1ec0
 	ld hl, $7f16
-	call Func_67f6
+	call SetDestinationCoords
 	call StartCountUpTimer
 .asm_706a
 	ld a, 1
@@ -5164,7 +5234,7 @@ Func_6fa9:
 	ld a, [hl]
 	and a
 	jr z, .asm_70a3
-	call Func_6805
+	call HasReachedDestination
 	jr c, .asm_706a
 	call Func_6879
 	ld hl, NULL
@@ -5339,9 +5409,9 @@ Func_7151:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wda77]
+	ld a, [wDestinationCoords + 0]
 	ld e, a
-	ld a, [wda78]
+	ld a, [wDestinationCoords + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $128
@@ -5395,7 +5465,7 @@ Func_71ff:
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f31
-	call Func_67f6
+	call SetDestinationCoords
 	call StartCountUpTimer
 	ld a, 14
 	call IncreaseFelony
@@ -5472,7 +5542,7 @@ Func_728e:
 	ld hl, $7f4a
 	call StartCountDownTimer
 	ld hl, $7f3a
-	call Func_67f6
+	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
 .asm_72b1
@@ -5499,7 +5569,7 @@ Func_728e:
 	call Func_1ec0
 	call Func_67dd
 	ld hl, $7f42
-	call Func_67f6
+	call SetDestinationCoords
 	call Func_658f
 	ld a, TRUE
 	ld [wTimerActive], a
@@ -5560,7 +5630,7 @@ Func_735a:
 	ld hl, $7f6f
 	call StartCountDownTimer
 	ld hl, $7f51
-	call Func_67f6
+	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
 .asm_737d
@@ -5588,11 +5658,11 @@ Func_735a:
 	call Func_658f
 	call StartCountUpTimer
 	ld hl, $7f59
-	call Func_67f6
+	call SetDestinationCoords
 	xor a
 	ld [wd837], a
 	ld [wd838], a
-	ld a, $0e
+	ld a, 14
 	call IncreaseFelony
 .asm_73cc
 	ld a, 1
@@ -5629,12 +5699,12 @@ Func_735a:
 	call Func_1ec0
 	ld a, $1e
 	call YieldEntityUpdate
-	ld a, $01
+	ld a, 1
 	call Func_42a0
 	ld a, $01
 	ld [wda7b], a
 	ld hl, $7f67
-	call Func_67f6
+	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
 .asm_7423
@@ -5698,7 +5768,7 @@ Func_748c:
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f76
-	call Func_67f6
+	call SetDestinationCoords
 	ld hl, $7f86
 	call StartCountDownTimer
 .asm_74ab
@@ -5730,7 +5800,7 @@ Func_748c:
 	call Func_1ec0
 	call Func_67dd
 	ld hl, $7f7e
-	call Func_67f6
+	call SetDestinationCoords
 	ld hl, $7f88
 	call StartCountDownTimer
 	xor a
@@ -5767,7 +5837,7 @@ Func_748c:
 	call Func_67dd
 	call Func_658f
 	ld hl, $7f71
-	call Func_67f6
+	call SetDestinationCoords
 	ld hl, $7f8a
 	call StartCountDownTimer
 	call Func_761e
@@ -5780,7 +5850,7 @@ Func_748c:
 	call .Func_75c5
 	jr nc, .asm_7563
 	call .Func_75a7
-	ld a, $01
+	ld a, 1
 	call Func_42a0
 	ld a, $01
 	ld [wd839], a
@@ -5841,7 +5911,7 @@ Func_748c:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call Func_26cd
+	call GetCarCoordinates
 	jp Func_bdd
 ; 0x75f7
 
@@ -5940,13 +6010,13 @@ Func_7681:
 	call Func_1ec0
 	xor a
 	ld [wd877], a
-	ld hl, wda77
+	ld hl, wDestinationCoords
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	res 3, [hl]
 	ld hl, $7f91
-	call Func_67f6
+	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
 .asm_76ea
@@ -5970,9 +6040,9 @@ Func_7681:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wda77]
+	ld a, [wDestinationCoords + 0]
 	ld e, a
-	ld a, [wda78]
+	ld a, [wDestinationCoords + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $180
@@ -6229,9 +6299,9 @@ Func_78b3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wda77]
+	ld a, [wDestinationCoords + 0]
 	ld e, a
-	ld a, [wda78]
+	ld a, [wDestinationCoords + 1]
 	ld d, a
 	call Func_275f
 	ld hl, DisableLCD
@@ -6245,7 +6315,7 @@ Func_78b3:
 	ld hl, RamHimTexts
 	ld c, $5a
 	call Func_1ec0
-	ld hl, wda77
+	ld hl, wDestinationCoords
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -6265,9 +6335,9 @@ Func_78b3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wda77]
+	ld a, [wDestinationCoords + 0]
 	ld e, a
-	ld a, [wda78]
+	ld a, [wDestinationCoords + 1]
 	ld d, a
 	call Func_275f
 	ld a, c
@@ -6323,14 +6393,14 @@ Func_7998:
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7fbc
-	call Func_67f6
+	call SetDestinationCoords
 	ld hl, $7fc0
 	call StartCountDownTimer
 .asm_79b7
 	ld a, [wTimerActive]
 	and a
 	jr z, .asm_79d2
-	call Func_6805
+	call HasReachedDestination
 	jr nc, .asm_79c9
 	ld a, 1
 	call YieldEntityUpdate
@@ -6365,7 +6435,7 @@ Func_79e5:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call Func_26cd
+	call GetCarCoordinates
 	ld a, c
 	ld [wdc7e], a
 	ld a, b
@@ -6382,7 +6452,7 @@ Func_7a0c:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call Func_26cd
+	call GetCarCoordinates
 	ld a, c
 	ld [wdc7a + 0], a
 	ld a, b
@@ -6853,3 +6923,17 @@ Data_7e88::
 	dw $7e93 ; LOS_ANGELES
 	dw $7e98 ; NEW_YORK
 ; 0x7e8e
+
+SECTION "DestinationCoords_MissionTheBankJob_1", ROMX[$7eb7], BANK[$1]
+
+DestinationCoords_MissionTheBankJob_1:
+	dw 3440
+	dw 3060
+; 0x7ebb
+
+SECTION "DestinationCoords_MissionTheBankJob_2", ROMX[$7ebf], BANK[$1]
+
+DestinationCoords_MissionTheBankJob_2:
+	dw 7460
+	dw 4640
+; 0x7ec3

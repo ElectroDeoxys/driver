@@ -31,3 +31,9 @@ ENDM
 MACRO? offset
 	dw \1 - _offs
 ENDM
+
+MACRO? menu_item
+	db \1 ; print text type
+	dw \2 ; text
+	dw \3 ; handler function
+ENDM

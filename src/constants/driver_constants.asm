@@ -7,10 +7,10 @@
 ; wGameMode constants
 	const_def
 	const MODE_TAKE_A_RIDE ; $0
-	const MODE_UNK1        ; $1
-	const MODE_UNK2        ; $2
-	const MODE_UNK3        ; $3
-	const MODE_UNK4        ; $4
+	const MODE_CHECKPOINT  ; $1
+	const MODE_GET_AWAY    ; $2
+	const MODE_PURSUIT     ; $3
+	const MODE_SURVIVAL    ; $4
 	const MODE_UNDERCOVER  ; $5
 	const MODE_CREDITS     ; $6
 
@@ -74,9 +74,9 @@ DEF CARSTRUCT_03 RB ; $03
 DEF CARSTRUCT_04 RB ; $04
 DEF CARSTRUCT_05 RB ; $05
 DEF CARSTRUCT_06 RB ; $06
-DEF CARSTRUCT_07 RW ; $07
+DEF CARSTRUCT_Y RW ; $07
 DEF CARSTRUCT_09 RB ; $09
-DEF CARSTRUCT_0A RW ; $0a
+DEF CARSTRUCT_X RW ; $0a
 DEF CARSTRUCT_0C RB ; $0c
 DEF CARSTRUCT_SPEED RW ; $0d
 DEF CARSTRUCT_0F RB ; $0f

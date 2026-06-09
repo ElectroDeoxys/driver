@@ -242,7 +242,7 @@ wd80f:: db ; d80f
 
 	ds $d81e - $d810
 
-wd81e:: db ; d81e
+wDebugModeActive:: db ; d81e
 
 wGameMode:: db ; d81f
 
@@ -506,12 +506,9 @@ wda6e:: db ; da6e
 	ds $da76 - $da6f
 
 wda76:: db ; da76
-
-wda77:: db ; da77
-
-wda78:: db ; da78
-
-	ds $da7b - $da79
+wDestinationCoords::
+wDestinationX:: dw ; da77
+wDestinationY:: dw ; da79
 
 wda7b:: db ; da7b
 
@@ -639,7 +636,7 @@ wLanguage:: db ; dc30
 
 wdc31:: db ; dc31
 
-wdc32:: db ; dc32
+wActiveCheats:: db ; dc32
 
 wdc33:: db ; dc33
 

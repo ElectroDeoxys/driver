@@ -1780,7 +1780,7 @@ Func_bdd::
 DTimesE::
 	ld a, d
 	cp e ; d < e?
-	jr c, ATimeE ; yes
+	jr c, ATimesE ; yes
 	; d >= e, swap values
 	ld a, e
 	ld e, d
@@ -1788,7 +1788,7 @@ DTimesE::
 
 ; returns de = a * e
 ; condition: a <= e
-ATimeE:
+ATimesE:
 	push hl
 	ld d, 0
 	ld h, d ; 0
@@ -1807,34 +1807,43 @@ ATimeE:
 	pop hl
 	ret
 
-Func_c43:
-	cp $02
-	jr c, .asm_c4a
+; outputs de = a * a
+ASquared:
+	cp 2
+	jr c, .one
 	ld e, a
-	jr ATimeE
-.asm_c4a
+	jr ATimesE
+.one
 	ld e, a
 	ld d, $00
 	ret
 
-Func_c4e:
+; outputs a = sqrt(de)
+SquareRoot:
 	push bc
 	push hl
 	ld hl, $4000
-	ld b, l
-	ld c, l
-.asm_c55
+	ld b, l ; 0
+	ld c, l ; 0
+.loop
 	push hl
 	add hl, bc
+	; hl += bc
+
 	srl b
 	rr c
+	; bc /= 2
+
+	; de < hl?
 	ld a, d
 	cp h
-	jr nz, .asm_c61
+	jr nz, .check_condition
 	ld a, e
 	cp l
-.asm_c61
-	jr c, .asm_c76
+.check_condition
+	jr c, .de_smaller_than_hl
+	; de >= hl
+
 	xor a
 	sub l
 	ld l, a
@@ -1844,6 +1853,8 @@ Func_c4e:
 	add hl, de
 	ld d, h
 	ld e, l
+	; de -= hl
+
 	pop hl
 	ld a, c
 	or l
@@ -1851,17 +1862,22 @@ Func_c4e:
 	ld a, b
 	or h
 	ld b, a
-	jr .asm_c77
-.asm_c76
+	; bc |= hl
+	jr .next_iteration
+.de_smaller_than_hl
 	pop hl
-.asm_c77
+.next_iteration
 	srl h
 	rr l
 	srl h
 	rr l
+	; hl /= 4
+
+	; hl == 0?
 	ld a, h
 	or l
-	jr nz, .asm_c55
+	jr nz, .loop
+
 	ld a, c
 	pop hl
 	pop bc
@@ -3812,10 +3828,10 @@ Func_16e2:
 	ld a, [wGameMode]
 	jumptable
 	dw Func_16f4 ; MODE_TAKE_A_RIDE
-	dw Func_1735 ; MODE_UNK1
-	dw Func_1748 ; MODE_UNK2
-	dw Func_175b ; MODE_UNK3
-	dw Func_176e ; MODE_UNK4
+	dw Func_1735 ; MODE_CHECKPOINT
+	dw Func_1748 ; MODE_GET_AWAY
+	dw Func_175b ; MODE_PURSUIT
+	dw Func_176e ; MODE_SURVIVAL
 	dw Func_1784 ; MODE_UNDERCOVER
 	dw Func_18c5 ; MODE_CREDITS
 
@@ -3897,10 +3913,10 @@ Func_178e:
 	ld a, [wGameMode]
 	jumptable
 	dw Func_17a0 ; MODE_TAKE_A_RIDE
-	dw Func_17b4 ; MODE_UNK1
-	dw Func_1808 ; MODE_UNK2
-	dw Func_184b ; MODE_UNK3
-	dw Func_1899 ; MODE_UNK4
+	dw Func_17b4 ; MODE_CHECKPOINT
+	dw Func_1808 ; MODE_GET_AWAY
+	dw Func_184b ; MODE_PURSUIT
+	dw Func_1899 ; MODE_SURVIVAL
 	dw Func_18bb ; MODE_UNDERCOVER
 	dw Func_190f ; MODE_CREDITS
 
@@ -4015,9 +4031,9 @@ Func_184b:
 	ld a, $02
 	ld [wda76], a
 	ld a, l
-	ld [wda77], a
+	ld [wDestinationCoords + 0], a
 	ld a, h
-	ld [wda78], a
+	ld [wDestinationCoords + 1], a
 	ld hl, Func_6732
 	ld c, BANK(Func_6732)
 	ld b, $0b
@@ -4171,10 +4187,10 @@ Func_198f:
 	ld a, [wGameMode]
 	jumptable
 	dw .TakeARide  ; MODE_TAKE_A_RIDE
-	dw .Func_19ab ; MODE_UNK1
-	dw .Func_19ab ; MODE_UNK2
-	dw .Func_19ab ; MODE_UNK3
-	dw .Func_19ab ; MODE_UNK4
+	dw .Func_19ab ; MODE_CHECKPOINT
+	dw .Func_19ab ; MODE_GET_AWAY
+	dw .Func_19ab ; MODE_PURSUIT
+	dw .Func_19ab ; MODE_SURVIVAL
 	dw .Undercover ; MODE_UNDERCOVER
 	dw .Credits    ; MODE_CREDITS
 
@@ -4287,7 +4303,7 @@ Func_1a2e::
 
 Func_1a43:
 	ld a, [wGameMode]
-	cp MODE_UNK4
+	cp MODE_SURVIVAL
 	jr z, .asm_1a66
 	sub $01
 	ld hl, wdc39
@@ -4635,15 +4651,16 @@ Func_1c57:
 	ld [wc574], a
 	ld a, c
 	ld [wc573], a
-	ld a, [wdc32]
-	and WDC32_UNK4
+
+	ld a, [wActiveCheats]
+	and CHEAT_TEST_STUFF
 	ret z
 	ld a, [wFadeActive]
 	and a
 	ret nz
 	ld a, [wJoypadPressed]
 	and PAD_SELECT
-	call nz, Func_1fc7
+	call nz, ToggleDebugMode
 	ret
 
 Func_1c7b:
@@ -4682,7 +4699,7 @@ Func_1c7b:
 
 Func_1cb9:
 	ld a, $00
-	ld [wdc32], a
+	ld [wActiveCheats], a
 	ld a, $01
 	ld [wdc33], a
 
@@ -4883,8 +4900,8 @@ Func_1d16:
 	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v1Tiles0 tile $70
-	ld hl, Gfx_cdff0
-	ld c, BANK(Gfx_cdff0)
+	ld hl, Gfx_c7ff0
+	ld c, BANK(Gfx_c7ff0)
 	ld b, 1 ; tile
 	ld a, 1
 	call CopyTilesWithAlternatingBlackTiles
@@ -5054,13 +5071,13 @@ Func_1eee:
 	jr nz, Func_1f32
 	ld a, [wFelony]
 	ld de, $0
-	cp $12
+	cp 18
 	jr c, .asm_1f18
 	ld de, $6
-	cp $24
+	cp 36
 	jr c, .asm_1f18
 	ld de, $c
-	cp $38
+	cp 56
 	jr c, .asm_1f18
 	ld de, $12
 .asm_1f18
@@ -5106,36 +5123,41 @@ Data_1f97:
 	db CAR_01, CAR_03, CAR_09, CAR_02, $03, $03, $03, $03, $09, $09, $02, $02
 	db CAR_01, CAR_05, CAR_10, CAR_02, $05, $05, $05, $05, $0a, $0a, $02, $02
 
-Func_1fc7:
+ToggleDebugMode:
 	ld a, [wd895]
 	and a
 	ret nz
+
 	ld hl, wDMGPals
 	ld bc, $38
 	ld a, $ff
 	call FillMemory
 	call FlushCGBPalettes
+
 	call Func_2597
-	ld a, [wd81e]
+	ld a, [wDebugModeActive]
 	and a
-	jr nz, .asm_1fe6
+	jr nz, .not_debug
 	ld a, $08
 	add_hl
-.asm_1fe6
+.not_debug
 	call Func_2133
 	ld a, [hli]
 	ld [wd80b], a
 	ld a, [hli]
 	ld [wd80c], a
 	call Func_2216
+
 	ld hl, wTempBGPals
 	ld de, wBGPals
 	ld b, 7 palettes
 	call CopyHLtoDE
 	call FlushCGBPalettes
-	ld hl, wd81e
+
+	; toggle Debug Mode bool
+	ld hl, wDebugModeActive
 	ld a, [hl]
-	xor $01
+	xor $1
 	ld [hl], a
 	ret
 ; 0x200a
@@ -5144,7 +5166,7 @@ SECTION "Func_2026", ROM0[$2026]
 
 Func_2026:
 	xor a
-	ld [wd81e], a
+	ld [wDebugModeActive], a
 	call Func_2597
 	call Func_2133
 	ld a, [hli]
@@ -5306,6 +5328,7 @@ Func_2133:
 	ld [wVRAMNumTiles_v0_9000], a
 	ld [wVRAMNumTiles_v0_8800], a
 	ld [wVRAMNumTiles_v1_9000], a
+
 	ld a, [hli]
 	bankswitch
 	ld e, [hl]
@@ -5319,6 +5342,7 @@ Func_2133:
 	ld b, 7 palettes
 	call CopyHLtoDE
 	pop hl
+
 	ld c, [hl]
 	inc hl
 	ld e, [hl]
@@ -5333,7 +5357,8 @@ Func_2133:
 	call PushTilesToVRAM
 	pop de
 	pop bc
-	ld hl, $800
+
+	ld hl, $80 tiles
 	add hl, de
 	ld d, h
 	ld e, l
@@ -5344,7 +5369,8 @@ Func_2133:
 	call PushTilesToVRAM
 	pop de
 	pop bc
-	ld hl, $800
+
+	ld hl, $80 tiles
 	add hl, de
 	ld d, h
 	ld e, l
@@ -6075,12 +6101,42 @@ Func_2597:
 	ret
 
 .PtrTable:
-	dw $25a9 ; MIAMI
-	dw $25bd ; LOS_ANGELES
-	dw $25d1 ; NEW_YORK
-; 0x25a9
+	dw .Miami      ; MIAMI
+	dw .LosAngeles ; LOS_ANGELES
+	dw .NewYork    ; NEW_YORK
 
-SECTION "Func_25e5", ROM0[$25e5]
+.Miami:
+	dbw $31, $5320
+	dba Gfx_c4000
+	db $1a, $06
+
+	dbw $31, $5450
+	dbw $31, $5360
+	db $1c, $0b
+
+	db $00, $20, $00, $20
+
+.LosAngeles:
+	dbw $31, $6800
+	dbw $31, $5490
+	db $1e, $10
+
+	dbw $31, $6930
+	dbw $31, $6840
+	db $20, $15
+
+	db $00, $20, $00, $20
+
+.NewYork:
+	dbw $31, $7a40
+	dbw $31, $6970
+	db $2c, $22
+
+	dbw $31, $7b70
+	dbw $31, $7a80
+	db $2e, $27
+
+	db $00, $20, $00, $20
 
 Func_25e5:
 	ld b, $08
@@ -6136,8 +6192,8 @@ Func_25f4:
 ; - a  = ?
 ; - h  = ?
 ; - l  = ?
-; - de = ?
-; - bc = ?
+; - bc = x coordinate
+; - de = y coordinate
 Func_2631::
 	ld [wdc7a], a
 	ld a, l
@@ -6157,12 +6213,12 @@ Func_2631::
 	ld [hli], a ; CARSTRUCT_04
 	ld [hli], a ; CARSTRUCT_05
 	ld [hli], a ; CARSTRUCT_06
-	ld [hl], e  ; CARSTRUCT_07
+	ld [hl], e  ; CARSTRUCT_Y
 	inc hl
 	ld [hl], d
 	inc hl
 	ld [hli], a ; CARSTRUCT_09
-	ld [hl], c  ; CARSTRUCT_0A
+	ld [hl], c  ; CARSTRUCT_X
 	inc hl
 	ld [hl], b
 	inc hl
@@ -6222,16 +6278,19 @@ Func_26c5:
 	pop hl
 	ret
 
-Func_26cd::
+; output:
+; - bc = x coordinate
+; - de = y coordinate
+GetCarCoordinates::
 	push hl
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_hl
-	ld e, [hl] ; CARSTRUCT_07
+	ld e, [hl] ; CARSTRUCT_Y
 	inc hl
 	ld d, [hl]
 	inc hl
 	inc hl
-	ld c, [hl] ; CARSTRUCT_0A
+	ld c, [hl] ; CARSTRUCT_X
 	inc hl
 	ld b, [hl]
 	pop hl
@@ -6319,9 +6378,9 @@ SECTION "Func_275f", ROM0[$275f]
 Func_275f::
 	push de
 	push hl
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_hl
-	ld a, [hli] ; CARSTRUCT_07
+	ld a, [hli] ; CARSTRUCT_Y
 	push hl
 	ld h, [hl]
 	ld l, a
@@ -6408,7 +6467,7 @@ Func_275f::
 	srl b
 	srl c
 .asm_27d2
-	call Func_2daf
+	call CalculateEuclideanDistance
 	ld l, a
 	ld a, h
 	ld h, $00
@@ -6425,19 +6484,26 @@ Func_275f::
 	pop de
 	ret
 
+; input:
+; - hl = struct 1
+; - de = struct 2
+; output:
+; - b = y distance
+; - c = x distance
+; - a = direction flags
 Func_27e5::
 	push de
 	push hl
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_hl
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_de
 	push de
 	push hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [de] ; CARSTRUCT_07
+	ld a, [de] ; CARSTRUCT_Y
 	ld c, a
 	inc de
 	ld a, [de]
@@ -6472,7 +6538,7 @@ Func_27e5::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [de] ; CARSTRUCT_0A
+	ld a, [de] ; CARSTRUCT_X
 	ld c, a
 	inc de
 	ld a, [de]
@@ -6672,7 +6738,7 @@ Func_28d1::
 .asm_291c
 	set 1, [hl]
 .asm_291e
-	call Func_2daf
+	call CalculateEuclideanDistance
 	push af
 	call Func_2d66
 	ld c, a
@@ -6875,12 +6941,16 @@ Func_2a7e:
 
 Func_2a90::
 	call Func_27e5
-	ld a, $0f
+
+	; exit if either distance > 15
+	ld a, 15
 	cp c
-	ret c
+	ret c ; x distance > 15
 	cp b
-	ret c
+	ret c ; y distance > 15
+
 	call Func_2f8e
+
 	push hl
 	ld hl, wda5e
 	ld a, [wda62]
@@ -6898,7 +6968,7 @@ Func_2a90::
 	jp Func_2fc1
 
 Func_2ab5::
-	call Func_26cd
+	call GetCarCoordinates
 	call Func_2558
 	cp $00
 	ret
@@ -6917,60 +6987,210 @@ Func_2abe::
 	ld a, [hl]
 	or c
 	pop hl
-	jr z, .asm_2b16
+	jr z, .done
 	ld de, wda4d
 	call Func_2c37
 	call Func_2cbb
 	call Func_298c
 	call Func_2ab5
-	jr nz, .asm_2b16
+	jr nz, .done
+
 	ld de, wda51
 	call Func_2c37
 	ld a, [wda5a]
-	ld de, $2b16
+	ld de, .done
 	push de
 	push hl
 	jumptable
-	dec d
-	dec hl
-	dec de
-	dec hl
-	inc hl
-	dec hl
-	dec hl
-	dec hl
-	rra
-	dec hl
-	dec d
-	dec hl
-	ld e, l
-	dec hl
-	dec d
-	dec hl
-	daa
-	dec hl
-	pop bc
-	dec hl
-	dec d
-	dec hl
-	dec d
-	dec hl
-	adc a
-	dec hl
-	dec d
-	dec hl
-	dec d
-	dec hl
-	dec d
-	dec hl
+	dw .Func_2b15
+	dw .Func_2b1b
+	dw .Func_2b23
+	dw .Func_2b2b
+	dw .Func_2b1f
+	dw .Func_2b15
+	dw .Func_2b5d
+	dw .Func_2b15
+	dw .Func_2b27
+	dw .Func_2bc1
+	dw .Func_2b15
+	dw .Func_2b15
+	dw .Func_2b8f
+	dw .Func_2b15
+	dw .Func_2b15
+	dw .Func_2b15
+
+.Func_2b15:
 	pop hl
-.asm_2b16
+.done
 	ld a, [wda5d]
 	and a
 	ret
-; 0x2b1b
 
-SECTION "Func_2c37", ROM0[$2c37]
+.Func_2b1b:
+	pop hl
+	jp Func_2c89
+
+.Func_2b1f:
+	pop hl
+	jp Func_2ca2
+
+.Func_2b23:
+	pop hl
+	jp Func_2c71
+
+.Func_2b27:
+	pop hl
+	jp Func_2c7d
+
+.Func_2b2b:
+	pop hl
+	call Func_2c49
+	call z, Func_2c89
+	call Func_2c5b
+	call z, Func_2c71
+	ld a, [wda5d]
+	and a
+	jr nz, .asm_2b51
+	call Func_2c89
+	call Func_2c71
+.asm_2b44
+	ld a, $0c
+	call GetStructByte_A
+	and $20
+	jp z, Func_2c13
+	jp Func_2bf2
+.asm_2b51
+	cp $03
+	jr z, .asm_2b44
+	and $02
+	jp nz, Func_2c13
+	jp Func_2bf2
+
+.Func_2b5d:
+	pop hl
+	call Func_2c49
+	call z, Func_2ca2
+	call Func_2c5b
+	call z, Func_2c71
+	ld a, [wda5d]
+	and a
+	jr nz, .asm_2b83
+	call Func_2ca2
+	call Func_2c71
+.asm_2b76
+	ld a, $0c
+	call GetStructByte_A
+	and $20
+	jp z, Func_2c13
+	jp Func_2bf2
+.asm_2b83
+	cp $06
+	jr z, .asm_2b76
+	and $02
+	jp nz, Func_2bf2
+	jp Func_2c13
+
+.Func_2b8f:
+	pop hl
+	call Func_2c49
+	call z, Func_2ca2
+	call Func_2c5b
+	call z, Func_2c7d
+	ld a, [wda5d]
+	and a
+	jr nz, .asm_2bb5
+	call Func_2ca2
+	call Func_2c7d
+.asm_2ba8
+	ld a, $0c
+	call GetStructByte_A
+	and $20
+	jp z, Func_2c13
+	jp Func_2bf2
+.asm_2bb5
+	cp $0c
+	jr z, .asm_2ba8
+	and $08
+	jp nz, Func_2c13
+	jp Func_2bf2
+
+.Func_2bc1:
+	pop hl
+	call Func_2c49
+	call z, Func_2c89
+	call Func_2c5b
+	call z, Func_2c7d
+	ld a, [wda5d]
+	and a
+	jr nz, .asm_2be7
+	call Func_2c89
+	call Func_2c7d
+.asm_2bda
+	ld a, $0c
+	call GetStructByte_A
+	and $20
+	jp z, Func_2c13
+	jp Func_2bf2
+.asm_2be7
+	cp $09
+	jr z, .asm_2bda
+	and $08
+	jp nz, Func_2bf2
+	jr Func_2c13
+
+Func_2bf2:
+	ld a, [wdc7e]
+	ld c, a
+	call Func_26b8
+	ret c
+	call Func_2c34
+	push hl
+	ld a, $0c
+	add_hl
+.asm_2c01
+	inc [hl]
+	ld a, [hl]
+	and $0f
+	jr z, .asm_2c0a
+	dec b
+	jr nz, .asm_2c01
+.asm_2c0a
+	pop hl
+	push hl
+	ld a, $20
+	add_hl
+	ld [hl], $10
+	pop hl
+	ret
+
+Func_2c13:
+	ld a, [wdc7e]
+	ld c, a
+	call Func_26b8
+	ret c
+	call Func_2c34
+	push hl
+	ld a, $0c
+	add_hl
+.asm_2c22
+	dec [hl]
+	ld a, [hl]
+	and $0f
+	jr z, .asm_2c2b
+	dec b
+	jr nz, .asm_2c22
+.asm_2c2b
+	pop hl
+	push hl
+	ld a, $20
+	add_hl
+	ld [hl], $20
+	pop hl
+	ret
+
+Func_2c34:
+	ld b, $02
+	ret
 
 Func_2c37:
 	push hl
@@ -6990,9 +7210,84 @@ Func_2c37:
 	ld [de], a
 	pop hl
 	ret
-; 0x2c49
 
-SECTION "Func_2cbb", ROM0[$2cbb]
+Func_2c49:
+	ld a, [$da4f]
+	ld c, a
+	ld a, [$da50]
+	ld b, a
+	ld a, [wda51]
+	ld e, a
+	ld a, [$da52]
+	ld d, a
+	jr Func_2c6b
+Func_2c5b:
+	ld a, [$da53]
+	ld c, a
+	ld a, [$da54]
+	ld b, a
+	ld a, [wda4d]
+	ld e, a
+	ld a, [$da4e]
+	ld d, a
+Func_2c6b:
+	call Func_2558
+	cp $00
+	ret
+
+Func_2c71:
+	ld a, [wda5d]
+	or $02
+	ld [wda5d], a
+	ld a, $09
+	jr Func_2cac
+
+Func_2c7d:
+	ld a, [wda5d]
+	or $08
+	ld [wda5d], a
+	ld a, $09
+	jr Func_2c93
+
+Func_2c89:
+	ld a, [wda5d]
+	or $01
+	ld [wda5d], a
+	ld a, $06
+Func_2c93:
+	push hl
+	add_hl
+	xor a
+	ld [hli], a
+	ld a, [hl]
+	and $f8
+	add $08
+	ld [hli], a
+	jr nc, .asm_2ca0
+	inc [hl]
+.asm_2ca0
+	pop hl
+	ret
+
+Func_2ca2:
+	ld a, [wda5d]
+	or $04
+	ld [wda5d], a
+	ld a, $06
+Func_2cac:
+	push hl
+	add_hl
+	xor a
+	ld [hli], a
+	ld a, [hl]
+	and $f8
+	sub $01
+	ld [hli], a
+	jr nc, .asm_2cb9
+	dec [hl]
+.asm_2cb9
+	pop hl
+	ret
 
 Func_2cbb:
 	ld a, CARSTRUCT_SPEED + 1
@@ -7149,36 +7444,39 @@ Func_2d87:
 	ld a, $40
 	ret
 
-Func_2daf::
+; outputs a = sqrt(c*c + b*b)
+CalculateEuclideanDistance::
 	ld a, b
 	and a
-	jr z, .asm_2dd1
+	jr z, .zero_y
 	ld a, c
 	and a
-	jr z, .asm_2dd3
+	jr z, .zero_x
+
 	push de
 	push hl
-	call Func_c43
+	call ASquared
 	ld h, d
 	ld l, e
 	ld a, b
-	call Func_c43
+	call ASquared
 	add hl, de
-	jr c, .asm_2dcd
+	jr c, .negative
 	ld d, h
 	ld e, l
-	call Func_c4e
-.asm_2dca
+	call SquareRoot
+
+.got_result
 	pop hl
 	pop de
 	ret
-.asm_2dcd
+.negative
 	ld a, $ff
-	jr .asm_2dca
-.asm_2dd1
+	jr .got_result
+.zero_y
 	ld a, c
 	ret
-.asm_2dd3
+.zero_x
 	ld a, b
 	ret
 
@@ -7191,7 +7489,7 @@ Func_2dd5::
 	cp $03
 	jr z, .asm_2e05
 	push hl
-	ld hl, wda77
+	ld hl, wDestinationCoords
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -7211,7 +7509,7 @@ Func_2dd5::
 
 .asm_2df7
 	push hl
-	ld hl, wda77
+	ld hl, wDestinationCoords
 	ld c, [hl]
 	inc hl
 	ld b, [hl]
@@ -7289,7 +7587,7 @@ Func_2f8e:
 	push hl
 	ld h, d
 	ld l, e
-	ld a, $03
+	ld a, CARSTRUCT_03
 	add_hl
 	ld e, [hl]
 	inc hl
@@ -7428,7 +7726,7 @@ Func_3047::
 	push hl
 	inc de
 	inc de
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_hl
 	ld a, [hli]
 	sub $08
@@ -7440,7 +7738,7 @@ Func_3047::
 	inc de
 	inc hl
 	inc de
-	ld a, [hli] ; CARSTRUCT_0A
+	ld a, [hli] ; CARSTRUCT_X
 	sub $08
 	ld [de], a ; WDC32STRUCT_X
 	inc de

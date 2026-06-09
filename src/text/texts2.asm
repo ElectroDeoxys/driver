@@ -491,40 +491,40 @@ CheatsTextES:
 CheatsTextEN:
 	db "CHEATS\0"
 
-Texts_f4a8d:
-	dw TextEN_f4a8d
-	dw TextFR_f4a8d
-	dw TextDE_f4a8d
-	dw TextIT_f4a8d
-	dw TextES_f4a8d
+MusicTexts::
+	dw MusicTextEN
+	dw MusicTextFR
+	dw MusicTextDE
+	dw MusicTextIT
+	dw MusicTextES
 
-TextEN_f4a8d:
+MusicTextEN:
 	db "MUSIC:<CTRL_80>\0"
-TextFR_f4a8d:
+MusicTextFR:
 	db "MUSIQUE:<CTRL_80>\0"
-TextDE_f4a8d:
+MusicTextDE:
 	db "MUSIK:<CTRL_80>\0"
-TextIT_f4a8d:
+MusicTextIT:
 	db "MUSICA:<CTRL_80>\0"
-TextES_f4a8d:
+MusicTextES:
 	db "M<BIG_Ú>SICA:<CTRL_80>\0"
 
-Texts_f4ac3:
-	dw TextEN_f4ac3
-	dw TextFR_f4ac3
-	dw TextDE_f4ac3
-	dw TextIT_f4ac3
-	dw TextES_f4ac3
+SoundEffectsTexts::
+	dw SoundEffectsTextEN
+	dw SoundEffectsTextFR
+	dw SoundEffectsTextDE
+	dw SoundEffectsTextIT
+	dw SoundEffectsTextES
 
-TextEN_f4ac3:
+SoundEffectsTextEN:
 	db "SOUND EFFECTS:<CTRL_81>\0"
-TextFR_f4ac3:
+SoundEffectsTextFR:
 	db "EFFETS SONORES:<CTRL_81>\0"
-TextDE_f4ac3:
+SoundEffectsTextDE:
 	db "SOUNDEFFEKTE:<CTRL_81>\0"
-TextIT_f4ac3:
+SoundEffectsTextIT:
 	db "EFFETTI SONORI:<CTRL_81>\0"
-TextES_f4ac3:
+SoundEffectsTextES:
 	db "EFECTOS SONIDO:<CTRL_81>\0"
 
 BackTexts::
@@ -565,72 +565,72 @@ RightArrowTexts::
 RightArrowText:
 	db ">\0"
 
-Texts_f4b63:
-	dw Text_f4b63
-	dw Text_f4b63
-	dw Text_f4b63
-	dw Text_f4b63
-	dw Text_f4b63
+EnglishTexts::
+	dw EnglishText
+	dw EnglishText
+	dw EnglishText
+	dw EnglishText
+	dw EnglishText
 
-Text_f4b63:
+EnglishText:
 	db "ENGLISH\0"
 
-Texts_f4b75:
-	dw Text_f4b75
-	dw Text_f4b75
-	dw Text_f4b75
-	dw Text_f4b75
-	dw Text_f4b75
+FrancaisTexts::
+	dw FrancaisText
+	dw FrancaisText
+	dw FrancaisText
+	dw FrancaisText
+	dw FrancaisText
 
-Text_f4b75:
+FrancaisText:
 	db "FRANpAIS\0"
 
-Texts_f4b88:
-	dw Text_f4b88
-	dw Text_f4b88
-	dw Text_f4b88
-	dw Text_f4b88
-	dw Text_f4b88
+DeutschTexts::
+	dw DeutschText
+	dw DeutschText
+	dw DeutschText
+	dw DeutschText
+	dw DeutschText
 
-Text_f4b88:
+DeutschText:
 	db "DEUTSCH\0"
 
-Texts_f4b9a:
-	dw Text_f4b9a
-	dw Text_f4b9a
-	dw Text_f4b9a
-	dw Text_f4b9a
-	dw Text_f4b9a
+ItalianoTexts::
+	dw ItalianoText
+	dw ItalianoText
+	dw ItalianoText
+	dw ItalianoText
+	dw ItalianoText
 
-Text_f4b9a:
+ItalianoText:
 	db "ITALIANO\0"
 
-Texts_f4bad:
-	dw Text_f4bad
-	dw Text_f4bad
-	dw Text_f4bad
-	dw Text_f4bad
-	dw Text_f4bad
+EspanolTexts::
+	dw EspanolText
+	dw EspanolText
+	dw EspanolText
+	dw EspanolText
+	dw EspanolText
 
-Text_f4bad:
+EspanolText:
 	db "ESPAoOL\0"
 
-Texts_f4bbf:
-	dw TextEN_f4bbf
-	dw TextFR_f4bbf
-	dw TextDE_f4bbf
-	dw TextIT_f4bbf
-	dw TextES_f4bbf
+PursuitTexts::
+	dw PursuitTextEN
+	dw PursuitTextFR
+	dw PursuitTextDE
+	dw PursuitTextIT
+	dw PursuitTextES
 
-TextEN_f4bbf:
+PursuitTextEN:
 	db "PURSUIT\0"
-TextFR_f4bbf:
+PursuitTextFR:
 	db "POURSUITE\0"
-TextDE_f4bbf:
+PursuitTextDE:
 	db "VERFOLGUNG\0"
-TextIT_f4bbf:
+PursuitTextIT:
 	db "INSEGUIMENTO\0"
-TextES_f4bbf:
+PursuitTextES:
 	db "PERSECUCI<BIG_Ó>N\0"
 
 Texts_f4bff:
@@ -651,22 +651,22 @@ TextIT_f4bff:
 TextES_f4bff:
 	db "persecución\0"
 
-Texts_f4c3f:
-	dw TextEN_f4c3f
-	dw TextFR_f4c3f
-	dw TextDE_f4c3f
-	dw TextIT_f4c3f
-	dw TextES_f4c3f
+GetAwayTexts::
+	dw GetAwayTextEN
+	dw GetAwayTextFR
+	dw GetAwayTextDE
+	dw GetAwayTextIT
+	dw GetAwayTextES
 
-TextEN_f4c3f:
+GetAwayTextEN:
 	db "GET AWAY\0"
-TextFR_f4c3f:
+GetAwayTextFR:
 	db "DELIT DE FUITE\0"
-TextDE_f4c3f:
+GetAwayTextDE:
 	db "FLUCHT\0"
-TextIT_f4c3f:
+GetAwayTextIT:
 	db "FUGA\0"
-TextES_f4c3f:
+GetAwayTextES:
 	db "FUGA\0"
 
 Texts_f4c72:
@@ -687,19 +687,19 @@ TextIT_f4c72:
 TextES_f4c72:
 	db "fuga\0"
 
-Texts_f4ca5:
-	dw TextEN_f4ca5
-	dw TextFR_f4ca5
-	dw TextDE_f4ca5
-	dw TextIT_f4ca5
-	dw TextES_f4ca5
+CheckpointTexts::
+	dw CheckpointTextEN
+	dw CheckpointTextFR
+	dw CheckpointTextDE
+	dw CheckpointTextIT
+	dw CheckpointTextES
 
-TextEN_f4ca5:
-TextFR_f4ca5:
-TextDE_f4ca5:
-TextIT_f4ca5:
+CheckpointTextEN:
+CheckpointTextFR:
+CheckpointTextDE:
+CheckpointTextIT:
 	db "CHECKPOINT\0"
-TextES_f4ca5:
+CheckpointTextES:
 	db "PUNTO DE CONTROL\0"
 
 Texts_f4ccb:
@@ -717,22 +717,22 @@ TextIT_f4ccb:
 TextES_f4ccb:
 	db "punto de control\0"
 
-Texts_f4cf1:
-	dw TextEN_f4cf1
-	dw TextFR_f4cf1
-	dw TextDE_f4cf1
-	dw TextIT_f4cf1
-	dw TextES_f4cf1
+SurvivalTexts::
+	dw SurvivalTextEN
+	dw SurvivalTextFR
+	dw SurvivalTextDE
+	dw SurvivalTextIT
+	dw SurvivalTextES
 
-TextEN_f4cf1:
+SurvivalTextEN:
 	db "SURVIVAL\0"
-TextFR_f4cf1:
+SurvivalTextFR:
 	db "SURVIE\0"
-TextDE_f4cf1:
+SurvivalTextDE:
 	db "iBERLEBEN\0"
-TextIT_f4cf1:
+SurvivalTextIT:
 	db "SOPRAVVIVENZA\0"
-TextES_f4cf1:
+SurvivalTextES:
 	db "SUPERVIVENCIA\0"
 
 Texts_f4d31:
@@ -789,22 +789,22 @@ TextES_f4dca:
 TextEN_f4dca:
 	db "CHOOSE A MISSION\0"
 
-Texts_f4e2e:
-	dw TextEN_f4e2e
-	dw TextFR_f4e2e
-	dw TextDE_f4e2e
-	dw TextIT_f4e2e
-	dw TextES_f4e2e
+ChooseAVehicleTexts::
+	dw ChooseAVehicleTextEN
+	dw ChooseAVehicleTextFR
+	dw ChooseAVehicleTextDE
+	dw ChooseAVehicleTextIT
+	dw ChooseAVehicleTextES
 
-TextEN_f4e2e:
+ChooseAVehicleTextEN:
 	db "CHOOSE A VEHICLE\0"
-TextFR_f4e2e:
+ChooseAVehicleTextFR:
 	db "CHOISIR UNE VOITURE\0"
-TextDE_f4e2e:
+ChooseAVehicleTextDE:
 	db "WAGEN WeHLEN\0"
-TextIT_f4e2e:
+ChooseAVehicleTextIT:
 	db "SCEGLI UNA MACCHINA\0"
-TextES_f4e2e:
+ChooseAVehicleTextES:
 	db "ELIGE UN COCHE\0"
 
 ContinueGameTexts::
@@ -1053,58 +1053,58 @@ Texts_f512a:
 Text_f512a:
 	db "N.Y.  2\0"
 
-Texts_f513c:
-	dw TextEN_f513c
-	dw TextFR_f513c
-	dw TextDE_f513c
-	dw TextIT_f513c
-	dw TextES_f513c
+NoDamageTexts::
+	dw NoDamageTextEN
+	dw NoDamageTextFR
+	dw NoDamageTextDE
+	dw NoDamageTextIT
+	dw NoDamageTextES
 
-TextFR_f513c:
+NoDamageTextFR:
 	db "AUCUN DOMMAGE:<CTRL_83>\0"
-TextDE_f513c:
+NoDamageTextDE:
 	db "KEIN SCHADEN:<CTRL_83>\0"
-TextIT_f513c:
+NoDamageTextIT:
 	db "NESSUN DANNO:<CTRL_83>\0"
-TextES_f513c:
+NoDamageTextES:
 	db "SIN DAoO<CTRL_83>\0"
-TextEN_f513c:
+NoDamageTextEN:
 	db "NO DAMAGE:<CTRL_83>\0"
 
-Texts_f518a:
-	dw TextEN_f518a
-	dw TextFR_f518a
-	dw TextDE_f518a
-	dw TextIT_f518a
-	dw TextES_f518a
+ImmunityTexts::
+	dw ImmunityTextEN
+	dw ImmunityTextFR
+	dw ImmunityTextDE
+	dw ImmunityTextIT
+	dw ImmunityTextES
 
-TextFR_f518a:
+ImmunityTextFR:
 	db "IMMUNITE:<CTRL_84>\0"
-TextDE_f518a:
+ImmunityTextDE:
 	db "IMMUNITeT:<CTRL_84>\0"
-TextIT_f518a:
+ImmunityTextIT:
 	db "IMMUNIT<BIG_À>:<CTRL_84>\0"
-TextES_f518a:
+ImmunityTextES:
 	db "INMUNIDAD:<CTRL_84>\0"
-TextEN_f518a:
+ImmunityTextEN:
 	db "IMMUNITY:<CTRL_84>\0"
 
-Texts_f51cd:
-	dw TextEN_f51cd
-	dw TextFR_f51cd
-	dw TextDE_f51cd
-	dw TextIT_f51cd
-	dw TextES_f51cd
+TestStuffTexts::
+	dw TestStuffTextEN
+	dw TestStuffTextFR
+	dw TestStuffTextDE
+	dw TestStuffTextIT
+	dw TestStuffTextES
 
-TextFR_f51cd:
+TestStuffTextFR:
 	db "LE TEST:<CTRL_86>\0"
-TextDE_f51cd:
+TestStuffTextDE:
 	db "TESTFAHRT:<CTRL_86>\0"
-TextIT_f51cd:
+TestStuffTextIT:
 	db "PER IL TESTING:<CTRL_86>\0"
-TextES_f51cd:
+TestStuffTextES:
 	db "PROBAR COSAS:<CTRL_86>\0"
-TextEN_f51cd:
+TestStuffTextEN:
 	db "TEST STUFF:<CTRL_86>\0"
 
 CodeTexts::
@@ -1123,22 +1123,22 @@ CodeTextFR:
 CodeTextDE:
 	db "CODE:           \0"
 
-Texts_f525b:
-	dw TextEN_f525b
-	dw TextFR_f525b
-	dw TextDE_f525b
-	dw TextIT_f525b
-	dw TextES_f525b
+OpenAllCitiesTexts::
+	dw OpenAllCitiesTextEN
+	dw OpenAllCitiesTextFR
+	dw OpenAllCitiesTextDE
+	dw OpenAllCitiesTextIT
+	dw OpenAllCitiesTextES
 
-TextDE_f525b:
+OpenAllCitiesTextDE:
 	db "ALLE STeDTE:<CTRL_85>\0"
-TextIT_f525b:
+OpenAllCitiesTextIT:
 	db "TUTTE LE CITT<BIG_À>:<CTRL_85>\0"
-TextES_f525b:
+OpenAllCitiesTextES:
 	db "TODAS CIUDADES<CTRL_85>\0"
-TextFR_f525b:
+OpenAllCitiesTextFR:
 	db "OPEN ALL CITIES:<CTRL_85>\0"
-TextEN_f525b:
+OpenAllCitiesTextEN:
 	db "OPEN ALL CITIES:<CTRL_85>\0"
 
 Texts_f52b8:

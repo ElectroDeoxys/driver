@@ -104,9 +104,10 @@ LoadHUD::
 	ld [hli], a
 	ld [hl], a
 
-	ld a, [wdc32]
-	and WDC32_UNK4
+	ld a, [wActiveCheats]
+	and CHEAT_TEST_STUFF
 	jr z, .skip_numbers
+
 	; load number gfx
 	ld a, BANK("VRAM1")
 	vramswitch
@@ -165,7 +166,7 @@ Func_8162::
 	and a
 	jr nz, .asm_8185
 	call UpdateTimer
-	call Func_8189
+	call PrintDebugCoordinates
 	call Func_8273
 	call Func_829d
 	call Func_8220
@@ -175,37 +176,44 @@ Func_8162::
 	call Func_8977
 	ret
 
-Func_8189:
-	ld a, [wdc32]
-	and WDC32_UNK4
+PrintDebugCoordinates:
+	; exit if Test Stuff cheat not activated
+	ld a, [wActiveCheats]
+	and CHEAT_TEST_STUFF
 	ret z
+
 	ld c, $8b
 	ld de, wd855
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, CARSTRUCT_0A
+	ld a, CARSTRUCT_X
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	call Func_82db
+
 	ld de, wd863
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, CARSTRUCT_07
+	ld a, CARSTRUCT_Y
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	call Func_82db
+
+	; print x coordinate
 	hlbgcoord 1, 17, v0BGMap1
 	ld de, wd855
 	lb bc, 1, 4
 	call CopyBGMapBox
+
+	; print y coordinate
 	hlbgcoord 15, 17, v0BGMap1
 	ld de, wd863
 	lb bc, 1, 4
@@ -267,8 +275,8 @@ Func_81cd:
 	jp CopyBGMapBox
 
 Func_8220:
-	ld a, [wdc32]
-	and WDC32_UNK4
+	ld a, [wActiveCheats]
+	and CHEAT_TEST_STUFF
 	ret nz
 	ld a, [wTimerMode]
 	and a
@@ -387,14 +395,14 @@ Func_82db:
 	push de
 	ld b, c
 .asm_82dd
-	ld de, -$3e8
+	ld de, -1000
 	add hl, de
 	bit 7, h
 	jr nc, .asm_82e8
 	inc b
 	jr .asm_82dd
 .asm_82e8
-	ld de, $3e8
+	ld de, 1000
 	add hl, de
 	pop de
 	ld a, b
@@ -403,14 +411,14 @@ Func_82db:
 	push de
 	ld b, c
 .asm_82f2
-	ld de, hROMBank
+	ld de, -100
 	add hl, de
 	bit 7, h
 	jr nc, .asm_82fd
 	inc b
 	jr .asm_82f2
 .asm_82fd
-	ld de, $64
+	ld de, 100
 	add hl, de
 	pop de
 	ld a, b
@@ -419,12 +427,12 @@ Func_82db:
 	ld b, c
 	ld a, l
 .asm_8307
-	sub $0a
+	sub 10
 	jr c, .asm_830e
 	inc b
 	jr .asm_8307
 .asm_830e
-	add $0a
+	add 10
 	ld l, a
 	ld a, b
 	ld [de], a
@@ -1397,7 +1405,174 @@ Func_8ddb:
 	xor a
 	ld [wdc20], a
 	ret
-; 0x8def
+
+BestTimesMenu:
+	call Func_9292
+	ld hl, $4ccb
+	call .Func_8f3b
+	ld hl, $4fe0
+	ld de, wdc39
+	call .Func_8eed
+	ld hl, $4ff2
+	ld de, $dc3c
+	call .Func_8eed
+	ld hl, $505c
+	ld de, $dc3f
+	call .Func_8eed
+	ld hl, $5094
+	ld de, $dc42
+	call .Func_8eed
+	ld hl, $50f6
+	ld de, $dc45
+	call .Func_8eed
+	ld hl, $512a
+	ld de, $dc48
+	call .Func_8eed
+	ld hl, wTextLine
+	inc [hl]
+	ld hl, $4c72
+	call .Func_8f3b
+	ld hl, $4fe0
+	ld de, $dc4b
+	call .Func_8eed
+	ld hl, $4ff2
+	ld de, $dc4e
+	call .Func_8eed
+	ld hl, $505c
+	ld de, $dc51
+	call .Func_8eed
+	ld hl, $5094
+	ld de, $dc54
+	call .Func_8eed
+	ld hl, $50f6
+	ld de, $dc57
+	call .Func_8eed
+	ld hl, $512a
+	ld de, $dc5a
+	call .Func_8eed
+	ld hl, wTextLine
+	inc [hl]
+	ld hl, $4bff
+	call .Func_8f3b
+	ld hl, $4fe0
+	ld de, $dc5d
+	call .Func_8eed
+	ld hl, $4ff2
+	ld de, $dc60
+	call .Func_8eed
+	ld hl, $505c
+	ld de, $dc63
+	call .Func_8eed
+	ld hl, $5094
+	ld de, $dc66
+	call .Func_8eed
+	ld hl, $50f6
+	ld de, $dc69
+	call .Func_8eed
+	ld hl, $512a
+	ld de, $dc6c
+	call .Func_8eed
+	ld hl, wTextLine
+	inc [hl]
+	ld hl, $4d31
+	call .Func_8f3b
+	ld hl, $4fd0
+	ld de, wdc6f
+	call .Func_8eed
+	ld hl, $5026
+	ld de, $dc72
+	call .Func_8eed
+	ld hl, $50c4
+	ld de, $dc75
+	call .Func_8eed
+	ld hl, $4968
+	call ProcessTitleText
+	ld a, $02
+	ld de, $4f6d
+	ld hl, wd54e
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	ld de, $4f51
+	ld a, $02
+	jp Func_157f
+
+.Func_8eed:
+	inc de
+	inc de
+	push de
+	call GetText2
+.asm_8ef3
+	ld a, [hli]
+	and a
+	jr nz, .asm_8ef3
+	dec hl
+	ld a, $20
+	ld [hli], a
+	pop de
+	ld a, [de]
+	cp $aa
+	jr nz, .asm_8f15
+	ld a, $2d
+	ld [hli], a
+	ld [hli], a
+	ld a, $3a
+	ld [hli], a
+	ld a, $2d
+	ld [hli], a
+	ld [hli], a
+	ld a, $3a
+	ld [hli], a
+	ld a, $2d
+	ld [hli], a
+	ld [hli], a
+	jr .asm_8f24
+.asm_8f15
+	call .Func_8f2b
+	ld a, $3a
+	ld [hli], a
+	call .Func_8f2b
+	ld a, $3a
+	ld [hli], a
+	call .Func_8f2b
+.asm_8f24
+	xor a
+	ld [hl], a
+	ld hl, wTextBuffer
+	jr .asm_8f3e
+
+.Func_8f2b:
+	ld a, [de]
+	swap a
+	and $0f
+	add $30
+	ld [hli], a
+	ld a, [de]
+	and $0f
+	add $30
+	ld [hli], a
+	dec de
+	ret
+
+.Func_8f3b:
+	call GetText2
+.asm_8f3e
+	push hl
+	call GetLineSize
+	pop hl
+	ld a, c
+	and a
+	ret z
+	push bc
+	push hl
+	call ProcessTextLine
+	pop hl
+	pop bc
+	ld a, b
+	add_hl
+	jr .asm_8f3e
+; 0x8f51
 
 SECTION "Func_8f78", ROMX[$4f78], BANK[$2]
 
@@ -1619,21 +1794,21 @@ Func_9177:
 	call Func_9292
 .loop_lines
 	push hl
-	call .GetLineSize
+	call GetLineSize
 	pop hl
 	ld a, c
 	and a
 	ret z ; no more characters
 	push bc
 	push hl
-	call .ProcessTextLine
+	call ProcessTextLine
 	pop hl
 	pop bc
 	ld a, b
 	add_hl
 	jr .loop_lines
 
-.GetLineSize:
+GetLineSize:
 	ld c, 0
 	ld b, 0
 .loop_text
@@ -1673,7 +1848,7 @@ Func_9177:
 ; input:
 ; - a  = ?
 ; - hl = text to be processed
-.ProcessTextLine:
+ProcessTextLine:
 	push af
 	push hl
 	ld hl, wGfxBuffer
@@ -2372,13 +2547,13 @@ PtrTable_9603:
 	dw CheatsTexts       ; MAINMENU_CHEATS
 
 MainMenuFunctionTable:
-	dw TakeARideMenu ; MAINMENU_TAKE_A_RIDE
-	dw UndercoverMenu ; MAINMENU_UNDERCOVER
-	dw $5d7a ; MAINMENU_DRIVING_GAMES
-	dw $5d58 ; MAINMENU_OPTIONS
-	dw $4def ; MAINMENU_BEST_TIMES
-	dw $5d69 ; MAINMENU_LANGUAGE
-	dw $5dac ; MAINMENU_CHEATS
+	dw TakeARideMenu    ; MAINMENU_TAKE_A_RIDE
+	dw UndercoverMenu   ; MAINMENU_UNDERCOVER
+	dw DrivingGamesMenu ; MAINMENU_DRIVING_GAMES
+	dw OptionsMenu      ; MAINMENU_OPTIONS
+	dw BestTimesMenu    ; MAINMENU_BEST_TIMES
+	dw LanguageMenu     ; MAINMENU_LANGUAGE
+	dw CheatsMenu       ; MAINMENU_CHEATS
 
 Func_961f:
 	xor a
@@ -2438,7 +2613,7 @@ Func_961f:
 ; keeps track of player input for
 ; unlocking the cheats option
 .HandleCheatsInput:
-	ld a, [wdc32]
+	ld a, [wActiveCheats]
 	and CHEATS_UNLOCKED
 	ret nz ; already unlocked
 	ld a, [wMainMenuEntry]
@@ -2465,7 +2640,7 @@ Func_961f:
 	and a
 	ret nz ; still awaiting rest of input
 	; yes we are done, unlock
-	ld hl, wdc32
+	ld hl, wActiveCheats
 	set CHEATS_UNLOCKED_F, [hl]
 	ld hl, MainMenuEntryTable
 	ld c, 0
@@ -2529,7 +2704,7 @@ Func_961f:
 ; if no, checks if current entry is Cheats
 ; if yes, then return z
 .CheckIfCheatsUnlocked:
-	ld a, [wdc32]
+	ld a, [wActiveCheats]
 	and CHEATS_UNLOCKED
 	ret nz ; unlocked Cheats
 	push hl
@@ -3027,8 +3202,8 @@ Func_99cb:
 	ret
 
 .Func_99e5:
-	ld a, [wdc32]
-	and WDC32_UNK3
+	ld a, [wActiveCheats]
+	and CHEAT_OPEN_ALL_CITIES
 	jr nz, .Func_99e3
 	ld a, [wdc33]
 	and $01
@@ -3037,8 +3212,8 @@ Func_99cb:
 	ret
 
 .Func_99f5:
-	ld a, [wdc32]
-	and WDC32_UNK3
+	ld a, [wActiveCheats]
+	and CHEAT_OPEN_ALL_CITIES
 	jr nz, .Func_99e3
 	ld a, [wdc33]
 	and $02
@@ -3047,8 +3222,8 @@ Func_99cb:
 	ret
 
 .Func_9a05:
-	ld a, [wdc32]
-	and WDC32_UNK3
+	ld a, [wActiveCheats]
+	and CHEAT_OPEN_ALL_CITIES
 	jr nz, .Func_99e3
 	ld a, [wdc33]
 	and $04
@@ -3475,23 +3650,23 @@ Func_9c1d:
 	ret
 
 .Func_9c5f:
-	ld a, [wdc32]
-	and WDC32_UNK1
+	ld a, [wActiveCheats]
+	and CHEAT_NO_DAMAGE
 	jr .insert_arrow
 
 .Func_9c66:
-	ld a, [wdc32]
-	and WDC32_UNK2
+	ld a, [wActiveCheats]
+	and CHEAT_IMMUNITY
 	jr .insert_arrow
 
 .Func_9c6d:
-	ld a, [wdc32]
-	and WDC32_UNK3
+	ld a, [wActiveCheats]
+	and CHEAT_OPEN_ALL_CITIES
 	jr .insert_arrow
 
 .Func_9c74:
-	ld a, [wdc32]
-	and WDC32_UNK4
+	ld a, [wActiveCheats]
+	and CHEAT_TEST_STUFF
 	jr .insert_arrow ; useless jump
 
 .insert_arrow
@@ -3629,9 +3804,30 @@ Func_9d1a:
 	db 152, 56, $0a, 0 | OAM_BANK0
 	db 152, 72, $0c, 0 | OAM_BANK0
 	db 152, 88, $0e, 0 | OAM_BANK0
-; 0x9d58
 
-SECTION "TakeARideMenu", ROMX[$5d8b], BANK[$2]
+OptionsMenu:
+	call Func_98c5
+	ld hl, Data_a5cd
+	call Func_9962
+	ld de, Func_9dce
+	ld a, BANK(Func_9dce)
+	jp Func_157f
+
+LanguageMenu:
+	call Func_98c5
+	ld hl, Data_a5e1
+	call Func_9962
+	ld de, Func_9dce
+	ld a, BANK(Func_9dce)
+	jp Func_157f
+
+DrivingGamesMenu:
+	call Func_98c5
+	ld hl, Data_a604
+	call Func_9962
+	ld de, Func_9dce
+	ld a, BANK(Func_9dce)
+	jp Func_157f
 
 TakeARideMenu:
 	ld hl, NULL
@@ -3647,16 +3843,21 @@ TakeARideMenu:
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
 	jp Func_157f
-; 0x9dac
 
-SECTION "UndercoverMenu", ROMX[$5dbd], BANK[$2]
+CheatsMenu:
+	call Func_98c5
+	ld hl, Data_a636
+	call Func_9962
+	ld de, Func_9dce
+	ld a, BANK(Func_9dce)
+	jp Func_157f
 
 UndercoverMenu:
 	call Func_98c5
 	ld hl, Data_a622
 	call Func_9962
 	ld de, Func_9dce
-	ld a, $02
+	ld a, BANK(Func_9dce)
 	jp Func_157f
 
 Func_9dce:
@@ -3797,7 +3998,7 @@ Func_9e6c:
 	pop af
 	ld [wMainMenuEntry], a
 	ld de, Func_9dce
-	ld a, $02
+	ld a, BANK(Func_9dce)
 	jp Func_157f
 
 Func_9eb2:
@@ -4230,11 +4431,160 @@ MissionCodes:
 	db WRENCH,        BADGE,      BADGE,         CONE          ; MISSION_STOP_GRANGERS_GANG
 	db RED_SIREN,     BLUE_SIREN, RED_SIREN,     BLUE_SIREN    ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	db TIRE_MARK,     WRENCH,     CONE,          TRAFFIC_LIGHT ; MISSION_CROSS_TOWN_RECORD
-; 0xa1c5
 
-SECTION "Func_a3cc", ROMX[$63cc], BANK[$2]
+Func_a1c5:
+	xor a
+	ld [wdbfa], a
 
-Func_a3cc:
+	ld hl, EmptyTexts
+	call ProcessTitleText
+
+	ld a, 4
+	call YieldEntityUpdate
+
+	lb bc, $c, $00
+	call FillBGMap1
+
+	xor a
+	call Func_a283
+
+	ld a, $01
+	vramswitch
+	ld a, $0d
+	call Func_a283
+	ld a, $00
+	vramswitch
+
+	ld de, $62cd
+	ld hl, wMenuUpdateFunc
+	ld [hl], e
+	inc hl
+	ld [hl], d
+
+	ld a, $02
+	ld de, $62fd
+	ld hl, wd54e
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+
+	xor a
+	ld [wMainMenuEntry], a
+	call Func_a298
+
+	ld hl, ChooseAVehicleTexts
+	call ProcessTitleText
+
+	ld a, $01
+	ld [wdbfa], a
+.asm_a216
+	ld a, $01
+	call YieldEntityUpdate
+	ld a, [wJoypadPressed]
+	and $02
+	jr nz, .asm_a25a
+	ld a, [wJoypadPressed]
+	and $09
+	jr nz, .asm_a270
+	ld c, $00
+	ld hl, wMainMenuEntry
+	ld a, [wJoypadPressed]
+	and $40
+	call nz, .Func_a261
+	ld a, [wJoypadPressed]
+	and $80
+	call nz, .Func_a268
+	ld a, c
+	and a
+	jr z, .asm_a216
+	ld a, SFX_05
+	call PlaySFX
+	xor a
+	ld [wdbfa], a
+	ld a, $04
+	call YieldEntityUpdate
+	call Func_a298
+	ld a, $01
+	ld [wdbfa], a
+	jr .asm_a216
+.asm_a25a
+	ld hl, Data_a654
+	xor a
+	jp Func_9e6c
+
+.Func_a261:
+	ld a, [hl]
+	and a
+	ret z
+	dec [hl]
+	ld c, $01
+	ret
+
+.Func_a268:
+	ld a, [hl]
+	cp $05
+	ret z
+	inc [hl]
+	ld c, $01
+	ret
+
+.asm_a270
+	ld a, SFX_06
+	call PlaySFX
+	ld a, [wMainMenuEntry]
+	ld hl, $6384
+	add_hl
+	ld a, [hl]
+	ld [wPlayerCar], a
+	jp ExitTitlescreenOrMainScreen
+
+Func_a283:
+	ld hl, wGfxBuffer
+	ld bc, DisableLCD
+	call FillMemory
+	ld de, wGfxBuffer
+	ld hl, v0BGMap1
+	lb bc, 6, 8
+	jp CopyBGMapBox
+
+Func_a298:
+	ld a, [wMainMenuEntry]
+	ld hl, $638a
+	get_pointer
+	ld c, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+
+	push hl
+	ld h, d
+	ld l, e
+	ld de, v1Tiles0
+	ld b, $40
+	ld a, $01
+	vramswitch
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	pop hl
+
+	ld c, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld b, 5 palettes
+	ld de, wOBPals palette 3
+	call FarCopy
+	jp FlushCGBPalettes
+; 0xa2cd
+
+SECTION "RetIfNoAOrStartBtn", ROMX[$63cc], BANK[$2]
+
+RetIfNoAOrStartBtn:
 	ld a, [wJoypadPressed]
 	and PAD_A | PAD_START
 	jr z, .a_btn_or_start_btn
@@ -4246,13 +4596,11 @@ Func_a3cc:
 	ret
 
 Func_a3da:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 	jp Func_a47a
 
 Func_a3e0:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 Func_a3e3:
 	ld hl, wdbf7
 	ld a, [hli]
@@ -4271,13 +4619,20 @@ Func_a3e3:
 	ld hl, EmptyTexts
 	call ProcessTitleText
 	jp Func_a47a
-; 0xa404
+
+Func_a404:
+	call RetIfNoAOrStartBtn
+	ld a, [wMainMenuEntry]
+	ld [wLanguage], a
+	ld hl, LanguageTexts
+	call ProcessTitleText
+	jp Func_a47a
+; 0xa416
 
 SECTION "Func_a429", ROMX[$6429], BANK[$2]
 
 Func_a429:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 	ld a, MIAMI
 	jp Func_a467
 ; 0xa431
@@ -4285,8 +4640,7 @@ Func_a429:
 SECTION "Func_a444", ROMX[$6444], BANK[$2]
 
 Func_a444:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 	ld a, LOS_ANGELES
 	jp Func_a467
 ; 0xa44c
@@ -4294,8 +4648,7 @@ Func_a444:
 SECTION "Func_a45f", ROMX[$645f], BANK[$2]
 
 Func_a45f:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 	ld a, NEW_YORK
 	jp Func_a467
 
@@ -4331,20 +4684,136 @@ ExitTitlescreenOrMainScreen:
 	ld a, TRUE
 	ld [wTitleScreenFinished], a
 	jp YieldEntityUpdateIndefinitely
-; 0xa4ae
 
-SECTION "Func_a56c", ROMX[$656c], BANK[$2]
+Func_a4ae:
+	ld hl, wc545
+	ld a, [hl]
+	push af
+	call Func_a4d5
+	pop af
+	ld hl, wc545
+	cp [hl]
+	ret z
+	ld [hl], $01
+	and a
+	jr z, .play_main_menu_music
+	ld a, NONE
+	call PlayMusic
+	xor a
+	ld [wc545], a
+	ret
+.play_main_menu_music
+	ld a, MUSIC_MAIN_MENU
+	jp PlayMusic
+
+Func_a4d0:
+	ld hl, wc544
+	jr Func_a4d5
+
+Func_a4d5:
+	ld a, [wJoypadPressed]
+	and PAD_RIGHT | PAD_LEFT
+	ret z
+	and PAD_RIGHT
+	jr nz, .d_right
+	xor a
+	jr .asm_a4e4
+.d_right
+	ld a, $01
+.asm_a4e4
+	cp [hl]
+	jr z, .asm_a4ed
+	ld [hl], a
+	ld a, SFX_05
+	call PlaySFX
+.asm_a4ed
+	jp Func_a5c5
+
+Func_a4f0:
+	ld c, CHEAT_NO_DAMAGE
+	jr Func_a500
+Func_a4f4:
+	ld c, CHEAT_IMMUNITY
+	jr Func_a500
+Func_a4f8:
+	ld c, CHEAT_OPEN_ALL_CITIES
+	jr Func_a500
+Func_a4fc:
+	ld c, CHEAT_TEST_STUFF
+	jr Func_a500
+Func_a500:
+	ld a, [wJoypadPressed]
+	and PAD_RIGHT | PAD_LEFT
+	ret z
+	ld hl, wActiveCheats
+	and CHEAT_TEST_STUFF
+	jr nz, .asm_a516
+	ld a, [hl]
+	and c
+	ret z
+	ld a, $ff
+	sub c
+	and [hl]
+	jr .asm_a51b
+.asm_a516
+	ld a, [hl]
+	and c
+	ret nz
+	ld a, [hl]
+	or c
+.asm_a51b
+	ld [hl], a
+	ld a, SFX_05
+	call PlaySFX
+	jp Func_a5c5
+; 0xa524
+
+SECTION "Func_a56c", ROMX[$6524], BANK[$2]
+
+Func_a524:
+	call RetIfNoAOrStartBtn
+	ld a, MODE_CHECKPOINT
+	ld [wGameMode], a
+	ld hl, $6686
+	ld de, Data_a604
+	xor a
+	jp Func_a58b
+
+Func_a536:
+	call RetIfNoAOrStartBtn
+	ld a, MODE_GET_AWAY
+	ld [wGameMode], a
+	ld hl, $6686
+	ld de, Data_a604
+	xor a
+	jp Func_a58b
+
+Func_a548:
+	call RetIfNoAOrStartBtn
+	ld a, MODE_PURSUIT
+	ld [wGameMode], a
+	ld hl, $6686
+	ld de, Data_a604
+	xor a
+	jp Func_a58b
+
+Func_a55a:
+	call RetIfNoAOrStartBtn
+	ld a, MODE_SURVIVAL
+	ld [wGameMode], a
+	ld hl, $666d
+	ld de, Data_a604
+	xor a
+	jp Func_a58b
 
 Func_a56c:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 	ld de, Func_9eb2
 	ld a, BANK(Func_9eb2)
 	jp Func_157f
 
 Func_a577:
-	call Func_a3cc
-	; being here means A or Start was pressed
+	call RetIfNoAOrStartBtn
 	ld a, MODE_UNDERCOVER
 	ld [wGameMode], a
 	xor a ; MISSION_THE_BANK_JOB
@@ -4379,34 +4848,67 @@ Func_a58b:
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
 	jp Func_157f
-; 0xa5c5
 
-SECTION "Data_a622", ROMX[$6622], BANK[$2]
+Func_a5c5:
+	ld a, [wMainMenuEntry]
+	inc a
+	ld [wdc29], a
+	ret
+
+Data_a5cd:
+	dw Func_a47a
+	dw OptionsTexts
+	menu_item $00, MusicTexts, Func_a4ae
+	menu_item $00, SoundEffectsTexts, Func_a4d0
+	menu_item $00, BackTexts, Func_a3da
+	db -1 ; end
+
+Data_a5e1:
+	dw Func_a47a
+	dw LanguageTexts
+	menu_item $00, EnglishTexts, Func_a404
+	menu_item $00, FrancaisTexts, Func_a404
+	menu_item $00, DeutschTexts, Func_a404
+	menu_item $00, ItalianoTexts, Func_a404
+	menu_item $00, EspanolTexts, Func_a404
+	menu_item $00, BackTexts, Func_a3da
+	db -1 ; end
+
+Data_a604:
+	dw Func_a47a
+	dw DrivingGamesTexts
+	menu_item $00, CheckpointTexts, Func_a524
+	menu_item $00, GetAwayTexts, Func_a536
+	menu_item $00, PursuitTexts, Func_a548
+	menu_item $00, SurvivalTexts, Func_a55a
+	menu_item $00, BackTexts, Func_a3da
+	db -1 ; end
 
 Data_a622:
 	dw Func_a47a
 	dw UndercoverTexts
-	db $00
-	dw NewGameTexts, Func_a577
-	db $00
-	dw ContinueGameTexts, Func_a56c
-	db $00
-	dw BackTexts, Func_a3da
+	menu_item $00, NewGameTexts, Func_a577
+	menu_item $00, ContinueGameTexts, Func_a56c
+	menu_item $00, BackTexts, Func_a3da
 	db -1 ; end
 
-SECTION "Data_a654", ROMX[$6654], BANK[$2]
+Data_a636:
+	dw Func_a47a
+	dw CheatsTexts
+	menu_item $00, NoDamageTexts, Func_a4f0
+	menu_item $00, ImmunityTexts, Func_a4f4
+	menu_item $00, OpenAllCitiesTexts, Func_a4f8
+	menu_item $00, TestStuffTexts, Func_a4fc
+	menu_item $00, BackTexts, Func_a3da
+	db -1 ; end
 
 Data_a654:
 	dw Func_a3e3
 	dw ChooseACityTexts
-	db $01
-	dw MiamiTexts, Func_a429
-	db $02
-	dw LosAngelesTexts, Func_a444
-	db $03
-	dw NewYorkTexts, Func_a45f
-	db $00
-	dw BackTexts, Func_a3e0
+	menu_item $01, MiamiTexts, Func_a429
+	menu_item $02, LosAngelesTexts, Func_a444
+	menu_item $03, NewYorkTexts, Func_a45f
+	menu_item $00, BackTexts, Func_a3e0
 	db -1 ; end
 ; 0xa66d
 

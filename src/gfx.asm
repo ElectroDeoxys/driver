@@ -1,7 +1,9 @@
 SECTION "Bank31", ROMX, BANK[$31]
 
+Gfx_c4000::
+
 SECTION "Gfx_c7ff0", ROMX[$7ff0], BANK[$31]
-Gfx_cdff0:: INCBIN "gfx/gfx_c7ff0.2bpp"
+Gfx_c7ff0:: INCBIN "gfx/gfx_c7ff0.2bpp"
 
 
 SECTION "Bank32", ROMX, BANK[$32]
