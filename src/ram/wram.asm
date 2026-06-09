@@ -376,7 +376,11 @@ wd877:: db ; d877
 
 wd88c:: db ; d88c
 
-	ds $d892 - $d88d
+	ds $d88e - $d88d
+
+wd88e:: db ; d88e
+
+	ds $d892 - $d88f
 
 wd892:: db ; d892
 
@@ -455,11 +459,19 @@ wPlayerCarPtr:: dw ; da4a
 
 wda4d:: db ; da4d
 
-	ds $da51 - $da4e
+wda4e:: db ; da4e
+
+wda4f:: db ; da4f
+
+wda50:: db ; da50
 
 wda51:: db ; da51
 
-	ds $da55 - $da52
+wda52:: db ; da52
+
+wda53:: db ; da53
+
+wda54:: db ; da54
 
 wda55:: db ; da55
 
@@ -467,13 +479,15 @@ wda56:: db ; da56
 
 wda57:: db ; da57
 
-	ds $da59 - $da58
+wda58:: db ; da58
 
 wda59:: db ; da59
 
 wda5a:: db ; da5a
 
-	ds $da5d - $da5b
+wda5b:: db ; da5b
+
+wda5c:: db ; da5c
 
 wda5d:: db ; da5d
 
@@ -499,11 +513,19 @@ wda66:: db ; da66
 
 wda68:: db ; da68
 
-	ds $da6e - $da69
+	ds $da6c - $da69
+
+wda6c:: db ; da6c
+
+wda6d:: db ; da6d
 
 wda6e:: db ; da6e
 
-	ds $da76 - $da6f
+	ds $da74 - $da6f
+
+wda74:: db ; da74
+
+	ds $da76 - $da75
 
 wda76:: db ; da76
 wDestinationCoords::
@@ -647,11 +669,87 @@ wMission:: db ; dc38
 
 wdc39:: db ; dc39
 
-	ds $dc6f - $dc3a
+	ds $dc3c - $dc3a
+
+wdc3c:: db ; dc3c
+
+	ds $dc3f - $dc3d
+
+wdc3f:: db ; dc3f
+
+	ds $dc42 - $dc40
+
+wdc42:: db ; dc42
+
+	ds $dc45 - $dc43
+
+wdc45:: db ; dc45
+
+	ds $dc48 - $dc46
+
+wdc48:: db ; dc48
+
+	ds $dc4b - $dc49
+
+wdc4b:: db ; dc4b
+
+	ds $dc4e - $dc4c
+
+wdc4e:: db ; dc4e
+
+	ds $dc51 - $dc4f
+
+wdc51:: db ; dc51
+
+	ds $dc54 - $dc52
+
+wdc54:: db ; dc54
+
+	ds $dc57 - $dc55
+
+wdc57:: db ; dc57
+
+	ds $dc5a - $dc58
+
+wdc5a:: db ; dc5a
+
+	ds $dc5d - $dc5b
+
+wdc5d:: db ; dc5d
+
+	ds $dc60 - $dc5e
+
+wdc60:: db ; dc60
+
+	ds $dc63 - $dc61
+
+wdc63:: db ; dc63
+
+	ds $dc66 - $dc64
+
+wdc66:: db ; dc66
+
+	ds $dc69 - $dc67
+
+wdc69:: db ; dc69
+
+	ds $dc6c - $dc6a
+
+wdc6c:: db ; dc6c
+
+	ds $dc6f - $dc6d
 
 wdc6f:: db ; dc6f
 
-	ds $dc7a - $dc70
+	ds $dc72 - $dc70
+
+wdc72:: db ; dc72
+
+	ds $dc75 - $dc73
+
+wdc75:: db ; dc75
+
+	ds $dc7a - $dc76
 
 wdc7a:: dw ; dc7a
 wdc7c:: dw ; dc7c

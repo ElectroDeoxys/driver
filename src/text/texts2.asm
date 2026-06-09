@@ -1141,22 +1141,22 @@ OpenAllCitiesTextFR:
 OpenAllCitiesTextEN:
 	db "OPEN ALL CITIES:<CTRL_85>\0"
 
-Texts_f52b8:
-	dw TextEN_f52b8
-	dw TextFR_f52b8
-	dw TextDE_f52b8
-	dw TextIT_f52b8
-	dw TextES_f52b8
+NewBestTimeTexts::
+	dw NewBestTimeTextEN
+	dw NewBestTimeTextFR
+	dw NewBestTimeTextDE
+	dw NewBestTimeTextIT
+	dw NewBestTimeTextES
 
-TextFR_f52b8:
+NewBestTimeTextFR:
 	db "NVEAU MEILL. TPS\0"
-TextDE_f52b8:
+NewBestTimeTextDE:
 	db "NEUE BESTZEIT!\0"
-TextIT_f52b8:
+NewBestTimeTextIT:
 	db "NUOVO RECORD!\0"
-TextES_f52b8:
+NewBestTimeTextES:
 	db "NUEVO TIEMPO R<BIG_É>CORD\0"
-TextEN_f52b8:
+NewBestTimeTextEN:
 	db "NEW BEST TIME!\0"
 
 RaceOverTexts::

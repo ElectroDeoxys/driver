@@ -2711,9 +2711,20 @@ SetStructByte_B::
 	ld [hl], b
 	pop hl
 	ret
-; 0x1101
 
-SECTION "Func_110b", ROM0[$110b]
+Func_1101::
+	push hl
+	add_hl
+	ld [hl], e
+	pop hl
+	ret
+
+Func_1106::
+	push hl
+	add_hl
+	ld [hl], d
+	pop hl
+	ret
 
 Func_110b::
 	ld hl, wd551
@@ -5191,7 +5202,7 @@ Func_2026:
 	ld d, [hl]
 	inc hl
 	push hl
-	ld hl, $ff60
+	ld hl, -$a0
 	add hl, de
 	ld a, l
 	ld [wd805], a
@@ -6047,7 +6058,7 @@ Func_2551:
 	ld d, [hl]
 	ret
 
-Func_2558:
+Func_2558::
 	push bc
 	push hl
 	ldh a, [hROMBank]
@@ -6311,6 +6322,8 @@ Func_26db::
 	pop de
 	pop hl
 	ret z
+;	fallthrough
+Func_26ef::
 	push hl
 	ld hl, $26f7
 	add_hl
@@ -6319,7 +6332,15 @@ Func_26db::
 	ret
 ; 0x26f7
 
-SECTION "Func_270f", ROM0[$270f]
+SECTION "Func_2707", ROM0[$2707]
+
+Func_2707::
+	push hl
+	ld h, d
+	ld l, e
+	call Func_26db
+	pop hl
+	ret
 
 Func_270f::
 	push hl
@@ -7212,23 +7233,23 @@ Func_2c37:
 	ret
 
 Func_2c49:
-	ld a, [$da4f]
+	ld a, [wda4f]
 	ld c, a
-	ld a, [$da50]
+	ld a, [wda50]
 	ld b, a
 	ld a, [wda51]
 	ld e, a
-	ld a, [$da52]
+	ld a, [wda52]
 	ld d, a
 	jr Func_2c6b
 Func_2c5b:
-	ld a, [$da53]
+	ld a, [wda53]
 	ld c, a
-	ld a, [$da54]
+	ld a, [wda54]
 	ld b, a
 	ld a, [wda4d]
 	ld e, a
-	ld a, [$da4e]
+	ld a, [wda4e]
 	ld d, a
 Func_2c6b:
 	call Func_2558

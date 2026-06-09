@@ -1565,7 +1565,7 @@ Func_4988::
 
 Func_49c6:
 .asm_49c6
-	ld hl, $4c0b
+	ld hl, PtrTable_4c0b
 	call Func_49fc
 	jr z, .asm_49dc
 	call Func_4a3d
@@ -1582,7 +1582,7 @@ Func_49c6:
 
 Func_49e3:
 .asm_49e3
-	ld hl, $4c0b
+	ld hl, PtrTable_4c0b
 	call Func_49fc
 	jr z, .asm_49f5
 	call Func_4a48
@@ -1637,14 +1637,14 @@ Func_49fc:
 	ld l, a
 	jp hl
 .asm_4a38
-	ld hl, $4c2b
+	ld hl, PtrTable_4c2b
 	jr .asm_4a29
 
 Func_4a3d:
 	call Func_5662
 	ret c
 	ld b, $05
-	ld de, $4bff
+	ld de, PtrTable_4bff
 	jr Func_4a51
 
 ; input:
@@ -1654,7 +1654,7 @@ Func_4a48:
 	call Func_5605
 	ret c
 	ld b, $04
-	ld de, $4bff
+	ld de, PtrTable_4bff
 ;	fallthrough
 
 Func_4a51:
@@ -1673,7 +1673,7 @@ Func_4a51:
 	and $03
 	ld c, a
 	add a
-	add c
+	add c ; *3
 	add_hl
 	ld c, [hl]
 	inc hl
@@ -1737,9 +1737,321 @@ Func_4a8f:
 	jr nz, .loop_cars
 	and a
 	ret
-; 0x4ab9
 
-SECTION "Func_4c73", ROMX[$4c73], BANK[$1]
+Func_4ab9:
+	call Func_4b99
+Func_4abc:
+	call Func_4bb9
+	ret z
+	ld a, $01
+	call Func_4b41
+	ld a, $00
+	ret
+
+Func_4ac8:
+	call Func_4ba9
+	jr Func_4abc
+
+Func_4acd:
+	call Func_4b89
+Func_4ad0:
+	call Func_4bb9
+	ret z
+	ld a, $02
+	call Func_4b09
+	ld a, $40
+	ret
+
+Func_4adc:
+	call Func_4b79
+	jr Func_4ad0
+
+Func_4ae1:
+	call Func_4ba9
+Func_4ae4:
+	call Func_4bb9
+	ret z
+	ld a, $04
+	call Func_4b41
+	ld a, $80
+	ret
+
+Func_4af0:
+	call Func_4b99
+	jr Func_4ae4
+
+Func_4af5:
+	call Func_4b79
+Func_4af8:
+	call Func_4bb9
+	ret z
+	ld a, $08
+	call Func_4b09
+	ld a, $c0
+	ret
+
+Func_4b04:
+	call Func_4b89
+	jr Func_4af8
+
+Func_4b09:
+	ld [wdc7c], a
+	call Random
+	ld h, a
+	and $0f
+	add a
+	add a
+	add a
+	ld l, a
+	ld a, $08
+	bit 7, h
+	jr z, .asm_4b1e
+	ld a, $f8
+.asm_4b1e
+	ld [wdc7e], a
+	ld h, $11
+.asm_4b23
+	ld a, l
+	cp $88
+	jr c, .asm_4b2a
+	ld l, $00
+.asm_4b2a
+	push de
+	ld a, l
+	add_de
+	ld a, [wdc7c]
+	call Func_5681
+	jr nz, .asm_4b3f
+	pop de
+	ld a, [wdc7e]
+	add l
+	ld l, a
+	dec h
+	jr nz, .asm_4b23
+	ret
+.asm_4b3f
+	pop hl
+	ret
+
+Func_4b41:
+	ld [wdc7c], a
+	call Random
+	ld h, a
+	and $0f
+	add a
+	add a
+	add a
+	ld l, a
+	ld a, $08
+	bit 7, h
+	jr z, .asm_4b56
+	ld a, $f8
+.asm_4b56
+	ld [wdc7e], a
+	ld h, $15
+.asm_4b5b
+	ld a, l
+	cp $a8
+	jr c, .asm_4b62
+	ld l, $00
+.asm_4b62
+	push bc
+	ld a, l
+	add_bc
+	ld a, [wdc7c]
+	call Func_5681
+	jr nz, .asm_4b77
+	pop bc
+	ld a, [wdc7e]
+	add l
+	ld l, a
+	dec h
+	jr nz, .asm_4b5b
+	ret
+.asm_4b77
+	pop hl
+	ret
+
+Func_4b79:
+	call Func_4bee
+	ld hl, $b4
+	add hl, bc
+	ld b, h
+	ld c, l
+	ld hl, $4
+	add hl, de
+	ld d, h
+	ld e, l
+	ret
+
+Func_4b89:
+	call Func_4bee
+	ld hl, -$14
+	add hl, bc
+	ld b, h
+	ld c, l
+	ld hl, $4
+	add hl, de
+	ld d, h
+	ld e, l
+	ret
+
+Func_4b99:
+	call Func_4bee
+	ld hl, $94
+	add hl, de
+	ld d, h
+	ld e, l
+	ld hl, $4
+	add hl, bc
+	ld b, h
+	ld c, l
+	ret
+
+Func_4ba9:
+	call Func_4bee
+	ld hl, -$14
+	add hl, de
+	ld d, h
+	ld e, l
+	ld hl, $4
+	add hl, bc
+	ld b, h
+	ld c, l
+	ret
+
+Func_4bb9:
+	bit 7, b
+	jr nz, .asm_4bec
+	push bc
+	ld hl, wd805
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, $a0
+	add hl, bc
+	pop bc
+	ld a, h
+	cp b
+	jr nz, .asm_4bcf
+	ld a, l
+	cp c
+.asm_4bcf
+	jr c, .asm_4bec
+	bit 7, d
+	jr nz, .asm_4bec
+	push de
+	ld hl, wd807
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, $80
+	add hl, de
+	pop de
+	ld a, h
+	cp d
+	jr nz, .asm_4be7
+	ld a, l
+	cp e
+.asm_4be7
+	jr c, .asm_4bec
+	xor a
+	inc a
+	ret
+.asm_4bec
+	xor a
+	ret
+
+Func_4bee:
+	ld hl, wd7ff
+	ld a, [hli]
+	and $f8
+	ld c, a
+	ld b, [hl]
+	ld hl, wd7fd
+	ld a, [hli]
+	and $f8
+	ld e, a
+	ld d, [hl]
+	ret
+
+PtrTable_4bff:
+	dba Func_4ec7
+	dba Func_5110
+	dba Func_4fe8
+	dba Func_523b
+
+PtrTable_4c0b:
+	dw PtrTable_4c2b ; $0
+	dw PtrTable_4c33 ; $1
+	dw PtrTable_4c3b ; $2
+	dw PtrTable_4c43 ; $3
+	dw PtrTable_4c4b ; $4
+	dw PtrTable_4c2b ; $5
+	dw PtrTable_4c53 ; $6
+	dw PtrTable_4c2b ; $7
+	dw PtrTable_4c5b ; $8
+	dw PtrTable_4c63 ; $9
+	dw PtrTable_4c2b ; $a
+	dw PtrTable_4c2b ; $b
+	dw PtrTable_4c6b ; $c
+	dw PtrTable_4c2b ; $d
+	dw PtrTable_4c2b ; $e
+	dw PtrTable_4c2b ; $f
+
+PtrTable_4c2b:
+	dw Func_4ab9
+	dw Func_4acd
+	dw Func_4ae1
+	dw Func_4af5
+
+PtrTable_4c33:
+	dw Func_4ae1
+	dw Func_4ac8
+	dw Func_4acd
+	dw Func_4af5
+
+PtrTable_4c3b:
+	dw Func_4af5
+	dw Func_4adc
+	dw Func_4ae1
+	dw Func_4ab9
+
+PtrTable_4c43:
+	dw Func_4ae1
+	dw Func_4af5
+	dw Func_4ac8
+	dw Func_4adc
+
+PtrTable_4c4b:
+	dw Func_4ab9
+	dw Func_4af0
+	dw Func_4acd
+	dw Func_4af5
+
+PtrTable_4c53:
+	dw Func_4ab9
+	dw Func_4af5
+	dw Func_4af0
+	dw Func_4adc
+
+PtrTable_4c5b:
+	dw Func_4acd
+	dw Func_4b04
+	dw Func_4ab9
+	dw Func_4ae1
+
+PtrTable_4c63:
+	dw Func_4ae1
+	dw Func_4acd
+	dw Func_4ac8
+	dw Func_4b04
+
+PtrTable_4c6b:
+	dw Func_4ab9
+	dw Func_4acd
+	dw Func_4ac8
+	dw Func_4adc
 
 Func_4c73:
 	bit 3, [hl]
@@ -1794,9 +2106,1047 @@ Func_4c9f:
 	ret z
 	dec [hl]
 	ret
-; 0x4cc2
 
-SECTION "Func_5471", ROMX[$5471], BANK[$1]
+Func_4cc2:
+	ld a, b
+	or c
+	jr nz, .asm_4cce
+	ld d, e
+	ld e, $00
+	ld a, $0d
+	jp SetStructWord_DE
+.asm_4cce
+	ld a, $16
+	call Func_1101
+	ld a, $17
+	call Func_1106
+	push hl
+	ld h, b
+	ld l, c
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ld b, h
+	ld c, l
+	pop hl
+	push hl
+	ld a, $1c
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	ld a, $0e
+	call GetStructByte_C
+	ld a, $17
+	call GetStructByte_A
+	cp c
+	jr c, .asm_4d38
+.asm_4cfa
+	call Func_4da3
+	jr c, .asm_4d46
+	jr z, .asm_4d50
+	call Func_4dc4
+	push hl
+	ld a, $0e
+	add_hl
+	ld a, [hl]
+	ld hl, $4dc7
+	add a
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	pop hl
+	push hl
+	ld a, $1d
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, h
+	cp d
+	jr nz, .asm_4d1f
+	ld a, l
+	cp e
+.asm_4d1f
+	pop hl
+	jr z, .asm_4d33
+	jr c, .asm_4d33
+	call Func_4d5f
+	jr .asm_4cfa
+.asm_4d29
+	call Func_4da3
+	jr c, .asm_4d46
+	jr z, .asm_4d50
+	call Func_4dc4
+.asm_4d33
+	call Func_4d7d
+	jr .asm_4d29
+.asm_4d38
+	ld a, $17
+	call GetStructByte_B
+	ld c, $00
+	ld a, $0d
+	call SetStructWord_BC
+	jr .asm_4cfa
+.asm_4d46
+	ld a, $1c
+	call GetStructWord_DE
+	ld a, $0d
+	call AddStructWord_DE
+.asm_4d50
+	call Func_4dc4
+	ld a, $16
+	call GetStructByte_D
+	ld e, $00
+	ld a, $0d
+	jp SetStructWord_DE
+
+Func_4d5f:
+	ld a, $17
+	call GetStructByte_D
+	push hl
+	ld bc, $80
+	ld a, $0d
+	add_hl
+	ld a, [hl]
+	add c
+	ld [hli], a
+	jr nc, .asm_4d71
+	inc b
+.asm_4d71
+	ld a, [hl]
+	add b
+	ld [hl], a
+	cp d
+	jr c, .asm_4d7b
+	ld [hl], d
+	dec hl
+	ld [hl], $00
+.asm_4d7b
+	pop hl
+	ret
+
+Func_4d7d:
+	ld a, $16
+	call GetStructByte_D
+	push hl
+	ld a, $0d
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, rJOYP
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	bit 7, b
+	jr z, .asm_4d97
+	ld bc, NULL
+.asm_4d97
+	ld a, b
+	cp d
+	jr nc, .asm_4d9e
+	ld b, d
+	ld c, $00
+.asm_4d9e
+	ld a, $0d
+	jp SetStructWord_BC
+
+Func_4da3:
+	ld a, $0d
+	call GetStructWord_DE
+	push hl
+	ld a, $1c
+	add_hl
+	ld a, [hl]
+	sub e
+	ld [hli], a
+	jr nc, .asm_4db2
+	inc d
+.asm_4db2
+	ld a, [hl]
+	sub d
+	ld [hli], a
+	jr nc, .asm_4db8
+	dec [hl]
+.asm_4db8
+	bit 7, [hl]
+	jr nz, .asm_4dc1
+	ld a, [hl]
+	dec hl
+	or [hl]
+	pop hl
+	ret
+.asm_4dc1
+	scf
+	pop hl
+	ret
+
+Func_4dc4:
+	jp Func_5431
+; 0x4dc7
+
+SECTION "Func_4ec7", ROMX[$4ec7], BANK[$1]
+
+Func_4ec7:
+	call GetEntityCarPtr
+	ld c, $00
+	ld a, $0c
+	call SetStructByte_C
+.asm_4ed1
+	call GetCarCoordinates
+.asm_4ed4
+	push de
+	ld l, $08
+.asm_4ed7
+	ld a, $11
+	call Func_5681
+	jr z, .asm_4f40
+	cp $01
+	jr nz, .asm_4eff
+	push hl
+	ld hl, -$8
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	dec l
+	jr nz, .asm_4ed7
+	pop de
+	call GetEntityCarPtr
+	ld bc, SubHL
+	ld a, $15
+	call GetStructByte_D
+	ld e, d
+	call Func_4cc2
+	jr .asm_4ed1
+.asm_4eff
+	ld a, e
+	and $f8
+	ld e, a
+	pop hl
+	call HLMinusDE
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	bit 7, b
+	jp nz, .asm_4fe0
+	ld a, $18
+	call SetStructWord_DE
+	ld a, $0e
+	call GetStructByte_A
+	cp $10
+	jr nc, .asm_4f21
+	ld a, $10
+.asm_4f21
+	ld d, a
+	ld e, $01
+	call Func_4cc2
+	ld a, $18
+	call GetStructWord_DE
+	push hl
+	ld a, $06
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	call Func_537b
+	call GetCarCoordinates
+	dec de
+	jr .asm_4ed4
+.asm_4f40
+	ld a, e
+	and $f8
+	ld e, a
+	ld a, $0e
+	add_de
+	pop hl
+	call HLMinusDE
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	bit 7, b
+	jp nz, .asm_4fe0
+	ld a, $18
+	call SetStructWord_DE
+	ld e, $10
+	ld a, $15
+	call GetStructByte_D
+	call Func_4cc2
+	ld a, $18
+	call GetStructWord_DE
+	push hl
+	ld a, $06
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	ld hl, -$8
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	ld a, $0f
+	call Func_5681
+	jr z, .asm_4fe0
+	cp $04
+	jr z, .asm_4fe0
+	ld e, a
+	ld a, $0d
+	ld bc, $1000
+	call SetStructWord_BC
+	ld a, e
+	cp $08
+	jr z, .asm_4fbc
+.asm_4f98
+	ld a, $14
+	ld c, $02
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	add $04
+	ld [hl], a
+	pop hl
+	cp $40
+	jr z, .asm_4fb1
+	call Func_5431
+	jr .asm_4f98
+.asm_4fb1
+	call Func_55e3
+	ld de, Func_5110
+	ld a, BANK(Func_5110)
+	jp Func_157f
+.asm_4fbc
+	ld a, $14
+	ld c, $08
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	sub $04
+	ld [hl], a
+	pop hl
+	cp $c0
+	jr z, .asm_4fd5
+	call Func_5431
+	jr .asm_4fbc
+.asm_4fd5
+	call Func_55e3
+	ld de, Func_523b
+	ld a, BANK(Func_523b)
+	jp Func_157f
+.asm_4fe0
+	ld de, Func_535f
+	ld a, BANK(Func_535f)
+	jp Func_157f
+
+Func_4fe8:
+	call GetEntityCarPtr
+	ld c, $80
+	ld a, $0c
+	call SetStructByte_C
+.asm_4ff2
+	call GetCarCoordinates
+	push de
+	ld l, $08
+.asm_4ff8
+	ld a, $14
+	call Func_5681
+	jr z, .asm_5064
+	cp $04
+	jr nz, .asm_5020
+	push hl
+	ld hl, GetPointer
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	dec l
+	jr nz, .asm_4ff8
+	pop de
+	call GetEntityCarPtr
+	ld bc, SubHL
+	ld a, $15
+	call GetStructByte_D
+	ld e, d
+	call Func_4cc2
+	jr .asm_4ff2
+.asm_5020
+	ld a, e
+	and $f8
+	add $08
+	ld e, a
+	jr nc, .asm_5029
+	inc d
+.asm_5029
+	ld h, d
+	ld l, e
+	pop bc
+	call HLMinusBC
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	bit 7, b
+	jp nz, .asm_5108
+	ld a, $18
+	call SetStructWord_DE
+	ld a, $0e
+	call GetStructByte_A
+	cp $10
+	jr nc, .asm_5049
+	ld a, $10
+.asm_5049
+	ld d, a
+	ld e, $01
+	call Func_4cc2
+	ld a, $18
+	call GetStructWord_DE
+	push hl
+	ld a, $06
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	call Func_537b
+	jr .asm_4ff2
+.asm_5064
+	ld a, e
+	and $f8
+	sub $06
+	ld e, a
+	jr nc, .asm_506d
+	dec d
+.asm_506d
+	ld h, d
+	ld l, e
+	pop bc
+	call HLMinusBC
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	bit 7, b
+	jp nz, .asm_5108
+	ld a, $18
+	call SetStructWord_DE
+	ld e, $10
+	ld a, $15
+	call GetStructByte_D
+	call Func_4cc2
+	ld a, $18
+	call GetStructWord_DE
+	push hl
+	ld a, $06
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	inc hl
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	ld hl, GetPointer
+	add hl, de
+	ld d, h
+	ld e, l
+	pop hl
+	ld a, $0f
+	call Func_5681
+	jr z, .asm_5108
+	cp $01
+	jr z, .asm_5108
+	ld e, a
+	ld a, $0d
+	ld bc, $1000
+	call SetStructWord_BC
+	ld a, e
+	cp $08
+	jr z, .asm_50e4
+.asm_50c0
+	ld a, $14
+	ld c, $02
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	sub $04
+	ld [hl], a
+	pop hl
+	cp $40
+	jr z, .asm_50d9
+	call Func_5431
+	jr .asm_50c0
+.asm_50d9
+	call Func_55e3
+	ld de, Func_5110
+	ld a, BANK(Func_5110)
+	jp Func_157f
+.asm_50e4
+	ld a, $14
+	ld c, $08
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	add $04
+	ld [hl], a
+	pop hl
+	cp $c0
+	jr z, .asm_50fd
+	call Func_5431
+	jr .asm_50e4
+.asm_50fd
+	call Func_55e3
+	ld de, Func_523b
+	ld a, BANK(Func_523b)
+	jp Func_157f
+.asm_5108
+	ld de, Func_535f
+	ld a, BANK(Func_535f)
+	jp Func_157f
+
+Func_5110:
+	call GetEntityCarPtr
+	ld c, $40
+	ld a, $0c
+	call SetStructByte_C
+.asm_511a
+	call GetCarCoordinates
+	push bc
+	ld l, $08
+.asm_5120
+	ld a, $12
+	call Func_5681
+	jr z, .asm_518e
+	cp $02
+	jr nz, .asm_5148
+	push hl
+	ld hl, GetPointer
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	dec l
+	jr nz, .asm_5120
+	pop bc
+	call GetEntityCarPtr
+	ld bc, SubHL
+	ld a, $15
+	call GetStructByte_D
+	ld e, d
+	call Func_4cc2
+	jr .asm_511a
+.asm_5148
+	ld a, c
+	and $f8
+	add $08
+	ld c, a
+	jr nc, .asm_5151
+	inc b
+.asm_5151
+	ld h, b
+	ld l, c
+	pop bc
+	push hl
+	call HLMinusBC
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	pop de
+	bit 7, b
+	jp nz, .asm_5233
+	ld a, $1a
+	call SetStructWord_DE
+	ld a, $0e
+	call GetStructByte_A
+	cp $10
+	jr nc, .asm_5173
+	ld a, $10
+.asm_5173
+	ld d, a
+	ld e, $01
+	call Func_4cc2
+	ld a, $1a
+	call GetStructWord_BC
+	push hl
+	ld a, $09
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	call Func_537b
+	jr .asm_511a
+.asm_518e
+	ld a, c
+	and $f8
+	sub $06
+	ld c, a
+	jr nc, .asm_5197
+	dec b
+.asm_5197
+	ld h, b
+	ld l, c
+	pop bc
+	push hl
+	call HLMinusBC
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	pop de
+	bit 7, b
+	jp nz, .asm_5233
+	ld a, $1a
+	call SetStructWord_DE
+	ld e, $10
+	ld a, $15
+	call GetStructByte_D
+	call Func_4cc2
+	ld a, $1a
+	call GetStructWord_BC
+	push hl
+	ld a, $07
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	ld [hl], $00
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	ld hl, GetPointer
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, $0f
+	call Func_5681
+	jr z, .asm_5233
+	cp $08
+	jr z, .asm_5233
+	ld e, a
+	ld a, $0d
+	ld bc, $1000
+	call SetStructWord_BC
+	ld a, e
+	cp $01
+	jr z, .asm_520f
+.asm_51eb
+	ld a, $14
+	ld c, $04
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	add $04
+	ld [hl], a
+	pop hl
+	cp $80
+	jr z, .asm_5204
+	call Func_5431
+	jr .asm_51eb
+.asm_5204
+	call Func_55f4
+	ld de, Func_4fe8
+	ld a, BANK(Func_4fe8)
+	jp Func_157f
+.asm_520f
+	ld a, $14
+	ld c, $01
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	sub $04
+	ld [hl], a
+	pop hl
+	cp $00
+	jr z, .asm_5228
+	call Func_5431
+	jr .asm_520f
+.asm_5228
+	call Func_55f4
+	ld de, Func_4ec7
+	ld a, BANK(Func_4ec7)
+	jp Func_157f
+.asm_5233
+	ld de, Func_535f
+	ld a, BANK(Func_535f)
+	jp Func_157f
+
+Func_523b:
+	call GetEntityCarPtr
+	ld c, $c0
+	ld a, $0c
+	call SetStructByte_C
+.asm_5245
+	call GetCarCoordinates
+.asm_5248
+	push bc
+	ld l, $08
+.asm_524b
+	ld a, $18
+	call Func_5681
+	jr z, .asm_52b6
+	cp $08
+	jr nz, .asm_5273
+	push hl
+	ld hl, -$8
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	dec l
+	jr nz, .asm_524b
+	pop bc
+	call GetEntityCarPtr
+	ld bc, SubHL
+	ld a, $15
+	call GetStructByte_D
+	ld e, d
+	call Func_4cc2
+	jr .asm_5245
+.asm_5273
+	ld a, c
+	and $f8
+	ld c, a
+	pop hl
+	call HLMinusBC
+	ld d, b
+	ld e, c
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	bit 7, b
+	jp nz, .asm_5357
+	ld a, $1a
+	call SetStructWord_DE
+	ld a, $0e
+	call GetStructByte_A
+	cp $10
+	jr nc, .asm_5297
+	ld a, $10
+.asm_5297
+	ld d, a
+	ld e, $01
+	call Func_4cc2
+	ld a, $1a
+	call GetStructWord_BC
+	push hl
+	ld a, $09
+	add_hl
+	ld [hl], $00
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	pop hl
+	call Func_537b
+	call GetCarCoordinates
+	dec bc
+	jr .asm_5248
+.asm_52b6
+	ld a, c
+	and $f8
+	ld c, a
+	ld a, $0e
+	add_bc
+	pop hl
+	call HLMinusBC
+	ld d, b
+	ld e, c
+	ld b, h
+	ld c, l
+	call GetEntityCarPtr
+	bit 7, b
+	jp nz, .asm_5357
+	ld a, $1a
+	call SetStructWord_DE
+	ld e, $10
+	ld a, $15
+	call GetStructByte_D
+	call Func_4cc2
+	ld a, $1a
+	call GetStructWord_BC
+	push hl
+	ld a, $07
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	ld [hl], $00
+	inc hl
+	ld [hl], c
+	inc hl
+	ld [hl], b
+	ld hl, -$8
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, $0f
+	call Func_5681
+	jr z, .asm_5357
+	cp $02
+	jr z, .asm_5357
+	ld e, a
+	ld a, $0d
+	ld bc, $1000
+	call SetStructWord_BC
+	ld a, e
+	cp $01
+	jr z, .asm_5333
+.asm_530f
+	ld a, $14
+	ld c, $04
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	sub $04
+	ld [hl], a
+	pop hl
+	cp $80
+	jr z, .asm_5328
+	call Func_5431
+	jr .asm_530f
+.asm_5328
+	call Func_55f4
+	ld de, Func_4fe8
+	ld a, BANK(Func_4fe8)
+	jp Func_157f
+.asm_5333
+	ld a, $14
+	ld c, $01
+	call SetStructByte_C
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	add $04
+	ld [hl], a
+	pop hl
+	cp $00
+	jr z, .asm_534c
+	call Func_5431
+	jr .asm_5333
+.asm_534c
+	call Func_55f4
+	ld de, Func_4ec7
+	ld a, BANK(Func_4ec7)
+	jp Func_157f
+.asm_5357
+	ld de, Func_535f
+	ld a, BANK(Func_535f)
+	jp Func_157f
+
+Func_535f:
+	call GetEntityCarPtr
+	bit 3, [hl]
+	jr z, .asm_5373
+	set 4, [hl]
+	ld bc, NULL
+	ld a, $0d
+	call SetStructWord_BC
+	jp YieldEntityUpdateIndefinitely
+.asm_5373
+	ld de, Func_4c9f
+	ld a, BANK(Func_4c9f)
+	jp Func_157f
+
+Func_537b:
+	ld a, $0d
+	ld bc, NULL
+	call SetStructWord_BC
+	call Func_3047
+	ld a, $13
+	call SetStructByte_C
+	set 5, [hl]
+.asm_538d
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_4c73
+	push hl
+	ld a, $13
+	add_hl
+	inc [hl]
+	ld a, [hl]
+	pop hl
+	cp $f0
+	jr nc, .asm_53a5
+	call Func_53a8
+	jr c, .asm_538d
+.asm_53a5
+	res 5, [hl]
+	ret
+
+Func_53a8:
+	call Func_26db
+	ld c, a
+	ld b, $08
+	ld de, wd8eb
+.asm_53b1
+	ld a, [de]
+	and $01
+	jr z, .asm_53ba
+	call Func_53c2
+	ret c
+.asm_53ba
+	ld a, $27
+	add_de
+	dec b
+	jr nz, .asm_53b1
+	and a
+	ret
+
+Func_53c2:
+	ld a, [de]
+	and $d2
+	jr nz, .asm_53e9
+	ld a, h
+	cp d
+	jr nz, .asm_53cd
+	ld a, l
+	cp e
+.asm_53cd
+	jr z, .asm_53e9
+	ld a, c
+	ld [wda5a], a
+	push bc
+	call Func_27e5
+	push hl
+	ld hl, wda5a
+	and [hl]
+	pop hl
+	jr z, .asm_53e8
+	ld a, [wda5a]
+	and $0a
+	jr nz, .asm_53f2
+	jr .asm_53ee
+.asm_53e8
+	pop bc
+.asm_53e9
+	and a
+	ret
+.asm_53eb
+	pop bc
+	scf
+	ret
+.asm_53ee
+	ld a, $0a
+	jr .asm_53f4
+.asm_53f2
+	ld a, $05
+.asm_53f4
+	ld [wdc7a], a
+	ld a, $3f
+	cp c
+	jr c, .asm_53e8
+	cp b
+	jr c, .asm_53e8
+	call Func_2707
+	push hl
+	ld hl, wdc7a
+	and [hl]
+	pop hl
+	jr z, .asm_53e8
+	push hl
+	ld hl, wda59
+	and [hl]
+	pop hl
+	jr nz, .asm_53e8
+	ld a, [de]
+	and $20
+	jr z, .asm_53eb
+	push de
+	push hl
+	ld a, $13
+	add_hl
+	ld a, $13
+	add_de
+	ld a, [de]
+	cp [hl]
+	pop hl
+	pop de
+	jr c, .asm_53e8
+	jr nz, .asm_53eb
+	ld a, h
+	cp d
+	jr nz, .asm_542d
+	ld a, l
+	cp e
+.asm_542d
+	jr c, .asm_53e8
+	jr .asm_53eb
+
+Func_5431:
+	call Func_284b
+	call Func_298c
+	call Func_3047
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_4c73
+	call Func_586a
+	call Func_54b3
+	ret nc
+	set 6, [hl]
+	ld c, $00
+.asm_544d
+	ld a, $01
+	call YieldEntityUpdate
+	push bc
+	call Func_4c73
+	call Func_586a
+	call Func_54b3
+	pop bc
+	jr nc, .asm_546e
+	ld a, c
+	cp $03
+	jr nc, .asm_5467
+	inc c
+	jr .asm_544d
+.asm_5467
+	push bc
+	call Func_5479
+	pop bc
+	jr .asm_544d
+.asm_546e
+	res 6, [hl]
+	ret
 
 Func_5471::
 	ld hl, wda9c
@@ -1805,9 +3155,170 @@ Func_5471::
 	ret z
 	dec [hl]
 	ret
-; 0x5479
 
-SECTION "Func_5605", ROMX[$5605], BANK[$1]
+Func_5479:
+	ld a, [wda9c]
+	and a
+	ret nz
+	ld a, [wd820]
+	cp $01
+	ret nz
+	ld a, [wGameMode]
+	cp $06
+	ret z
+	bit 2, [hl]
+	ret nz
+	call Func_270f
+	ret nz
+	call Random
+	and $03
+	add a
+	push hl
+	ld hl, $54ab
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	pop hl
+	ld a, c
+	ld [wda9c], a
+	ld a, b
+	ld [wda9b], a
+	jp PlaySFX
+; 0x54ab
+
+SECTION "Func_54b3", ROMX[$54b3], BANK[$1]
+
+Func_54b3:
+	xor a
+	ld [wda5d], a
+	call Func_26db
+	ld c, a
+	ld de, wd8eb
+	ld b, $08
+.asm_54c0
+	ld a, [de]
+	and $01
+	call nz, Func_551b
+	ld a, $27
+	add_de
+	dec b
+	jr nz, .asm_54c0
+	ld a, [wda5d]
+	and a
+	ret z
+	cp $02
+	jr z, .asm_550c
+	cp $03
+	jr z, .asm_5519
+	push hl
+	ld hl, $d
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, rJOYP
+	add hl, bc
+	ld bc, $1000
+	bit 7, h
+	jr nz, .asm_54f4
+	ld a, h
+	cp b
+	jr nz, .asm_54f2
+	ld a, l
+	cp c
+.asm_54f2
+	jr nc, .asm_54f6
+.asm_54f4
+	ld h, b
+	ld l, c
+.asm_54f6
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, $0d
+	call SetStructWord_BC
+	ld a, $17
+	call SetStructByte_B
+	ld b, $10
+	ld a, $16
+	call SetStructByte_B
+	and a
+	ret
+.asm_550c
+	ld bc, $1000
+	ld a, $0d
+	call SetStructWord_BC
+	ld a, $17
+	call SetStructByte_B
+.asm_5519
+	scf
+	ret
+
+Func_551b:
+	ld a, h
+	cp d
+	jr nz, .asm_5521
+	ld a, l
+	cp e
+.asm_5521
+	ret z
+	ld a, c
+	ld [wda5a], a
+	push bc
+	call Func_27e5
+	push hl
+	ld hl, wda5a
+	and [hl]
+	pop hl
+	jr z, .asm_553f
+	push hl
+	ld a, [wda5a]
+	add a
+	ld hl, $55c3
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	jp hl
+.asm_553f
+	pop bc
+	ret
+; 0x5541
+
+SECTION "Func_55e3", ROMX[$55e3], BANK[$1]
+
+Func_55e3:
+	push hl
+	ld a, $06
+	add_hl
+	xor a
+	ld [hli], a
+	ld a, [hl]
+	and $f8
+	add $04
+	ld [hli], a
+	inc hl
+	xor a
+	ld [hl], a
+	pop hl
+	ret
+
+Func_55f4:
+	push hl
+	ld a, $06
+	add_hl
+	xor a
+	ld [hli], a
+	inc hl
+	inc hl
+	ld [hli], a
+	ld a, [hl]
+	and $f8
+	add $04
+	ld [hl], a
+	pop hl
+	ret
 
 ; input:
 ; - bc = x coordinate
@@ -1887,7 +3398,21 @@ Func_5662:
 .asm_567e
 	ld [hl], $00
 	ret
-; 0x5681
+
+Func_5681:
+	push hl
+	push af
+	call Func_2558
+	ld hl, $5693
+	add_hl
+	ld a, [hl]
+	ld [wda58], a
+	ld l, a
+	pop af
+	and l
+	pop hl
+	ret
+; 0x5693
 
 SECTION "Func_56a2", ROMX[$56a2], BANK[$1]
 
@@ -1978,7 +3503,7 @@ Func_56db:
 	pop hl
 .asm_5723
 	ld a, $10
-	ld bc, $ff80
+	ld bc, -$80
 	call Func_28bb
 	call Func_3047
 	call .Func_57a8
@@ -2000,8 +3525,8 @@ Func_56db:
 .asm_574c
 	and a
 	ret nz
-	ld de, $5906
-	ld a, $01
+	ld de, Func_5906
+	ld a, BANK(Func_5906)
 	jp Func_157f
 .asm_5756
 	ld c, a
@@ -2011,8 +3536,8 @@ Func_56db:
 	ld a, c
 	cp $10
 	ret nc
-	ld de, $5e75
-	ld a, $01
+	ld de, Func_5e75
+	ld a, BANK(Func_5e75)
 	jp Func_157f
 .asm_576a
 	ld a, c
@@ -2162,20 +3687,90 @@ Func_5805::
 	ld [wd836], a
 	call GetEntityCarPtr
 	call Func_5893
-	ld de, $5950
-	ld a, $01
+	ld de, Func_5950
+	ld a, BANK(Func_5950)
 	jp Func_157f
 ; 0x5866
 
-SECTION "Func_5893", ROMX[$5893], BANK[$1]
+SECTION "Func_586a", ROMX[$586a], BANK[$1]
+
+Func_586a:
+	bit 2, [hl]
+	ret z
+	call Func_589b
+	ld a, [wd838]
+	and a
+	ret nz
+	ld a, [wFelony]
+	and a
+	ret z
+	ld a, [wGameMode]
+	cp $04
+	jr z, .asm_5888
+	ld a, $22
+	call GetStructByte_A
+	and a
+	ret z
+.asm_5888
+	call Func_5893
+	ld de, Func_5950
+	ld a, BANK(Func_5950)
+	jp Func_157f
 
 Func_5893:
 	ld a, $1c
 	ld bc, NULL
 	jp SetStructWord_BC
-; 0x589b
 
-SECTION "Func_58e2", ROMX[$58e2], BANK[$1]
+Func_589b:
+	ld a, $22
+	ld c, $00
+	call SetStructByte_C
+	call Func_270f
+	ret nz
+	call GetCarCoordinates
+	push hl
+	ld hl, wd7fd
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, de
+	ld a, h
+	and a
+	jr nz, .asm_58e0
+	ld a, l
+	cp $80
+	jr nc, .asm_58e0
+	ld hl, wd7ff
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	sub l
+	ld l, a
+	ld a, $00
+	sbc h
+	ld h, a
+	add hl, bc
+	ld a, h
+	and a
+	jr nz, .asm_58e0
+	ld a, l
+	cp $a0
+	jr nc, .asm_58e0
+	pop hl
+	ld c, $01
+	ld a, $22
+	jp SetStructByte_C
+.asm_58e0
+	pop hl
+	ret
 
 Func_58e2:
 	ld a, [hl]
@@ -2194,7 +3789,377 @@ Func_58e2:
 	ret
 ; 0x58fa
 
-SECTION "Func_5b7a", ROMX[$5b7a], BANK[$1]
+SECTION "Func_5906", ROMX[$5906], BANK[$1]
+
+Func_5906:
+	call GetEntityCarPtr
+	call Func_3047
+	ld a, [wd838]
+	and a
+	jr nz, .asm_5918
+	ld a, [wFelony]
+	and a
+	jr nz, .asm_5922
+.asm_5918
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_4c73
+	jr .asm_5918
+.asm_5922
+	ld a, [wd833]
+	and a
+	jr z, .asm_5936
+	ld b, a
+.asm_5929
+	ld a, $01
+	call YieldEntityUpdate
+	push bc
+	call Func_4c73
+	pop bc
+	dec b
+	jr nz, .asm_5929
+.asm_5936
+	res 4, [hl]
+	ld bc, $1000
+	ld a, $0d
+	call SetStructWord_BC
+	ld bc, NULL
+	ld a, $10
+	call SetStructByte_C
+	ld de, Func_5950
+	ld a, BANK(Func_5950)
+	jp Func_157f
+
+Func_5950:
+	call GetEntityCarPtr
+	call Func_58e2
+	ld c, $00
+	ld a, $1f
+	call SetStructByte_C
+.asm_595d
+	ld a, [wd838]
+	and a
+	jp nz, Func_5a84
+	call Func_5b25
+	call CalculateEuclideanDistance
+	ld [wda6c], a
+	call Func_2d66
+	ld [wda6d], a
+	xor a
+	ld [wda74], a
+	ld a, $1f
+	call GetStructByte_C
+	ld a, [wda6d]
+	call Func_271b
+	and c
+	jr z, .asm_59b7
+	cpl
+	ld b, a
+	ld a, $01
+	ld [wda74], a
+	ld a, [wda6d]
+	call Func_271b
+	and b
+	jr nz, .asm_59b1
+	ld a, c
+	cp $0f
+	jr z, .asm_59b7
+	cpl
+	ld b, a
+	ld a, $0c
+	call GetStructByte_A
+	call Func_271b
+	ld c, a
+	and b
+	jr nz, .asm_59b1
+	ld a, c
+	call Func_26ef
+	and b
+	jr nz, .asm_59b1
+	jr .asm_59b7
+.asm_59b1
+	call Func_2747
+	ld [wda6d], a
+.asm_59b7
+	ld a, $0c
+	call GetStructByte_C
+	ld a, [wda6d]
+	sub c
+	jr z, .asm_59f3
+	ld b, $01
+	jr nc, .asm_59ca
+	cpl
+	inc a
+	ld b, $ff
+.asm_59ca
+	cp $20
+	jr nc, .asm_59dd
+	cp $09
+	jr c, .asm_59ed
+.asm_59d2
+	call Func_5b00
+	ld bc, -$c0
+	call Func_5ae1
+	jr .asm_59f8
+.asm_59dd
+	cp $80
+	jr c, .asm_59e5
+	ld a, b
+	cpl
+	inc a
+	ld b, a
+.asm_59e5
+	call Func_5b00
+	call Func_5ade
+	jr .asm_59f8
+.asm_59ed
+	ld a, [wda74]
+	and a
+	jr nz, .asm_59d2
+.asm_59f3
+	call Func_5aa0
+	jr .asm_59f8
+.asm_59f8
+	ld a, $1f
+	ld c, $00
+	call SetStructByte_C
+	ld a, $10
+	call Func_2abe
+	ld c, a
+	jr z, .asm_5a29
+	ld a, [wd839]
+	and a
+	jr nz, .asm_5a29
+	ld a, $0d
+	call GetStructWord_BC
+	srl b
+	rr c
+	ld a, [wda5d]
+	call Func_2747
+	add $80
+	call Func_289f
+	ld de, Func_56db
+	ld a, BANK(Func_56db)
+	jp Func_157f
+.asm_5a29
+	push hl
+	ld a, $1f
+	add_hl
+	ld [hl], c
+	pop hl
+	call Func_313e
+	call Func_5b7a
+	ld c, a
+	push hl
+	ld a, $1f
+	add_hl
+	ld a, c
+	or [hl]
+	ld [hl], a
+	pop hl
+	call Func_3047
+	ld a, $01
+	call YieldEntityUpdate
+	call Func_4c73
+	call Func_5a58
+	jp .asm_595d
+; 0x5a4f
+
+SECTION "Func_5a58", ROMX[$5a58], BANK[$1]
+
+Func_5a58:
+	call Func_5a6b
+	ret nc
+	push de
+	push hl
+	ld a, $1c
+	add_hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc de
+	ld [hl], d
+	dec hl
+	ld [hl], e
+	pop hl
+	pop de
+	ret
+
+Func_5a6b:
+	push de
+	push hl
+	ld a, $1c
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wd835]
+	ld e, a
+	ld a, [wd836]
+	ld d, a
+	ld a, h
+	cp d
+	jr nz, .asm_5a81
+	ld a, l
+	cp e
+.asm_5a81
+	pop hl
+	pop de
+	ret
+
+Func_5a84:
+	set 4, [hl]
+.asm_5a86
+	ld bc, $100
+	call Func_265f
+	call Func_270f
+	jr z, .asm_5a99
+	ld de, Func_4c9f
+	ld a, BANK(Func_4c9f)
+	jp Func_157f
+.asm_5a99
+	ld a, $01
+	call YieldEntityUpdate
+	jr .asm_5a86
+
+Func_5aa0:
+	ld d, $30
+	ld bc, $80
+	call Func_5a6b
+	jr nc, .asm_5abe
+	call Func_5bc4
+	jr z, .asm_5abe
+	ld a, [wd834]
+	ld e, a
+	ld a, [wda6c]
+	cp e
+	jr c, .asm_5abe
+	ld d, $40
+	ld bc, $100
+.asm_5abe
+	push hl
+	ld a, $0d
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, b
+	cp $10
+	jr nc, .asm_5ad3
+	ld bc, $1000
+	jr .asm_5ad9
+.asm_5ad3
+	cp d
+	jr c, .asm_5ad9
+	ld b, d
+	ld c, $00
+.asm_5ad9
+	ld a, $0d
+	jp SetStructWord_BC
+
+Func_5ade:
+	ld bc, $fe80
+Func_5ae1:
+	push hl
+	ld a, $0d
+	add_hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	add hl, bc
+	bit 7, h
+	jr z, .asm_5af0
+	ld hl, NULL
+.asm_5af0
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, b
+	cp $10
+	jr nc, .asm_5afb
+	ld bc, $1000
+.asm_5afb
+	ld a, $0d
+	jp SetStructWord_BC
+
+Func_5b00:
+	ld a, $0e
+	call GetStructByte_A
+	cp $10
+	ret c
+	ld a, b
+	cpl
+	inc a
+	ld d, a
+	ld a, $20
+	call Func_1106
+	ld a, [wda6d]
+	ld d, a
+	ld e, $04
+	ld a, c
+.asm_5b18
+	add b
+	cp d
+	jr z, .asm_5b1f
+	dec e
+	jr nz, .asm_5b18
+.asm_5b1f
+	ld c, a
+	ld a, $0c
+	jp SetStructByte_C
+
+Func_5b25:
+	ld a, [wPlayerCarPtr + 0]
+	ld e, a
+	ld a, [wPlayerCarPtr + 1]
+	ld d, a
+	call Func_2707
+	ld [wda5b], a
+	call Func_27e5
+	ld a, [wda59]
+	ld [wda5c], a
+	call Func_5bc4
+	ret nz
+	push hl
+	ld hl, wPlayerCarPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, $06
+	add_hl
+	ld de, wda29
+	ld b, $06
+	call CopyHLtoDE
+	ld hl, wPlayerCarPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call Func_284b
+	ld h, d
+	ld l, e
+	call .Func_5b76
+	ld d, h
+	ld e, l
+	ld h, b
+	ld l, c
+	call .Func_5b76
+	ld b, h
+	ld c, l
+	ld hl, wda23
+	call Func_298c
+	pop hl
+	ld de, wda23
+	jp Func_27e5
+
+.Func_5b76:
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ret
 
 Func_5b7a:
 	xor a
@@ -2246,9 +4211,14 @@ Func_5b7a:
 .asm_5bc2
 	pop bc
 	ret
-; 0x5bc4
 
-SECTION "Func_5bce", ROMX[$5bce], BANK[$1]
+Func_5bc4:
+	push hl
+	ld a, [wda5c]
+	ld hl, wda5b
+	and [hl]
+	pop hl
+	ret
 
 Func_5bce::
 	ld a, [hli]
@@ -2661,9 +4631,21 @@ Func_5dfd:
 	ld a, h
 	ld [wdc7c + 1], a
 	ret
-; 0x5e75
 
-SECTION "Func_5e97", ROMX[$5e97], BANK[$1]
+Func_5e75:
+	call GetEntityCarPtr
+	call Func_3047
+	ld a, $10
+	call GetStructWord_BC
+	ld a, $0d
+	call SetStructWord_BC
+	ld bc, NULL
+	ld a, $10
+	call SetStructWord_BC
+	res 4, [hl]
+	ld de, Func_5c32
+	ld a, BANK(Func_5c32)
+	jp Func_157f
 
 Func_5e97::
 	ld a, [wGameMode]
@@ -3514,9 +5496,6 @@ Func_6398:
 	inc hl
 	ld [hl], $0b
 	ret
-; 0x642c
-
-SECTION "Func_642c", ROMX[$642c], BANK[$1]
 
 Func_642c::
 	ld a, [wd820]
@@ -3570,8 +5549,8 @@ Func_6446:
 	call YieldEntityUpdate
 	jr .asm_6484
 .asm_6491
-	ld de, $64b4
-	ld a, $01
+	ld de, Func_64b4
+	ld a, BANK(Func_64b4)
 	jp Func_157f
 
 Func_6499:
@@ -3585,15 +5564,19 @@ Func_6499:
 	ld a, [wd8e5]
 	and a
 	jr nz, .asm_64a4
-	jr .asm_64b4
+	jr Func_64b4
+
+Func_64b1:
 	call Func_6563
-.asm_64b4
+;	fallthrough
+
+Func_64b4:
 	call Func_6504
 	call Func_651b
 	jr nc, .asm_64d0
 	ld a, $02
 	ld [wTitlescreenTransition], a
-	ld hl, $52b8
+	ld hl, NewBestTimeTexts
 	ld c, $5a
 	call Func_1ec0
 	ld a, MUSIC_MISSION_COMPLETE
@@ -3647,15 +5630,15 @@ Func_651b:
 	ld a, [wGameMode]
 	cp MODE_SURVIVAL
 	jr nz, .asm_6531
-	ld a, [$d88e]
+	ld a, [wd88e]
 	cp $aa
 	jr z, .asm_6551
-	ld hl, $d88e
-	ld de, $d873
+	ld hl, wd88e
+	ld de, wTimer + 2
 	jr .asm_6537
 .asm_6531
-	ld hl, $d873
-	ld de, $d88e
+	ld hl, wTimer + 2
+	ld de, wd88e
 .asm_6537
 	ld a, [de]
 	cp [hl]
@@ -3794,8 +5777,8 @@ Func_65b4::
 	ld a, [hl]
 	cp $06
 	jr nz, .asm_65e4
-	ld de, $64b1
-	ld a, $01
+	ld de, Func_64b1
+	ld a, BANK(Func_64b1)
 	jp Func_157f
 .asm_6619
 	ld a, 1
@@ -5305,8 +7288,8 @@ Func_70d8:
 	ld a, [wda7b]
 	and a
 	jr z, .loop
-	ld de, $5950
-	ld a, $01
+	ld de, Func_5950
+	ld a, BANK(Func_5950)
 	jp Func_157f
 
 Func_70eb:
@@ -5936,8 +7919,8 @@ Func_7637:
 	ld bc, Func_4000
 	ld a, $0d
 	call SetStructWord_BC
-	ld de, $5950
-	ld a, $01
+	ld de, Func_5950
+	ld a, BANK(Func_5950)
 	jp Func_157f
 ; 0x764a
 

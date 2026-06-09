@@ -1414,63 +1414,63 @@ BestTimesMenu:
 	ld de, wdc39
 	call .Func_8eed
 	ld hl, $4ff2
-	ld de, $dc3c
+	ld de, wdc3c
 	call .Func_8eed
 	ld hl, $505c
-	ld de, $dc3f
+	ld de, wdc3f
 	call .Func_8eed
 	ld hl, $5094
-	ld de, $dc42
+	ld de, wdc42
 	call .Func_8eed
 	ld hl, $50f6
-	ld de, $dc45
+	ld de, wdc45
 	call .Func_8eed
 	ld hl, $512a
-	ld de, $dc48
+	ld de, wdc48
 	call .Func_8eed
 	ld hl, wTextLine
 	inc [hl]
 	ld hl, $4c72
 	call .Func_8f3b
 	ld hl, $4fe0
-	ld de, $dc4b
+	ld de, wdc4b
 	call .Func_8eed
 	ld hl, $4ff2
-	ld de, $dc4e
+	ld de, wdc4e
 	call .Func_8eed
 	ld hl, $505c
-	ld de, $dc51
+	ld de, wdc51
 	call .Func_8eed
 	ld hl, $5094
-	ld de, $dc54
+	ld de, wdc54
 	call .Func_8eed
 	ld hl, $50f6
-	ld de, $dc57
+	ld de, wdc57
 	call .Func_8eed
 	ld hl, $512a
-	ld de, $dc5a
+	ld de, wdc5a
 	call .Func_8eed
 	ld hl, wTextLine
 	inc [hl]
 	ld hl, $4bff
 	call .Func_8f3b
 	ld hl, $4fe0
-	ld de, $dc5d
+	ld de, wdc5d
 	call .Func_8eed
 	ld hl, $4ff2
-	ld de, $dc60
+	ld de, wdc60
 	call .Func_8eed
 	ld hl, $505c
-	ld de, $dc63
+	ld de, wdc63
 	call .Func_8eed
 	ld hl, $5094
-	ld de, $dc66
+	ld de, wdc66
 	call .Func_8eed
 	ld hl, $50f6
-	ld de, $dc69
+	ld de, wdc69
 	call .Func_8eed
 	ld hl, $512a
-	ld de, $dc6c
+	ld de, wdc6c
 	call .Func_8eed
 	ld hl, wTextLine
 	inc [hl]
@@ -1480,10 +1480,10 @@ BestTimesMenu:
 	ld de, wdc6f
 	call .Func_8eed
 	ld hl, $5026
-	ld de, $dc72
+	ld de, wdc72
 	call .Func_8eed
 	ld hl, $50c4
-	ld de, $dc75
+	ld de, wdc75
 	call .Func_8eed
 	ld hl, $4968
 	call ProcessTitleText
