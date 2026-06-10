@@ -304,7 +304,10 @@ Gfx_d115d:: INCBIN "gfx/gfx_d115d.2bpp"
 Gfx_d119d:: INCBIN "gfx/gfx_d119d.2bpp"
 Gfx_d11dd:: INCBIN "gfx/gfx_d11dd.2bpp"
 
-SECTION "Gfx_d235d", ROMX[$635d], BANK[$34]
+SECTION "Gfx_d121d", ROMX[$521d], BANK[$34]
+FontTallGfx::  INCBIN "gfx/font_tall.2bpp"
+FontSmallGfx:: INCBIN "gfx/font_small.2bpp"
+
 Gfx_d235d:: INCBIN "gfx/gfx_d235d.2bpp"
 Gfx_d239d:: INCBIN "gfx/gfx_d239d.2bpp"
 Gfx_d23dd:: INCBIN "gfx/gfx_d23dd.2bpp"
@@ -751,6 +754,199 @@ SpanishHUDGfx::
 	INCBIN "gfx/hud/numbers.2bpp"
 	INCBIN "gfx/hud/es/hud.2bpp"
 	INCBIN "gfx/hud/es/pause.2bpp"
+
+SECTION "BlackCarPicGfx", ROMX[$4ca0], BANK[$36]
+
+BlackCarPicGfx:: INCBIN "gfx/cars/pics/black_car.2bpp"
+
+Pals_d8fa0::
+	rgb  0,  0,  0
+	rgb  7,  7,  7
+	rgb 15, 15, 15
+	rgb 25, 25, 25
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+; 0xd8fc8
+
+SECTION "BrownCarPicGfx", ROMX[$4fe0], BANK[$36]
+
+BrownCarPicGfx:: INCBIN "gfx/cars/pics/brown_car.2bpp"
+
+Pals_d92e0::
+	rgb  0,  0,  0
+	rgb 25, 18,  8
+	rgb 17, 11,  0
+	rgb 10,  6,  0
+
+	rgb  0,  0,  0
+	rgb 25, 25, 25
+	rgb 15, 15, 15
+	rgb  7,  7,  7
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0,  0,  0
+	rgb 17, 11,  0
+	rgb 10,  6,  0
+	rgb  7,  7,  7
+
+	rgb  0,  0,  0
+	rgb 17, 11,  0
+	rgb 10,  6,  0
+	rgb 15, 15, 15
+; 0xd9308
+
+SECTION "RedCarPicGfx", ROMX[$5320], BANK[$36]
+
+RedCarPicGfx:: INCBIN "gfx/cars/pics/red_car.2bpp"
+
+SECTION "Pals_d9650", ROMX[$5650], BANK[$36]
+Pals_d9650::
+	rgb  0,  0,  0
+	rgb 31, 13, 10
+	rgb 25,  6,  0
+	rgb 15,  3,  0
+
+	rgb  0,  0,  0
+	rgb 16, 16, 16
+	rgb 25,  6,  0
+	rgb 15,  3,  0
+
+	rgb  0,  0,  0
+	rgb 25, 25, 25
+	rgb 16, 16, 16
+	rgb 25,  6,  0
+
+	rgb  0,  0,  0
+	rgb 25, 25, 25
+	rgb 16, 16, 16
+	rgb 31, 13, 10
+
+	rgb  0,  0,  0
+	rgb 25, 25, 25
+	rgb 31, 13, 10
+	rgb 25,  6,  0
+; 0xd9678
+
+SECTION "LimousinePicGfx", ROMX[$5690], BANK[$36]
+
+LimousinePicGfx:: INCBIN "gfx/cars/pics/limousine.2bpp"
+
+SECTION "Pals_d99c0", ROMX[$59c0], BANK[$36]
+
+Pals_d99c0::
+	rgb  0,  0,  0
+	rgb  7,  7,  7
+	rgb 15, 15, 15
+	rgb 25, 25, 25
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+; 0xd99e8
+
+SECTION "CopCarPicGfx", ROMX[$5a00], BANK[$36]
+
+CopCarPicGfx:: INCBIN "gfx/cars/pics/cop_car.2bpp"
+
+SECTION "Pals_d9d30", ROMX[$5d30], BANK[$36]
+
+Pals_d9d30::
+	rgb  0,  0,  0
+	rgb 25, 25, 25
+	rgb 13, 13, 13
+	rgb  7,  7,  7
+
+	rgb  0,  0,  0
+	rgb  0,  0, 31
+	rgb 25, 25, 25
+	rgb  7,  7,  7
+
+	rgb  0,  0,  0
+	rgb 31,  0,  0
+	rgb 25, 25, 25
+	rgb 13, 13, 13
+
+	rgb  0,  0,  0
+	rgb 25, 25, 25
+	rgb  0, 31,  0
+	rgb 31, 17,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+; 0xd9d58
+
+SECTION "TaxiPicGfx", ROMX[$5d70], BANK[$36]
+
+TaxiPicGfx:: INCBIN "gfx/cars/pics/taxi.2bpp"
+
+SECTION "Pals_da0a0", ROMX[$60a0], BANK[$36]
+
+Pals_da0a0::
+	rgb  0,  0,  0
+	rgb 31, 25,  0
+	rgb 27, 18,  0
+	rgb 17, 10,  0
+
+	rgb  0,  0,  0
+	rgb 30, 30, 28
+	rgb 18, 18, 17
+	rgb 12, 11, 11
+
+	rgb  0,  0,  0
+	rgb 30, 30, 28
+	rgb 31, 25,  0
+	rgb 27, 18,  0
+
+	rgb  0,  0,  0
+	rgb 30, 30, 28
+	rgb 12, 11, 11
+	rgb 27, 18,  0
+
+	rgb  0,  0,  0
+	rgb 18, 18, 17
+	rgb 31, 25,  0
+	rgb 27, 18,  0
+; 0xda0c8
 
 SECTION "Gfx_da0e0", ROMX[$60e0], BANK[$36]
 Gfx_da0e0:: INCBIN "gfx/gfx_da0e0.2bpp"

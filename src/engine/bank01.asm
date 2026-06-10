@@ -1437,15 +1437,15 @@ GetPlayerCarData_Word:
 	ret
 
 Data_491d:
-	dw .Data_4933 ; CAR_00
-	dw .Data_4977 ; CAR_01
-	dw .Data_4933 ; CAR_02
+	dw .Data_4933 ; BLACK_CAR
+	dw .Data_4977 ; COP_CAR
+	dw .Data_4933 ; TAXI
 	dw .Data_4933 ; CAR_03
 	dw .Data_4933 ; CAR_04
 	dw .Data_4933 ; CAR_05
-	dw .Data_4944 ; CAR_06
-	dw .Data_4955 ; CAR_07
-	dw .Data_4966 ; CAR_08
+	dw .Data_4944 ; BROWN_CAR
+	dw .Data_4955 ; RED_CAR
+	dw .Data_4966 ; LIMOUSINE
 	dw .Data_4933 ; CAR_09
 	dw .Data_4933 ; CAR_10
 
@@ -5438,9 +5438,74 @@ Func_6288:
 	call Random
 	and $03
 	jumptable
-; 0x62cb
+	dw .Func_62e8
+	dw .Func_62f0
+	dw .Func_62d3
+	dw .Func_62f0
 
-SECTION "Func_632a", ROMX[$632a], BANK[$1]
+.Func_62d3:
+	pop hl
+.asm_62d4
+	call .Func_6315
+	ld a, $01
+	call YieldEntityUpdate
+	bit 3, [hl]
+	jr nz, .asm_62fa
+	call .Func_62ff
+	call Func_632a
+	jr .asm_62d4
+.Func_62e8:
+	sra d
+	rr e
+	sra b
+	rr c
+.Func_62f0:
+	sra d
+	rr e
+	sra b
+	rr c
+	jr .Func_62d3
+.asm_62fa
+	ld [hl], $00
+	jp DespawnEntity
+
+.Func_62ff:
+	push hl
+	ld a, $0e
+	add_hl
+	ld a, [hl]
+	inc hl
+	dec [hl]
+	jr nz, .asm_6310
+	ld [hl], a
+	inc hl
+	inc [hl]
+	ld a, [hl]
+	cp $04
+	jr nc, .asm_6312
+.asm_6310
+	pop hl
+	ret
+.asm_6312
+	pop hl
+	jr .asm_62fa
+
+.Func_6315:
+	push de
+	ld d, h
+	ld e, l
+	ld a, $09
+	add_de
+	ld a, $10
+	call GetStructByte_A
+	add a
+	add $dc
+	ld [de], a
+	inc de
+	ld a, $0b
+	ld [de], a
+	pop de
+	ret
 
 Func_632a:
 	push bc
@@ -5658,8 +5723,8 @@ Func_6446:
 	jp z, SetMissionFailed
 .generic_text
 	ld hl, YouWreckedYourCarTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 
 	ld a, [wGameMode]
 	cp MODE_SURVIVAL
@@ -5673,7 +5738,7 @@ Func_6446:
 	jp Func_157f
 
 .asm_6484
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	and a
 	jr z, .asm_6491
 	ld a, 1
@@ -5687,12 +5752,12 @@ Func_6446:
 Func_6499:
 	call Func_6563
 	ld hl, WellDoneTexts
-	ld c, $3c
-	call Func_1ec0
+	ld c, 60
+	call ShowHUDMessage
 .asm_64a4
 	ld a, $01
 	call YieldEntityUpdate
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	and a
 	jr nz, .asm_64a4
 	jr Func_64b4
@@ -5708,8 +5773,8 @@ Func_64b4:
 	ld a, $02
 	ld [wTitlescreenTransition], a
 	ld hl, NewBestTimeTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld a, MUSIC_MISSION_COMPLETE
 	call PlayMusic
 	jr Func_64e2
@@ -5718,17 +5783,17 @@ Func_64b4:
 	ld a, $01
 	ld [wTitlescreenTransition], a
 	ld hl, RaceOverTexts
-	ld c, $5a
+	ld c, 90
 	ld a, MUSIC_MISSION_FAILED
 	call PlayMusic
-	call Func_1ec0
+	call ShowHUDMessage
 
 Func_64e2:
 .loop
 	ld a, [wd83f]
 	cp $02
 	jr nz, .asm_64ef
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	and a
 	jr z, .asm_64f6
 .asm_64ef
@@ -6064,9 +6129,9 @@ Func_667a:
 Func_66fa::
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, LoseTheTailTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $02
 	ld bc, NULL
 	call StartTimer
@@ -6089,13 +6154,13 @@ Func_66fa::
 Func_6732::
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, RamHimTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld a, $3c
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wda7b], a
-	call Func_67dd
+	call WaitHUDMessage
 	ld a, $02
 	ld bc, NULL
 	call StartTimer
@@ -6130,8 +6195,8 @@ Func_6732::
 	ld a, $01
 	ld [wTitlescreenTransition], a
 	ld hl, YouLostHimTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld a, MUSIC_MISSION_FAILED
 	call PlayMusic
 	ld de, Func_64e2
@@ -6151,9 +6216,9 @@ Func_67aa::
 	ld [wd82d], a
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, ItsTheCopsGetOutOfHereTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $02
 	ld bc, NULL
 	call StartTimer
@@ -6167,11 +6232,11 @@ Func_67aa::
 	call Func_1eda
 	jp YieldEntityUpdateIndefinitely
 
-Func_67dd:
+WaitHUDMessage:
 .loop
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	and a
 	jr nz, .loop
 	ret
@@ -6265,7 +6330,7 @@ Func_6816:
 	ld a, [wda97]
 	and a
 	ret z
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	and a
 	ret nz
 	ld hl, wda9a
@@ -6276,8 +6341,8 @@ Func_6816:
 	call PlaySFX
 	ld [hl], $b4 ; wda9a
 	ld hl, LoseTheTailTexts
-	ld c, $3c
-	jp Func_1ec0
+	ld c, 60
+	jp ShowHUDMessage
 
 Func_6879:
 	call Func_68b8
@@ -6338,17 +6403,17 @@ SetMissionFailed:
 	call PlayMusic
 	pop hl
 
-	ld c, $5a
+	ld c, 90
 	ld a, h
 	or l
 	jr z, .asm_68e1
-	ld c, $2d
-	call Func_1ec0
-	call Func_67dd
-	ld c, $2d
+	ld c, 45
+	call ShowHUDMessage
+	call WaitHUDMessage
+	ld c, 45
 .asm_68e1
 	ld hl, MissionFailedTexts
-	call Func_1ec0
+	call ShowHUDMessage
 
 	ld a, $01
 	ld [wTitlescreenTransition], a
@@ -6367,13 +6432,13 @@ SetMissionComplete:
 	ld a, h
 	or l
 	jr z, .asm_690e
-	ld c, $2d
-	call Func_1ec0
-	call Func_67dd
-	ld c, $2d
+	ld c, 45
+	call ShowHUDMessage
+	call WaitHUDMessage
+	ld c, 45
 .asm_690e
 	ld hl, MissionCompleteTexts
-	call Func_1ec0
+	call ShowHUDMessage
 
 	ld a, $02
 	ld [wTitlescreenTransition], a
@@ -6470,9 +6535,9 @@ Func_69ae:
 	call YieldEntityUpdateUntilFadeEnds
 
 	ld hl, GetToTheBankTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 
 	ld a, $01
 	ld [wd820], a
@@ -6502,9 +6567,9 @@ Func_69ae:
 	call Func_6a38
 
 	ld hl, GetToTheLockUpTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 
 	call Func_658f
 	call StartCountUpTimer
@@ -6572,7 +6637,7 @@ Func_6a6a:
 	call Func_1972
 	ld a, MIAMI
 	call SetCity
-	ld a, CAR_07
+	ld a, RED_CAR
 	ld [wPlayerCar], a
 	ld a, $02
 	ld [wd827], a
@@ -6593,9 +6658,9 @@ Func_6a83:
 Func_6a97:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GoToTheBreakersTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7ece
@@ -6645,8 +6710,8 @@ Func_6ae7:
 Func_6b0c:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, WeNeedThatKeyTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld a, $56
 	call YieldEntityUpdate
 	ld a, $01
@@ -7097,7 +7162,7 @@ Func_6e72:
 	inc a
 	ld [wda82], a
 	call .Func_6ec9
-	call Func_67dd
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, Timer_MissionRamRaidRace
@@ -7135,8 +7200,8 @@ Func_6e72:
 	ld a, [wda81]
 	ld hl, .TextsTable
 	get_pointer
-	ld c, $5a
-	jp Func_1ec0
+	ld c, 90
+	jp ShowHUDMessage
 
 .TextsTable:
 	dw GetToTheFirstRestaurantTexts
@@ -7175,7 +7240,7 @@ Func_6f05:
 	call Func_1972
 	ld a, MIAMI
 	call SetCity
-	ld a, CAR_08
+	ld a, LIMOUSINE
 	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
@@ -7198,9 +7263,9 @@ Func_6f32:
 	ld a, 5
 	ld [wDamageMultiplier], a
 	ld hl, TakeThisPuppyHomeTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f06
@@ -7239,7 +7304,7 @@ Func_6f8d:
 	call Func_1ed4
 	ld hl, Data_1f37
 	call Func_1eda
-	ld a, CAR_06
+	ld a, BROWN_CAR
 	ld hl, NULL
 	call Func_1ced
 	ld hl, Func_6fa9
@@ -7251,9 +7316,9 @@ Func_6f8d:
 Func_6fa9:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GetToBalHarbourTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f11
@@ -7320,8 +7385,8 @@ Func_6fa9:
 .asm_7036
 	jr nc, .asm_701e
 	ld hl, RamHimTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld hl, wda7b
 .asm_7043
 	ld [hl], $00
@@ -7336,8 +7401,8 @@ Func_6fa9:
 	ld a, 1
 	call Func_42a0
 	ld hl, DontLoseHimTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld hl, $7f16
 	call SetDestinationCoords
 	call StartCountUpTimer
@@ -7468,7 +7533,7 @@ Func_712c:
 	call Func_1ed4
 	ld hl, NULL
 	call Func_1eda
-	ld a, CAR_07
+	ld a, RED_CAR
 	ld hl, NULL
 	call Func_1ced
 	xor a
@@ -7484,8 +7549,8 @@ Func_712c:
 Func_7151:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, RamHimTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld hl, $7f21
 	call Func_5bce
 	ld d, h
@@ -7550,7 +7615,7 @@ Func_71d2:
 	call Func_1972
 	ld a, LOS_ANGELES
 	call SetCity
-	ld a, CAR_01
+	ld a, COP_CAR
 	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
@@ -7573,9 +7638,9 @@ Func_71ff:
 	ld a, 3
 	ld [wDamageMultiplier], a
 	ld hl, GetToTheLockUpTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f31
@@ -7609,8 +7674,8 @@ Func_71ff:
 	ret z
 	; yes, show message
 	ld hl, WatchThePaintworkTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	; and mark it as showed
 	ld c, TRUE
 	ret
@@ -7624,7 +7689,7 @@ Func_725e:
 	call Func_1972
 	ld a, LOS_ANGELES
 	call SetCity
-	ld a, CAR_06
+	ld a, BROWN_CAR
 	ld [wPlayerCar], a
 	ld a, $01
 	ld [wd827], a
@@ -7647,9 +7712,9 @@ Func_728e:
 	call YieldEntityUpdateUntilFadeEnds
 
 	ld hl, PickUpLuckyTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 
 	ld a, $01
 	ld [wd820], a
@@ -7679,9 +7744,9 @@ Func_728e:
 	call Func_79e5
 	call Func_79d8
 	ld hl, GetLuckyToTheDocsMsgTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld hl, $7f42
 	call SetDestinationCoords
 	call Func_658f
@@ -7736,9 +7801,9 @@ Func_7343:
 Func_735a:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GetToBeverlyHillsTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f6f
@@ -7766,9 +7831,9 @@ Func_735a:
 	ld hl, $7f55
 	call Func_6a38
 	ld hl, GetToTheLockUpTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	call Func_658f
 	call StartCountUpTimer
 	ld hl, $7f59
@@ -7809,8 +7874,8 @@ Func_735a:
 .asm_7400
 	jr nc, .asm_73ef
 	ld hl, TooManyCopsGetToTheCribTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld a, $1e
 	call YieldEntityUpdate
 	ld a, 1
@@ -7876,9 +7941,9 @@ Func_7475:
 Func_748c:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GetToThePickUpTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7f76
@@ -7910,9 +7975,9 @@ Func_748c:
 	call Func_79e5
 	call Func_79d8
 	ld hl, GetToGrandCentralStationTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld hl, $7f7e
 	call SetDestinationCoords
 	ld hl, $7f88
@@ -7946,9 +8011,9 @@ Func_748c:
 	call Func_79e5
 	call Func_79d8
 	ld hl, ReturnTheKeyToTheLockUpTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	call Func_658f
 	ld hl, $7f71
 	call SetDestinationCoords
@@ -7969,8 +8034,8 @@ Func_748c:
 	ld a, $01
 	ld [wd839], a
 	ld hl, YouveBeenBuggedLoseTheTailTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 .asm_7588
 	ld a, 1
 	call YieldEntityUpdate
@@ -8085,9 +8150,9 @@ Func_765c:
 Func_7681:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, FindAndWreckGrangersCarTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld hl, $7f95
 	call Func_5bce
 	ld d, h
@@ -8119,8 +8184,8 @@ Func_7681:
 	cp $38
 	jr c, .asm_76b7
 	ld hl, GetBackToYourHotelTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	xor a
 	ld [wd877], a
 	ld hl, wDestinationCoords
@@ -8234,7 +8299,7 @@ Func_7793:
 	jr nc, .asm_779c
 	call YieldEntityUpdateUntilFadeEnds
 	call .Func_77f9
-	call Func_67dd
+	call WaitHUDMessage
 	ld hl, $7fa5
 	call StartCountDownTimer
 	ld a, $01
@@ -8278,8 +8343,8 @@ Func_7793:
 	ld hl, .Texts
 	ld a, [wda81]
 	get_pointer
-	ld c, $5a
-	jp Func_1ec0
+	ld c, 90
+	jp ShowHUDMessage
 
 .Texts:
 	dw TrackDownTheCarAndSmashIntoItTexts
@@ -8353,7 +8418,7 @@ Func_7875:
 	call Func_1977
 	ld a, NEW_YORK
 	call SetCity
-	ld a, CAR_06
+	ld a, BROWN_CAR
 	ld [wPlayerCar], a
 	ld a, $01
 	ld [wd827], a
@@ -8381,9 +8446,9 @@ Func_788e:
 Func_78b3:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, TrackDownTheCarAndSmashIntoItTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld hl, $7fac
 	call Func_5bce
 	ld d, h
@@ -8426,8 +8491,8 @@ Func_78b3:
 .asm_790b
 	jr c, .asm_78e6
 	ld hl, RamHimTexts
-	ld c, $5a
-	call Func_1ec0
+	ld c, 90
+	call ShowHUDMessage
 	ld hl, wDestinationCoords
 	ld a, [hli]
 	ld h, [hl]
@@ -8479,7 +8544,7 @@ Func_796b:
 	call Func_1977
 	ld a, NEW_YORK
 	call SetCity
-	ld a, CAR_06
+	ld a, BROWN_CAR
 	ld [wPlayerCar], a
 	ld a, $01
 	ld [wd827], a
@@ -8500,9 +8565,9 @@ Func_7984:
 Func_7998:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GetAcrossTownAsQuickAsYouCanTexts
-	ld c, $5a
-	call Func_1ec0
-	call Func_67dd
+	ld c, 90
+	call ShowHUDMessage
+	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
 	ld hl, $7fbc
@@ -8964,32 +9029,32 @@ Data_7e07::
 
 	db $00, $1e, $b0, $11, $00
 	dw Pals_f644 palette 7 ; palette
-	db CAR_06 ; car
+	db BROWN_CAR ; car
 	db $01, $32, $00, $c0, $00, $1e, $74, $11
 
 	db $30, $0d, $a8, $11, $c0
 	dw NULL ; palette
-	db CAR_07 ; car
+	db RED_CAR ; car
 	db $02, $32, $00, $80, $f4, $0c, $84, $11
 
 	db $cc, $08, $32, $0a, $40
 	dw NULL ; palette
-	db CAR_08 ; car
+	db LIMOUSINE ; car
 	db $04, $32, $00, $80, $0c, $09, $54, $0a
 
 	db $0c, $0f, $58, $02, $80
 	dw NULL ; palette
-	db CAR_07 ; car
+	db RED_CAR ; car
 	db $00, $32, $00, $80, $0c, $0f, $94, $02
 
 	db $e8, $05, $40, $1c, $40
 	dw Pals_f644 palette 7 ; palette
-	db CAR_06 ; car
+	db BROWN_CAR ; car
 	db $01, $32, $00, $80, $2c, $06, $40, $1c
 
 	db $08, $11, $9c, $0c, $40
 	dw NULL ; palette
-	db CAR_08 ; car
+	db LIMOUSINE ; car
 	db $00, $32, $00, $40, $58, $11, $94, $0c
 ; 0x7e73
 

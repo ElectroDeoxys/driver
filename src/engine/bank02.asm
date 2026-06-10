@@ -91,7 +91,7 @@ LoadHUD::
 	ld [wTimerMode], a
 	ld [wTimerActive], a
 	ld [wd870], a
-	ld [wd8e5], a
+	ld [wHUDMessageStep], a
 	ld [wd8ea], a
 	ld [wd8e8], a
 	ld [wd8e9], a
@@ -448,9 +448,95 @@ Func_8318:
 	ret z
 	dec a
 	jumptable
-; 0x831f
+	dw Func_8329
+	dw Func_835d
+	dw Func_8369
+	dw Func_835d
+	dw Func_8374
 
-SECTION "Func_83b2", ROMX[$43b2], BANK[$2]
+Func_8329:
+	ld hl, wd88e
+	ld de, wd891
+	ld b, $a2
+	call Func_84a7
+	ld a, [wd892]
+	ld hl, wd893
+	cp [hl]
+	ret z
+	ld [hl], a
+	ld l, a
+	ld h, $00
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	call GetHUDGfxPointer
+	add hl, de
+	ld a, $01
+	vramswitch
+	ld de, v0Tiles1 tile $48
+	ld b, 1 ; tile
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	ret
+
+Func_835d:
+	ld hl, wd88e
+	ld de, wd891
+	ld b, $a2
+	call Func_84a7
+	ret
+
+Func_8369:
+	ld hl, wd88e
+	ld de, wd891
+	ld b, $a2
+	call Func_84a7
+Func_8374:
+	ld hl, wd86c
+	call Func_839e
+	ret z
+	ld hl, wd88a
+	ld b, $07
+.asm_8380
+	sub $08
+	jr c, .asm_8388
+	ld [hl], $8a
+	jr .asm_838e
+.asm_8388
+	add $08
+	add $82
+	ld [hl], a
+	xor a
+.asm_838e
+	dec hl
+	dec b
+	jr nz, .asm_8380
+	hlbgcoord 12, 0, v0BGMap1
+	ld de, wd884
+	lb bc, 1, 7
+	jp CopyBGMapBox
+
+Func_839e:
+	ld a, [hli]
+	cp [hl]
+	ret z
+	jr c, .asm_83a6
+	inc [hl]
+	jr .asm_83a7
+.asm_83a6
+	dec [hl]
+.asm_83a7
+	ld a, [hl]
+	cp $39
+	jr c, .asm_83ae
+	ld [hl], $38
+.asm_83ae
+	xor a
+	dec a
+	ld a, [hl]
+	ret
 
 Func_83b2::
 	ld a, c
@@ -462,9 +548,108 @@ Func_83b2::
 	pop af
 	dec a
 	jumptable
-; 0x83bf
+	dw Func_83c9
+	dw Func_840d
+	dw Func_8433
+	dw Func_840d
+	dw Func_845d
 
-SECTION "Func_84a7", ROMX[$44a7], BANK[$2]
+Func_83c9:
+	ld hl, wd88f
+	ld a, $ff
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	ld [wd893], a
+	ld a, $01
+	vramswitch
+	call GetHUDGfxPointer
+	ld hl, $60
+	add hl, de
+	ld de, v0Tiles1 tile $49
+	ld b, 1 ; tile
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	ld hl, $43f9
+	call Func_847f
+	call Func_84a1
+	ret
+; 0x83f9
+
+SECTION "Func_840d", ROMX[$440d], BANK[$2]
+
+Func_840d:
+	ld hl, wd88f
+	ld a, $ff
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	ld hl, $441f
+	call Func_847f
+	call Func_84a1
+	ret
+; 0x841f
+
+SECTION "Func_8433", ROMX[$4433], BANK[$2]
+
+Func_8433:
+	ld hl, wd88f
+	ld a, $ff
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	xor a
+	ld [wd86d], a
+	ld hl, $4449
+	call Func_847f
+	call Func_84a1
+	ret
+; 0x8449
+
+SECTION "Func_845d", ROMX[$445d], BANK[$2]
+
+Func_845d:
+	xor a
+	ld [wd86d], a
+	ld hl, $446b
+	call Func_847f
+	call Func_84a1
+	ret
+; 0x846b
+
+SECTION "Func_847f", ROMX[$447f], BANK[$2]
+
+Func_847f:
+	ld b, $14
+	ld de, wd878
+.asm_8484
+	ld a, [hli]
+	call .Func_8490
+	add $80
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_8484
+	ret
+
+.Func_8490:
+	cp $13
+	jr z, .asm_8497
+	cp $14
+	ret nz
+.asm_8497
+	ld c, a
+	ld a, [wActiveCheats]
+	and CHEAT_TEST_STUFF
+	ld a, c
+	ret z
+	xor a
+	ret
+
+Func_84a1:
+	ld de, wd878
+	jp Func_88e0
 
 Func_84a7:
 	ld a, [hl]
@@ -609,140 +794,541 @@ Func_84a7:
 	pop hl
 	pop de
 	ret
-; 0x856b
+
+Func_856b:
+	ld a, [wCity]
+	ld hl, .PtrTable
+	get_pointer
+	ret
+
+.PtrTable:
+	dw $4579
+	dw $4585
+	dw $4591
+; 0x8579
 
 SECTION "Func_859d", ROMX[$459d], BANK[$2]
 
 Func_859d::
 	ld a, [wd895]
 	jumptable
-; 0x85a1
+	dw Func_85b1
+	dw Func_85b6
+	dw Func_861f
+	dw Func_8649
+	dw Func_86a7
+	dw Func_86b4
+	dw Func_86fa
+	dw Func_870a
 
-SECTION "Func_88b1", ROMX[$48b1], BANK[$2]
+Func_85b1:
+	xor a
+	ld [wd54e], a
+	ret
+
+Func_85b6:
+	call Func_87ef
+	call Func_856b
+	ld a, $06
+	add_hl
+	call Func_8867
+	ld a, $01
+	vramswitch
+	call Func_8867
+	ld a, $00
+	vramswitch
+	call Func_856b
+	ld a, $03
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	push bc
+	push hl
+	ld de, v0Tiles2
+	ld b, $80
+	call SafeCopyFarTiles
+	pop hl
+	pop bc
+	ld de, $800
+	add hl, de
+	ld de, v0Tiles1
+	ld b, $80
+	call SafeCopyFarTiles
+	ld a, $01
+	vramswitch
+	call GetHUDGfxPointer
+	ld hl, $4b0
+	add hl, de
+	ld de, v0Tiles2
+	ld b, $1a
+	call SafeCopyFarTiles
+	ld a, $00
+	vramswitch
+	call Func_88b1
+	call Func_88e9
+	xor a
+	ld [wd54c], a
+	ld a, $02
+	ld [wd895], a
+	ret
+
+Func_861f:
+	call Func_856b
+	ld c, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld b, $38
+	ld de, wTempDMGPals
+	call FarCopy
+	ld a, $01
+	call InitFade
+	ld a, $02
+	ld de, $47a3
+	ld hl, wd54e
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	call Func_8806
+	ld a, $03
+	ld [wd895], a
+	ret
+
+Func_8649:
+	ld a, [wc574]
+	and $01
+	jr z, .asm_8656
+	ld a, $04
+	ld [wd895], a
+	ret
+.asm_8656
+	call Func_872f
+	ld a, [wc573]
+	ld c, a
+	and $80
+	call nz, Func_8675
+	ld a, c
+	and $40
+	call nz, Func_8683
+	ld a, c
+	and $20
+	call nz, Func_868e
+	ld a, c
+	and $10
+	call nz, Func_8699
+	ret
+
+Func_8675:
+	ld hl, wd897
+	ld a, [hl]
+	add $02
+	cp $88
+	jr c, .asm_8681
+	ld a, $88
+.asm_8681
+	ld [hl], a
+	ret
+
+Func_8683:
+	ld hl, wd897
+	ld a, [hl]
+	sub $02
+	jr nc, .asm_868c
+	xor a
+.asm_868c
+	ld [hl], a
+	ret
+
+Func_868e:
+	ld hl, wd896
+	ld a, [hl]
+	sub $02
+	jr nc, .asm_8697
+	xor a
+.asm_8697
+	ld [hl], a
+	ret
+
+Func_8699:
+	ld hl, wd896
+	ld a, [hl]
+	add $02
+	cp $60
+	jr c, .asm_86a5
+	ld a, $60
+.asm_86a5
+	ld [hl], a
+	ret
+
+Func_86a7:
+	xor a
+	ld [wd898], a
+	call Func_8745
+	ld a, $05
+	ld [wd895], a
+	ret
+
+Func_86b4:
+	ld hl, wd898
+	ld a, [wc574]
+	and $09
+	jr z, .asm_86db
+	ld a, [hl]
+	and a
+	jr z, .asm_86d5
+	ld a, $06
+	ld [wd895], a
+	ld hl, wTempDMGPals
+	ld bc, $80
+	call ClearMemory
+	ld a, $03
+	jp InitFade
+.asm_86d5
+	ld a, $03
+	ld [wd895], a
+	ret
+.asm_86db
+	ld a, [wc574]
+	and $20
+	call nz, Func_86ee
+	ld a, [wc574]
+	and $10
+	call nz, Func_86f4
+	jp Func_8745
+
+Func_86ee:
+	ld a, [hl]
+	and a
+	ret nz
+	ld [hl], $01
+	ret
+
+Func_86f4:
+	ld a, [hl]
+	and a
+	ret z
+	ld [hl], $00
+	ret
+
+Func_86fa:
+	ld a, [wFadeActive]
+	and a
+	ret nz
+	ld a, $03
+	ld [wd820], a
+	ld a, $00
+	ld [wTitlescreenTransition], a
+	ret
+
+Func_870a:
+	call Func_87ef
+	call Func_88b1
+	ld a, [wd877]
+	and a
+	jr z, .asm_871c
+	ld de, wd878
+	call Func_88e0
+.asm_871c
+	call Func_200a
+	ld a, $01
+	ld [wd54c], a
+	ld a, $01
+	call InitFade
+	ld a, $00
+	ld [wd895], a
+	ret
+
+Func_872f:
+	ld de, $4753
+	ld a, [wFrameCounter]
+	and $10
+	jr nz, Func_873c
+	ld de, $4767
+Func_873c:
+	ld hl, v0BGMap1
+	lb bc, 1, 20
+	jp CopyBGMapBox
+
+Func_8745:
+	ld de, $477b
+	ld a, [wd898]
+	and a
+	jr z, Func_873c
+	ld de, $478f
+	jr Func_873c
+; 0x8753
+
+SECTION "Func_87ef", ROMX[$47ef], BANK[$2]
+
+Func_87ef:
+	ld hl, wDMGPals
+	ld b, $38
+	ld a, $ff
+.asm_87f6
+	ld [hli], a
+	dec b
+	jr nz, .asm_87f6
+	ld hl, wOBPals
+	ld b, $40
+.asm_87ff
+	ld [hli], a
+	dec b
+	jr nz, .asm_87ff
+	jp FlushCGBPalettes
+
+Func_8806:
+	call Func_882c
+	call Func_880d
+	ret
+
+Func_880d:
+	ld a, c
+	sub $50
+	jr nc, .asm_8813
+	xor a
+.asm_8813
+	cp $60
+	jr c, .asm_8819
+	ld a, $60
+.asm_8819
+	ld [wd896], a
+	ld a, b
+	sub $3c
+	jr nc, .asm_8822
+	xor a
+.asm_8822
+	cp $88
+	jr c, .asm_8828
+	ld a, $88
+.asm_8828
+	ld [wd897], a
+	ret
+
+Func_882c:
+	push de
+	push hl
+	ld hl, wPlayerCarPtr
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call GetCarCoordinates
+	call Func_883d
+	pop hl
+	pop de
+	ret
+
+Func_883d:
+	REPT 5
+		srl b
+		rr c
+	ENDR
+	REPT 5
+		srl d
+		rr e
+	ENDR
+	ld b, e
+	ret
+
+Func_8867:
+	ld c, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	push hl
+	ld hl, v0BGMap0
+	ld a, l
+	ld [wdc7a], a
+	ld a, h
+	ld [wdc7a + 1], a
+	ld h, d
+	ld l, e
+	ld a, $20
+.asm_887d
+	push af
+	ld b, $20
+	ld de, wGfxBuffer
+	call FarCopy
+	push bc
+	push hl
+	ld hl, wdc7a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, wGfxBuffer
+	ld bc, $120
+	call CopyBGMapBox
+	ld hl, wdc7a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, $20
+	add hl, de
+	ld a, l
+	ld [wdc7a], a
+	ld a, h
+	ld [wdc7a + 1], a
+	pop hl
+	pop bc
+	pop af
+	dec a
+	jr nz, .asm_887d
+	pop hl
+	ret
 
 Func_88b1:
 	ld hl, wGfxBuffer
 	ld a, $80
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	call FillMemory
 	ld de, wGfxBuffer
-	call .Func_88e0
+	call Func_88e0
 	ld hl, wGfxBuffer
 	ld a, $0f
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	call FillMemory
 	ld de, wGfxBuffer
 	ld a, BANK("VRAM1")
 	vramswitch
-	call .Func_88e0
+	call Func_88e0
 	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
-.Func_88e0:
+Func_88e0:
 	ld hl, v0BGMap1
 	lb bc, $1, $14
 	jp CopyBGMapBox
-; 0x88e9
 
-SECTION "Func_891e", ROMX[$491e], BANK[$2]
-
-Func_891e::
-	call GetText2
-	push bc
-	call .Func_8930
+Func_88e9:
 	ld a, $01
-	ld [wd8e5], a
-	pop bc
-	ld a, c
-	ld [wd8e7], a
+	vramswitch
+	ld de, v0Tiles1 tile $74
+	ld hl, $7860
+	ld c, $32
+	ld b, $03
+	xor a
+	call CopyTilesWithAlternatingBlackTiles
+	ld a, $00
+	vramswitch
+	ld a, $01
+	vramswitch
+	ld de, v0Tiles1 tile $7a
+	ld hl, $7890
+	ld c, $32
+	ld b, $03
+	xor a
+	call CopyTilesWithAlternatingBlackTiles
+	ld a, $00
+	vramswitch
 	ret
 
-.Func_8930:
+_ShowHUDMessage::
+	call GetText2
+	push bc
+	call .GetCharacterSetAndCheckLength
+	ld a, HUDMSG_INIT
+	ld [wHUDMessageStep], a
+	pop bc
+	ld a, c
+	ld [wHUDMessageDuration], a
+	ret
+
+.GetCharacterSetAndCheckLength:
 	xor a
-	ld [wd8e4], a
-	ld a, $10
+	ld [wIsTwoLineMessage], a
+	ld a, CHARACTER_SET_SIZE_ONE_LINE
 	push hl
-	call Func_8b94
+	call CreateTextCharacterSet
 	pop hl
+	; if we surpassed the max character set size...
 	ld a, [wCharacterSetSize]
-	cp $11
-	jr nc, .asm_8948
-	ld a, [wd8e2]
+	cp CHARACTER_SET_SIZE_ONE_LINE + 1
+	jr nc, .try_two_lines
+	; ...or if we exceed maximum text length, try 2 lines
+	ld a, [wHUDMessageLength]
 	; return if < 21
 	cp 21
 	ret c
-.asm_8948
-	ld a, $01
-	ld [wd8e4], a
-	ld a, $20
-	call Func_8b94
+.try_two_lines
+	ld a, TRUE
+	ld [wIsTwoLineMessage], a
+	ld a, CHARACTER_SET_SIZE_TWO_LINES
+	call CreateTextCharacterSet
+	; if we surpassed the max character set size...
 	ld a, [wCharacterSetSize]
-	cp $21
+	cp CHARACTER_SET_SIZE_TWO_LINES + 1
 	jr nc, .text_error
-	ld a, [wd8e2]
+	; ...or if we exceed maximum text length, print error
+	ld a, [wHUDMessageLength]
 	; return if < 41
-	cp $29
+	cp 41
 	ret c
 .text_error
 	ld hl, .TextErrorText
 	xor a
-	ld [wd8e4], a
-	ld a, $10
-	jp Func_8b94
+	ld [wIsTwoLineMessage], a
+	ld a, CHARACTER_SET_SIZE_ONE_LINE
+	jp CreateTextCharacterSet
 
 .TextErrorText:
 	db "TEXT ERROR!\0"
 
 Func_8977:
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	and a
 	ret z
 	dec a
 	jumptable
-	dw .Func_8986 ; $1
-	dw .Func_89a1 ; $2
-	dw .Func_89ef ; $3
+	dw .HUDMsg_Init      ; HUDMSG_INIT
+	dw .HUDMsg_LoadChars ; HUDMSG_LOAD_CHARS
+	dw .HUDMsg_PrintText ; HUDMSG_PRINT_TEXT
 	dw .Func_8a52 ; $4
 
-.Func_8986:
+.HUDMsg_Init:
 	ld a, $80
-	call .Func_8a76
-	call .Func_8a7f
+	call .FillGfxBuffer
+	call .LoadGfxBufferToScreen
 	xor a
 	ld [wd8ea], a
 	ld [wd8e8], a
 	ld [wd8e9], a
-	ld [wd8e6], a
-	ld a, $02
-	ld [wd8e5], a
+	ld [wHUDMessageTimer], a
+	ld a, HUDMSG_LOAD_CHARS
+	ld [wHUDMessageStep], a
 	ret
 
-.Func_89a1:
-	ld a, [wd8e4]
-	and $01
-	jp nz, .asm_8a8b
+.HUDMsg_LoadChars:
+	ld a, [wIsTwoLineMessage]
+	and TRUE
+	jp nz, .two_lines
 
 	; load tiles that are in the character set
-	ld a, [wd8e6]
+	ld a, [wHUDMessageTimer]
 	ld c, a
 	ld hl, wCharacterSet
 	add_hl
 	ld a, [hl]
 	and a
-	jr nz, .asm_89bb
-	ld a, $03
-	ld [wd8e5], a
+	jr nz, .load_tall_char
+	ld a, HUDMSG_PRINT_TEXT
+	ld [wHUDMessageStep], a
 	ret
-.asm_89bb
+.load_tall_char
 	ld l, a
 	ld h, $00
-	ld de, $521d
+	ld de, FontTallGfx
 	add hl, hl
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl ; *32
+	add hl, hl ; *$20
 	add hl, de
 	push hl
 	ld l, c
@@ -751,36 +1337,37 @@ Func_8977:
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl ; *32
+	add hl, hl ; *$20
 	ld de, v0Tiles1 tile $28
 	add hl, de
 	ld d, h
 	ld e, l
 	pop hl
-	ld c, $34
+	ld c, BANK(FontTallGfx)
 	ld b, 2 ; tiles
 	ld a, BANK("VRAM1")
 	vramswitch
 	call SafeCopyFarTiles
 	ld a, BANK("VRAM0")
 	vramswitch
-	ld hl, wd8e6
+	ld hl, wHUDMessageTimer
 	inc [hl]
 	ret
 
-.Func_89ef:
-	ld a, $0f
-	call .Func_8a76
+.HUDMsg_PrintText:
+	ld a, 7 | BG_BANK1
+	call .FillGfxBuffer
 	ld a, BANK("VRAM1")
 	vramswitch
-	call .Func_8a7f
+	call .LoadGfxBufferToScreen
 	ld a, BANK("VRAM0")
 	vramswitch
 	ld a, $80
-	call .Func_8a76
-	ld a, [wd8e4]
+	call .FillGfxBuffer
+
+	ld a, [wIsTwoLineMessage]
 	and a
-	jp nz, .Func_8ada
+	jp nz, .asm_8ada
 	ld a, [wd8e2]
 	ld c, a
 	and $01
@@ -792,11 +1379,11 @@ Func_8977:
 	ld a, c
 	cpl
 	inc a
-	add $14
+	add SCREEN_WIDTH
 	srl a
 	ld de, wGfxBuffer
 	add_de
-	ld hl, wd8b9
+	ld hl, wEncodedText
 .asm_8a2d
 	ld a, [hli]
 	cp $ff
@@ -804,16 +1391,16 @@ Func_8977:
 	and a
 	jr z, .asm_8a43
 	dec a
-	add a
+	add a ; *2
 	add $a8
-	ld [de], a
+	ld [de], a ; top
 	ld c, a
 	push de
-	ld a, $14
+	ld a, SCREEN_WIDTH
 	add_de
 	ld a, c
 	inc a
-	ld [de], a
+	ld [de], a ; bottom
 	pop de
 .asm_8a43
 	inc de
@@ -821,12 +1408,13 @@ Func_8977:
 
 .asm_8a46
 	xor a
-	ld [wd8e6], a
+	ld [wHUDMessageTimer], a
 	ld a, $04
-	ld [wd8e5], a
-	call .Func_8a7f
+	ld [wHUDMessageStep], a
+	call .LoadGfxBufferToScreen
+;	fallthrough
 .Func_8a52:
-	ld hl, wd8e6
+	ld hl, wHUDMessageTimer
 	inc [hl]
 	ld a, [hl]
 	and $08
@@ -836,57 +1424,60 @@ Func_8977:
 .asm_8a5f
 	ld [wd8ea], a
 	ld a, [hl]
-	ld hl, wd8e7
+	ld hl, wHUDMessageDuration
 	cp [hl]
-	ret c
+	ret c ; still showing
+
+	; duration has elapsed
 	xor a
 	ld [wd8ea], a
 	ld [wd8e8], a
 	ld [wd8e9], a
-	ld [wd8e5], a
+	ld [wHUDMessageStep], a
 	ret
 
-.Func_8a76:
+; fills wGfxBuffer with a
+.FillGfxBuffer:
 	ld hl, wGfxBuffer
 	ld bc, 2 * SCREEN_WIDTH
 	jp FillMemory
 
-.Func_8a7f:
+.LoadGfxBufferToScreen:
 	ld de, wGfxBuffer
 	hlbgcoord 0, 18, v0BGMap1
 	lb bc, 2, SCREEN_WIDTH
 	jp CopyBGMapBox
 
-.asm_8a8b
-	ld b, $02
-.asm_8a8d
+.two_lines
+	ld b, 2 ; load 2 at a time
+.loop_small_chars
 	; load tiles that are in the character set
-	ld a, [wd8e6]
+	ld a, [wHUDMessageTimer]
 	ld c, a
 	ld hl, wCharacterSet
 	add_hl
 	ld a, [hl]
 	and a
-	jr z, .asm_8aa2
+	jr z, .finish_load_small_chars
 	push bc
-	call .Func_8aa8
+	call .LoadSmallChar
 	pop bc
 	dec b
-	jr nz, .asm_8a8d
+	jr nz, .loop_small_chars
 	ret
-.asm_8aa2
-	ld a, $03
-	ld [wd8e5], a
+.finish_load_small_chars
+	ld a, HUDMSG_PRINT_TEXT
+	ld [wHUDMessageStep], a
 	ret
 
-.Func_8aa8:
-	ld de, $5e1d
+.LoadSmallChar:
+	ld de, FontSmallGfx
 	ld l, a
 	ld h, $00
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl ; *16
+	add hl, hl ; *$10
 	add hl, de
 	push hl
 	ld l, c
@@ -894,28 +1485,29 @@ Func_8977:
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl ; *16
+	add hl, hl ; *$10
 	ld de, v0Tiles1 tile $28
 	add hl, de
 	ld d, h
 	ld e, l
 	pop hl
-	ld c, $34
+	ld c, BANK(FontSmallGfx)
 	ld b, 1 ; tile
 	ld a, BANK("VRAM1")
 	vramswitch
 	call SafeCopyFarTiles
 	ld a, BANK("VRAM0")
 	vramswitch
-	ld hl, wd8e6
+
+	ld hl, wHUDMessageTimer
 	inc [hl]
 	ret
 
-.Func_8ada:
+.asm_8ada
 	ld a, [wd8e2]
 	cp $15
 	jr nc, .asm_8b17
-	ld hl, wd8b9
+	ld hl, wEncodedText
 	ld de, wGfxBuffer
 	call .Func_8afa
 	ld a, [wd8e2]
@@ -928,7 +1520,7 @@ Func_8977:
 .Func_8afa:
 	cpl
 	inc a
-	add $14
+	add SCREEN_WIDTH
 	srl a
 	add_de
 .asm_8b01
@@ -984,11 +1576,11 @@ Func_8977:
 	sub $14
 	ld [wdc7e], a
 .asm_8b4f
-	ld hl, wd8b9
+	ld hl, wEncodedText
 	ld de, wGfxBuffer
 	ld a, [wdc7a]
 	call .Func_8b80
-	ld hl, wd8b9
+	ld hl, wEncodedText
 	ld a, [wdc7c]
 	add_hl
 	ld de, wGfxBuffer + $14
@@ -1016,12 +1608,12 @@ Func_8977:
 	jp .Func_8afa
 
 ; input:
-; - a = ?
-Func_8b94:
-	ld [wdc7a], a
-	push hl
+; - a = maximum number of characters in the set
+CreateTextCharacterSet:
+	ld [wMaxNumOfSetCharacters], a
 
 	; clear character set
+	push hl
 	ld b, a
 	ld hl, wCharacterSet
 	xor a
@@ -1033,7 +1625,7 @@ Func_8b94:
 
 	xor a
 	ld [wCharacterSetSize], a
-	ld de, wd8b9
+	ld de, wEncodedText
 .loop_chars
 	ld a, [hli]
 	and a
@@ -1048,11 +1640,11 @@ Func_8b94:
 	ld a, $ff
 	ld [de], a
 
-	ld hl, -wd8b9
+	ld hl, -wEncodedText
 	add hl, de
-	; hl = size of wd8b9 (excluding terminating byte)
+	; hl = size of wEncodedText (excluding terminating byte)
 	ld a, l
-	ld [wd8e2], a
+	ld [wHUDMessageLength], a
 	ret
 
 .AddToSet:
@@ -1086,8 +1678,8 @@ Func_8b94:
 	; with rest of the set...
 	inc de
 	inc b ; increment index
-	; are we at maximum size alread?
-	ld a, [wdc7a]
+	; are we at maximum size already?
+	ld a, [wMaxNumOfSetCharacters]
 	cp b
 	jr nz, .loop_character_set ; no
 	; yes, return 0 index
@@ -3205,8 +3797,8 @@ Func_99cb:
 	ld a, [wActiveCheats]
 	and CHEAT_OPEN_ALL_CITIES
 	jr nz, .Func_99e3
-	ld a, [wdc33]
-	and $01
+	ld a, [wUnlockedCities]
+	and MIAMI_UNLOCKED
 	jr nz, .Func_99e3
 	scf
 	ret
@@ -3215,8 +3807,8 @@ Func_99cb:
 	ld a, [wActiveCheats]
 	and CHEAT_OPEN_ALL_CITIES
 	jr nz, .Func_99e3
-	ld a, [wdc33]
-	and $02
+	ld a, [wUnlockedCities]
+	and LOS_ANGELES_UNLOCKED
 	jr nz, .Func_99e3
 	scf
 	ret
@@ -3225,8 +3817,8 @@ Func_99cb:
 	ld a, [wActiveCheats]
 	and CHEAT_OPEN_ALL_CITIES
 	jr nz, .Func_99e3
-	ld a, [wdc33]
-	and $04
+	ld a, [wUnlockedCities]
+	and NEW_YORK_UNLOCKED
 	jr nz, .Func_99e3
 	scf
 	ret
@@ -4122,7 +4714,7 @@ Func_9eb2:
 	call PlaySFX
 	ld a, c
 	ld [wMission], a
-	call Func_1692
+	call UpdateUnlockedCities
 	ld a, MODE_UNDERCOVER
 	ld [wGameMode], a
 	xor a
@@ -4447,7 +5039,6 @@ Func_a1c5:
 
 	xor a
 	call Func_a283
-
 	ld a, $01
 	vramswitch
 	ld a, $0d
@@ -4455,14 +5046,14 @@ Func_a1c5:
 	ld a, $00
 	vramswitch
 
-	ld de, $62cd
+	ld de, Func_a2cd
 	ld hl, wMenuUpdateFunc
 	ld [hl], e
 	inc hl
 	ld [hl], d
 
-	ld a, $02
-	ld de, $62fd
+	ld a, BANK(Func_a2fd)
+	ld de, Func_a2fd
 	ld hl, wd54e
 	ld [hli], a
 	ld [hl], e
@@ -4482,18 +5073,18 @@ Func_a1c5:
 	ld a, $01
 	call YieldEntityUpdate
 	ld a, [wJoypadPressed]
-	and $02
+	and PAD_B
 	jr nz, .asm_a25a
 	ld a, [wJoypadPressed]
-	and $09
+	and PAD_A | PAD_START
 	jr nz, .asm_a270
 	ld c, $00
 	ld hl, wMainMenuEntry
 	ld a, [wJoypadPressed]
-	and $40
+	and PAD_UP
 	call nz, .Func_a261
 	ld a, [wJoypadPressed]
-	and $80
+	and PAD_DOWN
 	call nz, .Func_a268
 	ld a, c
 	and a
@@ -4533,7 +5124,7 @@ Func_a1c5:
 	ld a, SFX_06
 	call PlaySFX
 	ld a, [wMainMenuEntry]
-	ld hl, $6384
+	ld hl, TakeARideMenuCars
 	add_hl
 	ld a, [hl]
 	ld [wPlayerCar], a
@@ -4550,20 +5141,20 @@ Func_a283:
 
 Func_a298:
 	ld a, [wMainMenuEntry]
-	ld hl, $638a
+	ld hl, PtrTable_a38a
 	get_pointer
+
 	ld c, [hl]
 	inc hl
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
 	inc hl
-
 	push hl
 	ld h, d
 	ld l, e
 	ld de, v1Tiles0
-	ld b, $40
+	ld b, $40 ; tiles
 	ld a, $01
 	vramswitch
 	call SafeCopyFarTiles
@@ -4580,7 +5171,175 @@ Func_a298:
 	ld de, wOBPals palette 3
 	call FarCopy
 	jp FlushCGBPalettes
-; 0xa2cd
+
+Func_a2cd:
+	ld hl, wc683
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+	ld a, [wdbfa]
+	and a
+	jr z, .asm_a2f4
+	ld a, $30
+	ld [hli], a
+	ld a, $d0
+	ld [hli], a
+	ld a, $d0
+	ld [hli], a
+	ld a, $0e
+	ld [hli], a
+	ld a, $60
+	ld [hli], a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+.asm_a2f4
+	ldh a, [hff99]
+	call Func_988e
+	ld a, $ff
+	ld [hl], a
+	ret
+
+Func_a2fd:
+	call Func_9d1a
+
+	ld a, [wdbfa]
+	and a
+	ret z
+
+	ld a, [wMainMenuEntry]
+	ld hl, PtrTable_a38a
+	get_pointer
+	ld a, $6
+	add_hl
+	ld c, [hl]
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, wGfxBuffer
+	ld b, $40
+	call FarCopy
+
+	ld b, 48 ; y
+	ld c, 48 ; x
+	ld hl, wGfxBuffer
+	ld a, $03
+.loop_rows
+	push af
+	push bc
+	ld a, $08
+.loop_cols
+	push af
+	ld a, [hli]
+	add a ;*2
+	ld e, a
+	ld a, [hli]
+	add 3 | OAM_BANK1
+	ld d, a
+	push bc
+	push hl
+	call Func_1393
+	pop hl
+	pop bc
+	ld a, c
+	add 8
+	ld c, a
+	pop af
+	dec a
+	jr nz, .loop_cols
+	pop bc
+	ld a, b
+	add 16
+	ld b, a
+	pop af
+	dec a
+	jr nz, .loop_rows
+
+	ld a, [wc57a]
+	and $04
+	ret z
+
+	ld a, [wMainMenuEntry]
+	and a
+	jr z, .asm_a36f
+	; draw up arrow
+	lb bc, $20, $48
+	ld e, $10
+	ld d, 2 | OAM_BANK0
+	call Func_1393
+	lb bc, $20, $50
+	ld e, $10
+	ld d, 2 | OAM_BANK0 | OAM_XFLIP
+	call Func_1393
+
+	ld a, [wMainMenuEntry]
+	cp $05
+	ret z
+.asm_a36f
+	; draw down arrow
+	lb bc, $60, $48
+	ld e, $10
+	ld d, 2 | OAM_BANK0 | OAM_YFLIP
+	call Func_1393
+	lb bc, $60, $50
+	ld e, $10
+	ld d, 2 | OAM_BANK0 | OAM_XFLIP | OAM_YFLIP
+	call Func_1393
+	ret
+
+TakeARideMenuCars:
+	db BLACK_CAR
+	db BROWN_CAR
+	db RED_CAR
+	db LIMOUSINE
+	db COP_CAR
+	db TAXI
+
+PtrTable_a38a:
+	dw .BlackCar
+	dw .BrownCar
+	dw .RedCar
+	dw .Limousine
+	dw .CopCar
+	dw .Taxi
+
+.BlackCar:
+	dba BlackCarPicGfx
+	dba Pals_d8fa0
+	dbw $35, $7f9d
+
+.BrownCar:
+	dba BrownCarPicGfx
+	dba Pals_d92e0
+	dbw $35, $7fcd
+
+.RedCar:
+	dba RedCarPicGfx
+	dba Pals_d9650
+	dbw $36, $5620
+
+.Limousine:
+	dba LimousinePicGfx
+	dba Pals_d99c0
+	dbw $36, $5990
+
+.CopCar:
+	dba CopCarPicGfx
+	dba Pals_d9d30
+	dbw $36, $5d00
+
+.Taxi:
+	dba TaxiPicGfx
+	dba Pals_da0a0
+	dbw $36, $6070
 
 SECTION "RetIfNoAOrStartBtn", ROMX[$63cc], BANK[$2]
 
@@ -4652,13 +5411,15 @@ Func_a45f:
 	ld a, NEW_YORK
 	jp Func_a467
 
+; input:
+; - a = which city
 Func_a467:
 	ld [wCity], a
 	ld a, [wGameMode]
 	cp MODE_TAKE_A_RIDE
 	jp nz, ExitTitlescreenOrMainScreen
-	ld de, $61c5
-	ld a, $02
+	ld de, Func_a1c5
+	ld a, BANK(Func_a1c5)
 	jp Func_157f
 
 Func_a47a:

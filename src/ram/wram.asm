@@ -372,7 +372,17 @@ wd876:: db ; d876
 
 wd877:: db ; d877
 
-	ds $d88c - $d878
+wd878:: db ; d878
+
+	ds $d884 - $d879
+
+wd884:: db ; d884
+
+	ds $d88a - $d885
+
+wd88a:: db ; d88a
+
+	ds $d88c - $d88b
 
 wd88c:: db ; d88c
 
@@ -380,11 +390,15 @@ wd88c:: db ; d88c
 
 wd88e:: db ; d88e
 
-	ds $d892 - $d88f
+wd88f:: db ; d88f
+
+	ds $d891 - $d890
+
+wd891:: db ; d891
 
 wd892:: db ; d892
 
-	ds $d894 - $d893
+wd893:: db ; d893
 
 wd894:: db ; d894
 
@@ -398,28 +412,29 @@ wd898:: db ; d898
 
 ; holds set of characters of a given text
 wCharacterSet:: ; d899
-	ds $20
+	ds CHARACTER_SET_SIZE_TWO_LINES
 
-wd8b9:: db ; d8b9
-
-	ds $d8cc - $d8ba
+; after assigning a character to an index in wCharacterSet,
+; this buffer holds the text to print witch each character
+; replaced by its corresponding index in the set
+wEncodedText:: ; d8b9
+	ds $13
 
 wd8cc:: db ; d8cc
 
 	ds $d8e2 - $d8cd
 
-wd8e2:: db ; d8e2
+wHUDMessageLength::
+wd8e2:: ; d8e2
+	db
 
 ; number of characters in wCharacterSet
 wCharacterSetSize:: db ; d8e3
+wIsTwoLineMessage:: db ; d8e4
 
-wd8e4:: db ; d8e4
-
-wd8e5:: db ; d8e5
-
-wd8e6:: db ; d8e6
-
-wd8e7:: db ; d8e7
+wHUDMessageStep::     db ; d8e5
+wHUDMessageTimer::    db ; d8e6
+wHUDMessageDuration:: db ; d8e7
 
 wd8e8:: db ; d8e8
 
@@ -660,7 +675,7 @@ wdc31:: db ; dc31
 
 wActiveCheats:: db ; dc32
 
-wdc33:: db ; dc33
+wUnlockedCities:: db ; dc33
 
 wMissionCode:: ; dc34
 	ds $4
@@ -751,8 +766,12 @@ wdc75:: db ; dc75
 
 	ds $dc7a - $dc76
 
+UNION
 wdc7a:: dw ; dc7a
 wdc7c:: dw ; dc7c
+NEXTU
+wMaxNumOfSetCharacters:: db ; dc7a
+ENDU
 
 wdc7e:: db ; dc7e
 

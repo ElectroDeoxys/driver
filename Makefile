@@ -93,6 +93,11 @@ $(rom): $(rom_obj) src/layout.link
 src/gfx/font.2bpp: RGBGFX += -x 5
 src/gfx/font_checkbox.2bpp: RGBGFX += -x 5
 
+### Interleaved gfx
+
+src/gfx/font_tall.2bpp: tools/gfx += --interleave --png=$<
+src/gfx/cars/pics/%.2bpp: tools/gfx += --interleave --png=$<
+
 ### Catch-all graphics rules
 
 %.2bpp: %.png

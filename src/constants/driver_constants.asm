@@ -4,6 +4,11 @@
 	const LOS_ANGELES ; $1
 	const NEW_YORK    ; $2
 
+; wUnlockedCities flags
+DEF MIAMI_UNLOCKED       EQU 1 << MIAMI
+DEF LOS_ANGELES_UNLOCKED EQU 1 << LOS_ANGELES
+DEF NEW_YORK_UNLOCKED    EQU 1 << NEW_YORK
+
 ; wGameMode constants
 	const_def
 	const MODE_TAKE_A_RIDE ; $0
@@ -38,15 +43,15 @@ DEF NUM_MISSIONS EQU const_value
 
 ; car constants
 	const_def
-	const CAR_00 ; $0
-	const CAR_01 ; $1
-	const CAR_02 ; $2
+	const BLACK_CAR ; $0
+	const COP_CAR ; $1
+	const TAXI ; $2
 	const CAR_03 ; $3
 	const CAR_04 ; $4
 	const CAR_05 ; $5
-	const CAR_06 ; $6
-	const CAR_07 ; $7
-	const CAR_08 ; $8
+	const BROWN_CAR ; $6
+	const RED_CAR ; $7
+	const LIMOUSINE ; $8
 	const CAR_09 ; $9
 	const CAR_10 ; $a
 

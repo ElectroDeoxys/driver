@@ -61,15 +61,15 @@ MACRO? car_gfx
 ENDM
 
 CarGfxTable::
-	car_gfx Car01Gfx, Data_c4e4 ; CAR_00
-	car_gfx Car02Gfx, Data_c9c9 ; CAR_01
-	car_gfx Car03Gfx, Data_ceae ; CAR_02
+	car_gfx Car01Gfx, Data_c4e4 ; BLACK_CAR
+	car_gfx Car02Gfx, Data_c9c9 ; COP_CAR
+	car_gfx Car03Gfx, Data_ceae ; TAXI
 	car_gfx Car04Gfx, Data_d393 ; CAR_03
 	car_gfx Car05Gfx, Data_d878 ; CAR_04
 	car_gfx Car06Gfx, Data_dd5d ; CAR_05
-	car_gfx Car07Gfx, Data_e242 ; CAR_06
-	car_gfx Car08Gfx, Data_e727 ; CAR_07
-	car_gfx Car09Gfx, Data_ec0c ; CAR_08
+	car_gfx Car07Gfx, Data_e242 ; BROWN_CAR
+	car_gfx Car08Gfx, Data_e727 ; RED_CAR
+	car_gfx Car09Gfx, Data_ec0c ; LIMOUSINE
 	car_gfx Car10Gfx, Data_f0f1 ; CAR_09
 	car_gfx Car11Gfx, Data_f5d6 ; CAR_10
 ; 0xf624

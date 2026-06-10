@@ -3725,10 +3725,10 @@ Func_15bb:
 	ld [wd822], a
 	ld a, MODE_UNDERCOVER
 	ld [wGameMode], a
+
 	ld a, MISSION_THE_BANK_JOB
 	ld [wMission], a
-
-	call Func_1692
+	call UpdateUnlockedCities
 
 .titlescreen
 	homecall Titlescreen
@@ -3736,7 +3736,7 @@ Func_15bb:
 .main_menu
 	homecall MainMenu
 .asm_15ef
-	call Func_1692
+	call UpdateUnlockedCities
 	homecall Func_90aa
 	call Func_16a8
 
@@ -3796,18 +3796,18 @@ Func_15bb:
 	jp z, .main_menu
 	jp .titlescreen
 
-Func_1692::
+UpdateUnlockedCities::
 	ld a, [wMission]
 	cp LOS_ANGELES_MISSIONS
 	ret c
-	ld b, $02
+	ld b, LOS_ANGELES_UNLOCKED
 	cp NEW_YORK_MISSIONS
 	jr c, .asm_16a0
-	ld b, $06
+	ld b, LOS_ANGELES_UNLOCKED | NEW_YORK_UNLOCKED
 .asm_16a0
-	ld a, [wdc33]
+	ld a, [wUnlockedCities]
 	or b
-	ld [wdc33], a
+	ld [wUnlockedCities], a
 	ret
 
 Func_16a8:
@@ -3838,15 +3838,15 @@ Func_16a8:
 Func_16e2:
 	ld a, [wGameMode]
 	jumptable
-	dw Func_16f4 ; MODE_TAKE_A_RIDE
-	dw Func_1735 ; MODE_CHECKPOINT
-	dw Func_1748 ; MODE_GET_AWAY
-	dw Func_175b ; MODE_PURSUIT
-	dw Func_176e ; MODE_SURVIVAL
-	dw Func_1784 ; MODE_UNDERCOVER
-	dw Func_18c5 ; MODE_CREDITS
+	dw .TakeARide  ; MODE_TAKE_A_RIDE
+	dw .Checkpoint ; MODE_CHECKPOINT
+	dw .GetAway    ; MODE_GET_AWAY
+	dw .Pursuit    ; MODE_PURSUIT
+	dw .Survival   ; MODE_SURVIVAL
+	dw .Undercover ; MODE_UNDERCOVER
+	dw Func_18c5   ; MODE_CREDITS
 
-Func_16f4:
+.TakeARide:
 	call Func_1972
 	ld a, [wCity]
 	call SetCity
@@ -3854,21 +3854,21 @@ Func_16f4:
 	ld [wd827], a
 	ld a, [wPlayerCar]
 	ld c, a
-	cp CAR_00
+	cp BLACK_CAR
 	jr z, .asm_172b
-	cp CAR_01
+	cp COP_CAR
 	jr z, .asm_172b
-	cp CAR_08
+	cp LIMOUSINE
 	jr z, .asm_172b
 	ld a, $02
 	ld [wd827], a
 	ld a, c
-	cp CAR_07
+	cp RED_CAR
 	jr z, .asm_172b
 	ld a, $05
 	ld [wd827], a
 	ld a, c
-	cp CAR_02
+	cp TAXI
 	jr z, .asm_172b
 	ld a, $01
 	ld [wd827], a
@@ -3878,7 +3878,7 @@ Func_16f4:
 	call Func_1a2e
 	ret
 
-Func_1735:
+.Checkpoint:
 	call Func_1977
 	ld a, [wCity]
 	call SetCity
@@ -3887,7 +3887,7 @@ Func_1735:
 	call Func_1a2e
 	ret
 
-Func_1748:
+.GetAway:
 	call Func_1972
 	ld a, [wCity]
 	call SetCity
@@ -3896,7 +3896,7 @@ Func_1748:
 	call Func_1a2e
 	ret
 
-Func_175b:
+.Pursuit:
 	call Func_1977
 	ld a, [wCity]
 	call SetCity
@@ -3905,7 +3905,7 @@ Func_175b:
 	call Func_1a2e
 	ret
 
-Func_176e:
+.Survival:
 	call Func_1972
 	ld a, [wCity]
 	call SetCity
@@ -3915,7 +3915,7 @@ Func_176e:
 	call Func_1a2e
 	ret
 
-Func_1784:
+.Undercover:
 	ld a, BANK(Func_6921)
 	bankswitch
 	jp Func_6921
@@ -4075,7 +4075,7 @@ Func_18bb:
 Func_18c5:
 	ld a, [wdc8e]
 	ld [wCity], a
-	ld a, CAR_00
+	ld a, BLACK_CAR
 	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
@@ -4277,7 +4277,7 @@ Func_198f:
 
 ; sets the default car as the car driven by the player
 SetDefaultPlayerCar::
-	ld a, CAR_00
+	ld a, BLACK_CAR
 	ld [wPlayerCar], a
 	ld a, $00
 	ld [wd827], a
@@ -4383,7 +4383,7 @@ Func_1a71:
 	ld a, [wGameMode]
 	cp MODE_CREDITS
 	jr z, .asm_1adf
-	ld a, [wd8e5]
+	ld a, [wHUDMessageStep]
 	cp $04
 	jr nz, .asm_1ad2
 	ld a, $80
@@ -4706,10 +4706,11 @@ Func_1c7b:
 	jp Func_ef1
 
 Func_1cb9:
-	ld a, $00
+	ld a, NONE
 	ld [wActiveCheats], a
-	ld a, $01
-	ld [wdc33], a
+
+	ld a, MIAMI_UNLOCKED
+	ld [wUnlockedCities], a
 
 	; set default language
 	ld a, ENGLISH
@@ -4866,7 +4867,7 @@ Func_1d16:
 	jr nz, .loop_load_pals
 
 	ld a, [wPlayerCar]
-	cp CAR_06
+	cp BROWN_CAR
 	jr nz, .asm_1dd7
 	push hl
 	ldh a, [hROMBank]
@@ -5040,11 +5041,11 @@ Func_1e7e::
 
 ; input:
 ; - hl = texts pointer
-; - c  = ?
-Func_1ec0::
+; - c  = duration
+ShowHUDMessage::
 	ldh a, [hROMBank]
 	push af
-	homecall Func_891e
+	homecall _ShowHUDMessage
 	pop af
 	bankswitch
 	ret
@@ -5120,16 +5121,16 @@ Data_1f37::
 SECTION "Func_1f67", ROM0[$1f67]
 
 Data_1f67:
-	db CAR_03, CAR_04, CAR_05, CAR_02, $03, $03, $04, $04, $05, $05, $02, $02
-	db CAR_03, CAR_04, CAR_02, CAR_10, $03, $03, $04, $04, $02, $02, $0a, $0a
-	db CAR_03, CAR_09, CAR_10, CAR_02, $03, $03, $09, $09, $0a, $0a, $02, $02
-	db CAR_04, CAR_09, CAR_10, CAR_02, $04, $04, $09, $09, $0a, $0a, $02, $02
+	db CAR_03, CAR_04, CAR_05, TAXI,   $03, $03, $04, $04, $05, $05, $02, $02
+	db CAR_03, CAR_04, TAXI,   CAR_10, $03, $03, $04, $04, $02, $02, $0a, $0a
+	db CAR_03, CAR_09, CAR_10, TAXI,   $03, $03, $09, $09, $0a, $0a, $02, $02
+	db CAR_04, CAR_09, CAR_10, TAXI,   $04, $04, $09, $09, $0a, $0a, $02, $02
 
 Data_1f97:
-	db CAR_01, CAR_02, CAR_03, CAR_04, $03, $03, $03, $04, $04, $04, $02, $02
-	db CAR_01, CAR_03, CAR_04, CAR_05, $03, $03, $04, $04, $05, $05, $03, $03
-	db CAR_01, CAR_03, CAR_09, CAR_02, $03, $03, $03, $03, $09, $09, $02, $02
-	db CAR_01, CAR_05, CAR_10, CAR_02, $05, $05, $05, $05, $0a, $0a, $02, $02
+	db COP_CAR, TAXI,   CAR_03, CAR_04, $03, $03, $03, $04, $04, $04, $02, $02
+	db COP_CAR, CAR_03, CAR_04, CAR_05, $03, $03, $04, $04, $05, $05, $03, $03
+	db COP_CAR, CAR_03, CAR_09, TAXI,   $03, $03, $03, $03, $09, $09, $02, $02
+	db COP_CAR, CAR_05, CAR_10, TAXI,   $05, $05, $05, $05, $0a, $0a, $02, $02
 
 ToggleDebugMode:
 	ld a, [wd895]
@@ -5137,7 +5138,7 @@ ToggleDebugMode:
 	ret nz
 
 	ld hl, wDMGPals
-	ld bc, $38
+	ld bc, 7 palettes
 	ld a, $ff
 	call FillMemory
 	call FlushCGBPalettes
@@ -5168,9 +5169,22 @@ ToggleDebugMode:
 	xor $1
 	ld [hl], a
 	ret
-; 0x200a
 
-SECTION "Func_2026", ROM0[$2026]
+Func_200a::
+	ldh a, [hROMBank]
+	push af
+	call Func_2597
+	ld a, [wDebugModeActive]
+	and a
+	jr z, .asm_2019
+	ld a, $08
+	add_hl
+.asm_2019
+	call Func_2133
+	call Func_2216
+	pop af
+	bankswitch
+	ret
 
 Func_2026:
 	xor a
