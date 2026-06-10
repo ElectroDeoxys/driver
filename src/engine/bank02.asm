@@ -4541,7 +4541,7 @@ Func_a1c5:
 
 Func_a283:
 	ld hl, wGfxBuffer
-	ld bc, DisableLCD
+	ld bc, $30
 	call FillMemory
 	ld de, wGfxBuffer
 	ld hl, v0BGMap1

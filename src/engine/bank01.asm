@@ -2089,7 +2089,7 @@ Func_4c9f:
 	ld hl, wda56
 	call .Func_4cbd
 	call GetEntityCarPtr
-	ld a, $25
+	ld a, CARSTRUCT_25
 	call GetStructWord_DE
 	xor a
 	ld [de], a
@@ -2113,13 +2113,13 @@ Func_4cc2:
 	jr nz, .asm_4cce
 	ld d, e
 	ld e, $00
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	jp SetStructWord_DE
 .asm_4cce
-	ld a, $16
-	call Func_1101
-	ld a, $17
-	call Func_1106
+	ld a, CARSTRUCT_16
+	call SetStructByte_E
+	ld a, CARSTRUCT_17
+	call SetStructByte_D
 	push hl
 	ld h, b
 	ld l, c
@@ -2131,7 +2131,7 @@ Func_4cc2:
 	ld c, l
 	pop hl
 	push hl
-	ld a, $1c
+	ld a, CARSTRUCT_1C
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -2139,9 +2139,9 @@ Func_4cc2:
 	inc hl
 	ld [hl], b
 	pop hl
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_C
-	ld a, $17
+	ld a, CARSTRUCT_17
 	call GetStructByte_A
 	cp c
 	jr c, .asm_4d38
@@ -2151,10 +2151,10 @@ Func_4cc2:
 	jr z, .asm_4d50
 	call Func_4dc4
 	push hl
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	add_hl
 	ld a, [hl]
-	ld hl, $4dc7
+	ld hl, Data_4dc7
 	add a
 	add_hl
 	ld e, [hl]
@@ -2162,7 +2162,7 @@ Func_4cc2:
 	ld d, [hl]
 	pop hl
 	push hl
-	ld a, $1d
+	ld a, CARSTRUCT_1D
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -2187,31 +2187,31 @@ Func_4cc2:
 	call Func_4d7d
 	jr .asm_4d29
 .asm_4d38
-	ld a, $17
+	ld a, CARSTRUCT_17
 	call GetStructByte_B
 	ld c, $00
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
 	jr .asm_4cfa
 .asm_4d46
-	ld a, $1c
+	ld a, CARSTRUCT_1C
 	call GetStructWord_DE
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call AddStructWord_DE
 .asm_4d50
 	call Func_4dc4
-	ld a, $16
+	ld a, CARSTRUCT_16
 	call GetStructByte_D
 	ld e, $00
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	jp SetStructWord_DE
 
 Func_4d5f:
-	ld a, $17
+	ld a, CARSTRUCT_17
 	call GetStructByte_D
 	push hl
 	ld bc, $80
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	add_hl
 	ld a, [hl]
 	add c
@@ -2232,15 +2232,15 @@ Func_4d5f:
 	ret
 
 Func_4d7d:
-	ld a, $16
+	ld a, CARSTRUCT_16
 	call GetStructByte_D
 	push hl
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, rJOYP
+	ld bc, -$100
 	add hl, bc
 	ld b, h
 	ld c, l
@@ -2255,14 +2255,14 @@ Func_4d7d:
 	ld b, d
 	ld c, $00
 .asm_4d9e
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	jp SetStructWord_BC
 
 Func_4da3:
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call GetStructWord_DE
 	push hl
-	ld a, $1c
+	ld a, CARSTRUCT_1C
 	add_hl
 	ld a, [hl]
 	sub e
@@ -2290,14 +2290,141 @@ Func_4da3:
 
 Func_4dc4:
 	jp Func_5431
-; 0x4dc7
 
-SECTION "Func_4ec7", ROMX[$4ec7], BANK[$1]
+Data_4dc7:
+	dw $0000
+	dw $0000
+	dw $0001
+	dw $0003
+	dw $0006
+	dw $000a
+	dw $000f
+	dw $0015
+	dw $001c
+	dw $0024
+	dw $002d
+	dw $0037
+	dw $0042
+	dw $004e
+	dw $005b
+	dw $0069
+	dw $0078
+	dw $0088
+	dw $0099
+	dw $00ab
+	dw $00be
+	dw $00d2
+	dw $00e7
+	dw $00fd
+	dw $0114
+	dw $012c
+	dw $0145
+	dw $015f
+	dw $017a
+	dw $0196
+	dw $01b3
+	dw $01d1
+	dw $01f0
+	dw $0210
+	dw $0231
+	dw $0253
+	dw $0276
+	dw $029a
+	dw $02bf
+	dw $02e5
+	dw $030c
+	dw $0334
+	dw $035d
+	dw $0387
+	dw $03b2
+	dw $03de
+	dw $040b
+	dw $0439
+	dw $0468
+	dw $0498
+	dw $04c9
+	dw $04fb
+	dw $052e
+	dw $0562
+	dw $0597
+	dw $05cd
+	dw $0604
+	dw $063c
+	dw $0675
+	dw $06af
+	dw $06ea
+	dw $0726
+	dw $0763
+	dw $07a1
+	dw $07e0
+	dw $0820
+	dw $0861
+	dw $08a3
+	dw $08e6
+	dw $092a
+	dw $096f
+	dw $09b5
+	dw $09fc
+	dw $0a44
+	dw $0a8d
+	dw $0ad7
+	dw $0b22
+	dw $0b6e
+	dw $0bbb
+	dw $0c09
+	dw $0c58
+	dw $0ca8
+	dw $0cf9
+	dw $0d4b
+	dw $0d9e
+	dw $0df2
+	dw $0e47
+	dw $0e9d
+	dw $0ef4
+	dw $0f4c
+	dw $0fa5
+	dw $0fff
+	dw $105a
+	dw $10b6
+	dw $1113
+	dw $1171
+	dw $11d0
+	dw $1230
+	dw $1291
+	dw $12f3
+	dw $1356
+	dw $13ba
+	dw $141f
+	dw $1485
+	dw $14ec
+	dw $1554
+	dw $15bd
+	dw $1627
+	dw $1692
+	dw $16fe
+	dw $176b
+	dw $17d9
+	dw $1848
+	dw $18b8
+	dw $1929
+	dw $199b
+	dw $1a0e
+	dw $1a82
+	dw $1af7
+	dw $1b6d
+	dw $1be4
+	dw $1c5c
+	dw $1cd5
+	dw $1d4f
+	dw $1dca
+	dw $1e46
+	dw $1ec3
+	dw $1f41
 
 Func_4ec7:
 	call GetEntityCarPtr
 	ld c, $00
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	call SetStructByte_C
 .asm_4ed1
 	call GetCarCoordinates
@@ -2320,8 +2447,8 @@ Func_4ec7:
 	jr nz, .asm_4ed7
 	pop de
 	call GetEntityCarPtr
-	ld bc, SubHL
-	ld a, $15
+	ld bc, $20
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	ld e, d
 	call Func_4cc2
@@ -2337,9 +2464,9 @@ Func_4ec7:
 	call GetEntityCarPtr
 	bit 7, b
 	jp nz, .asm_4fe0
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call SetStructWord_DE
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	cp $10
 	jr nc, .asm_4f21
@@ -2376,10 +2503,10 @@ Func_4ec7:
 	call GetEntityCarPtr
 	bit 7, b
 	jp nz, .asm_4fe0
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call SetStructWord_DE
 	ld e, $10
-	ld a, $15
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
 	ld a, $18
@@ -2462,7 +2589,7 @@ Func_4ec7:
 Func_4fe8:
 	call GetEntityCarPtr
 	ld c, $80
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	call SetStructByte_C
 .asm_4ff2
 	call GetCarCoordinates
@@ -2475,7 +2602,7 @@ Func_4fe8:
 	cp $04
 	jr nz, .asm_5020
 	push hl
-	ld hl, GetPointer
+	ld hl, $08
 	add hl, de
 	ld d, h
 	ld e, l
@@ -2484,8 +2611,8 @@ Func_4fe8:
 	jr nz, .asm_4ff8
 	pop de
 	call GetEntityCarPtr
-	ld bc, SubHL
-	ld a, $15
+	ld bc, $20
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	ld e, d
 	call Func_4cc2
@@ -2507,9 +2634,9 @@ Func_4fe8:
 	call GetEntityCarPtr
 	bit 7, b
 	jp nz, .asm_5108
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call SetStructWord_DE
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	cp $10
 	jr nc, .asm_5049
@@ -2548,10 +2675,10 @@ Func_4fe8:
 	call GetEntityCarPtr
 	bit 7, b
 	jp nz, .asm_5108
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call SetStructWord_DE
 	ld e, $10
-	ld a, $15
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
 	ld a, $18
@@ -2569,7 +2696,7 @@ Func_4fe8:
 	ld c, [hl]
 	inc hl
 	ld b, [hl]
-	ld hl, GetPointer
+	ld hl, $08
 	add hl, de
 	ld d, h
 	ld e, l
@@ -2634,7 +2761,7 @@ Func_4fe8:
 Func_5110:
 	call GetEntityCarPtr
 	ld c, $40
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	call SetStructByte_C
 .asm_511a
 	call GetCarCoordinates
@@ -2647,7 +2774,7 @@ Func_5110:
 	cp $02
 	jr nz, .asm_5148
 	push hl
-	ld hl, GetPointer
+	ld hl, $08
 	add hl, bc
 	ld b, h
 	ld c, l
@@ -2656,8 +2783,8 @@ Func_5110:
 	jr nz, .asm_5120
 	pop bc
 	call GetEntityCarPtr
-	ld bc, SubHL
-	ld a, $15
+	ld bc, $20
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	ld e, d
 	call Func_4cc2
@@ -2681,9 +2808,9 @@ Func_5110:
 	pop de
 	bit 7, b
 	jp nz, .asm_5233
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call SetStructWord_DE
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	cp $10
 	jr nc, .asm_5173
@@ -2724,10 +2851,10 @@ Func_5110:
 	pop de
 	bit 7, b
 	jp nz, .asm_5233
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call SetStructWord_DE
 	ld e, $10
-	ld a, $15
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
 	ld a, $1a
@@ -2744,7 +2871,7 @@ Func_5110:
 	ld [hl], c
 	inc hl
 	ld [hl], b
-	ld hl, GetPointer
+	ld hl, $08
 	add hl, bc
 	ld b, h
 	ld c, l
@@ -2809,7 +2936,7 @@ Func_5110:
 Func_523b:
 	call GetEntityCarPtr
 	ld c, $c0
-	ld a, $0c
+	ld a, CARSTRUCT_0C
 	call SetStructByte_C
 .asm_5245
 	call GetCarCoordinates
@@ -2832,8 +2959,8 @@ Func_523b:
 	jr nz, .asm_524b
 	pop bc
 	call GetEntityCarPtr
-	ld bc, SubHL
-	ld a, $15
+	ld bc, $20
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	ld e, d
 	call Func_4cc2
@@ -2851,9 +2978,9 @@ Func_523b:
 	call GetEntityCarPtr
 	bit 7, b
 	jp nz, .asm_5357
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call SetStructWord_DE
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	cp $10
 	jr nc, .asm_5297
@@ -2892,10 +3019,10 @@ Func_523b:
 	call GetEntityCarPtr
 	bit 7, b
 	jp nz, .asm_5357
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call SetStructWord_DE
 	ld e, $10
-	ld a, $15
+	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
 	ld a, $1a
@@ -2976,9 +3103,9 @@ Func_523b:
 
 Func_535f:
 	call GetEntityCarPtr
-	bit 3, [hl]
+	bit CARFLAG_UNK3_F, [hl]
 	jr z, .asm_5373
-	set 4, [hl]
+	set CARFLAG_UNK4_F, [hl]
 	ld bc, NULL
 	ld a, $0d
 	call SetStructWord_BC
@@ -3164,7 +3291,7 @@ Func_5479:
 	cp $01
 	ret nz
 	ld a, [wGameMode]
-	cp $06
+	cp MODE_CREDITS
 	ret z
 	bit 2, [hl]
 	ret nz
@@ -3174,7 +3301,7 @@ Func_5479:
 	and $03
 	add a
 	push hl
-	ld hl, $54ab
+	ld hl, .data
 	add_hl
 	ld c, [hl]
 	inc hl
@@ -3185,9 +3312,12 @@ Func_5479:
 	ld a, b
 	ld [wda9b], a
 	jp PlaySFX
-; 0x54ab
 
-SECTION "Func_54b3", ROMX[$54b3], BANK[$1]
+.data
+	db $2d, SFX_08
+	db $2d, SFX_09
+	db $2d, SFX_0A
+	db $2d, SFX_0B
 
 Func_54b3:
 	xor a
@@ -3217,7 +3347,7 @@ Func_54b3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, rJOYP
+	ld bc, -$100
 	add hl, bc
 	ld bc, $1000
 	bit 7, h
@@ -3461,11 +3591,11 @@ Func_56a2:
 Func_56db:
 	call GetEntityCarPtr
 	ld a, [hl]
-	and $9f
-	or $10
+	and ~(CARFLAG_UNK5 | CARFLAG_UNK6)
+	or CARFLAG_UNK4
 	ld [hl], a
 	ld bc, NULL
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
 	call .Func_577d
 .asm_56ef
@@ -3703,9 +3833,9 @@ Func_586a:
 	ret nz
 	ld a, [wFelony]
 	and a
-	ret z
+	ret z ; no felony
 	ld a, [wGameMode]
-	cp $04
+	cp MODE_SURVIVAL
 	jr z, .asm_5888
 	ld a, $22
 	call GetStructByte_A
@@ -3718,7 +3848,7 @@ Func_586a:
 	jp Func_157f
 
 Func_5893:
-	ld a, $1c
+	ld a, CARSTRUCT_1C
 	ld bc, NULL
 	jp SetStructWord_BC
 
@@ -3799,13 +3929,13 @@ Func_5906:
 	jr nz, .asm_5918
 	ld a, [wFelony]
 	and a
-	jr nz, .asm_5922
+	jr nz, .has_felony
 .asm_5918
 	ld a, $01
 	call YieldEntityUpdate
 	call Func_4c73
 	jr .asm_5918
-.asm_5922
+.has_felony
 	ld a, [wd833]
 	and a
 	jr z, .asm_5936
@@ -3834,7 +3964,7 @@ Func_5950:
 	call GetEntityCarPtr
 	call Func_58e2
 	ld c, $00
-	ld a, $1f
+	ld a, CARSTRUCT_1F
 	call SetStructByte_C
 .asm_595d
 	ld a, [wd838]
@@ -4096,7 +4226,7 @@ Func_5b00:
 	inc a
 	ld d, a
 	ld a, $20
-	call Func_1106
+	call SetStructByte_D
 	ld a, [wda6d]
 	ld d, a
 	ld e, $04
@@ -4129,11 +4259,12 @@ Func_5b25:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $06
+	ld a, CARSTRUCT_06
 	add_hl
 	ld de, wda29
 	ld b, $06
 	call CopyHLtoDE
+
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -4635,14 +4766,14 @@ Func_5dfd:
 Func_5e75:
 	call GetEntityCarPtr
 	call Func_3047
-	ld a, $10
+	ld a, CARSTRUCT_10
 	call GetStructWord_BC
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
 	ld bc, NULL
-	ld a, $10
+	ld a, CARSTRUCT_10
 	call SetStructWord_BC
-	res 4, [hl]
+	res CARFLAG_UNK4_F, [hl]
 	ld de, Func_5c32
 	ld a, BANK(Func_5c32)
 	jp Func_157f
@@ -4705,7 +4836,7 @@ Func_5e97::
 	ld c, l
 	call GetEntityCarPtr
 	ld a, [hl]
-	or $06
+	or CARFLAG_PLAYER | CARFLAG_UNK2
 	ld [hli], a
 	inc hl
 	ld [hl], e
@@ -4732,7 +4863,7 @@ Func_5e97::
 	ret
 .asm_5f21
 	call GetEntityCarPtr
-	res 1, [hl]
+	res CARFLAG_PLAYER_F, [hl]
 	ret
 
 Func_5f27::
@@ -4882,7 +5013,7 @@ Func_5f27::
 	jr .asm_6091
 .asm_601d
 	call GetEntityCarPtr
-	res 1, [hl]
+	res CARFLAG_PLAYER_F, [hl]
 	ret
 
 .Func_6023:
@@ -4961,7 +5092,7 @@ Func_5f27::
 	push af
 	call GetEntityCarPtr
 	ld a, [hl]
-	or $06
+	or CARFLAG_PLAYER | CARFLAG_UNK2
 	ld [hli], a
 	inc hl
 	ld [hl], e
@@ -5404,9 +5535,9 @@ Func_635e:
 Func_6398:
 	call GetEntityCarPtr
 	ld a, [hl]
-	or $06
+	or CARFLAG_PLAYER | CARFLAG_UNK2
 	ld [hl], a
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	add_hl
 	call Random
 	ld b, a
@@ -5444,7 +5575,7 @@ Func_6398:
 
 .Func_63df:
 	call GetEntityCarPtr
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	add_hl
 	ld a, [hli]
 	push hl
@@ -5471,7 +5602,7 @@ Func_6398:
 
 .Func_6409:
 	call GetEntityCarPtr
-	ld a, $0f
+	ld a, CARSTRUCT_0F
 	add_hl
 	ld a, [hli]
 	add [hl]
@@ -5480,7 +5611,7 @@ Func_6398:
 
 .Func_6413:
 	call GetEntityCarPtr
-	ld a, $10
+	ld a, CARSTRUCT_10
 	add_hl
 	ld a, [hl]
 	swap a
@@ -5490,9 +5621,9 @@ Func_6398:
 	add a
 	add $c8
 	ld c, a
-	ld a, $07
+	ld a, CARSTRUCT_10 - CARSTRUCT_09
 	sub_hl
-	ld [hl], c
+	ld [hl], c ; CARSTRUCT_09
 	inc hl
 	ld [hl], $0b
 	ret
@@ -6650,7 +6781,7 @@ Func_6bbb:
 	ld [wda7c], a
 	call .Func_6d55
 	call GetEntityCarPtr
-	ld a, $02
+	ld a, CARSTRUCT_02
 	add_hl
 .asm_6c0f
 	ld a, $0e
@@ -6724,7 +6855,7 @@ Func_6bbb:
 	xor a
 	ld [wda7b], a
 	call GetEntityCarPtr
-	ld a, $05
+	ld a, CARSTRUCT_05
 	add_hl
 	jp .asm_6c0f
 
@@ -6834,7 +6965,7 @@ Func_6bbb:
 
 .Func_6d2d:
 	call GetEntityCarPtr
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	add_hl
 	ld d, h
 	ld e, l
@@ -6871,13 +7002,13 @@ Func_6bbb:
 	call GetEntityCarPtr
 	call .Func_6d95
 	jr nc, .asm_6d60
-	res 1, [hl]
+	res CARFLAG_PLAYER_F, [hl]
 	ret
 .asm_6d60
-	set 1, [hl]
+	set CARFLAG_PLAYER_F, [hl]
 	ld d, h
 	ld e, l
-	ld a, $09
+	ld a, CARSTRUCT_09
 	add_de
 	ld a, [wda7c]
 	add $08
@@ -7916,13 +8047,12 @@ SECTION "Data_7637", ROMX[$7637], BANK[$1]
 
 Func_7637:
 	call GetEntityCarPtr
-	ld bc, Func_4000
-	ld a, $0d
+	ld bc, $4000
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
 	jp Func_157f
-; 0x764a
 
 SECTION "Data_764a", ROMX[$764a], BANK[$1]
 
@@ -8287,7 +8417,7 @@ Func_78b3:
 	ld a, [wDestinationCoords + 1]
 	ld d, a
 	call Func_275f
-	ld hl, DisableLCD
+	ld hl, $30
 	ld a, h
 	cp b
 	jr nz, .asm_790b
@@ -8561,10 +8691,10 @@ Func_7a94:
 	call nz, .Func_7af0
 	call GetEntityCarPtr
 	push de
-	ld a, $01
+	ld a, CARSTRUCT_01
 	call Func_146c
 	pop bc
-	ld a, $04
+	ld a, CARSTRUCT_04
 	jp Func_146c
 
 .Func_7ae8:
@@ -8628,7 +8758,7 @@ Func_7a94:
 
 .Func_7b31:
 	call GetEntityCarPtr
-	ld a, $09
+	ld a, CARSTRUCT_09
 	add_hl
 	ld a, [wdc7a + 0]
 	ld c, a

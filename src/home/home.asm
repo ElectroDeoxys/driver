@@ -2712,14 +2712,14 @@ SetStructByte_B::
 	pop hl
 	ret
 
-Func_1101::
+SetStructByte_E::
 	push hl
 	add_hl
 	ld [hl], e
 	pop hl
 	ret
 
-Func_1106::
+SetStructByte_D::
 	push hl
 	add_hl
 	ld [hl], d
@@ -4649,9 +4649,6 @@ UpdateTimer::
 	daa
 	ld [hl], a
 	ret
-; 0x1c57
-
-SECTION "Func_1c57", ROM0[$1c57]
 
 Func_1c57:
 	ld a, [wJoypadDown]
@@ -6040,9 +6037,6 @@ Func_2531:
 	ld a, b
 	and a
 	ret
-; 0x254a
-
-SECTION "Func_254a", ROM0[$254a]
 
 Func_254a:
 	ld hl, wd7ff
@@ -6506,8 +6500,8 @@ Func_275f::
 	ret
 
 ; input:
-; - hl = struct 1
-; - de = struct 2
+; - hl = car struct 1
+; - de = car struct 2
 ; output:
 ; - b = y distance
 ; - c = x distance
@@ -6934,15 +6928,106 @@ Func_29ea::
 	inc b
 .asm_29f7
 	ld a, b
-	ld hl, $2a00
+	ld hl, .PtrTable
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	jp hl
-; 0x2a00
 
-SECTION "Func_2a7e", ROM0[$2a7e]
+.PtrTable:
+	dw Func_2a2c
+	dw Func_2a10
+	dw Func_2a3c
+	dw Func_2a17
+	dw Func_2a49
+	dw Func_2a1e
+	dw Func_2a59
+	dw Func_2a25
+
+Func_2a10:
+	ld bc, -$100
+	ld de, $0
+	ret
+
+Func_2a17:
+	ld bc, $0
+	ld de, $100
+	ret
+
+Func_2a1e:
+	ld bc, $100
+	ld de, $0
+	ret
+
+Func_2a25:
+	ld bc, $0
+	ld de, -$100
+	ret
+
+Func_2a2c:
+	call Func_2a6c
+	ld e, a
+	ld d, $00
+	call Func_2a75
+	ld c, a
+	xor a
+	sub c
+	ld c, a
+	ld b, $ff
+	ret
+
+Func_2a3c:
+	call Func_2a75
+	ld e, a
+	ld d, $00
+	call Func_2a6c
+	ld c, a
+	ld b, $00
+	ret
+
+Func_2a49:
+	call Func_2a6c
+	ld e, a
+	xor a
+	sub e
+	ld e, a
+	ld d, $ff
+	call Func_2a75
+	ld c, a
+	ld b, $00
+	ret
+
+Func_2a59:
+	call Func_2a75
+	ld e, a
+	xor a
+	sub e
+	ld e, a
+	ld d, $ff
+	call Func_2a6c
+	ld c, a
+	xor a
+	sub c
+	ld c, a
+	ld b, $ff
+	ret
+
+Func_2a6c:
+	ld a, c
+	and $3f
+	ld hl, $2e1f
+	add_hl
+	ld a, [hl]
+	ret
+
+Func_2a75:
+	ld a, c
+	and $3f
+	ld hl, $2e5f
+	sub_hl
+	ld a, [hl]
+	ret
 
 Func_2a7e:
 	call Func_29ea
@@ -7000,10 +7085,10 @@ Func_2abe::
 	ld [wda5d], a
 	ld [wda5a], a
 	push hl
-	ld a, $0e
+	ld a, CARSTRUCT_SPEED + 1
 	add_hl
 	ld c, [hl]
-	ld a, $03
+	ld a, CARSTRUCT_11 - (CARSTRUCT_SPEED + 1)
 	add_hl
 	ld a, [hl]
 	or c
@@ -9030,7 +9115,7 @@ Func_36f5:
 
 Func_3705:
 	call GetEntityCarPtr
-	set 1, [hl]
+	set CARFLAG_PLAYER_F, [hl]
 .asm_370a
 	call Func_3773
 	call Func_37be
@@ -9257,9 +9342,6 @@ Data_382c:
 	data_382c 5, Gfx_d252d ; PROP_B
 	data_382c 5, Gfx_d257d ; PROP_C
 	data_382c 5, Gfx_d268d ; PROP_D
-; 0x382c
-
-SECTION "Data_3864", ROM0[$3864]
 
 Data_3864:
     db $04, $04, $04, $02, $02, $03, $00, $02
