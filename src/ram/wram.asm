@@ -218,11 +218,9 @@ wd803:: db ; d803
 
 wd804:: db ; d804
 
-wd805:: dw ; d805
-
-wd807:: db ; d807
-
-wd808:: db ; d808
+; map's dimensions
+wMapWidth::  dw ; d805
+wMapHeight:: dw ; d807
 
 wd809:: db ; d809
 

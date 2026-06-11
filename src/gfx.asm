@@ -1,8 +1,6 @@
 SECTION "Bank31", ROMX, BANK[$31]
 
-Gfx_c4000::
-
-SECTION "Pals_c5320", ROMX[$5320], BANK[$31]
+MiamiGfx:: INCBIN "gfx/miami.2bpp"
 
 Pals_c5320::
 	rgb 22, 22, 17
@@ -39,9 +37,60 @@ Pals_c5320::
 	rgb 20, 20, 19
 	rgb  0,  0,  0
 	rgb  0, 18, 31
-; 0xc5358
 
-SECTION "Pals_c6800", ROMX[$6800], BANK[$31]
+; unused
+Pals_c5358::
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+MiamiDebugGfx:: INCBIN "gfx/miami_debug.2bpp"
+
+Pals_c5450::
+	rgb 26,  8,  3
+	rgb 31, 31, 31
+	rgb 29, 26,  3
+	rgb  3,  3,  3
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+; unused
+Pals_c5488::
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+LosAngelesGfx:: INCBIN "gfx/los_angeles.2bpp"
 
 Pals_c6800::
 	rgb  0,  8, 15
@@ -78,9 +127,56 @@ Pals_c6800::
 	rgb 12, 12, 11
 	rgb 31, 31, 31
 	rgb  0,  0,  0
-; 0xc6838
 
-SECTION "Pals_c7a40", ROMX[$7a40], BANK[$31]
+; unused
+Pals_c6838::
+	rgb  0,  0,  0
+	rgb 31,  0,  0
+	rgb 12, 12, 11
+	rgb 31, 31, 31
+
+LosAngelesDebugGfx:: INCBIN "gfx/los_angeles_debug.2bpp"
+
+Pals_c6930::
+	rgb  0,  0, 31
+	rgb 31,  0, 31
+	rgb  0, 31,  0
+	rgb  0, 11, 22
+
+	rgb 31, 25,  0
+	rgb 20, 15,  0
+	rgb 12, 10,  0
+	rgb  8,  7,  0
+
+	rgb  0,  8,  0
+	rgb  0, 21,  0
+	rgb  0, 13,  0
+	rgb  0,  0,  0
+
+	rgb  0, 31, 31
+	rgb 31, 25,  0
+	rgb 12, 10,  0
+	rgb  0,  0,  0
+
+	rgb 19, 19, 18
+	rgb 12, 12, 11
+	rgb  5,  5,  4
+	rgb  0,  0,  0
+
+	rgb  0,  5, 10
+	rgb 19, 19, 18
+	rgb  0, 31, 31
+	rgb  0,  0,  0
+
+	rgb  8,  7,  0
+	rgb 12, 12, 11
+	rgb 31, 31, 31
+	rgb  0,  0,  0
+; 0xc6968
+
+SECTION "NewYorkGfx", ROMX[$6970], BANK[$31]
+
+NewYorkGfx:: INCBIN "gfx/new_york.2bpp"
 
 Pals_c7a40::
 	rgb 12, 12, 12
@@ -118,6 +214,47 @@ Pals_c7a40::
 	rgb  0,  7, 31
 	rgb  0,  0,  0
 ; 0xc7a78
+
+SECTION "NewYorkDebugGfx", ROMX[$7a80], BANK[$31]
+
+NewYorkDebugGfx:: INCBIN "gfx/new_york_debug.2bpp"
+
+Pals_c7b70::
+	rgb 10,  0, 11
+	rgb 31,  0,  0
+	rgb 31, 31,  0
+	rgb  0,  0, 31
+
+	rgb  0,  0,  0
+	rgb 28, 15, 15
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb 27, 18, 18
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb 28, 25, 25
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb 15, 12, 12
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb 22, 14, 14
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb 23, 14, 14
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+; 0xc7ba8
 
 SECTION "Gfx_c7ff0", ROMX[$7ff0], BANK[$31]
 Gfx_c7ff0:: INCBIN "gfx/gfx_c7ff0.2bpp"

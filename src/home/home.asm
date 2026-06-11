@@ -3738,7 +3738,7 @@ Func_15bb:
 .asm_15ef
 	call UpdateUnlockedCities
 	homecall Func_90aa
-	call Func_16a8
+	call LoadMap
 
 	ld a, $00
 	ld [wd820], a
@@ -3810,7 +3810,7 @@ UpdateUnlockedCities::
 	ld [wUnlockedCities], a
 	ret
 
-Func_16a8:
+LoadMap:
 	xor a
 	ld [wda9b], a
 	ld [wda9c], a
@@ -3918,9 +3918,9 @@ Func_16e2:
 	ret
 
 .Undercover:
-	ld a, BANK(Func_6921)
+	ld a, BANK(LoadMission)
 	bankswitch
-	jp Func_6921
+	jp LoadMission
 
 Func_178e:
 	ld a, [wGameMode]
@@ -5162,14 +5162,14 @@ ToggleDebugMode:
 	call FillMemory
 	call FlushCGBPalettes
 
-	call Func_2597
+	call GetCityGfxPointer
 	ld a, [wDebugModeActive]
 	and a
 	jr nz, .not_debug
-	ld a, $08
+	ld a, $8
 	add_hl
 .not_debug
-	call Func_2133
+	call LoadCityPalettesAndTiles
 	ld a, [hli]
 	ld [wd80b], a
 	ld a, [hli]
@@ -5192,14 +5192,14 @@ ToggleDebugMode:
 Func_200a::
 	ldh a, [hROMBank]
 	push af
-	call Func_2597
+	call GetCityGfxPointer
 	ld a, [wDebugModeActive]
 	and a
 	jr z, .asm_2019
-	ld a, $08
+	ld a, $8
 	add_hl
 .asm_2019
-	call Func_2133
+	call LoadCityPalettesAndTiles
 	call Func_2216
 	pop af
 	bankswitch
@@ -5209,8 +5209,8 @@ Func_2026:
 	xor a
 	ld [wDebugModeActive], a
 
-	call Func_2597
-	call Func_2133
+	call GetCityGfxPointer
+	call LoadCityPalettesAndTiles
 	ld a, [hli]
 	ld [wd80b], a
 	ld a, [hli]
@@ -5233,24 +5233,24 @@ Func_2026:
 	ld d, [hl]
 	inc hl
 	push hl
-	ld hl, -$a0
+	ld hl, -SCREEN_WIDTH_PX
 	add hl, de
 	ld a, l
-	ld [wd805 + 0], a
+	ld [wMapWidth + 0], a
 	ld a, h
-	ld [wd805 + 1], a
+	ld [wMapWidth + 1], a
 	pop hl
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
 	inc hl
 	push hl
-	ld hl, -$80
+	ld hl, -128
 	add hl, de
 	ld a, l
-	ld [wd807], a
+	ld [wMapHeight + 0], a
 	ld a, h
-	ld [wd808], a
+	ld [wMapHeight + 1], a
 	pop hl
 	call Func_2101
 	ld a, c
@@ -5365,7 +5365,7 @@ Func_2101:
 	pop de
 	ret
 
-Func_2133:
+LoadCityPalettesAndTiles:
 	xor a
 	ld [wVRAMNumTiles_v0_9000], a
 	ld [wVRAMNumTiles_v0_8800], a
@@ -6129,9 +6129,10 @@ Func_2558::
 	pop bc
 	ret
 
-Func_2597:
+; outputs in hl pointer to gfx related to city in wCity
+GetCityGfxPointer:
 	ld a, [wCity]
-	ld hl, .PtrTable
+	ld hl, .GfxTable
 	add a
 	add_hl
 	ld a, [hli]
@@ -6139,43 +6140,46 @@ Func_2597:
 	ld l, a
 	ret
 
-.PtrTable:
+.GfxTable:
 	dw .Miami      ; MIAMI
 	dw .LosAngeles ; LOS_ANGELES
 	dw .NewYork    ; NEW_YORK
 
 .Miami:
 	dba Pals_c5320
-	dba Gfx_c4000
+	dba MiamiGfx
 	db $1a, $06
 
-	dbw $31, $5450
-	dbw $31, $5360
+	dba Pals_c5450
+	dba MiamiDebugGfx
 	db $1c, $0b
 
-	db $00, $20, $00, $20
+	; width, height
+	dw 8192, 8192
 
 .LosAngeles:
 	dba Pals_c6800
-	dbw $31, $5490
+	dba LosAngelesGfx
 	db $1e, $10
 
-	dbw $31, $6930
-	dbw $31, $6840
+	dba Pals_c6930
+	dba LosAngelesDebugGfx
 	db $20, $15
 
-	db $00, $20, $00, $20
+	; width, height
+	dw 8192, 8192
 
 .NewYork:
 	dba Pals_c7a40
-	dbw $31, $6970
+	dba NewYorkGfx
 	db $2c, $22
 
-	dbw $31, $7b70
-	dbw $31, $7a80
+	dba Pals_c7b70
+	dba NewYorkDebugGfx
 	db $2e, $27
 
-	db $00, $20, $00, $20
+	; width, height
+	dw 8192, 8192
 
 Func_25e5:
 	ld b, $08

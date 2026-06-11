@@ -90,8 +90,12 @@ $(rom): $(rom_obj) src/layout.link
 
 ### Misc file-specific graphics rules
 
-src/gfx/font.2bpp: RGBGFX += -x 5
-src/gfx/font_checkbox.2bpp: RGBGFX += -x 5
+src/gfx/font.2bpp: RGBGFX += --trim-end 5
+src/gfx/font_checkbox.2bpp: RGBGFX += --trim-end 5
+
+src/gfx/miami.2bpp: RGBGFX += --trim-end 14
+src/gfx/los_angeles.2bpp: RGBGFX += --trim-end 9
+src/gfx/new_york.2bpp: RGBGFX += --trim-end 3
 
 ### Interleaved gfx
 

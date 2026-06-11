@@ -646,7 +646,7 @@ Func_43be::
 	jr z, .asm_440e
 	ld de, 0
 .asm_440e
-	ld hl, wd805
+	ld hl, wMapWidth
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -664,7 +664,7 @@ Func_43be::
 	jr z, .asm_4425
 	ld bc, 0
 .asm_4425
-	ld hl, wd807
+	ld hl, wMapHeight
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1933,7 +1933,7 @@ Func_4bb9:
 	bit 7, b
 	jr nz, .ret_z
 	push bc
-	ld hl, wd805
+	ld hl, wMapWidth
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1950,7 +1950,7 @@ Func_4bb9:
 	bit 7, d
 	jr nz, .ret_z
 	push de
-	ld hl, wd807
+	ld hl, wMapHeight
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -6461,8 +6461,8 @@ SetMissionComplete:
 	ld a, BANK(Func_64e2)
 	jp Func_157f
 
-Func_6921::
-	ld hl, Data_6949
+LoadMission::
+	ld hl, MissionLoadPointerTable
 	jr Func_692b
 Func_6926::
 	ld hl, Data_6967
@@ -6470,7 +6470,7 @@ Func_6926::
 Func_692b:
 	ld d, h
 	ld e, l
-.asm_692d
+.test_mission
 	ld a, [wMission]
 	cp NUM_MISSIONS
 	jr c, .valid_mission
@@ -6486,13 +6486,14 @@ Func_692b:
 	jr z, .null
 	jp hl
 .null
+	; iterate missions until valid pointer is found
 	ld hl, wMission
 	inc [hl]
 	ld h, d
 	ld l, e
-	jr .asm_692d
+	jr .test_mission
 
-Data_6949:
+MissionLoadPointerTable:
 	dw Func_6985 ; MISSION_THE_BANK_JOB
 	dw Func_6a6a ; MISSION_HIDE_THE_EVIDENCE
 	dw Func_6ad5 ; MISSION_BOAT_CHASE
