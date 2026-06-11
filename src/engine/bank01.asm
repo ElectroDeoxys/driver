@@ -5,20 +5,22 @@ Func_4000::
 
 	ld a, $00
 	ld [wd83f], a
-	ld a, [wd828]
+
+	ld a, [wd828 + 0]
 	ld c, a
-	ld a, [wd829]
+	ld a, [wd828 + 1]
 	ld b, a
-	ld a, [wd82a]
+	ld a, [wd82a + 0]
 	ld e, a
-	ld a, [wd82b]
+	ld a, [wd82a + 1]
 	ld d, a
+
 	ld hl, wPlayerCar
 	ld a, [hli]
-	ld h, [hl]
+	ld h, [hl] ; wPlayerCarOBPal
 	ld l, a
 	ld a, [wd82c]
-	call Func_2631
+	call SpawnCar
 	; set it controlled by player
 	set CARFLAG_PLAYER_F, [hl] ; CARSTRUCT_FLAGS
 	ld a, l
@@ -1529,53 +1531,54 @@ Data_491d:
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
 
-Func_4988::
+EntUpdate_CarSpawner::
 	xor a
 	ld [wda56], a
 	ld [wda55], a
 	call Random
 	and $03
 	ld [wda57], a
-.asm_4997
+.loop
 	ld a, [wda56]
 	ld hl, wd82d
 	cp [hl]
-	jr nc, .asm_49bf
+	jr nc, .yield
 	ld a, [wda55]
 	ld hl, wd830
 	cp [hl]
-	jr nc, .asm_49bc
-	ld hl, wd832
+	jr nc, .spawn_civilian
+	ld hl, wCopSpawnTimer
 	ld a, [hl]
 	and a
-	jr z, .asm_49b3
+	jr z, .spawn_cop
+	; tick down timer
 	dec [hl]
-	jr .asm_49bc
-.asm_49b3
-	ld a, [wd831]
-	ld [hl], a
+	jr .spawn_civilian
+.spawn_cop
+	ld a, [wCopSpawnCooldown]
+	ld [hl], a ; wCopSpawnTimer
 	call Func_49c6
-	jr .asm_49bf
-.asm_49bc
+	jr .yield
+.spawn_civilian
 	call Func_49e3
-.asm_49bf
+.yield
 	ld a, 1
 	call YieldEntityUpdate
-	jr .asm_4997
+	jr .loop
 
 Func_49c6:
 .asm_49c6
 	ld hl, PtrTable_4c0b
 	call Func_49fc
-	jr z, .asm_49dc
+	jr z, .wait
 	call Func_4a3d
-	jr c, .asm_49dc
+	jr c, .wait
 	ld hl, wda56
 	inc [hl]
 	ld hl, wda55
 	inc [hl]
 	ret
-.asm_49dc
+.wait
 	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_49c6
@@ -1584,17 +1587,20 @@ Func_49e3:
 .asm_49e3
 	ld hl, PtrTable_4c0b
 	call Func_49fc
-	jr z, .asm_49f5
+	jr z, .wait
 	call Func_4a48
-	jr c, .asm_49f5
+	jr c, .wait
 	ld hl, wda56
 	inc [hl]
 	ret
-.asm_49f5
+.wait
 	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_49e3
 
+; output:
+; - bc = x coordinate
+; - de = y coordinate
 Func_49fc:
 	ld a, l
 	ld [wdc7a + 0], a
@@ -1640,8 +1646,11 @@ Func_49fc:
 	ld hl, PtrTable_4c2b
 	jr .asm_4a29
 
+; input:
+; - bc = x coordinate
+; - de = y coordinate
 Func_4a3d:
-	call Func_5662
+	call SpawnNPCCopCar
 	ret c
 	ld b, $05
 	ld de, PtrTable_4bff
@@ -1651,7 +1660,7 @@ Func_4a3d:
 ; - bc = x coordinate
 ; - de = y coordinate
 Func_4a48:
-	call Func_5605
+	call SpawnCivilianCar
 	ret c
 	ld b, $04
 	ld de, PtrTable_4bff
@@ -1922,7 +1931,7 @@ Func_4ba9:
 
 Func_4bb9:
 	bit 7, b
-	jr nz, .asm_4bec
+	jr nz, .ret_z
 	push bc
 	ld hl, wd805
 	ld a, [hli]
@@ -1937,9 +1946,9 @@ Func_4bb9:
 	ld a, l
 	cp c
 .asm_4bcf
-	jr c, .asm_4bec
+	jr c, .ret_z
 	bit 7, d
-	jr nz, .asm_4bec
+	jr nz, .ret_z
 	push de
 	ld hl, wd807
 	ld a, [hli]
@@ -1954,11 +1963,11 @@ Func_4bb9:
 	ld a, l
 	cp e
 .asm_4be7
-	jr c, .asm_4bec
+	jr c, .ret_z
 	xor a
 	inc a
 	ret
-.asm_4bec
+.ret_z
 	xor a
 	ret
 
@@ -3124,7 +3133,7 @@ Func_537b:
 	call SetStructByte_C
 	set 5, [hl]
 .asm_538d
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	call Func_4c73
 	push hl
@@ -3244,7 +3253,7 @@ Func_5431:
 	call Func_284b
 	call Func_298c
 	call Func_3047
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	call Func_4c73
 	call Func_586a
@@ -3253,7 +3262,7 @@ Func_5431:
 	set 6, [hl]
 	ld c, $00
 .asm_544d
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	push bc
 	call Func_4c73
@@ -3451,31 +3460,34 @@ Func_55f4:
 	ret
 
 ; input:
+; - a  = ?
 ; - bc = x coordinate
 ; - de = y coordinate
-Func_5605:
+SpawnCivilianCar:
 	push af
 	call Random
 	and $07
 	ld hl, wda87
 	add_hl
 	ld a, [hl]
-	cp $02
-	jr z, .asm_5622
+	cp TAXI
+	jr z, .taxi
+	; pick random palette
 	push af
 	call Random
 	and $03
-	ld hl, $563f
+	ld hl, .CarPals
 	add_hl
 	ld h, [hl]
 	pop af
-	jr .asm_5624
-.asm_5622
-	ld h, $05
-.asm_5624
+	jr .got_car_and_pal
+.taxi
+	; taxi uses yellow palette
+	ld h, OBPAL_YELLOW
+.got_car_and_pal
 	ld l, a
 	pop af
-	call Func_2631
+	call SpawnCar
 	ret c
 	call Func_1124
 	jr c, .asm_563c
@@ -3488,9 +3500,12 @@ Func_5605:
 .asm_563c
 	ld [hl], $00
 	ret
-; 0x563f
 
-SECTION "Func_5643", ROMX[$5643], BANK[$1]
+.CarPals:
+	db OBPAL_RED
+	db OBPAL_CYAN
+	db OBPAL_BLUE
+	db OBPAL_GREEN
 
 Func_5643:
 	call Random
@@ -3506,15 +3521,15 @@ Func_5643:
 	jp SetStructWord_BC
 ; 0x565a
 
-SECTION "Func_5662", ROMX[$5662], BANK[$1]
+SECTION "SpawnNPCCopCar", ROMX[$5662], BANK[$1]
 
 ; input:
 ; - bc = x coordinate
 ; - de = y coordinate
-Func_5662:
-	ld l, $01
-	ld h, $00
-	call Func_2631
+SpawnNPCCopCar:
+	ld l, COP_CAR
+	ld h, OBPAL_BLACK
+	call SpawnCar
 	ret c
 	set CARFLAG_UNK2_F, [hl]
 	call Func_1124
@@ -3638,7 +3653,7 @@ Func_56db:
 	call Func_3047
 	call .Func_57a8
 	call Func_4c73
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_56ef
 
@@ -3675,7 +3690,7 @@ Func_56db:
 	ret nz
 .asm_576d
 	call Func_4c73
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_576d
 
@@ -3780,7 +3795,7 @@ Func_5805::
 	ld d, [hl]
 	inc hl
 	ld a, [hl]
-	call Func_5662
+	call SpawnNPCCopCar
 	ld d, h
 	ld e, l
 	call Func_1591
@@ -3801,7 +3816,7 @@ Func_5805::
 	ld hl, wda56
 	inc [hl]
 .asm_583a
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wda7b]
 	and a
@@ -3931,7 +3946,7 @@ Func_5906:
 	and a
 	jr nz, .has_felony
 .asm_5918
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	call Func_4c73
 	jr .asm_5918
@@ -3941,7 +3956,7 @@ Func_5906:
 	jr z, .asm_5936
 	ld b, a
 .asm_5929
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	push bc
 	call Func_4c73
@@ -4088,7 +4103,7 @@ Func_5950:
 	ld [hl], a
 	pop hl
 	call Func_3047
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	call Func_4c73
 	call Func_5a58
@@ -4148,7 +4163,7 @@ Func_5a84:
 	ld a, BANK(Func_4c9f)
 	jp Func_157f
 .asm_5a99
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_5a86
 
@@ -4355,17 +4370,17 @@ Func_5bce::
 	ld a, [hli]
 	ld [wdc82], a ; car
 	ld a, [hli]
-	ld [wdc84], a
+	ld [wdc84], a ; pal
 	ld a, [hli]
 	ld [wdc86], a
 	ld a, [hli]
 	ld [wdc88], a
 	ld a, [hli]
-	ld c, [hl]
+	ld c, [hl] ; x
 	inc hl
 	ld b, [hl]
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; y
 	inc hl
 	ld d, [hl]
 	inc hl
@@ -4376,7 +4391,7 @@ Func_5bce::
 	ld a, [wdc84]
 	ld h, a
 	pop af
-	call Func_2631
+	call SpawnCar
 	set 3, [hl]
 	push hl
 	ld hl, Func_5c32
@@ -5447,7 +5462,7 @@ Func_6288:
 	pop hl
 .asm_62d4
 	call .Func_6315
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	bit 3, [hl]
 	jr nz, .asm_62fa
@@ -5755,7 +5770,7 @@ Func_6499:
 	ld c, 60
 	call ShowHUDMessage
 .asm_64a4
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wHUDMessageStep]
 	and a
@@ -6142,7 +6157,7 @@ Func_66fa::
 	ld a, $01
 	ld [wda7b], a
 .asm_671f
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wda55]
 	and a
@@ -6167,7 +6182,7 @@ Func_6732::
 	ld a, $01
 	ld [wd820], a
 .asm_6757
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	call .Func_679c
 	call .Func_6764
@@ -6639,8 +6654,8 @@ Func_6a6a:
 	call SetCity
 	ld a, RED_CAR
 	ld [wPlayerCar], a
-	ld a, $02
-	ld [wd827], a
+	ld a, OBPAL_RED
+	ld [wPlayerCarOBPal], a
 	ld hl, $7ec9
 	call Func_1a2e
 	ret
@@ -7242,8 +7257,8 @@ Func_6f05:
 	call SetCity
 	ld a, LIMOUSINE
 	ld [wPlayerCar], a
-	ld a, $00
-	ld [wd827], a
+	ld a, OBPAL_BLACK
+	ld [wPlayerCarOBPal], a
 	ld hl, $7f01
 	call Func_1a2e
 	ret
@@ -7306,7 +7321,7 @@ Func_6f8d:
 	call Func_1eda
 	ld a, BROWN_CAR
 	ld hl, NULL
-	call Func_1ced
+	call LoadCarGfxAndPals
 	ld hl, Func_6fa9
 	ld c, BANK(Func_6fa9)
 	ld b, $0b
@@ -7349,7 +7364,7 @@ Func_6fa9:
 .asm_6fec
 	jr nc, .asm_6fc8
 	ld hl, $7f11
-	ld de, $6
+	lb de, OBPAL_BLACK, BROWN_CAR
 	call Func_70f9
 	push hl
 	ld hl, Func_70cc
@@ -7498,19 +7513,22 @@ Func_70eb:
 	ld a, CARSTRUCT_ENT_PTR
 	jp SetStructWord_DE
 
+; input:
+; - d = OBPAL_* constant
+; - e = CAR_* constant
 Func_70f9:
 	push de
-	ld c, [hl]
+	ld c, [hl] ; x
 	inc hl
 	ld b, [hl]
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; y
 	inc hl
 	ld d, [hl]
 	inc hl
 	ld a, [hl]
 	pop hl
-	call Func_2631
+	call SpawnCar
 	call Func_1124
 	ld a, $25
 	call SetStructWord_DE
@@ -7535,7 +7553,7 @@ Func_712c:
 	call Func_1eda
 	ld a, RED_CAR
 	ld hl, NULL
-	call Func_1ced
+	call LoadCarGfxAndPals
 	xor a
 	ld [wd86c], a
 	ld c, $05
@@ -7617,8 +7635,8 @@ Func_71d2:
 	call SetCity
 	ld a, COP_CAR
 	ld [wPlayerCar], a
-	ld a, $00
-	ld [wd827], a
+	ld a, OBPAL_BLACK
+	ld [wPlayerCarOBPal], a
 	ld hl, $7f2c
 	call Func_1a2e
 	ret
@@ -7691,8 +7709,8 @@ Func_725e:
 	call SetCity
 	ld a, BROWN_CAR
 	ld [wPlayerCar], a
-	ld a, $01
-	ld [wd827], a
+	ld a, OBPAL_VAR
+	ld [wPlayerCarOBPal], a
 	ld hl, $7f35
 	call Func_1a2e
 	ret
@@ -7898,7 +7916,7 @@ Func_735a:
 	jp SetMissionComplete
 
 .Func_743c:
-	ld de, $1
+	lb de, OBPAL_BLACK, COP_CAR
 	call Func_70f9
 	push hl
 	ld hl, Func_70d8
@@ -8053,7 +8071,7 @@ Func_748c:
 	jp SetMissionFailed
 
 .Func_75a7:
-	ld de, $40a
+	lb de, OBPAL_BROWN, CAR_10
 	call Func_70f9
 	push hl
 	ld hl, Func_7637
@@ -8136,7 +8154,7 @@ Func_765c:
 	call Func_1eda
 	ld a, $08
 	ld hl, NULL
-	call Func_1ced
+	call LoadCarGfxAndPals
 	xor a
 	ld [wd86c], a
 	ld c, $05
@@ -8276,7 +8294,7 @@ Func_776e:
 	call Func_1eda
 	ld a, $06
 	ld hl, NULL
-	call Func_1ced
+	call LoadCarGfxAndPals
 	xor a
 	ld [wd86c], a
 	ld c, $05
@@ -8420,8 +8438,8 @@ Func_7875:
 	call SetCity
 	ld a, BROWN_CAR
 	ld [wPlayerCar], a
-	ld a, $01
-	ld [wd827], a
+	ld a, OBPAL_VAR
+	ld [wPlayerCarOBPal], a
 	ld hl, $7fa7
 	call Func_1a2e
 	ret
@@ -8432,7 +8450,7 @@ Func_788e:
 	call Func_1eda
 	ld a, $07
 	ld hl, NULL
-	call Func_1ced
+	call LoadCarGfxAndPals
 	xor a
 	ld [wd86c], a
 	ld c, $05
@@ -8546,8 +8564,8 @@ Func_796b:
 	call SetCity
 	ld a, BROWN_CAR
 	ld [wPlayerCar], a
-	ld a, $01
-	ld [wd827], a
+	ld a, OBPAL_VAR
+	ld [wPlayerCarOBPal], a
 	ld hl, $7fb7
 	call Func_1a2e
 	ret
@@ -8965,7 +8983,7 @@ Func_7c17::
 	xor a
 	ld [wdcb5], a
 .asm_7c23
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wdc92]
 	and a
@@ -8988,19 +9006,103 @@ Data_7c48::
 	dw .NewYork    ; NEW_YORK
 
 .Miami:
+	; props
 	db PROP_5, PROP_B, PROP_0, PROP_7, PROP_2, PROP_3, PROP_A, PROP_C
-	dw Pals_f644 ; OB pals
-	db $00, $00, $4c, $76, $54, $76, $5c, $76, $64, $76, $6c, $76, $74, $76, $05, $00, $0b, $00, $0b, $40, $0b, $80, $0b, $c0, $00, $00, $07, $00, $02, $00, $03, $00, $0a, $00, $0a, $40, $0a, $80, $0a, $c0, $0c, $00, $0c, $40, $0c, $80, $0c, $c0, $ff
+	
+	; OB pals
+	dw Pals_f644
+	dw NULL
+	dw Pals_f64c
+	dw Pals_f654
+	dw Pals_f65c
+	dw Pals_f664
+	dw Pals_f66c
+	dw Pals_f674
+
+	db $05, $00
+	db $0b, $00
+	db $0b, $40
+	db $0b, $80
+	db $0b, $c0
+	db $00, $00
+	db $07, $00
+	db $02, $00
+	db $03, $00
+	db $0a, $00
+	db $0a, $40
+	db $0a, $80
+	db $0a, $c0
+	db $0c, $00
+	db $0c, $40
+	db $0c, $80
+	db $0c, $c0
+	db $ff; end
 
 .LosAngeles:
+	; props
 	db PROP_B, PROP_0, PROP_1, PROP_2, PROP_3, PROP_4, PROP_A, PROP_D
-	dw Pals_f644 ; OB pals
-    db $00, $00, $4c, $76, $54, $76, $5c, $76, $64, $76, $6c, $76, $74, $76, $0b, $00, $0b, $40, $0b, $80, $0b, $c0, $00, $00, $01, $00, $02, $00, $03, $00, $04, $00, $0a, $00, $0a, $40, $0a, $80, $0a, $c0, $0d, $00, $0d, $40, $0d, $80, $0d, $c0, $ff
+	
+	; OB pals
+	dw Pals_f644
+    dw NULL
+	dw Pals_f64c
+	dw Pals_f654
+	dw Pals_f65c
+	dw Pals_f664
+	dw Pals_f66c
+	dw Pals_f674
+
+	db $0b, $00
+	db $0b, $40
+	db $0b, $80
+	db $0b, $c0
+	db $00, $00
+	db $01, $00
+	db $02, $00
+	db $03, $00
+	db $04, $00
+	db $0a, $00
+	db $0a, $40
+	db $0a, $80
+	db $0a, $c0
+	db $0d, $00
+	db $0d, $40
+	db $0d, $80
+	db $0d, $c0
+	db $ff; end
 
 .NewYork:
+	; props
 	db PROP_1, PROP_7, PROP_0, PROP_2, PROP_3, PROP_A, PROP_C, PROP_D
-	dw Pals_f644 ; OB pals
-	db $00, $00, $4c, $76, $54, $76, $5c, $76, $64, $76, $6c, $76, $74, $76, $01, $00, $07, $00, $00, $00, $02, $00, $03, $00, $0a, $00, $0a, $40, $0a, $80, $0a, $c0, $0c, $00, $0c, $40, $0c, $80, $0c, $c0, $0d, $00, $0d, $40, $0d, $80, $0d, $c0, $ff
+	
+	; OB pals
+	dw Pals_f644
+	dw NULL
+	dw Pals_f64c
+	dw Pals_f654
+	dw Pals_f65c
+	dw Pals_f664
+	dw Pals_f66c
+	dw Pals_f674
+
+	db $01, $00
+	db $07, $00
+	db $00, $00
+	db $02, $00
+	db $03, $00
+	db $0a, $00
+	db $0a, $40
+	db $0a, $80
+	db $0a, $c0
+	db $0c, $00
+	db $0c, $40
+	db $0c, $80
+	db $0c, $c0
+	db $0d, $00
+	db $0d, $40
+	db $0d, $80
+	db $0d, $c0
+	db $ff; end
 
 ; whether to skip showing the initial companies screens
 ; always returns z
@@ -9097,10 +9199,22 @@ Timer_MissionTakeOutDiAngelo:
 SECTION "Data_7e88", ROMX[$7e88], BANK[$1]
 
 Data_7e88::
-	dw $7e8e ; MIAMI
-	dw $7e93 ; LOS_ANGELES
-	dw $7e98 ; NEW_YORK
-; 0x7e8e
+	dw .Miami      ; MIAMI
+	dw .LosAngeles ; LOS_ANGELES
+	dw .NewYork    ; NEW_YORK
+
+.Miami:
+	dw 7472, 3248
+	db $c0
+
+.LosAngeles:
+	dw 1056, 5928
+	db $00
+
+.NewYork:
+	dw 1440, 7152
+	db $80
+; 0x7e9d
 
 SECTION "DestinationCoords_MissionTheBankJob_1", ROMX[$7eb7], BANK[$1]
 

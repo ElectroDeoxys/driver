@@ -3848,10 +3848,12 @@ Func_16e2:
 
 .TakeARide:
 	call Func_1972
+
 	ld a, [wCity]
 	call SetCity
-	ld a, $00
-	ld [wd827], a
+
+	ld a, OBPAL_BLACK
+	ld [wPlayerCarOBPal], a
 	ld a, [wPlayerCar]
 	ld c, a
 	cp BLACK_CAR
@@ -3860,18 +3862,18 @@ Func_16e2:
 	jr z, .asm_172b
 	cp LIMOUSINE
 	jr z, .asm_172b
-	ld a, $02
-	ld [wd827], a
+	ld a, OBPAL_RED
+	ld [wPlayerCarOBPal], a
 	ld a, c
 	cp RED_CAR
 	jr z, .asm_172b
-	ld a, $05
-	ld [wd827], a
+	ld a, OBPAL_YELLOW
+	ld [wPlayerCarOBPal], a
 	ld a, c
 	cp TAXI
 	jr z, .asm_172b
-	ld a, $01
-	ld [wd827], a
+	ld a, OBPAL_VAR
+	ld [wPlayerCarOBPal], a
 .asm_172b
 	ld hl, Data_7e88
 	call Func_1946
@@ -3958,7 +3960,7 @@ Func_17b4:
 	vramswitch
 
 	call Func_1ed4
-	ld hl, $0
+	ld hl, NULL
 	call Func_1eda
 	call Func_1928
 	call Func_1937
@@ -3982,7 +3984,7 @@ Func_17b4:
 
 Func_1808:
 	call Func_1ed4
-	ld hl, $0
+	ld hl, NULL
 	call Func_1eda
 	ld a, $01
 	ld [wd839], a
@@ -4015,7 +4017,7 @@ Func_1808:
 Func_184b:
 	ld a, $04
 	ld [wd82d], a
-	ld hl, $0
+	ld hl, NULL
 	call Func_1eda
 	xor a
 	ld [wd86c], a
@@ -4035,7 +4037,7 @@ Func_184b:
 	push hl
 	ld h, d
 	ld l, e
-	call Func_1ced
+	call LoadCarGfxAndPals
 	pop hl
 	homecall Func_5bce
 
@@ -4054,7 +4056,7 @@ Func_184b:
 Func_1899:
 	xor a
 	ld [wd82d], a
-	ld hl, $0
+	ld hl, NULL
 	call Func_1eda
 	ld a, MAX_FELONY
 	ld [wFelony], a
@@ -4077,8 +4079,8 @@ Func_18c5:
 	ld [wCity], a
 	ld a, BLACK_CAR
 	ld [wPlayerCar], a
-	ld a, $00
-	ld [wd827], a
+	ld a, OBPAL_BLACK
+	ld [wPlayerCarOBPal], a
 	call Func_1972
 	ld a, [wCity]
 	call SetCity
@@ -4190,7 +4192,7 @@ Func_197c:
 	add c ; *12
 	add_hl
 Func_1987::
-	ld de, wda83
+	ld de, wInitialNPCCars
 	ld b, $0c
 	jp CopyHLtoDE
 
@@ -4279,8 +4281,8 @@ Func_198f:
 SetDefaultPlayerCar::
 	ld a, BLACK_CAR
 	ld [wPlayerCar], a
-	ld a, $00
-	ld [wd827], a
+	ld a, OBPAL_BLACK
+	ld [wPlayerCarOBPal], a
 	ret
 
 ; set city to be played, and loads data related to it
@@ -4301,13 +4303,13 @@ SetCity::
 
 Func_1a2e::
 	ld a, [hli]
-	ld [wd828], a
+	ld [wd828 + 0], a
 	ld a, [hli]
-	ld [wd829], a
+	ld [wd828 + 1], a
 	ld a, [hli]
-	ld [wd82a], a
+	ld [wd82a + 0], a
 	ld a, [hli]
-	ld [wd82b], a
+	ld [wd82a + 1], a
 	ld a, [hl]
 	ld [wd82c], a
 	ret
@@ -4497,8 +4499,9 @@ Func_1b4e:
 	call Func_32fb
 	homecall LoadHUD
 
-	ld hl, Func_4988
-	ld c, BANK(Func_4988)
+	; spawn car spawner controller
+	ld hl, EntUpdate_CarSpawner
+	ld c, BANK(EntUpdate_CarSpawner)
 	ld b, $03
 	call SpawnEntity
 
@@ -4740,13 +4743,13 @@ Func_1cb9:
 ; input:
 ; - a  = CAR_* constant
 ; - hl = palette to load (can be NULL)
-Func_1ced::
+LoadCarGfxAndPals::
 	push hl
 	ld c, a
 	ld a, $48
 	ld [wVRAMNumTiles_v1_8800], a
 	ld b, V1TILES_8800
-	call LoadCarGfx
+	call _LoadCarGfx
 	pop hl
 
 	ld a, h
@@ -4764,20 +4767,21 @@ Func_1ced::
 	ret
 
 Func_1d16:
-	ld hl, wda83
+	ld hl, wInitialNPCCars
 	ld b, $04
-.asm_1d1b
+.loop_load_nps_cars
 	ld a, [hli]
 	push bc
 	ld b, V0TILES_8000
-	call Func_1e38
+	call LoadCarGfx
 	pop bc
 	dec b
-	jr nz, .asm_1d1b
+	jr nz, .loop_load_nps_cars
 
+	; load player's car graphics
 	ld a, [wPlayerCar]
 	ld b, V1TILES_8000
-	call Func_1e38
+	call LoadCarGfx
 
 	ld a, $01
 	bankswitch
@@ -4794,7 +4798,7 @@ Func_1d16:
 	push hl
 	add a ; *2
 	ld c, a
-	ld hl, wdbdb
+	ld hl, wPropTileIDMap
 	add_hl
 	ld a, [wVRAMNumTiles_v1_8000]
 	ld [hli], a
@@ -4894,7 +4898,7 @@ Func_1d16:
 
 .asm_1de3
 	ld hl, Data_3864
-	ld de, wdbdb + 1
+	ld de, wPropTileIDMap + 1
 	ld b, NUM_CITY_PROPS + 6
 .asm_1deb
 	ld a, [de]
@@ -4941,10 +4945,10 @@ Func_1d16:
 ; - a  = CAR_* constant
 ; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
 ;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
-Func_1e38:
+LoadCarGfx:
 	push hl
 	ld c, a
-	call LoadCarGfx
+	call _LoadCarGfx
 	pop hl
 	ret
 
@@ -5063,9 +5067,9 @@ Func_1eda::
 	ld a, h
 	ld [wd82e + 1], a
 	call Func_1eee
-	ld a, [wd831]
-	srl a
-	ld [wd832], a
+	ld a, [wCopSpawnCooldown]
+	srl a ; /2
+	ld [wCopSpawnTimer], a
 	ret
 
 Func_1eee:
@@ -5081,21 +5085,21 @@ Func_1eee:
 	ld a, [wFelony]
 	ld de, $0
 	cp 18
-	jr c, .asm_1f18
+	jr c, .add_hl_de
 	ld de, $6
 	cp 36
-	jr c, .asm_1f18
+	jr c, .add_hl_de
 	ld de, $c
 	cp 56
-	jr c, .asm_1f18
+	jr c, .add_hl_de
 	ld de, $12
-.asm_1f18
+.add_hl_de
 	add hl, de
 Func_1f19::
 	ld a, [hli]
 	ld [wd830], a
 	ld a, [hli]
-	ld [wd831], a
+	ld [wCopSpawnCooldown], a
 	ld a, [hli]
 	ld [wd833], a
 	ld a, [hli]
@@ -5121,16 +5125,31 @@ Data_1f37::
 SECTION "Func_1f67", ROM0[$1f67]
 
 Data_1f67:
-	db CAR_03, CAR_04, CAR_05, TAXI,   $03, $03, $04, $04, $05, $05, $02, $02
-	db CAR_03, CAR_04, TAXI,   CAR_10, $03, $03, $04, $04, $02, $02, $0a, $0a
-	db CAR_03, CAR_09, CAR_10, TAXI,   $03, $03, $09, $09, $0a, $0a, $02, $02
-	db CAR_04, CAR_09, CAR_10, TAXI,   $04, $04, $09, $09, $0a, $0a, $02, $02
+	db CAR_03, CAR_04, CAR_05, TAXI
+	db CAR_03, CAR_03, CAR_04, CAR_04, CAR_05, CAR_05, TAXI, TAXI
+
+	db CAR_03, CAR_04, TAXI, CAR_10
+	db CAR_03, CAR_03, CAR_04, CAR_04, TAXI, TAXI, CAR_10, CAR_10
+
+	db CAR_03, CAR_09, CAR_10, TAXI
+	db CAR_03, CAR_03, CAR_09, CAR_09, CAR_10, CAR_10, TAXI, TAXI
+
+	db CAR_04, CAR_09, CAR_10, TAXI
+	db CAR_04, CAR_04, CAR_09, CAR_09, CAR_10, CAR_10, TAXI, TAXI
 
 Data_1f97:
-	db COP_CAR, TAXI,   CAR_03, CAR_04, $03, $03, $03, $04, $04, $04, $02, $02
-	db COP_CAR, CAR_03, CAR_04, CAR_05, $03, $03, $04, $04, $05, $05, $03, $03
-	db COP_CAR, CAR_03, CAR_09, TAXI,   $03, $03, $03, $03, $09, $09, $02, $02
-	db COP_CAR, CAR_05, CAR_10, TAXI,   $05, $05, $05, $05, $0a, $0a, $02, $02
+	db COP_CAR, TAXI, CAR_03, CAR_04
+	db CAR_03, CAR_03, CAR_03, CAR_04, CAR_04, CAR_04, TAXI, TAXI
+
+	db COP_CAR, CAR_03, CAR_04, CAR_05
+	db CAR_03, CAR_03, CAR_04, CAR_04, CAR_05, CAR_05, CAR_03, CAR_03
+
+	db COP_CAR, CAR_03, CAR_09, TAXI
+	db CAR_03, CAR_03, CAR_03, CAR_03, CAR_09, CAR_09, TAXI, TAXI
+
+	db COP_CAR, CAR_05, CAR_10, TAXI
+	db CAR_05, CAR_05, CAR_05, CAR_05, CAR_10, CAR_10, TAXI, TAXI
+
 
 ToggleDebugMode:
 	ld a, [wd895]
@@ -5189,6 +5208,7 @@ Func_200a::
 Func_2026:
 	xor a
 	ld [wDebugModeActive], a
+
 	call Func_2597
 	call Func_2133
 	ld a, [hli]
@@ -5216,9 +5236,9 @@ Func_2026:
 	ld hl, -$a0
 	add hl, de
 	ld a, l
-	ld [wd805], a
+	ld [wd805 + 0], a
 	ld a, h
-	ld [wd806], a
+	ld [wd805 + 1], a
 	pop hl
 	ld e, [hl]
 	inc hl
@@ -5254,7 +5274,7 @@ Func_2026:
 	ld a, $35
 	bankswitch
 	ld hl, $7e0d
-	ld bc, $f00
+	lb bc, $0f, $00
 .asm_20ac
 	push bc
 	push de
@@ -5303,7 +5323,7 @@ Func_20dc:
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl
+	add hl, hl ; *$10
 	ld a, [wdc7c + 0]
 	ld e, a
 	ld a, [wdc7c + 1]
@@ -5375,7 +5395,7 @@ Func_2133:
 	push bc
 	push de
 	ld b, V0TILES_9000
-	ld a, $80
+	ld a, $80 ; tiles
 	call PushTilesToVRAM
 	pop de
 	pop bc
@@ -6125,7 +6145,7 @@ Func_2597:
 	dw .NewYork    ; NEW_YORK
 
 .Miami:
-	dbw $31, $5320
+	dba Pals_c5320
 	dba Gfx_c4000
 	db $1a, $06
 
@@ -6136,7 +6156,7 @@ Func_2597:
 	db $00, $20, $00, $20
 
 .LosAngeles:
-	dbw $31, $6800
+	dba Pals_c6800
 	dbw $31, $5490
 	db $1e, $10
 
@@ -6147,7 +6167,7 @@ Func_2597:
 	db $00, $20, $00, $20
 
 .NewYork:
-	dbw $31, $7a40
+	dba Pals_c7a40
 	dbw $31, $6970
 	db $2c, $22
 
@@ -6209,11 +6229,11 @@ Func_25f4:
 
 ; input:
 ; - a  = ?
-; - h  = ?
-; - l  = ?
+; - h  = OBPAL_* constant
+; - l  = CAR_* constant
 ; - bc = x coordinate
 ; - de = y coordinate
-Func_2631::
+SpawnCar::
 	ld [wdc7a], a
 	ld a, l
 	ld [wdc7c], a
@@ -6333,14 +6353,14 @@ Func_26db::
 ;	fallthrough
 Func_26ef::
 	push hl
-	ld hl, $26f7
+	ld hl, .Data
 	add_hl
 	ld a, [hl]
 	pop hl
 	ret
-; 0x26f7
 
-SECTION "Func_2707", ROM0[$2707]
+.Data:
+	db $00, $04, $08, $0c, $01, $00, $09, $00, $02, $06, $00, $00, $03, $00, $00, $00
 
 Func_2707::
 	push hl
@@ -7946,7 +7966,7 @@ Func_3047::
 	inc hl
 	ld a, [hli] ; CARSTRUCT_01
 	ld b, [hl]  ; CARSTRUCT_02
-	ld hl, wdbc5
+	ld hl, wCarTileIDAndAttributeMap
 	add a ; *2
 	add_hl
 	ld a, [hli]
@@ -7975,12 +7995,12 @@ Func_3047::
 ; - c  = CAR_* constant
 ; - b  = $0 for v0Tiles0, $1 for v0Tiles2, $2 for v0Tiles1
 ;        $3 for v1Tiles0, $4 for v1Tiles2, $5 for v1Tiles1
-LoadCarGfx:
+_LoadCarGfx:
 	ldh a, [hROMBank]
 	push af
-	ld a, $03
+	ld a, BANK(CarGfxTable)
 	bankswitch
-	ld hl, wdbc5
+	ld hl, wCarTileIDAndAttributeMap
 	ld a, c
 	add a ; *2
 	add_hl
@@ -7998,9 +8018,9 @@ LoadCarGfx:
 	inc hl
 	ld a, b
 	cp V1TILES
-	ld a, $00
+	ld a, OAM_BANK0
 	jr c, .asm_311b
-	ld a, $08
+	ld a, OAM_BANK1
 .asm_311b
 	ld [hl], a
 	ld a, c
@@ -8023,6 +8043,7 @@ LoadCarGfx:
 	pop af
 	bankswitch
 	ret
+
 .add_80_to_tile_id
 	ld a, [hl]
 	add $80
@@ -8826,19 +8847,19 @@ Func_3582:
 	ld b, $0c
 .asm_358c
 	bit 0, [hl]
-	call nz, Func_359c
+	call nz, .Func_359c
 	ld a, $13
 	add_hl
 	dec b
 	jr nz, .asm_358c
 	and a
-Func_3598:
+.ret
 	pop hl
 	pop de
 	pop bc
 	ret
 
-Func_359c:
+.Func_359c:
 	push hl
 	inc hl
 	ld a, [hli]
@@ -8846,15 +8867,15 @@ Func_359c:
 	jr nz, .asm_35a6
 	ld a, [hl]
 	cp d
-	jr z, .asm_35a8
+	jr z, .ret_carry
 .asm_35a6
 	pop hl
 	ret
-.asm_35a8
+.ret_carry
 	pop hl
 	pop hl
 	scf
-	jr Func_3598
+	jr .ret
 
 Func_35ad:
 	push hl
@@ -8869,6 +8890,7 @@ Func_35ad:
 	jr nz, .asm_35b3
 	pop hl
 	ret
+
 .asm_35bf
 	ld [hl], $01
 	inc hl
@@ -8983,7 +9005,7 @@ Func_3637:
 	push af
 	ld a, c
 	add a ; *2
-	ld de, wdbdb
+	ld de, wPropTileIDMap
 	add_de
 	pop af
 	and $02

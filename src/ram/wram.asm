@@ -218,9 +218,7 @@ wd803:: db ; d803
 
 wd804:: db ; d804
 
-wd805:: db ; d805
-
-wd806:: db ; d806
+wd805:: dw ; d805
 
 wd807:: db ; d807
 
@@ -254,22 +252,14 @@ wd822:: db ; d822
 
 wCity:: db ; d823
 
-wd824:: db ; d824
-
-	ds $d826 - $d825
+wd824:: dw ; d824
 
 ; which CAR_* player is driving
 wPlayerCar:: db ; d826
+wPlayerCarOBPal::      db ; d827
 
-wd827:: db ; d827
-
-wd828:: db ; d828
-
-wd829:: db ; d829
-
-wd82a:: db ; d82a
-
-wd82b:: db ; d82b
+wd828:: dw ; d828
+wd82a:: dw ; d82a
 
 wd82c:: db ; d82c
 
@@ -279,9 +269,10 @@ wd82e:: dw ; d82e
 
 wd830:: db ; d830
 
-wd831:: db ; d831
-
-wd832:: db ; d832
+; every time a cop is spawned, wCopSpawnTimer is set to wCopSpawnCooldown
+; and then is counted down until it reaches 0, which will spawn another cop
+wCopSpawnCooldown:: db ; d831
+wCopSpawnTimer::    db ; d832
 
 wd833:: db ; d833
 
@@ -563,13 +554,8 @@ wda81:: db ; da81
 
 wda82:: db ; da82
 
-wda83:: db ; da83
-
-	ds $da87 - $da84
-
-wda87:: db ; da87
-
-	ds $da8f - $da88
+wInitialNPCCars:: ds $4 ; da83
+wda87:: ds $8 ; da87
 
 wda8f:: db ; da8f
 
@@ -611,15 +597,15 @@ wdb83:: db ; db83
 
 	ds $db85 - $db84
 
-wdb85:: db ; db85
+wdb85:: ; db85
+	ds $40
 
-	ds $dbc5 - $db86
+; stores where in VRAM each CAR_* type has its gfx (starting tile ID)
+; and also its attribute (OAM_BANK0 or OAM_BANK1)
+wCarTileIDAndAttributeMap:: ; dbc5
+	ds NUM_CAR_TYPES * $2
 
-wdbc5:: db ; dbc5
-
-	ds $dbdb - $dbc6
-
-wdbdb:: ; dbdb
+wPropTileIDMap:: ; dbdb
 	ds (NUM_CITY_PROPS + 6) * $2
 
 wdbf7:: dw ; dbf7

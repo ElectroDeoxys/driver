@@ -82,31 +82,37 @@ Pals_f644::
 	rgb 10, 10, 10
 	rgb 27, 27, 27
 
+Pals_f64c::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb 28,  0,  0
 	rgb 31, 31, 31
 
+Pals_f654::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb  8, 16, 31
 	rgb 28, 28, 28
 
+Pals_f65c::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb 13, 11,  2
 	rgb 25, 21,  7
 
+Pals_f664::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb 31, 31,  0
 	rgb 31, 31, 31
 
+Pals_f66c::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb  0,  0, 31
 	rgb 31, 31, 31
 
+Pals_f674::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 	rgb  0, 18,  5

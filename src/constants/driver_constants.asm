@@ -44,16 +44,17 @@ DEF NUM_MISSIONS EQU const_value
 ; car constants
 	const_def
 	const BLACK_CAR ; $0
-	const COP_CAR ; $1
-	const TAXI ; $2
-	const CAR_03 ; $3
-	const CAR_04 ; $4
-	const CAR_05 ; $5
+	const COP_CAR   ; $1
+	const TAXI      ; $2
+	const CAR_03    ; $3
+	const CAR_04    ; $4
+	const CAR_05    ; $5
 	const BROWN_CAR ; $6
-	const RED_CAR ; $7
+	const RED_CAR   ; $7
 	const LIMOUSINE ; $8
-	const CAR_09 ; $9
-	const CAR_10 ; $a
+	const CAR_09    ; $9
+	const CAR_10    ; $a
+DEF NUM_CAR_TYPES EQU const_value
 
 RSRESET
 DEF CARDATASTRUCT_0 RB ; $0

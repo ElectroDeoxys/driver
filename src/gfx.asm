@@ -2,6 +2,123 @@ SECTION "Bank31", ROMX, BANK[$31]
 
 Gfx_c4000::
 
+SECTION "Pals_c5320", ROMX[$5320], BANK[$31]
+
+Pals_c5320::
+	rgb 22, 22, 17
+	rgb 27, 27, 26
+	rgb 28, 26,  2
+	rgb  0,  0,  0
+
+	rgb 22, 22, 17
+	rgb 14, 14, 14
+	rgb  8,  8,  8
+	rgb  0,  0,  0
+
+	rgb 28, 15, 10
+	rgb  0, 20,  0
+	rgb 22, 22, 17
+	rgb  0,  0,  0
+
+	rgb  0, 20,  0
+	rgb 11, 25,  0
+	rgb  0, 14,  0
+	rgb  0,  8,  0
+
+	rgb 31, 26,  0
+	rgb 20, 12,  2
+	rgb  0,  0,  0
+	rgb  0, 18, 31
+
+	rgb 17, 17, 13
+	rgb 19, 19, 15
+	rgb 13, 13, 10
+	rgb  0,  0,  0
+
+	rgb 27, 27, 26
+	rgb 20, 20, 19
+	rgb  0,  0,  0
+	rgb  0, 18, 31
+; 0xc5358
+
+SECTION "Pals_c6800", ROMX[$6800], BANK[$31]
+
+Pals_c6800::
+	rgb  0,  8, 15
+	rgb  0, 18, 31
+	rgb  0, 31, 31
+	rgb  0, 13, 25
+
+	rgb 31, 25,  0
+	rgb 24, 19,  0
+	rgb 21, 17,  0
+	rgb 14, 11,  0
+
+	rgb  0, 13,  0
+	rgb  0, 22,  0
+	rgb  0, 17,  0
+	rgb  0,  0,  0
+
+	rgb  0, 31, 31
+	rgb 31, 11,  0
+	rgb 16,  4,  0
+	rgb  0,  0,  0
+
+	rgb 22, 22, 21
+	rgb 12, 12, 11
+	rgb  5,  5,  4
+	rgb  0,  0,  0
+
+	rgb  0,  8, 15
+	rgb 22, 22, 21
+	rgb  0, 31, 31
+	rgb  0,  0,  0
+
+	rgb 14, 11,  0
+	rgb 12, 12, 11
+	rgb 31, 31, 31
+	rgb  0,  0,  0
+; 0xc6838
+
+SECTION "Pals_c7a40", ROMX[$7a40], BANK[$31]
+
+Pals_c7a40::
+	rgb 12, 12, 12
+	rgb 31, 28,  0
+	rgb 25, 25, 25
+	rgb  0,  0,  0
+
+	rgb 19, 19, 19
+	rgb 25, 25, 25
+	rgb  0,  7, 31
+	rgb  0,  0,  0
+
+	rgb 12, 12, 12
+	rgb  0,  4, 12
+	rgb  0,  7, 31
+	rgb  0,  0,  0
+
+	rgb  0, 15,  0
+	rgb  0, 21,  0
+	rgb  0, 11,  0
+	rgb  0,  0,  0
+
+	rgb 12, 12, 12
+	rgb 28, 18,  0
+	rgb 18,  9,  0
+	rgb  0,  0,  0
+
+	rgb 19, 19, 19
+	rgb 25, 25, 25
+	rgb  6,  6,  6
+	rgb  0,  0,  0
+
+	rgb  0, 15,  0
+	rgb 31, 31, 31
+	rgb  0,  7, 31
+	rgb  0,  0,  0
+; 0xc7a78
+
 SECTION "Gfx_c7ff0", ROMX[$7ff0], BANK[$31]
 Gfx_c7ff0:: INCBIN "gfx/gfx_c7ff0.2bpp"
 
