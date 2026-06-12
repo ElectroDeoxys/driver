@@ -13,7 +13,7 @@ Reset:
 	call ShowCompanies
 	call SetRNGSeed
 	call Func_1cb9
-	call Func_15bb
+	call GameLoop
 	jr Reset
 
 Init:
@@ -1233,11 +1233,7 @@ CopyBGMapBox_ToCoordinate::
 ; - de = bg map data
 ; - (b, c) = (rows, columns)
 CopyBGMapBox::
-	; swap hl and de
-	push de
-	ld e, l
-	ld d, h
-	pop hl
+	swap_hl_de
 
 	ld a, c
 	add a ; *2
@@ -2727,8 +2723,8 @@ SetStructByte_D::
 	ret
 
 Func_110b::
-	ld hl, wd551
-	ld bc, NUM_WDC32_STRUCTS * WDC32_STRUCT_SIZE
+	ld hl, wSprites
+	ld bc, NUM_SPRITE_STRUCTS * SPRITE_STRUCT_SIZE
 	call ClearMemory
 
 	ld a, TRUE
@@ -2745,11 +2741,11 @@ Func_110b::
 Func_1124::
 	push hl
 	push bc
-	ld hl, wd551
-	ld de, WDC32_STRUCT_SIZE
-	ld b, NUM_WDC32_STRUCTS
+	ld hl, wSprites
+	ld de, SPRITE_STRUCT_SIZE
+	ld b, NUM_SPRITE_STRUCTS
 .loop
-	bit WDC32FLAG_ACTIVE_F, [hl]
+	bit SPRITEFLAG_ACTIVE_F, [hl]
 	jr z, .found
 	add hl, de
 	dec b
@@ -2759,7 +2755,7 @@ Func_1124::
 	scf
 	ret
 .found
-	ld [hl], WDC32FLAG_ACTIVE
+	ld [hl], SPRITEFLAG_ACTIVE
 	ld d, h
 	ld e, l
 	pop bc
@@ -2783,18 +2779,18 @@ Func_1147::
 	and a
 	jr z, .asm_116d
 
-	ld hl, wd551
-	ld b, NUM_WDC32_STRUCTS
+	ld hl, wSprites
+	ld b, NUM_SPRITE_STRUCTS
 .loop
 	ld a, [hl]
-	and WDC32FLAG_ACTIVE | WDC32FLAG_UNK1
-	cp WDC32FLAG_ACTIVE | WDC32FLAG_UNK1
+	and SPRITEFLAG_ACTIVE | SPRITEFLAG_UNK1
+	cp SPRITEFLAG_ACTIVE | SPRITEFLAG_UNK1
 	jr nz, .next
 	push bc
 	call Func_1186
 	pop bc
 .next
-	ld de, WDC32_STRUCT_SIZE
+	ld de, SPRITE_STRUCT_SIZE
 	add hl, de
 	dec b
 	jr nz, .loop
@@ -2817,14 +2813,14 @@ Func_1186:
 	ld a, [hli]
 	ld [wSpriteFlags], a
 	inc hl
-	and WDC32FLAG_UNK2
+	and SPRITEFLAG_UNK2
 	jr z, .asm_11e6
 	ld d, h
 	ld e, l
 
-	ld hl, wd7fd
-	ld a, [de] ; WDC32STRUCT_Y
-	sub [hl] ; wd7fd
+	ld hl, wCameraY
+	ld a, [de] ; SPRITESTRUCT_Y
+	sub [hl] ; wCameraY
 	ld b, a
 	inc de
 	inc hl
@@ -2834,9 +2830,9 @@ Func_1186:
 	cp -1
 	jp nz, .asm_1242
 	push de
-	ld a, WDC32STRUCT_UNK07 - (WDC32STRUCT_Y + 1)
+	ld a, SPRITESTRUCT_UNK07 - (SPRITESTRUCT_Y + 1)
 	add_de
-	ld a, [de] ; WDC32STRUCT_UNK07
+	ld a, [de] ; SPRITESTRUCT_UNK07
 	add b
 	pop de
 	jp nc, .asm_1242
@@ -2854,8 +2850,8 @@ Func_1186:
 	inc de
 	inc hl
 
-	ld a, [de] ; WDC32STRUCT_X
-	sub [hl] ; wd7ff
+	ld a, [de] ; SPRITESTRUCT_X
+	sub [hl] ; wCameraX
 	ld c, a
 	inc de
 	inc hl
@@ -2865,7 +2861,7 @@ Func_1186:
 	cp -1
 	jr nz, .asm_1242
 	push de
-	ld a, WDC32STRUCT_UNK08 - (WDC32STRUCT_X + 1)
+	ld a, SPRITESTRUCT_UNK08 - (SPRITESTRUCT_X + 1)
 	add_de
 	ld a, [de]
 	add c
@@ -2895,22 +2891,22 @@ Func_1186:
 	ld c, a
 .asm_11f0
 	inc hl
-	ld a, [hli] ; WDC32STRUCT_UNK07
+	ld a, [hli] ; SPRITESTRUCT_UNK07
 	swap a
 	ld d, a
-	ld a, [hli] ; WDC32STRUCT_UNK08
+	ld a, [hli] ; SPRITESTRUCT_UNK08
 	rrca
 	rrca
 	ld e, a ; /4
 	rrca
 	ld [wd54b], a ; /8
 	ld a, [wSpriteFlags]
-	and WDC32FLAG_UNK7
+	and SPRITEFLAG_UNK7
 	call nz, Func_1315
 	ld a, [wSpriteFlags]
-	and WDC32FLAG_UNK4
+	and SPRITEFLAG_UNK4
 	jr z, .asm_120f
-	ld a, [hli] ; WDC32STRUCT_UNK09
+	ld a, [hli] ; SPRITESTRUCT_UNK09
 	ld h, [hl]
 	ld l, a
 .asm_120f
@@ -2922,7 +2918,7 @@ Func_1186:
 	jr z, .screen_check
 .asm_1219
 	ld a, [wSpriteFlags]
-	and WDC32FLAG_XFLIP | WDC32FLAG_YFLIP
+	and SPRITEFLAG_XFLIP | SPRITEFLAG_YFLIP
 	call nz, Func_1338
 	xor a
 	ld [wd548], a
@@ -2946,17 +2942,17 @@ Func_1186:
 
 .asm_123e
 	pop hl
-	res WDC32FLAG_UNK3_F, [hl]
+	res SPRITEFLAG_UNK3_F, [hl]
 	ret
 
 .asm_1242
 	pop hl
-	set WDC32FLAG_UNK3_F, [hl]
+	set SPRITEFLAG_UNK3_F, [hl]
 	ret
 
 .screen_check
 	ld a, [wSpriteFlags]
-	and WDC32FLAG_UNK2
+	and SPRITEFLAG_UNK2
 	jr nz, .skip_screen_check
 
 	; are we inside screen coordinates?
@@ -2978,7 +2974,7 @@ Func_1186:
 	ld e, a ; tile ID
 
 	ld a, [wSpriteFlags]
-	and WDC32FLAG_XFLIP | WDC32FLAG_YFLIP
+	and SPRITEFLAG_XFLIP | SPRITEFLAG_YFLIP
 	xor [hl]
 	ld d, a ; attributes
 
@@ -3246,7 +3242,9 @@ Func_139b:
 	ret z
 	cp SCREEN_WIDTH_PX + OAM_X_OFS
 	ret nc
+;	fallthrough
 
+Func_13a7::
 	; is inside, continue
 	ld a, b
 	swap a
@@ -3712,7 +3710,7 @@ YieldEntityUpdateIndefinitely::
 	call YieldEntityUpdate_BCTimes
 	jr .loop
 
-Func_15bb:
+GameLoop:
 	xor a
 	ld [wResetDisabled], a
 
@@ -3852,32 +3850,40 @@ Func_16e2:
 	ld a, [wCity]
 	call SetCity
 
+	; black palette
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
 	ld a, [wPlayerCar]
 	ld c, a
 	cp BLACK_CAR
-	jr z, .asm_172b
+	jr z, .get_spawn_coords
 	cp COP_CAR
-	jr z, .asm_172b
+	jr z, .get_spawn_coords
 	cp LIMOUSINE
-	jr z, .asm_172b
+	jr z, .get_spawn_coords
+
+	; red palette
 	ld a, OBPAL_RED
 	ld [wPlayerCarOBPal], a
 	ld a, c
 	cp RED_CAR
-	jr z, .asm_172b
+	jr z, .get_spawn_coords
+
+	; yellow palette
 	ld a, OBPAL_YELLOW
 	ld [wPlayerCarOBPal], a
 	ld a, c
 	cp TAXI
-	jr z, .asm_172b
+	jr z, .get_spawn_coords
+
+	; otherwise, var palette
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
-.asm_172b
-	ld hl, Data_7e88
+
+.get_spawn_coords
+	ld hl, TakeARideSpawnCoords
 	call Func_1946
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 .Checkpoint:
@@ -3886,7 +3892,7 @@ Func_16e2:
 	call SetCity
 	call SetDefaultPlayerCar
 	call Func_1937
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 .GetAway:
@@ -3895,7 +3901,7 @@ Func_16e2:
 	call SetCity
 	call SetDefaultPlayerCar
 	call Func_193c
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 .Pursuit:
@@ -3904,7 +3910,7 @@ Func_16e2:
 	call SetCity
 	call SetDefaultPlayerCar
 	call Func_1941
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 .Survival:
@@ -3914,7 +3920,7 @@ Func_16e2:
 	call SetDefaultPlayerCar
 	ld hl, $7e9d
 	call Func_1946
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 .Undercover:
@@ -3946,15 +3952,15 @@ Func_17a0:
 Func_17b4:
 	ld a, $01
 	vramswitch
-	ld hl, $505d
+	ld hl, CheckpointGfx
 	ld de, v0Tiles1 tile $4a
-	ld c, $34
-	ld b, $10
+	ld c, BANK(CheckpointGfx)
+	ld b, $10 ; tiles
 	call SafeCopyFarTiles
-	ld hl, $7efd
+	ld hl, Go123Gfx
 	ld de, v0Tiles1 tile $5a
-	ld c, $35
-	ld b, $0a
+	ld c, BANK(Go123Gfx)
+	ld b, $0a ; tiles
 	call SafeCopyFarTiles
 	ld a, $00
 	vramswitch
@@ -3976,6 +3982,7 @@ Func_17b4:
 	ld [wd892], a
 	ld c, $01
 	call Func_195e
+
 	ld hl, Func_65b4
 	ld c, BANK(Func_65b4)
 	ld b, $0b
@@ -4006,7 +4013,7 @@ Func_1808:
 	ld d, h
 	ld e, l
 	pop hl
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	ld hl, Func_66fa
 	ld c, BANK(Func_66fa)
@@ -4075,39 +4082,45 @@ Func_18bb:
 	jp Func_6926
 
 Func_18c5:
-	ld a, [wdc8e]
+	ld a, [wCreditsCity]
 	ld [wCity], a
+
 	ld a, BLACK_CAR
 	ld [wPlayerCar], a
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
+
 	call Func_1972
+
 	ld a, [wCity]
 	call SetCity
+
 	ld hl, $7e73
 	call Func_1946
-	call Func_1a2e
-	ld hl, $71ae
-	ld a, [wdc8f]
+	call SetPlayerSpawnCoordinatesAndDirection
+
+	ld hl, Credits1Text
+	ld a, [wWhichCreditsText]
 	and $01
-	jr z, .asm_18f4
-	ld hl, $7354
-.asm_18f4
+	jr z, .got_credits_text
+	ld hl, Credits2Text
+.got_credits_text
 	ld a, l
-	ld [wdc93], a
+	ld [wdc93 + 0], a
 	ld a, h
-	ld [wdc94], a
-	ld hl, wdc8f
+	ld [wdc93 + 1], a
+	ld hl, wWhichCreditsText
 	ld a, [hl]
-	xor $01
+	xor $1
 	ld [hl], a
-	ld hl, wdc8e
+
+	ld hl, wCreditsCity
 	ld a, [hl]
 	inc a
-	cp $03
-	jr c, .asm_190d
-	xor a
-.asm_190d
+	cp NUM_CITIES
+	jr c, .valid_city
+	xor a ; MIAMI
+.valid_city
 	ld [hl], a
 	ret
 
@@ -4301,17 +4314,17 @@ SetCity::
 	ld [de], a
 	ret
 
-Func_1a2e::
+SetPlayerSpawnCoordinatesAndDirection::
 	ld a, [hli]
-	ld [wd828 + 0], a
+	ld [wPlayerCarSpawnX + 0], a
 	ld a, [hli]
-	ld [wd828 + 1], a
+	ld [wPlayerCarSpawnX + 1], a
 	ld a, [hli]
-	ld [wd82a + 0], a
+	ld [wPlayerCarSpawnY + 0], a
 	ld a, [hli]
-	ld [wd82a + 1], a
+	ld [wPlayerCarSpawnY + 1], a
 	ld a, [hl]
-	ld [wd82c], a
+	ld [wPlayerCarSpawnDir], a
 	ret
 
 Func_1a43:
@@ -4375,9 +4388,9 @@ Func_1a71:
 	ld [hli], a
 	jr .asm_1aa6
 .asm_1a9b
-	ld a, [wd7ff]
+	ld a, [wCameraX]
 	ld [hli], a
-	ld a, [wd7fd]
+	ld a, [wCameraY]
 	ld [hli], a
 	ldh a, [hff99]
 	ld [hli], a
@@ -4725,10 +4738,11 @@ Func_1cb9:
 	ld [wc544], a
 	ld a, $01
 	ld [wc545], a
+
 	xor a
-	ld [wMission], a
-	ld [wdc8e], a
-	ld [wdc8f], a
+	ld [wMission], a ; MISSION_THE_BANK_JOB
+	ld [wCreditsCity], a ; MIAMI
+	ld [wWhichCreditsText], a
 
 	; fill wdc39 with $aa
 	ld hl, wdc39
@@ -5003,7 +5017,7 @@ _GetTextCommon:
 Func_1e7e::
 	ldh a, [hROMBank]
 	push af
-	ld a, $3c
+	ld a, BANK(Credits1Text) ; same as BANK(Credits2Text)
 	bankswitch
 	ld hl, wdc93
 	ld a, [hli]
@@ -5034,9 +5048,9 @@ Func_1e7e::
 	ld b, $14
 .asm_1eae
 	ld a, l
-	ld [wdc93], a
+	ld [wdc93 + 0], a
 	ld a, h
-	ld [wdc94], a
+	ld [wdc93 + 1], a
 .asm_1eb6
 	ld hl, wTextBuffer
 	pop af
@@ -5254,17 +5268,17 @@ Func_2026:
 	pop hl
 	call Func_2101
 	ld a, c
-	ld [wd7ff + 0], a
+	ld [wCameraX + 0], a
 	ld [wd7fb], a
 	ld a, b
-	ld [wd7ff + 1], a
+	ld [wCameraX + 1], a
 	ld [wd7fc], a
 	ld a, e
-	ld [wd7fd + 0], a
-	ld [wd7f9], a
+	ld [wCameraY + 0], a
+	ld [wd7f9 + 0], a
 	ld a, d
-	ld [wd7fd + 1], a
-	ld [wd7fa], a
+	ld [wCameraY + 1], a
+	ld [wd7f9 + 1], a
 	call Func_2216
 	ld de, wd80f
 	xor a
@@ -5339,21 +5353,21 @@ Func_20dc:
 	ret
 
 Func_2101:
-	ld hl, wd828
+	ld hl, wPlayerCarSpawnX
 	ld de, wda2d
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, [hl]
 	ld [de], a
-	ld hl, wd82a
+	ld hl, wPlayerCarSpawnY
 	ld de, wda2a
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, [hl]
 	ld [de], a
-	ld a, [wd82c]
+	ld a, [wPlayerCarSpawnDir]
 	ld [wda2f], a
 	xor a
 	ld [wda31], a
@@ -5533,7 +5547,7 @@ Func_21a4:
 	ret
 
 Func_2216:
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
@@ -5820,7 +5834,7 @@ Func_23c6:
 
 Func_23d1:
 	ld hl, wd7f9
-	ld de, wd7fd
+	ld de, wCameraY
 	call Func_2410
 	and a
 	jr z, .asm_23f1
@@ -5833,11 +5847,11 @@ Func_23d1:
 	call Func_2479
 .asm_23ea
 	pop af
-	ld hl, wd7fd
+	ld hl, wCameraY
 	call Func_2438
 .asm_23f1
 	ld hl, wd7fb
-	ld de, wd7ff
+	ld de, wCameraX
 	call Func_2410
 	and a
 	ret z
@@ -5850,7 +5864,7 @@ Func_23d1:
 	call Func_24e5
 .asm_2409
 	pop af
-	ld hl, wd7ff
+	ld hl, wCameraX
 	jp Func_2438
 
 Func_2410:
@@ -5865,6 +5879,7 @@ Func_2410:
 	ld h, [hl]
 	ld l, a
 	call HLMinusDE
+	; hl = [hl] - [de]
 	ld a, l
 	or h
 	ret z
@@ -5896,7 +5911,7 @@ Func_2438:
 	jp Func_10b0
 
 Func_2443:
-	ld hl, wd7fd
+	ld hl, wCameraY
 	call Func_251b
 	ret z
 	push af
@@ -5929,7 +5944,7 @@ Func_2443:
 	jp Func_2255
 
 Func_2479:
-	ld hl, wd7fd
+	ld hl, wCameraY
 	call Func_2531
 	ret z
 	push af
@@ -5962,7 +5977,7 @@ Func_2479:
 	jp Func_2255
 
 Func_24af:
-	ld hl, wd7ff
+	ld hl, wCameraX
 	call Func_251b
 	ret z
 	push af
@@ -5995,7 +6010,7 @@ Func_24af:
 	jp Func_224d
 
 Func_24e5:
-	ld hl, wd7ff
+	ld hl, wCameraX
 	call Func_2531
 	ret z
 	push af
@@ -6073,14 +6088,14 @@ Func_2531:
 	ret
 
 Func_254a:
-	ld hl, wd7ff
+	ld hl, wCameraX
 	ld c, [hl]
 	inc hl
 	ld b, [hl]
 	ret
 
 Func_2551:
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
@@ -6232,7 +6247,7 @@ Func_25f4:
 	ret
 
 ; input:
-; - a  = ?
+; - a  = direction
 ; - h  = OBPAL_* constant
 ; - l  = CAR_* constant
 ; - bc = x coordinate
@@ -6266,7 +6281,7 @@ SpawnCar::
 	ld [hl], b
 	inc hl
 	ld a, [wdc7a]
-	ld [hl], a ; CARSTRUCT_0C
+	ld [hl], a ; CARSTRUCT_DIR
 	pop hl
 	and a
 	ret
@@ -6341,7 +6356,7 @@ GetCarCoordinates::
 
 Func_26db::
 	push hl
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	pop hl
@@ -6376,22 +6391,22 @@ Func_2707::
 
 Func_270f::
 	push hl
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld a, [hl]
-	and $08
+	and SPRITEFLAG_UNK3
 	pop hl
 	ret
 
 Func_271b::
-	cp $40
+	cp 90 deg
 	jr c, .asm_273f
-	cp $80
+	cp 180 deg
 	jr c, .asm_2737
-	cp $c0
+	cp 270 deg
 	jr c, .asm_272f
 	and $3f
 	ld a, $08
@@ -6419,14 +6434,14 @@ Func_271b::
 
 Func_2747::
 	push hl
-	ld hl, $274f
+	ld hl, .data
 	add_hl
 	ld a, [hl]
 	pop hl
 	ret
-; 0x274f
 
-SECTION "Func_275f", ROM0[$275f]
+.data
+	db $00, $00, $40, $20, $80, $00, $60, $00, $c0, $e0, $00, $00, $a0, $00, $00, $00
 
 Func_275f::
 	push de
@@ -6938,7 +6953,7 @@ Func_2998::
 
 Func_29d6::
 	push hl
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	call Func_29ea
@@ -6947,7 +6962,7 @@ Func_29d6::
 
 Func_29e0::
 	push hl
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	call Func_2a7e
@@ -7439,7 +7454,7 @@ Func_2cbb:
 	and a
 	jr z, .asm_2cf5
 	ld [wdc7a], a
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	ld [wdc7c], a
 	call Func_2d2c
@@ -7786,10 +7801,7 @@ Func_2fc1:
 	ld a, [wda59]
 	and $08
 	jr z, .asm_2ff5
-	push de
-	ld e, l
-	ld d, h
-	pop hl
+	swap_hl_de
 .asm_2ff5
 	ld a, $10
 	sub b
@@ -7863,7 +7875,7 @@ Func_3047::
 	push af
 	ld a, $03
 	bankswitch
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call GetStructWord_DE
 
 	push de
@@ -7873,41 +7885,41 @@ Func_3047::
 	ld a, CARSTRUCT_Y
 	add_hl
 	ld a, [hli]
-	sub $08
-	ld [de], a ; WDC32STRUCT_Y
+	sub LOW(8)
+	ld [de], a ; SPRITESTRUCT_Y
 	inc de
 	ld a, [hli]
-	sbc $00
+	sbc HIGH(8)
 	ld [de], a
 	inc de
 	inc hl
 	inc de
 	ld a, [hli] ; CARSTRUCT_X
-	sub $08
-	ld [de], a ; WDC32STRUCT_X
+	sub LOW(8)
+	ld [de], a ; SPRITESTRUCT_X
 	inc de
 	ld a, [hl]
-	sbc $00
+	sbc HIGH(8)
 	ld [de], a
 	pop hl
 	pop de
 
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
-	add $04
+	add 7 deg
 	rrca
 	rrca
-	rrca
+	rrca ; /8
 	and $1f
 	ld c, a
 	push hl
-	ld hl, $7624
+	ld hl, CarDirectionSpriteFlags
 	ld b, $00
 	add hl, bc
 	ld a, [de]
-	and ~(WDC32FLAG_XFLIP | WDC32FLAG_YFLIP)
+	and ~(SPRITEFLAG_XFLIP | SPRITEFLAG_YFLIP)
 	or [hl]
-	or WDC32FLAG_UNK1 | WDC32FLAG_UNK2
+	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
 	ld [de], a
 	ld a, [hl]
 	pop hl
@@ -7944,7 +7956,7 @@ Func_3047::
 	ld b, a
 	pop af
 	ld c, a
-	ld a, WDC32STRUCT_X
+	ld a, SPRITESTRUCT_X
 	add_de
 	bit 4, b
 	jr nz, .asm_30c6
@@ -7961,10 +7973,10 @@ Func_3047::
 .asm_30c7
 	inc de
 	ld a, $10
-	ld [de], a ; WDC32STRUCT_UNK07
+	ld [de], a ; SPRITESTRUCT_UNK07
 	inc de
 	ld a, b
-	ld [de], a ; WDC32STRUCT_UNK08
+	ld [de], a ; SPRITESTRUCT_UNK08
 	inc de
 	push hl
 	inc hl
@@ -7981,13 +7993,13 @@ Func_3047::
 	ld b, a
 	ld h, d
 	ld l, e
-	ld [hl], c ; WDC32STRUCT_UNK09
+	ld [hl], c ; SPRITESTRUCT_UNK09
 	inc hl
 	ld [hl], b
 	inc hl
 	inc c
 	inc c
-	ld [hl], c ; WDC32STRUCT_UNK0B
+	ld [hl], c ; SPRITESTRUCT_UNK0B
 	inc hl
 	ld [hl], b
 	pop hl
@@ -8436,7 +8448,7 @@ Func_32fb:
 	ret
 
 Func_332a:
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
@@ -8457,7 +8469,7 @@ Func_332a:
 .asm_3345
 	call Func_3384
 .asm_3348
-	ld hl, wd7ff
+	ld hl, wCameraX
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
@@ -8478,7 +8490,7 @@ Func_332a:
 .asm_3363
 	call Func_33a2
 .asm_3366
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld de, wdb81
 	ld a, [hli]
 	ld [de], a
@@ -8534,7 +8546,7 @@ Func_33a2:
 	jp Func_342f
 
 Func_33b4:
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
@@ -8755,9 +8767,41 @@ Func_34f3:
 	inc hl
 	push hl
 	jumptable
-; 0x34f9
+	dw .Func_34ff
+	dw .Func_3506
+	dw .Func_350d
 
-SECTION "Func_351e", ROM0[$351e]
+.Func_34ff:
+	pop hl
+	ld a, [hl]
+	cp e
+	jr c, .no_carry
+	jr .set_carry
+
+.Func_3506:
+	pop hl
+	ld a, e
+	cp [hl]
+	jr c, .no_carry
+	jr .set_carry
+
+.Func_350d:
+	pop hl
+	ld a, e
+	add $87
+	cp [hl]
+	jr c, .no_carry
+	ld a, [hl]
+	cp e
+	jr c, .no_carry
+.set_carry
+	dec hl
+	scf
+	ret
+.no_carry
+	dec hl
+	and a
+	ret
 
 Func_351e:
 	ld a, b
@@ -8954,10 +8998,7 @@ Func_35ad:
 	jr c, .asm_362b
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
-	push de
-	ld e, l
-	ld d, h
-	pop hl
+	swap_hl_de
 	ld a, CARSTRUCT_0F
 	call SetStructWord_DE
 	call Func_1124

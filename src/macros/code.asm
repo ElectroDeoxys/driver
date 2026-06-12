@@ -73,6 +73,13 @@ MACRO? call_hl
 :
 ENDM
 
+MACRO? swap_hl_de
+	push de
+	ld e, l
+	ld d, h
+	pop hl
+ENDM
+
 MACRO? maskbits
 ; masks just enough bits to cover values 0 to \1 - 1
 ; \2 is an optional shift amount
@@ -83,3 +90,5 @@ MACRO? maskbits
 	ENDC
 	and x
 ENDM
+
+DEF deg EQUS " * 256 / 360"

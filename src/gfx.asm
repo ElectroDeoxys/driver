@@ -553,7 +553,10 @@ MainMenuCheatsOAMMap::
 Gfx_d0f5d:: INCBIN "gfx/gfx_d0f5d.2bpp"
 Gfx_d0f9d:: INCBIN "gfx/gfx_d0f9d.2bpp"
 
-SECTION "Gfx_d115d", ROMX[$515d], BANK[$34]
+SECTION "CheckpointGfx", ROMX[$505d], BANK[$34]
+
+CheckpointGfx:: INCBIN "gfx/checkpoint.2bpp"
+
 Gfx_d115d:: INCBIN "gfx/gfx_d115d.2bpp"
 Gfx_d119d:: INCBIN "gfx/gfx_d119d.2bpp"
 Gfx_d11dd:: INCBIN "gfx/gfx_d11dd.2bpp"
@@ -978,7 +981,6 @@ Pals_d61a4::
 	rgb  0,  0,  0
 ; 0xd61e4
 
-
 SECTION "EnglishHUD", ROMX[$6b1d], BANK[$35]
 
 EnglishHUDGfx::
@@ -996,6 +998,9 @@ GermanHUDGfx::
 	INCBIN "gfx/hud/de/hud.2bpp"
 	INCBIN "gfx/hud/de/pause.2bpp"
 
+SECTION "Go123Gfx", ROMX[$7efd], BANK[$35]
+
+Go123Gfx:: INCBIN "gfx/go_123.2bpp"
 
 SECTION "Bank36", ROMX, BANK[$36]
 

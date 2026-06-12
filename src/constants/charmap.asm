@@ -98,6 +98,7 @@
 	charmap "<CTRL_84>", $84
 	charmap "<CTRL_85>", $85
 	charmap "<CTRL_86>", $86
+	charmap "<CTRL_8F>", $8f
 
 	charmap "Á",         $9b
 	charmap "É",         $9c

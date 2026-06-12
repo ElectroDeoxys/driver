@@ -633,22 +633,22 @@ PursuitTextIT:
 PursuitTextES:
 	db "PERSECUCI<BIG_Ó>N\0"
 
-Texts_f4bff:
-	dw TextEN_f4bff
-	dw TextFR_f4bff
-	dw TextDE_f4bff
-	dw TextIT_f4bff
-	dw TextES_f4bff
+PursuitBestTimesTexts::
+	dw PursuitBestTimesTextEN
+	dw PursuitBestTimesTextFR
+	dw PursuitBestTimesTextDE
+	dw PursuitBestTimesTextIT
+	dw PursuitBestTimesTextES
 
-TextEN_f4bff:
+PursuitBestTimesTextEN:
 	db "pursuit\0"
-TextFR_f4bff:
+PursuitBestTimesTextFR:
 	db "poursuite\0"
-TextDE_f4bff:
+PursuitBestTimesTextDE:
 	db "verfolgung\0"
-TextIT_f4bff:
+PursuitBestTimesTextIT:
 	db "inseguimento\0"
-TextES_f4bff:
+PursuitBestTimesTextES:
 	db "persecución\0"
 
 GetAwayTexts::
@@ -669,22 +669,22 @@ GetAwayTextIT:
 GetAwayTextES:
 	db "FUGA\0"
 
-Texts_f4c72:
-	dw TextEN_f4c72
-	dw TextFR_f4c72
-	dw TextDE_f4c72
-	dw TextIT_f4c72
-	dw TextES_f4c72
+GetAwayBestTimesTexts::
+	dw GetAwayBestTimesTextEN
+	dw GetAwayBestTimesTextFR
+	dw GetAwayBestTimesTextDE
+	dw GetAwayBestTimesTextIT
+	dw GetAwayBestTimesTextES
 
-TextEN_f4c72:
+GetAwayBestTimesTextEN:
 	db "get away\0"
-TextFR_f4c72:
+GetAwayBestTimesTextFR:
 	db "delit de fuite\0"
-TextDE_f4c72:
+GetAwayBestTimesTextDE:
 	db "flucht\0"
-TextIT_f4c72:
+GetAwayBestTimesTextIT:
 	db "fuga\0"
-TextES_f4c72:
+GetAwayBestTimesTextES:
 	db "fuga\0"
 
 CheckpointTexts::
@@ -702,19 +702,19 @@ CheckpointTextIT:
 CheckpointTextES:
 	db "PUNTO DE CONTROL\0"
 
-Texts_f4ccb:
-	dw TextEN_f4ccb
-	dw TextFR_f4ccb
-	dw TextDE_f4ccb
-	dw TextIT_f4ccb
-	dw TextES_f4ccb
+CheckpointBestTimesTexts::
+	dw CheckpointBestTimesTextEN
+	dw CheckpointBestTimesTextFR
+	dw CheckpointBestTimesTextDE
+	dw CheckpointBestTimesTextIT
+	dw CheckpointBestTimesTextES
 
-TextEN_f4ccb:
-TextFR_f4ccb:
-TextDE_f4ccb:
-TextIT_f4ccb:
+CheckpointBestTimesTextEN:
+CheckpointBestTimesTextFR:
+CheckpointBestTimesTextDE:
+CheckpointBestTimesTextIT:
 	db "checkpoint\0"
-TextES_f4ccb:
+CheckpointBestTimesTextES:
 	db "punto de control\0"
 
 SurvivalTexts::
@@ -735,22 +735,22 @@ SurvivalTextIT:
 SurvivalTextES:
 	db "SUPERVIVENCIA\0"
 
-Texts_f4d31:
-	dw TextEN_f4d31
-	dw TextFR_f4d31
-	dw TextDE_f4d31
-	dw TextIT_f4d31
-	dw TextES_f4d31
+SurvivalBestTimesTexts::
+	dw SurvivalBestTimesTextEN
+	dw SurvivalBestTimesTextFR
+	dw SurvivalBestTimesTextDE
+	dw SurvivalBestTimesTextIT
+	dw SurvivalBestTimesTextES
 
-TextEN_f4d31:
+SurvivalBestTimesTextEN:
 	db "survival\0"
-TextFR_f4d31:
+SurvivalBestTimesTextFR:
 	db "survie\0"
-TextDE_f4d31:
+SurvivalBestTimesTextDE:
 	db "überleben\0"
-TextIT_f4d31:
+SurvivalBestTimesTextIT:
 	db "sopravvivenza\0"
-TextES_f4d31:
+SurvivalBestTimesTextES:
 	db "supervivencia\0"
 
 ChooseACityTexts::
@@ -889,24 +889,24 @@ MiamiTexts::
 MiamiText:
 	db "MIAMI\0"
 
-Texts_f4fe0:
-	dw Text_f4fe0
-	dw Text_f4fe0
-	dw Text_f4fe0
-	dw Text_f4fe0
-	dw Text_f4fe0
+Miami1Texts::
+	dw Miami1Text
+	dw Miami1Text
+	dw Miami1Text
+	dw Miami1Text
+	dw Miami1Text
 
-Text_f4fe0:
+Miami1Text:
 	db "MIAMI 1\0"
 
-Texts_f4ff2:
-	dw Text_f4ff2
-	dw Text_f4ff2
-	dw Text_f4ff2
-	dw Text_f4ff2
-	dw Text_f4ff2
+Miami2Texts::
+	dw Miami2Text
+	dw Miami2Text
+	dw Miami2Text
+	dw Miami2Text
+	dw Miami2Text
 
-Text_f4ff2:
+Miami2Text:
 	db "MIAMI 2\0"
 
 LosAngelesTexts::
@@ -921,14 +921,14 @@ LosAngelesTextES:
 LosAngelesText:
 	db "LOS ANGELES\0"
 
-Texts_f5026:
-	dw Text_f5026
-	dw Text_f5026
-	dw Text_f5026
-	dw Text_f5026
-	dw Text_f5026
+LATexts::
+	dw LAText
+	dw LAText
+	dw LAText
+	dw LAText
+	dw LAText
 
-Text_f5026:
+LAText:
 	db "L.A. \0"
 
 Texts_f5036:
@@ -946,14 +946,14 @@ TextDE_f5036:
 TextIT_f5036:
 	db "LOS ANGELES 1\0"
 
-Texts_f505c:
-	dw Text_f505c
-	dw Text_f505c
-	dw Text_f505c
-	dw Text_f505c
-	dw Text_f505c
+LA1Texts::
+	dw LA1Text
+	dw LA1Text
+	dw LA1Text
+	dw LA1Text
+	dw LA1Text
 
-Text_f505c:
+LA1Text:
 	db "L.A.  1\0"
 
 Texts_f506e:
@@ -971,14 +971,14 @@ TextDE_f506e:
 TextIT_f506e:
 	db "LOS ANGELES 2\0"
 
-Texts_f5094:
-	dw Text_f5094
-	dw Text_f5094
-	dw Text_f5094
-	dw Text_f5094
-	dw Text_f5094
+LA2Texts::
+	dw LA2Text
+	dw LA2Text
+	dw LA2Text
+	dw LA2Text
+	dw LA2Text
 
-Text_f5094:
+LA2Text:
 	db "L.A.  2\0"
 
 NewYorkTexts::
@@ -993,14 +993,14 @@ NewYorkTextES:
 NewYorkText:
 	db "NEW YORK\0"
 
-Texts_f50c4:
-	dw Text_f50c4
-	dw Text_f50c4
-	dw Text_f50c4
-	dw Text_f50c4
-	dw Text_f50c4
+NYTexts::
+	dw NYText
+	dw NYText
+	dw NYText
+	dw NYText
+	dw NYText
 
-Text_f50c4:
+NYText:
 	db "N.Y. \0"
 
 Texts_f50d4:
@@ -1018,14 +1018,14 @@ TextDE_f50d4:
 TextIT_f50d4:
 	db "NEW YORK 1\0"
 
-Texts_f50f6:
-	dw Text_f50f6
-	dw Text_f50f6
-	dw Text_f50f6
-	dw Text_f50f6
-	dw Text_f50f6
+NY1Texts::
+	dw NY1Text
+	dw NY1Text
+	dw NY1Text
+	dw NY1Text
+	dw NY1Text
 
-Text_f50f6:
+NY1Text:
 	db "N.Y.  1\0"
 
 Texts_f5108:
@@ -1043,14 +1043,14 @@ TextDE_f5108:
 TextIT_f5108:
 	db "NEW YORK 2\0"
 
-Texts_f512a:
-	dw Text_f512a
-	dw Text_f512a
-	dw Text_f512a
-	dw Text_f512a
-	dw Text_f512a
+NY2Texts::
+	dw NY2Text
+	dw NY2Text
+	dw NY2Text
+	dw NY2Text
+	dw NY2Text
 
-Text_f512a:
+NY2Text:
 	db "N.Y.  2\0"
 
 NoDamageTexts::

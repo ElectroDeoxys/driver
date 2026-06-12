@@ -174,9 +174,9 @@ wd54d:: db ; d54d
 wd54e:: db ; d54e
 wd54f:: dw ; d54f
 
-wd551:: ; d551
+wSprites:: ; d551
 FOR n, 1, $20 + 1
-wd551{u:n}:: wd551_struct wd551{u:n}
+wSprites{u:n}:: wSprites_struct wSprites{u:n}
 ENDR
 
 ; multipurpose buffer for temporarily
@@ -199,16 +199,14 @@ wd7f7:: db ; d7f7
 
 wNumTilesToPush:: db ; d7f8
 
-wd7f9:: db ; d7f9
-
-wd7fa:: db ; d7fa
+wd7f9:: dw ; d7f9
 
 wd7fb:: db ; d7fb
 
 wd7fc:: db ; d7fc
 
-wd7fd:: dw ; d7fd
-wd7ff:: dw ; d7ff
+wCameraY:: dw ; d7fd
+wCameraX:: dw ; d7ff
 
 wd801:: db ; d801
 
@@ -256,10 +254,10 @@ wd824:: dw ; d824
 wPlayerCar:: db ; d826
 wPlayerCarOBPal::      db ; d827
 
-wd828:: dw ; d828
-wd82a:: dw ; d82a
+wPlayerCarSpawnX:: dw ; d828
+wPlayerCarSpawnY:: dw ; d82a
 
-wd82c:: db ; d82c
+wPlayerCarSpawnDir:: db ; d82c
 
 wd82d:: db ; d82d
 
@@ -785,9 +783,10 @@ wdc8c:: db ; dc8c
 
 wdc8d:: db ; dc8d
 
-wdc8e:: db ; dc8e
-
-wdc8f:: db ; dc8f
+; city to show on next credits scene
+wCreditsCity:: db ; dc8e
+; which credits text to show (Credits1Text or Credits2Text)
+wWhichCreditsText:: db ; dc8f
 
 wdc90:: db ; dc90
 
@@ -795,9 +794,7 @@ wdc91:: db ; dc91
 
 wdc92:: db ; dc92
 
-wdc93:: db ; dc93
-
-wdc94:: db ; dc94
+wdc93:: dw ; dc93
 
 wdc95:: db ; dc95
 

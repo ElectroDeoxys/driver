@@ -887,13 +887,15 @@ Func_861f:
 	call FarCopy
 	ld a, $01
 	call InitFade
-	ld a, $02
-	ld de, $47a3
+
+	ld a, BANK(Func_87a3)
+	ld de, Func_87a3
 	ld hl, wd54e
 	ld [hli], a
 	ld [hl], e
 	inc hl
 	ld [hl], d
+
 	call Func_8806
 	ld a, $03
 	ld [wd895], a
@@ -1063,7 +1065,56 @@ Func_8745:
 	jr Func_873c
 ; 0x8753
 
-SECTION "Func_87ef", ROMX[$47ef], BANK[$2]
+SECTION "Func_87a3", ROMX[$47a3], BANK[$2]
+
+Func_87a3:
+	call Func_882c
+	ld de, $8f4
+	call .Func_87b6
+	call Func_2dd5
+	ret nc
+	call Func_883d
+	ld de, $8fa
+.Func_87b6:
+	ld a, c
+	ld hl, wd896
+	sub [hl]
+	jr nc, .asm_87c2
+	cp $fd
+	ret c
+	jr .asm_87c5
+.asm_87c2
+	cp $a4
+	ret nc
+.asm_87c5
+	add $04
+	ld c, a
+	ld a, b
+	ld hl, wd897
+	sub [hl]
+	jr nc, .asm_87d4
+	cp $fd
+	ret c
+	jr .asm_87d7
+.asm_87d4
+	cp $7c
+	ret nc
+.asm_87d7
+	add $14
+	ld b, a
+	ld a, [wd894]
+	inc a
+	cp $18
+	jr c, .asm_87e3
+	xor a
+.asm_87e3
+	ld [wd894], a
+	rrca
+	rrca
+	and $06
+	add e
+	ld e, a
+	jp Func_13a7
 
 Func_87ef:
 	ld hl, wDMGPals
@@ -2000,94 +2051,101 @@ Func_8ddb:
 
 BestTimesMenu:
 	call Func_9292
-	ld hl, $4ccb
+
+	ld hl, CheckpointBestTimesTexts
 	call .Func_8f3b
-	ld hl, $4fe0
+	ld hl, Miami1Texts
 	ld de, wdc39
 	call .Func_8eed
-	ld hl, $4ff2
+	ld hl, Miami2Texts
 	ld de, wdc3c
 	call .Func_8eed
-	ld hl, $505c
+	ld hl, LA1Texts
 	ld de, wdc3f
 	call .Func_8eed
-	ld hl, $5094
+	ld hl, LA2Texts
 	ld de, wdc42
 	call .Func_8eed
-	ld hl, $50f6
+	ld hl, NY1Texts
 	ld de, wdc45
 	call .Func_8eed
-	ld hl, $512a
+	ld hl, NY2Texts
 	ld de, wdc48
 	call .Func_8eed
 	ld hl, wTextLine
 	inc [hl]
-	ld hl, $4c72
+
+	ld hl, GetAwayBestTimesTexts
 	call .Func_8f3b
-	ld hl, $4fe0
+	ld hl, Miami1Texts
 	ld de, wdc4b
 	call .Func_8eed
-	ld hl, $4ff2
+	ld hl, Miami2Texts
 	ld de, wdc4e
 	call .Func_8eed
-	ld hl, $505c
+	ld hl, LA1Texts
 	ld de, wdc51
 	call .Func_8eed
-	ld hl, $5094
+	ld hl, LA2Texts
 	ld de, wdc54
 	call .Func_8eed
-	ld hl, $50f6
+	ld hl, NY1Texts
 	ld de, wdc57
 	call .Func_8eed
-	ld hl, $512a
+	ld hl, NY2Texts
 	ld de, wdc5a
 	call .Func_8eed
 	ld hl, wTextLine
 	inc [hl]
-	ld hl, $4bff
+
+	ld hl, PursuitBestTimesTexts
 	call .Func_8f3b
-	ld hl, $4fe0
+	ld hl, Miami1Texts
 	ld de, wdc5d
 	call .Func_8eed
-	ld hl, $4ff2
+	ld hl, Miami2Texts
 	ld de, wdc60
 	call .Func_8eed
-	ld hl, $505c
+	ld hl, LA1Texts
 	ld de, wdc63
 	call .Func_8eed
-	ld hl, $5094
+	ld hl, LA2Texts
 	ld de, wdc66
 	call .Func_8eed
-	ld hl, $50f6
+	ld hl, NY1Texts
 	ld de, wdc69
 	call .Func_8eed
-	ld hl, $512a
+	ld hl, NY2Texts
 	ld de, wdc6c
 	call .Func_8eed
 	ld hl, wTextLine
 	inc [hl]
-	ld hl, $4d31
+
+	ld hl, SurvivalBestTimesTexts
 	call .Func_8f3b
-	ld hl, $4fd0
+	ld hl, MiamiTexts
 	ld de, wdc6f
 	call .Func_8eed
-	ld hl, $5026
+	ld hl, LATexts
 	ld de, wdc72
 	call .Func_8eed
-	ld hl, $50c4
+	ld hl, NYTexts
 	ld de, wdc75
 	call .Func_8eed
-	ld hl, $4968
+
+	ld hl, BestTimesTexts
 	call ProcessTitleText
-	ld a, $02
-	ld de, $4f6d
+
+	ld a, BANK(Func_8f6d)
+	ld de, Func_8f6d
 	ld hl, wd54e
 	ld [hli], a
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld de, $4f51
-	ld a, $02
+
+	ld de, Func_8f51
+	ld a, BANK(Func_8f51)
 	jp Func_157f
 
 .Func_8eed:
@@ -2100,36 +2158,36 @@ BestTimesMenu:
 	and a
 	jr nz, .asm_8ef3
 	dec hl
-	ld a, $20
+	ld a, ' '
 	ld [hli], a
 	pop de
 	ld a, [de]
 	cp $aa
 	jr nz, .asm_8f15
-	ld a, $2d
+	ld a, '-'
 	ld [hli], a
 	ld [hli], a
-	ld a, $3a
+	ld a, ':'
 	ld [hli], a
-	ld a, $2d
+	ld a, '-'
 	ld [hli], a
 	ld [hli], a
-	ld a, $3a
+	ld a, ':'
 	ld [hli], a
-	ld a, $2d
+	ld a, '-'
 	ld [hli], a
 	ld [hli], a
 	jr .asm_8f24
 .asm_8f15
 	call .Func_8f2b
-	ld a, $3a
+	ld a, ':'
 	ld [hli], a
 	call .Func_8f2b
-	ld a, $3a
+	ld a, ':'
 	ld [hli], a
 	call .Func_8f2b
 .asm_8f24
-	xor a
+	xor a ; '\0'
 	ld [hl], a
 	ld hl, wTextBuffer
 	jr .asm_8f3e
@@ -2138,11 +2196,11 @@ BestTimesMenu:
 	ld a, [de]
 	swap a
 	and $0f
-	add $30
+	add '0'
 	ld [hli], a
 	ld a, [de]
 	and $0f
-	add $30
+	add '0'
 	ld [hli], a
 	dec de
 	ret
@@ -2164,9 +2222,27 @@ BestTimesMenu:
 	ld a, b
 	add_hl
 	jr .asm_8f3e
-; 0x8f51
 
-SECTION "Func_8f78", ROMX[$4f78], BANK[$2]
+Func_8f51:
+	call YieldEntityUpdateUntilFadeEnds
+.asm_8f54
+	ld a, 1
+	call YieldEntityUpdate
+	ld a, [wJoypadPressed]
+	and PAD_A | PAD_B | PAD_START
+	jr nz, .asm_8f65
+	call Func_911e
+	jr .asm_8f54
+.asm_8f65
+	ld a, SFX_06
+	call PlaySFX
+	jp Func_a47a
+
+Func_8f6d:
+	ld a, [wc57a]
+	and $04
+	jp z, Func_9d1a
+	jp Func_9cd4
 
 Func_8f78::
 	ld a, MUSIC_BRIEFING
@@ -2190,23 +2266,28 @@ Func_8f78::
 	ld [wd54d], a
 	xor a
 	ld [wd54c], a
-	ld a, $02
-	ld de, $505c
+
+	ld a, BANK(Func_905c)
+	ld de, Func_905c
 	ld hl, wd54e
 	ld [hli], a
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld hl, $509a
-	ld de, wTempDMGPals
-	ld b, $08
+
+	ld hl, Pals_909a
+	ld de, wTempDMGPals palette 0
+	ld b, 1 palettes
 	call CopyHLtoDE
-	ld hl, $50a2
-	ld de, wTempOBPals
-	ld b, $08
+
+	ld hl, Pals_90a2
+	ld de, wTempOBPals palette 0
+	ld b, 1 palettes
 	call CopyHLtoDE
+
 	ld bc, $800
 	call Func_9434
+
 	ld hl, TryAgainTexts
 	call ProcessTitleText
 	ld a, [wdc20]
@@ -2227,7 +2308,7 @@ Func_8ff0:
 	ld hl, wJoypadPressed
 	ld de, wd898
 .asm_8ff9
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [hl]
 	and PAD_LEFT
@@ -2265,7 +2346,58 @@ Func_8ff0:
 	ret
 ; 0x9030
 
-SECTION "Func_90aa", ROMX[$50aa], BANK[$2]
+SECTION "Func_905c", ROMX[$505c], BANK[$2]
+
+Func_905c:
+	ld a, [wc57a]
+	and $04
+	ret z
+	ld hl, .LanguageOAMData
+	ld a, [wLanguage]
+	add a
+	add a
+	add_hl
+	ld a, [wd898]
+	add a
+	add_hl
+	ld c, [hl] ; x
+	inc hl
+	ld b, [hl] ; num of OAM
+.loop_oam
+	push bc
+	ld e, $00
+	ld d, OAM_PRIO
+	ld b, 74 ; y
+	call Func_1393
+	pop bc
+	ld a, c
+	add 8
+	ld c, a
+	dec b
+	jr nz, .loop_oam
+	ret
+
+.LanguageOAMData:
+	db 96, 2, 48, 3 ; ENGLISH
+	db 96, 2, 48, 3 ; FRENCH
+	db 84, 4, 44, 2 ; GERMAN
+	db 92, 2, 52, 2 ; ITALIAN
+	db 92, 2, 52, 2 ; SPANISH
+; 0x9086
+
+SECTION "Func_909a", ROMX[$509a], BANK[$2]
+
+Pals_909a:
+	rgb  0,  0,  0
+	rgb 31, 24,  0
+	rgb 24, 18,  1
+	rgb 16, 12,  2
+
+Pals_90a2:
+	rgb  0,  0,  0
+	rgb 31,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
 
 Func_90aa::
 	ld a, [wGameMode]
@@ -2301,6 +2433,7 @@ Func_90aa::
 	ld [hl], e ; wd54f
 	inc hl
 	ld [hl], d
+
 	ld hl, Func_9102
 	ld c, BANK(Func_9102)
 	ld b, $15
@@ -2323,10 +2456,10 @@ Func_9102:
 	call PlaySFX
 	jp ExitTitlescreenOrMainScreen
 .asm_9119
-	call .Func_911e
+	call Func_911e
 	jr .loop
 
-.Func_911e:
+Func_911e:
 	ld a, [wTextLine]
 	cp $09
 	ret c
@@ -4571,6 +4704,7 @@ Func_9e6c:
 	call YieldEntityUpdate
 	ld bc, $c00
 	call FillBGMap1
+
 	ld a, BANK(Func_9c91)
 	ld de, Func_9c91
 	ld hl, wd54e
@@ -4578,6 +4712,7 @@ Func_9e6c:
 	ld [hl], e
 	inc hl
 	ld [hl], d
+
 	ld de, Func_9a2c
 	ld hl, wMenuUpdateFunc
 	ld [hl], e
@@ -4625,13 +4760,15 @@ Func_9eb2:
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld a, $02
-	ld de, $60a3
+
+	ld a, BANK(Func_a0a3)
+	ld de, Func_a0a3
 	ld hl, wd54e
 	ld [hli], a
 	ld [hl], e
 	inc hl
 	ld [hl], d
+
 	ld a, [wMission]
 	and a
 	jr nz, .asm_9f15
@@ -4656,7 +4793,7 @@ Func_9eb2:
 .asm_9f32
 	ld a, $01
 	ld [wdc2f], a
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	xor a
 	ld [wdc2f], a
@@ -4856,9 +4993,45 @@ Func_a096:
 	ld de, v0Tiles1
 	ld b, 44 ; tiles
 	jp SafeCopyFarTiles
-; 0xa0a3
 
-SECTION "LoadMissionCodeOAM", ROMX[$60e2], BANK[$2]
+Func_a0a3:
+	call Func_9d1a
+	ld a, [wdbfa]
+	and a
+	ret z
+
+	ld hl, wMissionCode
+	lb bc, 56, 36
+	call LoadMissionCodeOAM
+
+	ld a, [wdc2c]
+	and a
+	ret z
+	ld a, [wc57a]
+	and $04
+	ret z
+	ld a, [wMainMenuEntry]
+	add a
+	add a
+	add a
+	ld c, a
+	add a
+	add c
+	add $0c
+	ld c, a
+	ld b, 72
+	ld e, $a8
+	ld d, 6
+	push bc
+	call Func_1393
+	pop bc
+	ld a, c
+	add $08
+	ld c, a
+	ld e, $aa
+	ld d, 6
+	call Func_1393
+	ret
 
 ; input:
 ; - hl = mission code
@@ -5070,7 +5243,7 @@ Func_a1c5:
 	ld a, $01
 	ld [wdbfa], a
 .asm_a216
-	ld a, $01
+	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wJoypadPressed]
 	and PAD_B

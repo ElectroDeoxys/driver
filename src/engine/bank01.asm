@@ -6,20 +6,19 @@ Func_4000::
 	ld a, $00
 	ld [wd83f], a
 
-	ld a, [wd828 + 0]
+	ld a, [wPlayerCarSpawnX + 0]
 	ld c, a
-	ld a, [wd828 + 1]
+	ld a, [wPlayerCarSpawnX + 1]
 	ld b, a
-	ld a, [wd82a + 0]
+	ld a, [wPlayerCarSpawnY + 0]
 	ld e, a
-	ld a, [wd82a + 1]
+	ld a, [wPlayerCarSpawnY + 1]
 	ld d, a
-
 	ld hl, wPlayerCar
 	ld a, [hli]
 	ld h, [hl] ; wPlayerCarOBPal
 	ld l, a
-	ld a, [wd82c]
+	ld a, [wPlayerCarSpawnDir]
 	call SpawnCar
 	; set it controlled by player
 	set CARFLAG_PLAYER_F, [hl] ; CARSTRUCT_FLAGS
@@ -36,16 +35,12 @@ Func_4000::
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 
-	; swap hl and de
-	push de
-	ld e, l
-	ld d, h
-	pop hl
+	swap_hl_de
 	ld a, CARSTRUCT_ENT_PTR
 	call SetStructWord_DE
 
 	call Func_1124
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 
 	jp Func_3047
@@ -346,7 +341,7 @@ Func_4258:
 	xor a
 .asm_4268
 	ld b, a
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_C
 	pop hl
 	ret
@@ -422,16 +417,16 @@ Func_42ab:
 Func_42b8:
 	push hl
 	call GetCarCoordinates
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	jr Func_42ce
 
 Func_42c3:
 	push hl
 	call GetCarCoordinates
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
-	add $80
+	add 180 deg
 Func_42ce:
 	ld l, a
 	call Random
@@ -499,9 +494,9 @@ Func_42e1::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wd7fd + 0]
+	ld a, [wCameraY + 0]
 	ld e, a
-	ld a, [wd7fd + 1]
+	ld a, [wCameraY + 1]
 	ld d, a
 	call HLMinusDE
 	bit 7, h
@@ -515,9 +510,9 @@ Func_42e1::
 	add_hl
 .asm_4344
 	ld a, l
-	ld [wd7f9], a
+	ld [wd7f9 + 0], a
 	ld a, h
-	ld [wd7fa], a
+	ld [wd7f9 + 1], a
 .asm_434c
 	ld a, [wd80a]
 	and a
@@ -530,9 +525,9 @@ Func_42e1::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wd7ff + 0]
+	ld a, [wCameraX + 0]
 	ld e, a
-	ld a, [wd7ff + 1]
+	ld a, [wCameraX + 1]
 	ld d, a
 	call HLMinusDE
 	bit 7, h
@@ -556,17 +551,17 @@ Func_42e1::
 
 Func_4382:
 	call Func_43bb
-	ld hl, wd7fd
+	ld hl, wCameraY
 	call Func_43ac
 	ld a, l
 	ld [wd809], a
 	ld a, c
-	ld [wd7f9], a
+	ld [wd7f9 + 0], a
 	ld a, b
-	ld [wd7fa], a
+	ld [wd7f9 + 1], a
 	ld b, d
 	ld c, e
-	ld hl, wd7ff
+	ld hl, wCameraX
 	call Func_43ac
 	ld a, l
 	ld [wd80a], a
@@ -794,7 +789,7 @@ Func_44dd:
 	inc a
 	ld c, a
 .got_abs_speed
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	add c
 	ld c, a
@@ -842,7 +837,7 @@ Func_4531:
 
 ; turning left
 	push hl
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 .asm_4552
 	dec [hl]
@@ -857,7 +852,7 @@ Func_4531:
 
 .turning_right
 	push hl
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 .asm_4561
 	inc [hl]
@@ -871,7 +866,7 @@ Func_4531:
 	ret
 
 .asm_456c
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	and $0f
 	ret z
@@ -1131,7 +1126,7 @@ Func_469c:
 	jp PlaySFX
 
 Func_4733:
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_C
 	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_B
@@ -1142,7 +1137,7 @@ Func_4733:
 	inc a
 	ld b, a
 	ld a, c
-	add $80
+	add 180 deg
 	ld c, a
 .asm_4749
 	ld a, CARSTRUCT_0F
@@ -1647,6 +1642,7 @@ Func_49fc:
 	jr .asm_4a29
 
 ; input:
+; - a  = direction
 ; - bc = x coordinate
 ; - de = y coordinate
 Func_4a3d:
@@ -1657,6 +1653,7 @@ Func_4a3d:
 	jr Func_4a51
 
 ; input:
+; - a  = direction
 ; - bc = x coordinate
 ; - de = y coordinate
 Func_4a48:
@@ -1694,10 +1691,7 @@ Func_4a51:
 	jr c, .asm_4a83
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
-	push de
-	ld e, l
-	ld d, h
-	pop hl
+	swap_hl_de
 	ld a, ENT_UNK23
 	call SetStructWord_DE
 	and a
@@ -1706,11 +1700,11 @@ Func_4a51:
 	ld h, d
 	ld l, e
 .asm_4a85
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call GetStructWord_DE
 	xor a
 	ld [hl], a ; CARSTRUCT_FLAGS
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_FLAGS
 	scf
 	ret
 
@@ -1754,9 +1748,8 @@ Func_4abc:
 	ret z
 	ld a, $01
 	call Func_4b41
-	ld a, $00
+	ld a, 0 deg
 	ret
-
 Func_4ac8:
 	call Func_4ba9
 	jr Func_4abc
@@ -1768,9 +1761,8 @@ Func_4ad0:
 	ret z
 	ld a, $02
 	call Func_4b09
-	ld a, $40
+	ld a, 90 deg
 	ret
-
 Func_4adc:
 	call Func_4b79
 	jr Func_4ad0
@@ -1782,9 +1774,8 @@ Func_4ae4:
 	ret z
 	ld a, $04
 	call Func_4b41
-	ld a, $80
+	ld a, 180 deg
 	ret
-
 Func_4af0:
 	call Func_4b99
 	jr Func_4ae4
@@ -1796,9 +1787,8 @@ Func_4af8:
 	ret z
 	ld a, $08
 	call Func_4b09
-	ld a, $c0
+	ld a, 270 deg
 	ret
-
 Func_4b04:
 	call Func_4b89
 	jr Func_4af8
@@ -1972,12 +1962,12 @@ Func_4bb9:
 	ret
 
 Func_4bee:
-	ld hl, wd7ff
+	ld hl, wCameraX
 	ld a, [hli]
 	and $f8
 	ld c, a
 	ld b, [hl]
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld a, [hli]
 	and $f8
 	ld e, a
@@ -2098,7 +2088,7 @@ Func_4c9f:
 	ld hl, wda56
 	call .Func_4cbd
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call GetStructWord_DE
 	xor a
 	ld [de], a
@@ -2432,8 +2422,8 @@ Data_4dc7:
 
 Func_4ec7:
 	call GetEntityCarPtr
-	ld c, $00
-	ld a, CARSTRUCT_0C
+	ld c, 0 deg
+	ld a, CARSTRUCT_DIR
 	call SetStructByte_C
 .asm_4ed1
 	call GetCarCoordinates
@@ -2597,8 +2587,8 @@ Func_4ec7:
 
 Func_4fe8:
 	call GetEntityCarPtr
-	ld c, $80
-	ld a, CARSTRUCT_0C
+	ld c, 180 deg
+	ld a, CARSTRUCT_DIR
 	call SetStructByte_C
 .asm_4ff2
 	call GetCarCoordinates
@@ -2769,8 +2759,8 @@ Func_4fe8:
 
 Func_5110:
 	call GetEntityCarPtr
-	ld c, $40
-	ld a, CARSTRUCT_0C
+	ld c, 90 deg
+	ld a, CARSTRUCT_DIR
 	call SetStructByte_C
 .asm_511a
 	call GetCarCoordinates
@@ -2944,8 +2934,8 @@ Func_5110:
 
 Func_523b:
 	call GetEntityCarPtr
-	ld c, $c0
-	ld a, CARSTRUCT_0C
+	ld c, 270 deg
+	ld a, CARSTRUCT_DIR
 	call SetStructByte_C
 .asm_5245
 	call GetCarCoordinates
@@ -3284,6 +3274,7 @@ Func_5431:
 	res 6, [hl]
 	ret
 
+; ticks down wda9c
 Func_5471::
 	ld hl, wda9c
 	ld a, [hl]
@@ -3414,7 +3405,7 @@ Func_551b:
 	push hl
 	ld a, [wda5a]
 	add a
-	ld hl, $55c3
+	ld hl, .PtrTable_55c3
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -3423,9 +3414,118 @@ Func_551b:
 .asm_553f
 	pop bc
 	ret
-; 0x5541
 
-SECTION "Func_55e3", ROMX[$55e3], BANK[$1]
+.Func_5541:
+	pop bc
+	ld a, [wda5d]
+	and a
+	ret nz
+	ld a, $01
+	ld [wda5d], a
+	ret
+
+.Func_554d:
+	pop bc
+	ld a, [wda5d]
+	cp $02
+	ret nc
+	ld a, $02
+	ld [wda5d], a
+	ret
+
+.Func_555a:
+	pop bc
+	ld a, $03
+	ld [wda5d], a
+	ret
+
+.Func_5561:
+	pop hl
+	jr .asm_553f
+
+.Func_5564:
+	pop hl
+	ld a, c
+	cp $0b
+	jr nc, .asm_553f
+	call .Func_55b6
+	and $05
+	jr z, .asm_5576
+	ld a, c
+	cp $07
+	jr nc, .asm_553f
+.asm_5576
+	ld a, b
+	cp $28
+	jr nc, .asm_553f
+	cp $19
+	jr c, .Func_554d
+	jr .Func_5541
+
+.Func_5581:
+	pop hl
+	ld a, b
+	cp $0b
+	jr nc, .asm_553f
+	call .Func_55b6
+	and $0a
+	jr z, .asm_5593
+	ld a, b
+	cp $07
+	jr nc, .asm_553f
+.asm_5593
+	ld a, c
+	cp $28
+	jr nc, .asm_553f
+	cp $19
+	jr c, .Func_554d
+	jr .Func_5541
+
+.Func_559e:
+	pop hl
+	ld a, c
+	cp $10
+	jr nc, .asm_553f
+	ld a, b
+	cp $10
+	jr nc, .asm_553f
+	push hl
+	ld a, $14
+	add_hl
+	ld a, [wda59]
+	and [hl]
+	pop hl
+	jr z, .asm_553f
+	jr .Func_555a
+
+.Func_55b6:
+	push de
+	ld a, $0c
+	add_de
+	ld a, [de]
+	and $3f
+	pop de
+	jp z, Func_2707
+	xor a
+	ret
+
+.PtrTable_55c3:
+	dw .Func_5561
+	dw .Func_5564
+	dw .Func_5581
+	dw .Func_559e
+	dw .Func_5564
+	dw .Func_5561
+	dw .Func_559e
+	dw .Func_5561
+	dw .Func_5581
+	dw .Func_559e
+	dw .Func_5561
+	dw .Func_5561
+	dw .Func_559e
+	dw .Func_5561
+	dw .Func_5561
+	dw .Func_5561
 
 Func_55e3:
 	push hl
@@ -3460,7 +3560,7 @@ Func_55f4:
 	ret
 
 ; input:
-; - a  = ?
+; - a  = direction
 ; - bc = x coordinate
 ; - de = y coordinate
 SpawnCivilianCar:
@@ -3491,7 +3591,7 @@ SpawnCivilianCar:
 	ret c
 	call Func_1124
 	jr c, .asm_563c
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
 	call Func_5643
@@ -3510,7 +3610,7 @@ SpawnCivilianCar:
 Func_5643:
 	call Random
 	and $07
-	ld de, $565a
+	ld de, .data
 	add_de
 	ld a, [de]
 	ld b, a
@@ -3519,11 +3619,12 @@ Func_5643:
 	ld a, ENT_UNK0D
 	ld c, $00
 	jp SetStructWord_BC
-; 0x565a
 
-SECTION "SpawnNPCCopCar", ROMX[$5662], BANK[$1]
+.data
+	db $20, $20, $20, $18, $18, $28, $28, $10
 
 ; input:
+; - a  = direction
 ; - bc = x coordinate
 ; - de = y coordinate
 SpawnNPCCopCar:
@@ -3534,7 +3635,7 @@ SpawnNPCCopCar:
 	set CARFLAG_UNK2_F, [hl]
 	call Func_1124
 	jr c, .asm_567e
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
 	call Func_5643
@@ -3548,7 +3649,7 @@ Func_5681:
 	push hl
 	push af
 	call Func_2558
-	ld hl, $5693
+	ld hl, .data
 	add_hl
 	ld a, [hl]
 	ld [wda58], a
@@ -3557,9 +3658,9 @@ Func_5681:
 	and l
 	pop hl
 	ret
-; 0x5693
 
-SECTION "Func_56a2", ROMX[$56a2], BANK[$1]
+.data
+	db $00, $00, $00, $01, $02, $04, $08, $03, $09, $06, $0c, $11, $12, $14, $18
 
 Func_56a2:
 	push hl
@@ -3799,16 +3900,13 @@ Func_5805::
 	ld d, h
 	ld e, l
 	call Func_1591
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
-	push de
-	ld e, l
-	ld d, h
-	pop hl
-	ld a, $23
+	swap_hl_de
+	ld a, CARSTRUCT_ENT_PTR
 	call SetStructWord_DE
-	ld bc, NULL
-	ld a, $0d
+	ld bc, 0
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
 	call Func_58e2
 	ld hl, wda55
@@ -3821,7 +3919,7 @@ Func_5805::
 	ld a, [wda7b]
 	and a
 	jr z, .asm_583a
-	ld hl, $5866
+	ld hl, .data
 	ld a, [hli]
 	ld [wd833], a
 	ld a, [hli]
@@ -3835,9 +3933,9 @@ Func_5805::
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
 	jp Func_157f
-; 0x5866
 
-SECTION "Func_586a", ROMX[$586a], BANK[$1]
+.data
+	db $04, $1c, $10, $0e
 
 Func_586a:
 	bit 2, [hl]
@@ -3875,7 +3973,7 @@ Func_589b:
 	ret nz
 	call GetCarCoordinates
 	push hl
-	ld hl, wd7fd
+	ld hl, wCameraY
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -3892,7 +3990,7 @@ Func_589b:
 	ld a, l
 	cp $80
 	jr nc, .asm_58e0
-	ld hl, wd7ff
+	ld hl, wCameraX
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -3919,17 +4017,17 @@ Func_589b:
 
 Func_58e2:
 	ld a, [hl]
-	and $8f
-	or $80
+	and ~(CARFLAG_UNK4 | CARFLAG_UNK5 | CARFLAG_UNK6)
+	or CARFLAG_UNK7
 	ld [hl], a
-	ld a, $01
+	ld a, CARSTRUCT_01
 	call GetStructByte_A
 	cp $01
 	ret nz
-	ld a, $25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call GetStructWord_DE
 	ld a, [de]
-	or $80
+	or SPRITEFLAG_UNK7
 	ld [de], a
 	ret
 ; 0x58fa
@@ -4375,7 +4473,7 @@ Func_5bce::
 	ld [wdc86], a
 	ld a, [hli]
 	ld [wdc88], a
-	ld a, [hli]
+	ld a, [hli] ; direction
 	ld c, [hl] ; x
 	inc hl
 	ld b, [hl]
@@ -4401,25 +4499,22 @@ Func_5bce::
 	pop de
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
-	push de
-	ld e, l
-	ld d, h
-	pop hl
-	ld a, ENT_UNK23
+	swap_hl_de
+	ld a, CARSTRUCT_ENT_PTR
 	call SetStructWord_DE
 	call Func_1124
-	ld a, CARSTRUCT_25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
 	pop de
 	ld a, [wdc88]
 	ld b, a
-	ld c, $00
-	ld a, ENT_UNK0D
+	ld c, 0
+	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
 	ld a, [wdc86]
 	ld c, a
-	ld a, ENT_UNK15
+	ld a, CARSTRUCT_15
 	call SetStructByte_C
 	ret
 
@@ -4548,7 +4643,7 @@ Func_5c32:
 	ld c, $20
 	call SetStructByte_C
 	push hl
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	pop hl
@@ -4610,7 +4705,7 @@ Func_5c32:
 	jr z, .asm_5d91
 	call Func_2747
 	ld c, a
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	sub c
 	ld b, $fc
@@ -4661,7 +4756,7 @@ Func_5c32:
 	ret
 
 .Func_5daa:
-	ld a, CARSTRUCT_0C
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	call Func_5dfd
@@ -6002,7 +6097,7 @@ Func_6620:
 	ld l, e
 	push hl
 	ld a, [hl]
-	or WDC32FLAG_UNK1 | WDC32FLAG_UNK2
+	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
 	ld [hl], a
 	ld a, $07
 	add_hl
@@ -6532,8 +6627,8 @@ Func_6985:
 	ld a, MIAMI
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, $7eb2
-	call Func_1a2e
+	ld hl, Data_7eb2
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6997:
@@ -6657,8 +6752,8 @@ Func_6a6a:
 	ld [wPlayerCar], a
 	ld a, OBPAL_RED
 	ld [wPlayerCarOBPal], a
-	ld hl, $7ec9
-	call Func_1a2e
+	ld hl, Data_7ec9
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6a83:
@@ -6703,7 +6798,7 @@ Func_6ad5:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7ed2
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6ae7:
@@ -6771,7 +6866,7 @@ Func_6b0c:
 	jp SetMissionComplete
 
 .Func_6b73:
-	ld hl, $6bb3
+	ld hl, .data
 	ld de, wdc7a
 	ld b, $08
 	call CopyHLtoDE
@@ -6804,9 +6899,9 @@ Func_6b0c:
 .asm_6bad
 	ld hl, TooLateTexts
 	jp SetMissionFailed
-; 0x6bb3
 
-SECTION "Data_6bbb", ROMX[$6bbb], BANK[$1]
+.data
+	db $08, $14, $40, $00, $a0, $13, $40, $00
 
 Func_6bbb:
 	call Func_1591
@@ -6839,7 +6934,7 @@ Func_6bbb:
 	pop hl
 	push hl
 	ld a, [hl]
-	or WDC32FLAG_UNK1 | WDC32FLAG_UNK2
+	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
 	ld [hli], a
 	xor a
 	ld [hli], a
@@ -7050,7 +7145,7 @@ Func_6bbb:
 	add_hl
 	ld d, h
 	ld e, l
-	ld hl, $6e03
+	ld hl, .Data_6e03
 	ld a, [wda7e]
 	add a
 	add a
@@ -7097,7 +7192,7 @@ Func_6bbb:
 	and $0f
 	add a
 	add a
-	ld hl, $6dbb
+	ld hl, .Data_6dbb
 	add_hl
 	ld a, [hli]
 	ld [de], a
@@ -7121,7 +7216,7 @@ Func_6bbb:
 
 .Func_6d95:
 	push hl
-	ld hl, $6dfb
+	ld hl, .Data_6dfb
 	ld de, wdc7a
 	ld b, $08
 	call CopyHLtoDE
@@ -7147,9 +7242,47 @@ Func_6bbb:
 	add_bc
 	pop hl
 	ret
-; 0x6dbb
 
-SECTION "Data_6e49", ROMX[$6e49], BANK[$1]
+.Data_6dbb:
+	dw $0ac8, $0aca
+	dw $0acc, $0ace
+	dw $0ad0, $0ad2
+	dw $0ad4, $0ad6
+	dw $0ad8, $0ada
+	dw $4ad4, $4ad6
+	dw $4ad0, $4ad2
+	dw $4acc, $4ace
+	dw $4ac8, $4aca
+	dw $6ace, $6acc
+	dw $6ad2, $6ad0
+	dw $6ad6, $6ad4
+	dw $2ada, $2ad8
+	dw $2ad6, $2ad4
+	dw $2ad2, $2ad0
+	dw $2ace, $2acc
+
+.Data_6dfb:
+	db $98, $0f, $80, $00, $5e, $0e, $40, $00
+
+.Data_6e03:
+	dw $10b0, $1030
+	dw $0fc0, $1030
+	dw $0f78, $0ee0
+	dw $1004, $0e5e
+	dw $12f4, $0e5e
+	dw $12e4, $0ede
+	dw $12e4, $107e
+	dw $1334, $109e
+	dw $1334, $10fe
+	dw $12f4, $117e
+	dw $12e4, $11fe
+	dw $12e4, $12be
+	dw $12d4, $1334
+	dw $1334, $1374
+	dw $13ac, $1374
+	dw $13ac, $12b4
+	dw $14ca, $12b7
+	dw NULL
 
 Func_6e49:
 	call Func_1972
@@ -7157,7 +7290,7 @@ Func_6e49:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7ee1
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6e5b:
@@ -7261,7 +7394,7 @@ Func_6f05:
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
 	ld hl, $7f01
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6f1e:
@@ -7313,7 +7446,7 @@ Func_6f7b:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7f0c
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6f8d:
@@ -7507,10 +7640,7 @@ Func_70d8:
 Func_70eb:
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
-	push de
-	ld e, l
-	ld d, h
-	pop hl
+	swap_hl_de
 	ld a, CARSTRUCT_ENT_PTR
 	jp SetStructWord_DE
 
@@ -7527,11 +7657,11 @@ Func_70f9:
 	inc hl
 	ld d, [hl]
 	inc hl
-	ld a, [hl]
+	ld a, [hl] ; direction
 	pop hl
 	call SpawnCar
 	call Func_1124
-	ld a, $25
+	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
 	ld a, [wda56]
@@ -7545,7 +7675,7 @@ Func_711a:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7f1c
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_712c:
@@ -7639,7 +7769,7 @@ Func_71d2:
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
 	ld hl, $7f2c
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_71eb:
@@ -7713,7 +7843,7 @@ Func_725e:
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
 	ld hl, $7f35
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7277:
@@ -7803,7 +7933,7 @@ Func_7331:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7f4c
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7343:
@@ -7943,7 +8073,7 @@ Func_7460:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7f71
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7475:
@@ -8146,7 +8276,7 @@ Func_764a:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7f8c
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_765c:
@@ -8286,7 +8416,7 @@ Func_775c:
 	call SetCity
 	call SetDefaultPlayerCar
 	ld hl, $7fa0
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_776e:
@@ -8442,7 +8572,7 @@ Func_7875:
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
 	ld hl, $7fa7
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_788e:
@@ -8568,7 +8698,7 @@ Func_796b:
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
 	ld hl, $7fb7
-	call Func_1a2e
+	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7984:
@@ -9126,46 +9256,80 @@ Data_7d05::
 SECTION "Data_7e07", ROMX[$7e07], BANK[$1]
 
 Data_7e07::
-	dw $7e13, $7e23 ; MIAMI
-	dw $7e33, $7e43 ; LOS_ANGELES
-	dw $7e53, $7e63 ; NEW_YORK
+	dw .Miami_1,      .Miami_2      ; MIAMI
+	dw .LosAngeles_1, .LosAngeles_2 ; LOS_ANGELES
+	dw .NewYork_1,    .NewYork_2    ; NEW_YORK
 
-	db $00, $1e, $b0, $11, $00
-	dw Pals_f644 palette 7 ; palette
-	db BROWN_CAR ; car
-	db $01, $32, $00, $c0, $00, $1e, $74, $11
+.Miami_1:
+	dw 7680, 4528 ; player coordinates
+	db 0 deg ; player direction
+	dw Pals_f644 palette 7 ; target palette
+	db BROWN_CAR ; target car
+	db OBPAL_VAR ; target pal ID
+	db $32, $00
+	db 270 deg ; target direction
+	dw 7680, 4468 ; target coordinates
 
-	db $30, $0d, $a8, $11, $c0
-	dw NULL ; palette
-	db RED_CAR ; car
-	db $02, $32, $00, $80, $f4, $0c, $84, $11
+.Miami_2:
+	dw 3376, 4520 ; player coordinates
+	db 270 deg ; player direction
+	dw NULL ; target palette
+	db RED_CAR ; target car
+	db OBPAL_RED ; target pal ID
+	db $32, $00
+	db 180 deg ; target direction
+	dw 3316, 4484 ; target coordinates
 
-	db $cc, $08, $32, $0a, $40
-	dw NULL ; palette
-	db LIMOUSINE ; car
-	db $04, $32, $00, $80, $0c, $09, $54, $0a
+.LosAngeles_1:
+	dw 2252, 2610 ; player coordinates
+	db 90 deg ; player direction
+	dw NULL ; target palette
+	db LIMOUSINE ; target car
+	db OBPAL_BROWN ; target pal ID
+	db $32, $00
+	db 180 deg ; target direction
+	dw 2316, 2644 ; target coordinates
 
-	db $0c, $0f, $58, $02, $80
-	dw NULL ; palette
-	db RED_CAR ; car
-	db $00, $32, $00, $80, $0c, $0f, $94, $02
+.LosAngeles_2:
+	dw 3852, 600 ; player coordinates
+	db 180 deg ; player direction
+	dw NULL ; target palette
+	db RED_CAR ; target car
+	db OBPAL_BLACK ; target pal ID
+	db $32, $00
+	db 180 deg ; target direction
+	dw 3852, 660 ; target coordinates
 
-	db $e8, $05, $40, $1c, $40
-	dw Pals_f644 palette 7 ; palette
-	db BROWN_CAR ; car
-	db $01, $32, $00, $80, $2c, $06, $40, $1c
+.NewYork_1:
+	dw 1512, 7232 ; player coordinates
+	db 90 deg ; player direction
+	dw Pals_f644 palette 7 ; target palette
+	db BROWN_CAR ; target car
+	db OBPAL_VAR ; target pal ID
+	db $32, $00
+	db 180 deg ; target direction
+	dw 1580, 7232 ; target coordinates
 
-	db $08, $11, $9c, $0c, $40
-	dw NULL ; palette
-	db LIMOUSINE ; car
-	db $00, $32, $00, $40, $58, $11, $94, $0c
+.NewYork_2:
+	dw 4360, 3228 ; player coordinates
+	db 90 deg ; player direction
+	dw NULL ; target palette
+	db LIMOUSINE ; target car
+	db OBPAL_BLACK ; target pal ID
+	db $32, $00
+	db 90 deg ; target direction
+	dw 4440, 3220 ; target coordinates
 ; 0x7e73
 
 SECTION "Timer_MissionTheBankJob", ROMX[$7ec7], BANK[$1]
 
 Timer_MissionTheBankJob:
 	dw $1_00
-; 0x7ec9
+
+Data_7ec9:
+	dw 7024, 80
+	db 0 deg
+; 0x7ece
 
 SECTION "Timer_MissionBoatChase", ROMX[$7edf], BANK[$1]
 
@@ -9197,27 +9361,31 @@ Timer_MissionTakeOutDiAngelo:
 	dw $1_30
 ; 0x7f2c
 
-SECTION "Data_7e88", ROMX[$7e88], BANK[$1]
+SECTION "TakeARideSpawnCoords", ROMX[$7e88], BANK[$1]
 
-Data_7e88::
+TakeARideSpawnCoords::
 	dw .Miami      ; MIAMI
 	dw .LosAngeles ; LOS_ANGELES
 	dw .NewYork    ; NEW_YORK
 
 .Miami:
 	dw 7472, 3248
-	db $c0
+	db 270 deg
 
 .LosAngeles:
 	dw 1056, 5928
-	db $00
+	db 0 deg
 
 .NewYork:
 	dw 1440, 7152
-	db $80
+	db 180 deg
 ; 0x7e9d
 
-SECTION "DestinationCoords_MissionTheBankJob_1", ROMX[$7eb7], BANK[$1]
+SECTION "Data_7eb2", ROMX[$7eb2], BANK[$1]
+
+Data_7eb2:
+	dw 3408, 6160
+	db 0 deg
 
 DestinationCoords_MissionTheBankJob_1:
 	dw 3440

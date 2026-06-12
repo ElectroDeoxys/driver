@@ -85,7 +85,7 @@ MACRO? entity_struct
 \1Unk56:: dw
 ENDM
 
-MACRO? wd551_struct
+MACRO? wSprites_struct
 \1OAMFlags:: db
 	ds $10
 ENDM

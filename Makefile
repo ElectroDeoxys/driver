@@ -99,7 +99,10 @@ src/gfx/new_york.2bpp: RGBGFX += --trim-end 3
 
 ### Interleaved gfx
 
+src/gfx/checkpoint.2bpp: tools/gfx += --interleave --png=$<
+src/gfx/go_123.2bpp: tools/gfx += --interleave --png=$<
 src/gfx/font_tall.2bpp: tools/gfx += --interleave --png=$<
+src/gfx/cars/%.2bpp: tools/gfx += --interleave --png=$<
 src/gfx/cars/pics/%.2bpp: tools/gfx += --interleave --png=$<
 
 ### Catch-all graphics rules
