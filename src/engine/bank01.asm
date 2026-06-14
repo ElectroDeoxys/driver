@@ -121,8 +121,8 @@ Func_40f4:
 	xor a
 	ld [wda5d], a
 	call Func_2f5f
-	ld b, $08
-	ld de, wd8eb
+	ld b, MAX_NUM_CARS
+	ld de, wCars
 .loop_cars
 	ld a, [de] ; CARSTRUCT_FLAGS
 	and CARFLAG_ACTIVE
@@ -1346,8 +1346,8 @@ Func_48a1:
 	ld [wda97], a
 	ld [wda98], a
 	ld [wda99], a
-	ld de, wd8eb
-	ld b, $08
+	ld de, wCars
+	ld b, MAX_NUM_CARS
 .asm_48b0
 	ld a, [de] ; CARSTRUCT_FLAGS
 	and CARFLAG_ACTIVE | CARFLAG_UNK2
@@ -1709,8 +1709,8 @@ Func_4a51:
 	ret
 
 Func_4a8f:
-	ld b, $08
-	ld de, wd8eb
+	ld b, MAX_NUM_CARS
+	ld de, wCars
 .loop_cars
 	push bc
 	ld a, [de] ; CARSTRUCT_FLAGS
@@ -2053,24 +2053,24 @@ PtrTable_4c6b:
 	dw Func_4adc
 
 Func_4c73:
-	bit 3, [hl]
+	bit CARFLAG_UNK3_F, [hl]
 	ret nz
 	call Func_270f
 	jr nz, .asm_4c83
 	push hl
-	ld a, $12
+	ld a, CARSTRUCT_12
 	add_hl
 	ld [hl], $00
 	pop hl
 	ret
 .asm_4c83
 	ld c, $5a
-	bit 2, [hl]
+	bit CARFLAG_UNK2_F, [hl]
 	jr z, .asm_4c8b
 	ld c, $78
 .asm_4c8b
 	push hl
-	ld a, $12
+	ld a, CARSTRUCT_12
 	add_hl
 	ld a, [hl]
 	inc a
@@ -3143,19 +3143,19 @@ Func_537b:
 Func_53a8:
 	call Func_26db
 	ld c, a
-	ld b, $08
-	ld de, wd8eb
-.asm_53b1
+	ld b, MAX_NUM_CARS
+	ld de, wCars
+.loop_cars
 	ld a, [de]
-	and $01
-	jr z, .asm_53ba
+	and CARFLAG_ACTIVE
+	jr z, .next_car
 	call Func_53c2
 	ret c
-.asm_53ba
-	ld a, $27
+.next_car
+	ld a, CAR_STRUCT_SIZE
 	add_de
 	dec b
-	jr nz, .asm_53b1
+	jr nz, .loop_cars
 	and a
 	ret
 
@@ -3241,7 +3241,7 @@ Func_53c2:
 
 Func_5431:
 	call Func_284b
-	call Func_298c
+	call AddToCarCoordinates
 	call Func_3047
 	ld a, 1
 	call YieldEntityUpdate
@@ -3324,16 +3324,17 @@ Func_54b3:
 	ld [wda5d], a
 	call Func_26db
 	ld c, a
-	ld de, wd8eb
-	ld b, $08
-.asm_54c0
+	ld de, wCars
+	ld b, MAX_NUM_CARS
+.loop_cars
 	ld a, [de]
-	and $01
+	and CARFLAG_ACTIVE
 	call nz, Func_551b
-	ld a, $27
+	ld a, CAR_STRUCT_SIZE
 	add_de
 	dec b
-	jr nz, .asm_54c0
+	jr nz, .loop_cars
+
 	ld a, [wda5d]
 	and a
 	ret z
@@ -3797,7 +3798,7 @@ Func_56db:
 
 .Func_5777:
 	call Func_2877
-	jp Func_298c
+	jp AddToCarCoordinates
 
 .Func_577d:
 	push hl
@@ -3832,33 +3833,33 @@ Func_56db:
 	xor a
 	ld [wda5d], a
 	call Func_2f5f
-	ld b, $08
-	ld de, wd8eb
-.asm_57b4
+	ld b, MAX_NUM_CARS
+	ld de, wCars
+.loop_cars
 	ld a, [de]
-	and $01
-	jr z, .asm_57d1
+	and CARFLAG_ACTIVE
+	jr z, .next_car
 	ld a, h
 	cp d
 	jr nz, .asm_57bf
 	ld a, l
 	cp e
 .asm_57bf
-	jr z, .asm_57d1
+	jr z, .next_car
 	ld a, [de]
 	bit 1, a
-	jr nz, .asm_57d1
+	jr nz, .next_car
 	bit 4, a
 	jr nz, .asm_57ce
 	and $80
-	jr nz, .asm_57d1
+	jr nz, .next_car
 .asm_57ce
 	call Func_57df
-.asm_57d1
-	ld a, $27
+.next_car
+	ld a, CAR_STRUCT_SIZE
 	add_de
 	dec b
-	jr nz, .asm_57b4
+	jr nz, .loop_cars
 	ld a, [wda5d]
 	and a
 	ret z
@@ -4372,9 +4373,9 @@ Func_5b25:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, CARSTRUCT_06
+	ld a, CARSTRUCT_COORDS
 	add_hl
-	ld de, wda29
+	ld de, wda23Coords
 	ld b, $06
 	call CopyHLtoDE
 
@@ -4394,7 +4395,7 @@ Func_5b25:
 	ld b, h
 	ld c, l
 	ld hl, wda23
-	call Func_298c
+	call AddToCarCoordinates
 	pop hl
 	ld de, wda23
 	jp Func_27e5
@@ -4409,16 +4410,16 @@ Func_5b7a:
 	xor a
 	ld [wda5d], a
 	call Func_2f5f
-	ld de, wd8eb
-	ld b, $08
+	ld de, wCars
+	ld b, MAX_NUM_CARS
 .asm_5b86
 	ld a, [de]
-	and $01
+	and CARFLAG_ACTIVE
 	jr z, .asm_5b9f
 	bit 3, [hl]
 	jr nz, .asm_5b94
 	ld a, [de]
-	and $02
+	and CARFLAG_PLAYER
 	jr nz, .asm_5b9f
 .asm_5b94
 	ld a, h
@@ -4430,7 +4431,7 @@ Func_5b7a:
 	jr z, .asm_5b9f
 	call .Func_5baa
 .asm_5b9f
-	ld a, $27
+	ld a, CAR_STRUCT_SIZE
 	add_de
 	dec b
 	jr nz, .asm_5b86
@@ -4829,9 +4830,9 @@ Func_5dfd:
 
 .Func_5e29:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_06
+	ld a, CARSTRUCT_COORDS
 	add_hl
-	ld de, wda29
+	ld de, wda23Coords
 	ld b, $06
 	jp CopyHLtoDE
 
@@ -4841,14 +4842,14 @@ Func_5dfd:
 	ld c, a
 	ld a, [wdc7c + 1]
 	ld b, a
-	ld a, $09
-	call Func_146c
+	ld a, CARSTRUCT_X_FRAC
+	call AddBCToStructField
 	ld a, [wdc7e]
 	ld c, a
 	ld a, [wdc7f]
 	ld b, a
-	ld a, $06
-	jp Func_146c
+	ld a, CARSTRUCT_Y_FRAC
+	jp AddBCToStructField
 
 .Func_5e54:
 	ld [wdc7a], a
@@ -5024,9 +5025,9 @@ Func_5f27::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, CARSTRUCT_06
+	ld de, CARSTRUCT_COORDS
 	add hl, de
-	ld de, wda29
+	ld de, wda23Coords
 	ld b, $06
 .asm_5f86
 	ld a, [hli]
@@ -5038,7 +5039,7 @@ Func_5f27::
 	call Func_2dd5
 	xor a
 	ld [wda59], a
-	ld hl, wda2a
+	ld hl, wda23Y
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -5063,7 +5064,7 @@ Func_5f27::
 .asm_5fb7
 	ld d, h
 	ld e, l
-	ld hl, wda2d
+	ld hl, wda23X
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -5142,7 +5143,7 @@ Func_5f27::
 	ld d, h
 	ld e, $00
 	ld hl, wda23
-	call Func_298c
+	call AddToCarCoordinates
 	call GetCarCoordinates
 	pop af
 	swap a
@@ -5175,7 +5176,7 @@ Func_5f27::
 	ld [wdc7a], a
 	push bc
 	call Func_2dd5
-	ld hl, wda2a
+	ld hl, wda23Y
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -5426,7 +5427,7 @@ Func_6186:
 	push de
 	ld d, h
 	ld e, l
-	ld a, CARSTRUCT_09
+	ld a, CARSTRUCT_X_FRAC
 	add_de
 	ld a, CARSTRUCT_10
 	call GetStructByte_A
@@ -5443,11 +5444,11 @@ Func_6186:
 	push bc
 	push de
 	push de
-	ld a, $01
-	call Func_146c
+	ld a, CARSTRUCT_01
+	call AddBCToStructField
 	pop bc
-	ld a, $04
-	call Func_146c
+	ld a, CARSTRUCT_04
+	call AddBCToStructField
 	pop de
 	pop bc
 	ret
@@ -5621,11 +5622,11 @@ Func_632a:
 	push bc
 	push de
 	push de
-	ld a, $01
-	call Func_146c
+	ld a, CARSTRUCT_01
+	call AddBCToStructField
 	pop bc
-	ld a, $04
-	call Func_146c
+	ld a, CARSTRUCT_04
+	call AddBCToStructField
 	pop de
 	pop bc
 	ret
@@ -5768,12 +5769,12 @@ Func_6398:
 	pop bc
 	call Func_2998
 	call GetEntityCarPtr
-	ld a, $01
+	ld a, CARSTRUCT_01
 	push de
-	call Func_146c
+	call AddBCToStructField
 	pop bc
-	ld a, $04
-	jp Func_146c
+	ld a, CARSTRUCT_04
+	jp AddBCToStructField
 
 .Func_6409:
 	call GetEntityCarPtr
@@ -5796,9 +5797,9 @@ Func_6398:
 	add a
 	add $c8
 	ld c, a
-	ld a, CARSTRUCT_10 - CARSTRUCT_09
+	ld a, CARSTRUCT_10 - CARSTRUCT_X_FRAC
 	sub_hl
-	ld [hl], c ; CARSTRUCT_09
+	ld [hl], c ; CARSTRUCT_X_FRAC
 	inc hl
 	ld [hl], $0b
 	ret
@@ -6464,13 +6465,13 @@ Func_6879:
 
 GetDistanceToDestination:
 	ld hl, wDestinationCoords
-	ld de, wda2d
+	ld de, wda23X
 	ld a, [hli] ; wDestinationX
 	ld [de], a
 	inc de
 	ld a, [hli]
 	ld [de], a
-	ld de, wda2a
+	ld de, wda23Y
 	ld a, [hli] ; wDestinationY
 	ld [de], a
 	inc de
@@ -6884,7 +6885,7 @@ Func_6b0c:
 	ld l, a
 	ld a, $01
 	add_hl
-	ld de, wda29
+	ld de, wda23Coords
 	ld b, $06
 	call CopyHLtoDE
 	ld hl, wPlayerCarPtr
@@ -7040,10 +7041,10 @@ Func_6bbb:
 	call Func_29ea
 	call GetEntityCarPtr
 	push de
-	ld a, $01
+	ld a, CARSTRUCT_01
 	call .Func_6cb0
 	pop bc
-	ld a, $04
+	ld a, CARSTRUCT_04
 .Func_6cb0:
 	push af
 	push hl
@@ -7051,7 +7052,7 @@ Func_6bbb:
 	call Func_2998
 	pop hl
 	pop af
-	jp Func_146c
+	jp AddBCToStructField
 
 .Func_6cbd:
 	ld de, wda7d
@@ -7184,7 +7185,7 @@ Func_6bbb:
 	set CARFLAG_PLAYER_F, [hl]
 	ld d, h
 	ld e, l
-	ld a, CARSTRUCT_09
+	ld a, CARSTRUCT_X_FRAC
 	add_de
 	ld a, [wda7c]
 	add $08
@@ -7599,7 +7600,7 @@ Func_6fa9:
 
 Func_70af:
 	call Func_2dd5
-	ld hl, wda2a
+	ld hl, wda23Y
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -8380,34 +8381,34 @@ Func_7681:
 	cp c
 .asm_7723
 	ret c
-	ld hl, wd8eb
-	ld b, $08
-	ld de, $27
-.asm_772c
+	ld hl, wCars
+	ld b, MAX_NUM_CARS
+	ld de, CAR_STRUCT_SIZE
+.loop_cars
 	ld a, [wda55]
 	cp $03
 	ret nc
-	bit 0, [hl]
-	jr z, .asm_7757
+	bit CARFLAG_ACTIVE_F, [hl]
+	jr z, .next_car
 	ld a, [hl]
-	and $1e
-	jr nz, .asm_7757
+	and CARFLAG_PLAYER | CARFLAG_UNK2 | CARFLAG_UNK3 | CARFLAG_UNK4
+	jr nz, .next_car
 	call Func_270f
-	jr z, .asm_7757
-	set 2, [hl]
-	ld a, $01
+	jr z, .next_car
+	set CARFLAG_UNK2_F, [hl]
+	ld a, CARSTRUCT_01
 	ld c, $01
 	call SetStructByte_C
-	ld a, $02
+	ld a, CARSTRUCT_02
 	ld c, $00
 	call SetStructByte_C
 	ld a, [wda55]
 	inc a
 	ld [wda55], a
-.asm_7757
+.next_car
 	add hl, de
 	dec b
-	jr nz, .asm_772c
+	jr nz, .loop_cars
 	ret
 
 Func_775c:
@@ -8503,19 +8504,19 @@ Func_7793:
 	dw OneCarLeftTexts
 
 .Func_780f:
-	ld hl, wd8eb
-	ld de, $27
-	ld b, $08
-.asm_7817
-	bit 0, [hl]
-	jr z, .asm_7850
+	ld hl, wCars
+	ld de, CAR_STRUCT_SIZE
+	ld b, MAX_NUM_CARS
+.loop_cars
+	bit CARFLAG_ACTIVE_F, [hl]
+	jr z, .next_car
 	ld a, [hl]
-	and $1a
-	jr nz, .asm_7850
+	and CARFLAG_PLAYER | CARFLAG_UNK3 | CARFLAG_UNK4
+	jr nz, .next_car
 	call Func_270f
-	jr z, .asm_7850
-	set 3, [hl]
-	ld a, $01
+	jr z, .next_car
+	set CARFLAG_UNK3_F, [hl]
+	ld a, CARSTRUCT_01
 	ld c, $06
 	call SetStructByte_C
 	ld de, $7870
@@ -8523,9 +8524,9 @@ Func_7793:
 	add_de
 	ld a, [de]
 	ld c, a
-	ld a, $02
+	ld a, CARSTRUCT_02
 	call SetStructByte_C
-	ld a, $15
+	ld a, CARSTRUCT_15
 	ld c, $30
 	call SetStructByte_C
 	ld d, h
@@ -8538,10 +8539,10 @@ Func_7793:
 	ld [hl], d
 	scf
 	ret
-.asm_7850
+.next_car
 	add hl, de
 	dec b
-	jr nz, .asm_7817
+	jr nz, .loop_cars
 	and a
 	ret
 
@@ -8906,10 +8907,10 @@ Func_7a94:
 	call GetEntityCarPtr
 	push de
 	ld a, CARSTRUCT_01
-	call Func_146c
+	call AddBCToStructField
 	pop bc
 	ld a, CARSTRUCT_04
-	jp Func_146c
+	jp AddBCToStructField
 
 .Func_7ae8:
 	ld bc, -$80
@@ -8972,7 +8973,7 @@ Func_7a94:
 
 .Func_7b31:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_09
+	ld a, CARSTRUCT_X_FRAC
 	add_hl
 	ld a, [wdc7a + 0]
 	ld c, a

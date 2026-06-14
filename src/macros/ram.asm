@@ -1,3 +1,42 @@
+; car structure (see constants/car_constants.asm)
+MACRO? car_struct
+\1Flags:: db
+\1Unk01:: db
+\1Unk02:: db
+\1Unk03:: db
+\1Unk04:: db
+\1Unk05:: db
+\1Coords::
+\1Unk06:: db
+\1Y:: dw
+\1Unk09:: db
+\1X:: dw
+\1Dir:: db
+\1Speed:: dw
+\1Unk0F:: db
+\1Unk10:: db
+\1Unk11:: db
+\1Unk12:: db
+\1Unk13:: db
+\1Unk14:: db
+\1Unk15:: db
+\1Unk16:: db
+\1Unk17:: db
+\1Unk18:: db
+\1Unk19:: db
+\1Unk1A:: db
+\1Unk1B:: db
+\1Unk1C:: db
+\1Unk1D:: db
+\1Unk1E:: db
+\1Unk1F:: db
+\1Unk20:: db
+\1Unk21:: db
+\1Unk22:: db
+\1EntPtr:: dw
+\1SpritePtr:: dw
+ENDM
+
 ; entity structure (see constants/entity_constants.asm)
 MACRO? entity_struct
 \1Flags:: db
@@ -85,7 +124,7 @@ MACRO? entity_struct
 \1Unk56:: dw
 ENDM
 
-MACRO? wSprites_struct
+MACRO? sprite_struct
 \1OAMFlags:: db
 	ds $10
 ENDM

@@ -176,7 +176,7 @@ wd54f:: dw ; d54f
 
 wSprites:: ; d551
 FOR n, 1, $20 + 1
-wSprites{u:n}:: wSprites_struct wSprites{u:n}
+wSprites{u:n}:: sprite_struct wSprites{u:n}
 ENDR
 
 ; multipurpose buffer for temporarily
@@ -429,31 +429,12 @@ wd8e9:: db ; d8e9
 
 wd8ea:: db ; d8ea
 
-wd8eb:: db ; d8eb
+wCars:: ; d8eb
+FOR n, 0, MAX_NUM_CARS
+wCar{u:n}:: car_struct wCar{u:n}
+ENDR
 
-	ds $da23 - $d8ec
-
-wda23:: db ; da23
-
-	ds $da29 - $da24
-
-wda29:: db ; da29
-
-wda2a:: db ; da2a
-
-	ds $da2d - $da2b
-
-wda2d:: db ; da2d
-
-	ds $da2f - $da2e
-
-wda2f:: db ; da2f
-
-	ds $da31 - $da30
-
-wda31:: db ; da31
-
-	ds $da4a - $da32
+wda23:: car_struct wda23 ; da23
 
 wPlayerCarPtr:: dw ; da4a
 

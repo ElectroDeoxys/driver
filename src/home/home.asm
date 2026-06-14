@@ -3406,11 +3406,11 @@ LoadSprites:
 	ret
 ; 0x1454
 
-SECTION "Func_146c", ROM0[$146c]
+SECTION "AddBCToStructField", ROM0[$146c]
 
 ; input:
 ; - a = CARSTRUCT_* constant
-Func_146c::
+AddBCToStructField::
 	push hl
 	add_hl
 	ld d, h
@@ -5354,23 +5354,23 @@ Func_20dc:
 
 Func_2101:
 	ld hl, wPlayerCarSpawnX
-	ld de, wda2d
+	ld de, wda23X
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, [hl]
 	ld [de], a
 	ld hl, wPlayerCarSpawnY
-	ld de, wda2a
+	ld de, wda23Y
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, [hl]
 	ld [de], a
 	ld a, [wPlayerCarSpawnDir]
-	ld [wda2f], a
+	ld [wda23Dir], a
 	xor a
-	ld [wda31], a
+	ld [wda23Speed + 1], a
 	ld hl, wda23
 	homecall Func_43be
 	push bc
@@ -6197,22 +6197,22 @@ GetCityGfxPointer:
 	dw 8192, 8192
 
 Func_25e5:
-	ld b, $08
-	ld hl, wd8eb
+	ld b, MAX_NUM_CARS
+	ld hl, wCars
 	ld de, CAR_STRUCT_SIZE
 	xor a
-.asm_25ee
+.loop_cars
 	ld [hl], a
 	add hl, de
 	dec b
-	jr nz, .asm_25ee
+	jr nz, .loop_cars
 	ret
 
 Func_25f4:
 	push bc
 	push de
-	ld b, $08
-	ld hl, wd8eb
+	ld b, MAX_NUM_CARS
+	ld hl, wCars
 	ld de, CAR_STRUCT_SIZE
 .loop_cars
 	bit CARFLAG_ACTIVE_F, [hl] ; CARSTRUCT_FLAGS
@@ -6270,12 +6270,12 @@ SpawnCar::
 	ld [hli], a ; CARSTRUCT_03
 	ld [hli], a ; CARSTRUCT_04
 	ld [hli], a ; CARSTRUCT_05
-	ld [hli], a ; CARSTRUCT_06
+	ld [hli], a ; CARSTRUCT_Y_FRAC
 	ld [hl], e  ; CARSTRUCT_Y
 	inc hl
 	ld [hl], d
 	inc hl
-	ld [hli], a ; CARSTRUCT_09
+	ld [hli], a ; CARSTRUCT_X_FRAC
 	ld [hl], c  ; CARSTRUCT_X
 	inc hl
 	ld [hl], b
@@ -6639,13 +6639,13 @@ Func_27e5::
 
 Func_284b::
 	call Func_26c5
-	jr nz, .asm_2855
+	jr nz, .non_zero
 	ld b, a
 	ld c, a
 	ld d, a
 	ld e, a
 	ret
-.asm_2855
+.non_zero
 	call Func_29d6
 	ld a, b
 	or c
@@ -6676,7 +6676,7 @@ Func_286d:
 
 Func_2877::
 	push hl
-	ld a, $0f
+	ld a, CARSTRUCT_0F
 	add_hl
 	ld a, [hl]
 	call Func_29ea
@@ -6893,13 +6893,15 @@ Func_2984::
 	pop hl
 	ret
 
-Func_298c::
+; adds bc to y coordinate
+; adds de to x coordinate
+AddToCarCoordinates::
 	push de
-	ld a, $06
-	call Func_146c
+	ld a, CARSTRUCT_Y_FRAC
+	call AddBCToStructField
 	pop bc
-	ld a, $09
-	jp Func_146c
+	ld a, CARSTRUCT_X_FRAC
+	jp AddBCToStructField
 
 Func_2998::
 	ld hl, 0
@@ -6998,86 +7000,97 @@ Func_29ea::
 	dw Func_2a59
 	dw Func_2a25
 
+; outputs (-1.0, 0.0)
 Func_2a10:
-	ld bc, -$100
-	ld de, $0
+	ld bc, -1.0
+	ld de,  0.0
 	ret
 
+; outputs (0.0, 1.0)
 Func_2a17:
-	ld bc, $0
-	ld de, $100
+	ld bc, 0.0
+	ld de, 1.0
 	ret
 
+; outputs (1.0, 0.0)
 Func_2a1e:
-	ld bc, $100
-	ld de, $0
+	ld bc, 1.0
+	ld de, 0.0
 	ret
 
+; outputs (0.0, -1.0)
 Func_2a25:
-	ld bc, $0
-	ld de, -$100
+	ld bc,  0.0
+	ld de, -1.0
 	ret
 
+; outputs (-cos(c), sin(c))
 Func_2a2c:
-	call Func_2a6c
+	call Sine
 	ld e, a
-	ld d, $00
-	call Func_2a75
+	ld d, 0
+	call Cosine
 	ld c, a
 	xor a
 	sub c
 	ld c, a
-	ld b, $ff
+	ld b, -1
 	ret
 
+; outputs (cos(c), sin(c))
 Func_2a3c:
-	call Func_2a75
+	call Cosine
 	ld e, a
-	ld d, $00
-	call Func_2a6c
+	ld d, 0
+	call Sine
 	ld c, a
-	ld b, $00
+	ld b, 0
 	ret
 
+; outputs (cos(c), -sin(c))
 Func_2a49:
-	call Func_2a6c
+	call Sine
 	ld e, a
 	xor a
 	sub e
 	ld e, a
-	ld d, $ff
-	call Func_2a75
+	ld d, -1
+	call Cosine
 	ld c, a
-	ld b, $00
+	ld b, 0
 	ret
 
+; outputs (-cos(c), -sin(c))
 Func_2a59:
-	call Func_2a75
+	call Cosine
 	ld e, a
 	xor a
 	sub e
 	ld e, a
-	ld d, $ff
-	call Func_2a6c
+	ld d, -1
+	call Sine
 	ld c, a
 	xor a
 	sub c
 	ld c, a
-	ld b, $ff
+	ld b, -1
 	ret
 
-Func_2a6c:
+; returns sin((c & 64) / 64 * pi/2)
+Sine:
 	ld a, c
-	and $3f
-	ld hl, $2e1f
+	maskbits 64
+	ld hl, SineTable
 	add_hl
 	ld a, [hl]
 	ret
 
-Func_2a75:
+; returns cos((c & 64) / 64 * pi/2)
+Cosine:
 	ld a, c
-	and $3f
-	ld hl, $2e5f
+	maskbits 64
+	; cosine table is sine table mirrored
+	ld hl, SineTableEnd
 	sub_hl
 	ld a, [hl]
 	ret
@@ -7150,7 +7163,7 @@ Func_2abe::
 	ld de, wda4d
 	call Func_2c37
 	call Func_2cbb
-	call Func_298c
+	call AddToCarCoordinates
 	call Func_2ab5
 	jr nz, .done
 
@@ -7590,7 +7603,7 @@ Func_2d87:
 	add a
 	add b
 	push hl
-	ld hl, $2e5f
+	ld hl, Data_2e5f
 	add_hl
 	ld a, [hl]
 	pop hl
@@ -7703,7 +7716,19 @@ Func_2dd5::
 	pop hl
 	scf
 	ret
-; 0x2e1f
+
+SineTable:
+	FOR x, 0.0, 0.25, 0.25 / 64
+		dbmin SIN(x), $ff
+	ENDR
+SineTableEnd:
+
+Data_2e5f:
+	db $20, $13, $0d, $0a, $08, $07, $06, $05, $05, $04, $04, $03, $03, $03, $03, $03
+	db $2d, $20, $18, $13, $10, $0d, $0b, $0a, $09, $08, $07, $07, $06, $06, $05, $05
+	db $33, $28, $20, $1a, $16, $13, $10, $0f, $0d, $0c, $0b, $0a, $09, $09, $08, $08
+	db $36, $2d, $26, $20, $1b, $18, $15, $13, $11, $10, $0e, $0d, $0c, $0b, $0b, $0a
+; 0x2e9f
 
 SECTION "Func_2f5f", ROM0[$2f5f]
 
@@ -8092,7 +8117,7 @@ Func_3161:
 	push hl
 	ld a, $09
 	add_de
-	ld hl, wda29
+	ld hl, wda23Coords
 	ld a, [de]
 	ld [hli], a
 	inc de
@@ -8237,7 +8262,7 @@ Func_31fb::
 	inc hl
 	ld d, [hl]
 	pop hl
-	call Func_298c
+	call AddToCarCoordinates
 	pop de
 	ret
 
@@ -8346,7 +8371,7 @@ Func_3275::
 	inc hl
 	ld d, [hl]
 	pop hl
-	call Func_298c
+	call AddToCarCoordinates
 	ld d, h
 	ld e, l
 	pop hl
@@ -9339,11 +9364,11 @@ Func_37be:
 	pop bc
 	call Func_37e3
 	push de
-	ld a, $09
-	call Func_146c
+	ld a, CARSTRUCT_X_FRAC
+	call AddBCToStructField
 	pop bc
-	ld a, $0c
-	jp Func_146c
+	ld a, CARSTRUCT_DIR
+	jp AddBCToStructField
 
 Func_37e3:
 	ld a, ENT_UNK08

@@ -12,6 +12,7 @@ INCLUDE "macros/gfx.asm"
 INCLUDE "macros/ram.asm"
 
 INCLUDE "constants/audio_constants.asm"
+INCLUDE "constants/car_constants.asm"
 INCLUDE "constants/driver_constants.asm"
 INCLUDE "constants/entity_constants.asm"
 INCLUDE "constants/gfx_constants.asm"

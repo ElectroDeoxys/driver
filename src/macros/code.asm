@@ -80,6 +80,20 @@ MACRO? swap_hl_de
 	pop hl
 ENDM
 
+DEF deg EQUS " * 256 / 360"
+
+MACRO dbmin
+	DEF x = (\1)
+	SHIFT
+	FOR n, _NARG
+		IF (\1) < x
+			DEF x = (\1)
+		ENDC
+		SHIFT
+	ENDR
+	db x
+ENDM
+
 MACRO? maskbits
 ; masks just enough bits to cover values 0 to \1 - 1
 ; \2 is an optional shift amount
@@ -91,4 +105,3 @@ MACRO? maskbits
 	and x
 ENDM
 
-DEF deg EQUS " * 256 / 360"
