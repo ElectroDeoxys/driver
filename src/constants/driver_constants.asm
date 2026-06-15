@@ -19,6 +19,7 @@ DEF NEW_YORK_UNLOCKED    EQU 1 << NEW_YORK
 	const MODE_SURVIVAL    ; $4
 	const MODE_UNDERCOVER  ; $5
 	const MODE_CREDITS     ; $6
+DEF NUM_GAME_MODES EQU const_value
 
 ; mission constants
 	const_def
@@ -58,6 +59,7 @@ DEF NUM_MISSIONS EQU const_value
 	const PROP_B ; $b
 	const PROP_C ; $c
 	const PROP_D ; $d
+DEF NUM_PROPS EQU const_value
 
 ; maximum damage the player's car can take
 ; corresponds to 8 pixels times 7 damage bar tiles

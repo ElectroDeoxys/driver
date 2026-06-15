@@ -61,6 +61,7 @@ MACRO? car_gfx
 ENDM
 
 CarGfxTable::
+	table_width 5
 	car_gfx Car01Gfx, Data_c4e4 ; BLACK_CAR
 	car_gfx Car02Gfx, Data_c9c9 ; COP_CAR
 	car_gfx Car03Gfx, Data_ceae ; TAXI
@@ -72,6 +73,7 @@ CarGfxTable::
 	car_gfx Car09Gfx, Data_ec0c ; LIMOUSINE
 	car_gfx Car10Gfx, Data_f0f1 ; CAR_09
 	car_gfx Car11Gfx, Data_f5d6 ; CAR_10
+	assert_table_length NUM_CAR_TYPES
 
 CarDirectionSpriteFlags::
 	db NONE

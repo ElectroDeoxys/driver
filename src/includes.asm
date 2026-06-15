@@ -7,6 +7,7 @@ INCLUDE "macros/code.asm"
 INCLUDE "macros/coords.asm"
 INCLUDE "macros/data.asm"
 
+INCLUDE "macros/asserts.asm"
 INCLUDE "macros/audio.asm"
 INCLUDE "macros/gfx.asm"
 INCLUDE "macros/ram.asm"

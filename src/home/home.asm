@@ -279,6 +279,8 @@ Func_333:
 	ret
 
 Scenes:
+	table_width 16
+
 	; SCENE_GB_DISCLAIMER
 	dmgpal SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK ; BGP (dgm only)
 	dba NULL  ; BG palettes (CGB only)
@@ -355,6 +357,8 @@ Scenes:
 	dbw $35, $5770 ; BG map
 	dbw $35, $584f ; tiles VRAM1 (CGB only)
 	dbw $35, $5878 ; tile attributes (CGB only)
+
+	assert_table_length NUM_SCENES
 
 _VBlank:
 	push af
@@ -1437,13 +1441,13 @@ SafeCopyHLToDE:
 	ld a, [hli]
 	ld [de], a
 	inc e
-FOR n, 1, 12
-DEF x = 12 - n
-.copy_{u:x}
-	ld a, [hli]
-	ld [de], a
-	inc e
-ENDR
+	FOR n, 1, 12
+	DEF x = 12 - n
+	.copy_{u:x}
+		ld a, [hli]
+		ld [de], a
+		inc e
+	ENDR
 	ret
 
 .CopyDMG:
@@ -1452,11 +1456,11 @@ ENDR
 	jr nc, .asm_9bc
 	wait_ppu
 .asm_9bc
-REPT 6
-	ld a, [hli]
-	ld [de], a
-	inc e
-ENDR
+	REPT 6
+		ld a, [hli]
+		ld [de], a
+		inc e
+	ENDR
 	ret
 
 ClearBGMap:
@@ -2274,6 +2278,7 @@ PtrTable_edd:
 	dw $4cf4      ; "Audio 2"
 
 Data_ee1:
+	table_width 2
 	db $3e, $01 ; MUSIC_TITLESCREEN
 	db $3e, $02 ; MUSIC_MAIN_MENU
 	db $3e, $03 ; MUSIC_BRIEFING
@@ -2282,6 +2287,7 @@ Data_ee1:
 	db $3f, $01 ; MUSIC_LOS_ANGELES
 	db $3f, $02 ; MUSIC_NEW_YORK
 	db $3f, $03 ; MUSIC_MISSION_FAILED
+	assert_table_length NUM_MUSICS
 
 Func_ef1:
 	ld b, AUDIOFUNC_UNK4
@@ -3735,7 +3741,7 @@ GameLoop:
 	homecall MainMenu
 .asm_15ef
 	call UpdateUnlockedCities
-	homecall Func_90aa
+	homecall MissionBriefing
 	call LoadMap
 
 	ld a, $00
@@ -3836,6 +3842,7 @@ LoadMap:
 Func_16e2:
 	ld a, [wGameMode]
 	jumptable
+	table_width 2
 	dw .TakeARide  ; MODE_TAKE_A_RIDE
 	dw .Checkpoint ; MODE_CHECKPOINT
 	dw .GetAway    ; MODE_GET_AWAY
@@ -3843,6 +3850,7 @@ Func_16e2:
 	dw .Survival   ; MODE_SURVIVAL
 	dw .Undercover ; MODE_UNDERCOVER
 	dw Func_18c5   ; MODE_CREDITS
+	assert_table_length NUM_GAME_MODES
 
 .TakeARide:
 	call Func_1972
@@ -3931,6 +3939,7 @@ Func_16e2:
 Func_178e:
 	ld a, [wGameMode]
 	jumptable
+	table_width 2
 	dw Func_17a0 ; MODE_TAKE_A_RIDE
 	dw Func_17b4 ; MODE_CHECKPOINT
 	dw Func_1808 ; MODE_GET_AWAY
@@ -3938,6 +3947,7 @@ Func_178e:
 	dw Func_1899 ; MODE_SURVIVAL
 	dw Func_18bb ; MODE_UNDERCOVER
 	dw Func_190f ; MODE_CREDITS
+	assert_table_length NUM_GAME_MODES
 
 Func_17a0:
 	call Func_1ed4
@@ -4212,6 +4222,7 @@ Func_1987::
 Func_198f:
 	ld a, [wGameMode]
 	jumptable
+	table_width 2
 	dw .TakeARide  ; MODE_TAKE_A_RIDE
 	dw .Func_19ab ; MODE_CHECKPOINT
 	dw .Func_19ab ; MODE_GET_AWAY
@@ -4219,6 +4230,7 @@ Func_198f:
 	dw .Func_19ab ; MODE_SURVIVAL
 	dw .Undercover ; MODE_UNDERCOVER
 	dw .Credits    ; MODE_CREDITS
+	assert_table_length NUM_GAME_MODES
 
 .Credits:
 	ld a, [wdcb5]
@@ -4558,9 +4570,11 @@ Func_1b4e:
 	jp InitFade
 
 .MusicIDs:
+	table_width 1
 	db MUSIC_MIAMI       ; MIAMI
 	db MUSIC_LOS_ANGELES ; LOS_ANGELES
 	db MUSIC_NEW_YORK    ; NEW_YORK
+	assert_table_length NUM_CITIES
 
 ; sets timer to b minutes and c seconds
 ; and timer mode given in a
@@ -4820,7 +4834,7 @@ Func_1d16:
 	ld [hl], a
 	ld a, c
 	add a
-	ld hl, Data_382c
+	ld hl, PropGfxTable
 	add_hl
 	ld b, [hl] ; num tiles
 	inc hl
@@ -6156,9 +6170,11 @@ GetCityGfxPointer:
 	ret
 
 .GfxTable:
+	table_width 2
 	dw .Miami      ; MIAMI
 	dw .LosAngeles ; LOS_ANGELES
 	dw .NewYork    ; NEW_YORK
+	assert_table_length NUM_CITIES
 
 .Miami:
 	dba Pals_c5320
@@ -9424,16 +9440,19 @@ Func_3815:
 	jp DespawnEntity
 
 PtrTable_3823:
+	table_width 3
 	dba Data_10000 ; MIAMI
 	dba Data_14000 ; LOS_ANGELES
 	dba Data_c0000 ; NEW_YORK
+	assert_table_length NUM_CITIES
 
 MACRO? data_382c
 	db \1 ; num of tiles
 	dba \2 ; graphics
 ENDM
 
-Data_382c:
+PropGfxTable:
+	table_width 4
 	data_382c 4, Gfx_d235d ; PROP_0
 	data_382c 4, Gfx_d239d ; PROP_1
 	data_382c 4, Gfx_d23dd ; PROP_2
@@ -9448,6 +9467,7 @@ Data_382c:
 	data_382c 5, Gfx_d252d ; PROP_B
 	data_382c 5, Gfx_d257d ; PROP_C
 	data_382c 5, Gfx_d268d ; PROP_D
+	assert_table_length NUM_PROPS
 
 Data_3864:
     db $04, $04, $04, $02, $02, $03, $00, $02

@@ -7,6 +7,7 @@
 	const MUSIC_LOS_ANGELES      ; $6
 	const MUSIC_NEW_YORK         ; $7
 	const MUSIC_MISSION_FAILED   ; $8
+DEF NUM_MUSICS EQU const_value - 1
 
 	const_def 1
 	const SFX_01 ; $01

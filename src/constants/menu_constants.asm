@@ -18,6 +18,7 @@ DEF GOTO_MAIN_MENU EQU $2
 	const SCENE_INFOGRAMES           ; $7
 	const SCENE_REFLECTIONS          ; $8
 	const SCENE_TITLESCREEN          ; $9
+DEF NUM_SCENES EQU const_value
 
 ; wLanguage constants
 	const_def
@@ -26,6 +27,7 @@ DEF GOTO_MAIN_MENU EQU $2
 	const GERMAN  ; $2
 	const ITALIAN ; $3
 	const SPANISH ; $4
+DEF NUM_LANGUAGES EQU const_value
 
 ; Main Menu entries
 	const_def
@@ -36,6 +38,7 @@ DEF GOTO_MAIN_MENU EQU $2
 	const MAINMENU_BEST_TIMES    ; $4
 	const MAINMENU_LANGUAGE      ; $5
 	const MAINMENU_CHEATS        ; $6
+DEF NUM_MAIN_MENU_ENTRIES EQU const_value
 
 ; mission code symbols
 	const_def

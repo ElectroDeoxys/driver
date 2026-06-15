@@ -23,11 +23,13 @@ GetHUDGfxPointer:
 	ret
 
 .HUDGfx:
+	table_width 3
 	dba EnglishHUDGfx ; ENGLISH
 	dba FrenchHUDGfx  ; FRENCH
 	dba GermanHUDGfx  ; GERMAN
 	dba ItalianHUDGfx ; ITALIAN
 	dba SpanishHUDGfx ; SPANISH
+	assert_table_length NUM_LANGUAGES
 
 ; loads HUD that occupies the 2 bottom rows of the screen
 LoadHUD::
@@ -802,9 +804,11 @@ Func_856b:
 	ret
 
 .PtrTable:
+	table_width 2
 	dw $4579
 	dw $4585
 	dw $4591
+	assert_table_length NUM_CITIES
 ; 0x8579
 
 SECTION "Func_859d", ROMX[$459d], BANK[$2]
@@ -2378,11 +2382,13 @@ Func_905c:
 	ret
 
 .LanguageOAMData:
+	table_width 4
 	db 96, 2, 48, 3 ; ENGLISH
 	db 96, 2, 48, 3 ; FRENCH
 	db 84, 4, 44, 2 ; GERMAN
 	db 92, 2, 52, 2 ; ITALIAN
 	db 92, 2, 52, 2 ; SPANISH
+	assert_table_length NUM_LANGUAGES
 ; 0x9086
 
 SECTION "Func_909a", ROMX[$509a], BANK[$2]
@@ -2399,10 +2405,12 @@ Pals_90a2:
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 
-Func_90aa::
+MissionBriefing::
+	; only show for Undercover mode
 	ld a, [wGameMode]
 	cp MODE_UNDERCOVER
 	ret nz
+
 	call Func_8ddb
 
 	ld a, [wMission]
@@ -3263,6 +3271,7 @@ MainMenuCursorOAMMaps:
 	oam_map MainMenuCheatsOAMMap,       3 ; MAINMENU_CHEATS
 
 PtrTable_9603:
+	table_width 2
 	dw TakeARideTexts    ; MAINMENU_TAKE_A_RIDE
 	dw UndercoverTexts   ; MAINMENU_UNDERCOVER
 	dw DrivingGamesTexts ; MAINMENU_DRIVING_GAMES
@@ -3270,8 +3279,10 @@ PtrTable_9603:
 	dw BestTimesTexts    ; MAINMENU_BEST_TIMES
 	dw LanguageTexts     ; MAINMENU_LANGUAGE
 	dw CheatsTexts       ; MAINMENU_CHEATS
+	assert_table_length NUM_MAIN_MENU_ENTRIES
 
 MainMenuFunctionTable:
+	table_width 2
 	dw TakeARideMenu    ; MAINMENU_TAKE_A_RIDE
 	dw UndercoverMenu   ; MAINMENU_UNDERCOVER
 	dw DrivingGamesMenu ; MAINMENU_DRIVING_GAMES
@@ -3279,6 +3290,7 @@ MainMenuFunctionTable:
 	dw BestTimesMenu    ; MAINMENU_BEST_TIMES
 	dw LanguageMenu     ; MAINMENU_LANGUAGE
 	dw CheatsMenu       ; MAINMENU_CHEATS
+	assert_table_length NUM_MAIN_MENU_ENTRIES
 
 Func_961f:
 	xor a
@@ -3748,7 +3760,6 @@ Func_98c5:
 	ld b, V0TILES_8000
 	ld a, 1 ; tile
 	call PushTilesToVRAM
-
 	ld a, 1 ; tile
 	ld b, V0TILES_8000
 	call BlackOutVRAMTiles
@@ -3758,7 +3769,6 @@ Func_98c5:
 	ld b, V0TILES_8000
 	ld a, 1 ; tile
 	call PushTilesToVRAM
-
 	ld a, 1 ; tile
 	ld b, V0TILES_8000
 	call BlackOutVRAMTiles
@@ -5083,6 +5093,7 @@ LoadMissionCodeOAM:
 	ret
 
 .OAMPals:
+	table_width 1
 	db 3 ; BADGE
 	db 2 ; RED_SIREN
 	db 0 ; TIRE_MARK
@@ -5091,6 +5102,7 @@ LoadMissionCodeOAM:
 	db 4 ; BLUE_SIREN
 	db 2 ; CONE
 	db 1 ; TRAFFIC_LIGHT
+	assert_table_length NUM_MISSION_CODE_SYMBOLS
 
 Func_a11c:
 	ld hl, wc683
@@ -5181,6 +5193,7 @@ CheckInputMissionCode:
 	ret
 
 MissionCodes:
+	table_width 4
 	db FACE,          FACE,       FACE,          FACE          ; MISSION_THE_BANK_JOB
 	db TIRE_MARK,     BADGE,      CONE,          RED_SIREN     ; MISSION_HIDE_THE_EVIDENCE
 	db TRAFFIC_LIGHT, WRENCH,     WRENCH,        BLUE_SIREN    ; MISSION_BOAT_CHASE
@@ -5196,6 +5209,7 @@ MissionCodes:
 	db WRENCH,        BADGE,      BADGE,         CONE          ; MISSION_STOP_GRANGERS_GANG
 	db RED_SIREN,     BLUE_SIREN, RED_SIREN,     BLUE_SIREN    ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	db TIRE_MARK,     WRENCH,     CONE,          TRAFFIC_LIGHT ; MISSION_CROSS_TOWN_RECORD
+	assert_table_length NUM_MISSIONS
 
 Func_a1c5:
 	xor a
@@ -5849,6 +5863,7 @@ Data_a654:
 SECTION "MissionTitleTextTable", ROMX[$66ae], BANK[$2]
 
 MissionTitleTextTable:
+	table_width 2
 	dw TheBankJobTexts             ; MISSION_THE_BANK_JOB
 	dw HideTheEvidenceTexts        ; MISSION_HIDE_THE_EVIDENCE
 	dw BoatChaseTexts              ; MISSION_BOAT_CHASE
@@ -5864,8 +5879,10 @@ MissionTitleTextTable:
 	dw StopGrangersGangTexts       ; MISSION_STOP_GRANGERS_GANG
 	dw ChaseOneOfGrangersBoysTexts ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	dw CrossTownRecordTexts        ; MISSION_CROSS_TOWN_RECORD
+	assert_table_length NUM_MISSIONS
 
 MissionBriefingTextTable:
+	table_width 2
 	dw TheBankJobBriefingTexts             ; MISSION_THE_BANK_JOB
 	dw HideTheEvidenceBriefingTexts        ; MISSION_HIDE_THE_EVIDENCE
 	dw BoatChaseBriefingTexts              ; MISSION_BOAT_CHASE
@@ -5881,3 +5898,4 @@ MissionBriefingTextTable:
 	dw StopGrangersGangBriefingTexts       ; MISSION_STOP_GRANGERS_GANG
 	dw ChaseOneOfGrangersBoysBriefingTexts ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	dw CrossTownRecordBriefingTexts        ; MISSION_CROSS_TOWN_RECORD
+	assert_table_length NUM_MISSIONS

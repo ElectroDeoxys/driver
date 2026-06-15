@@ -1434,6 +1434,7 @@ GetPlayerCarData_Word:
 	ret
 
 Data_491d:
+	table_width 2
 	dw .Data_4933 ; BLACK_CAR
 	dw .Data_4977 ; COP_CAR
 	dw .Data_4933 ; TAXI
@@ -1445,8 +1446,10 @@ Data_491d:
 	dw .Data_4966 ; LIMOUSINE
 	dw .Data_4933 ; CAR_09
 	dw .Data_4933 ; CAR_10
+	assert_table_length NUM_CAR_TYPES
 
 .Data_4933:
+	table_width 1
 	db $04 ; CARDATASTRUCT_0
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
@@ -1461,8 +1464,10 @@ Data_491d:
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
+	assert_table_length CAR_DATA_STRUCT_SIZE
 
 .Data_4944:
+	table_width 1
 	db $04 ; CARDATASTRUCT_0
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
@@ -1477,8 +1482,10 @@ Data_491d:
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
+	assert_table_length CAR_DATA_STRUCT_SIZE
 
 .Data_4955:
+	table_width 1
 	db $04 ; CARDATASTRUCT_0
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
@@ -1493,8 +1500,10 @@ Data_491d:
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
+	assert_table_length CAR_DATA_STRUCT_SIZE
 
 .Data_4966:
+	table_width 1
 	db $04 ; CARDATASTRUCT_0
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
@@ -1509,8 +1518,10 @@ Data_491d:
 	db $90, $00 ; CARDATASTRUCT_B
 	db $38, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
+	assert_table_length CAR_DATA_STRUCT_SIZE
 
 .Data_4977:
+	table_width 1
 	db $04 ; CARDATASTRUCT_0
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
@@ -1525,6 +1536,7 @@ Data_491d:
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
+	assert_table_length CAR_DATA_STRUCT_SIZE
 
 EntUpdate_CarSpawner::
 	xor a
@@ -6590,6 +6602,7 @@ Func_692b:
 	jr .test_mission
 
 MissionLoadPointerTable:
+	table_width 2
 	dw Func_6985 ; MISSION_THE_BANK_JOB
 	dw Func_6a6a ; MISSION_HIDE_THE_EVIDENCE
 	dw Func_6ad5 ; MISSION_BOAT_CHASE
@@ -6605,8 +6618,10 @@ MissionLoadPointerTable:
 	dw Func_775c ; MISSION_STOP_GRANGERS_GANG
 	dw Func_7875 ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	dw Func_796b ; MISSION_CROSS_TOWN_RECORD
+	assert_table_length NUM_MISSIONS
 
 Data_6967:
+	table_width 2
 	dw Func_6997 ; MISSION_THE_BANK_JOB
 	dw Func_6a83 ; MISSION_HIDE_THE_EVIDENCE
 	dw Func_6ae7 ; MISSION_BOAT_CHASE
@@ -6622,6 +6637,7 @@ Data_6967:
 	dw Func_776e ; MISSION_STOP_GRANGERS_GANG
 	dw Func_788e ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
 	dw Func_7984 ; MISSION_CROSS_TOWN_RECORD
+	assert_table_length NUM_MISSIONS
 
 Func_6985:
 	call Func_1972
@@ -9257,9 +9273,11 @@ Data_7d05::
 SECTION "Data_7e07", ROMX[$7e07], BANK[$1]
 
 Data_7e07::
+	table_width 4
 	dw .Miami_1,      .Miami_2      ; MIAMI
 	dw .LosAngeles_1, .LosAngeles_2 ; LOS_ANGELES
 	dw .NewYork_1,    .NewYork_2    ; NEW_YORK
+	assert_table_length NUM_CITIES
 
 .Miami_1:
 	dw 7680, 4528 ; player coordinates
@@ -9365,9 +9383,11 @@ Timer_MissionTakeOutDiAngelo:
 SECTION "TakeARideSpawnCoords", ROMX[$7e88], BANK[$1]
 
 TakeARideSpawnCoords::
+	table_width 2
 	dw .Miami      ; MIAMI
 	dw .LosAngeles ; LOS_ANGELES
 	dw .NewYork    ; NEW_YORK
+	assert_table_length NUM_CITIES
 
 .Miami:
 	dw 7472, 3248
