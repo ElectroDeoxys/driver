@@ -3578,25 +3578,29 @@ Func_55f4:
 ; - de = y coordinate
 SpawnCivilianCar:
 	push af
+	; pick random car
 	call Random
-	and $07
-	ld hl, wda87
+	maskbits NUM_SPAWNABLE_CARS
+	ld hl, wSpawnableNPCCars
 	add_hl
 	ld a, [hl]
 	cp TAXI
 	jr z, .taxi
+
 	; pick random palette
 	push af
 	call Random
-	and $03
+	maskbits 4
 	ld hl, .CarPals
 	add_hl
 	ld h, [hl]
 	pop af
 	jr .got_car_and_pal
+
 .taxi
 	; taxi uses yellow palette
 	ld h, OBPAL_YELLOW
+
 .got_car_and_pal
 	ld l, a
 	pop af

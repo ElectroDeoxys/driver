@@ -907,7 +907,7 @@ Func_861f:
 
 Func_8649:
 	ld a, [wc574]
-	and $01
+	and PAD_A
 	jr z, .asm_8656
 	ld a, $04
 	ld [wd895], a
@@ -916,16 +916,16 @@ Func_8649:
 	call Func_872f
 	ld a, [wc573]
 	ld c, a
-	and $80
+	and PAD_DOWN
 	call nz, Func_8675
 	ld a, c
-	and $40
+	and PAD_UP
 	call nz, Func_8683
 	ld a, c
-	and $20
+	and PAD_LEFT
 	call nz, Func_868e
 	ld a, c
-	and $10
+	and PAD_RIGHT
 	call nz, Func_8699
 	ret
 
@@ -982,7 +982,7 @@ Func_86a7:
 Func_86b4:
 	ld hl, wd898
 	ld a, [wc574]
-	and $09
+	and PAD_A | PAD_START
 	jr z, .asm_86db
 	ld a, [hl]
 	and a
@@ -1000,10 +1000,10 @@ Func_86b4:
 	ret
 .asm_86db
 	ld a, [wc574]
-	and $20
+	and PAD_LEFT
 	call nz, Func_86ee
 	ld a, [wc574]
-	and $10
+	and PAD_RIGHT
 	call nz, Func_86f4
 	jp Func_8745
 

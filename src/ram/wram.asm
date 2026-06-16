@@ -531,8 +531,8 @@ wda81:: db ; da81
 
 wda82:: db ; da82
 
-wInitialNPCCars:: ds $4 ; da83
-wda87:: ds $8 ; da87
+wInitialNPCCars::   ds NUM_INITIAL_CARS ; da83
+wSpawnableNPCCars:: ds NUM_SPAWNABLE_CARS ; da87
 
 wda8f:: db ; da8f
 

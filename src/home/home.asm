@@ -4216,7 +4216,7 @@ Func_197c:
 	add_hl
 Func_1987::
 	ld de, wInitialNPCCars
-	ld b, $0c
+	ld b, NUM_INITIAL_CARS + NUM_SPAWNABLE_CARS
 	jp CopyHLtoDE
 
 Func_198f:
@@ -4796,7 +4796,7 @@ LoadCarGfxAndPals::
 
 Func_1d16:
 	ld hl, wInitialNPCCars
-	ld b, $04
+	ld b, NUM_INITIAL_CARS
 .loop_load_nps_cars
 	ld a, [hli]
 	push bc
@@ -5177,7 +5177,6 @@ Data_1f97:
 
 	db COP_CAR, CAR_05, CAR_10, TAXI
 	db CAR_05, CAR_05, CAR_05, CAR_05, CAR_10, CAR_10, TAXI, TAXI
-
 
 ToggleDebugMode:
 	ld a, [wd895]
