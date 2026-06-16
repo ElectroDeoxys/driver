@@ -771,22 +771,22 @@ ChooseACityTextIT:
 ChooseACityTextES:	
 	db "ELIGE UNA CIUDAD\0"
 
-Texts_f4dca:
-	dw TextEN_f4dca
-	dw TextFR_f4dca
-	dw TextDE_f4dca
-	dw TextIT_f4dca
-	dw TextES_f4dca
+ChooseAMissionTexts::
+	dw ChooseAMissionTextEN
+	dw ChooseAMissionTextFR
+	dw ChooseAMissionTextDE
+	dw ChooseAMissionTextIT
+	dw ChooseAMissionTextES
 
-TextFR_f4dca:
+ChooseAMissionTextFR:
 	db "CHOISIS UNE MISSION\0"
-TextDE_f4dca:
+ChooseAMissionTextDE:
 	db "MISSION WeHLEN\0"
-TextIT_f4dca:
+ChooseAMissionTextIT:
 	db "SCEGLI UNA MISSIONE\0"
-TextES_f4dca:
+ChooseAMissionTextES:
 	db "ESCOJE UNA MISI<BIG_Ó>N\0"
-TextEN_f4dca:
+ChooseAMissionTextEN:
 	db "CHOOSE A MISSION\0"
 
 ChooseAVehicleTexts::
@@ -931,19 +931,19 @@ LATexts::
 LAText:
 	db "L.A. \0"
 
-Texts_f5036:
-	dw TextEN_f5036
-	dw TextFR_f5036
-	dw TextDE_f5036
-	dw TextIT_f5036
-	dw TextES_f5036
+LosAngeles1Texts::
+	dw LosAngeles1TextEN
+	dw LosAngeles1TextFR
+	dw LosAngeles1TextDE
+	dw LosAngeles1TextIT
+	dw LosAngeles1TextES
 
-TextES_f5036:
+LosAngeles1TextES:
 	db "LOS <BIG_Á>NGELES 1\0"
-TextEN_f5036:
-TextFR_f5036:
-TextDE_f5036:
-TextIT_f5036:
+LosAngeles1TextEN:
+LosAngeles1TextFR:
+LosAngeles1TextDE:
+LosAngeles1TextIT:
 	db "LOS ANGELES 1\0"
 
 LA1Texts::
@@ -956,19 +956,19 @@ LA1Texts::
 LA1Text:
 	db "L.A.  1\0"
 
-Texts_f506e:
-	dw TextEN_f506e
-	dw TextFR_f506e
-	dw TextDE_f506e
-	dw TextIT_f506e
-	dw TextES_f506e
+LosAngeles2Texts::
+	dw LosAngeles2TextEN
+	dw LosAngeles2TextFR
+	dw LosAngeles2TextDE
+	dw LosAngeles2TextIT
+	dw LosAngeles2TextES
 
-TextES_f506e:
+LosAngeles2TextES:
 	db "LOS <BIG_Á>NGELES 2\0"
-TextEN_f506e:
-TextFR_f506e:
-TextDE_f506e:
-TextIT_f506e:
+LosAngeles2TextEN:
+LosAngeles2TextFR:
+LosAngeles2TextDE:
+LosAngeles2TextIT:
 	db "LOS ANGELES 2\0"
 
 LA2Texts::
@@ -1003,19 +1003,19 @@ NYTexts::
 NYText:
 	db "N.Y. \0"
 
-Texts_f50d4:
-	dw TextEN_f50d4
-	dw TextFR_f50d4
-	dw TextDE_f50d4
-	dw TextIT_f50d4
-	dw TextES_f50d4
+NewYork1Texts::
+	dw NewYork1TextEN
+	dw NewYork1TextFR
+	dw NewYork1TextDE
+	dw NewYork1TextIT
+	dw NewYork1TextES
 
-TextES_f50d4:
+NewYork1TextES:
 	db "NUEVA YORK 1\0"
-TextEN_f50d4:
-TextFR_f50d4:
-TextDE_f50d4:
-TextIT_f50d4:
+NewYork1TextEN:
+NewYork1TextFR:
+NewYork1TextDE:
+NewYork1TextIT:
 	db "NEW YORK 1\0"
 
 NY1Texts::
@@ -1028,19 +1028,19 @@ NY1Texts::
 NY1Text:
 	db "N.Y.  1\0"
 
-Texts_f5108:
-	dw TextEN_f5108
-	dw TextFR_f5108
-	dw TextDE_f5108
-	dw TextIT_f5108
-	dw TextES_f5108
+NewYork2Texts::
+	dw NewYork2TextEN
+	dw NewYork2TextFR
+	dw NewYork2TextDE
+	dw NewYork2TextIT
+	dw NewYork2TextES
 
-TextES_f5108:
+NewYork2TextES:
 	db "NUEVA YORK 2\0"
-TextEN_f5108:
-TextFR_f5108:
-TextDE_f5108:
-TextIT_f5108:
+NewYork2TextEN:
+NewYork2TextFR:
+NewYork2TextDE:
+NewYork2TextIT:
 	db "NEW YORK 2\0"
 
 NY2Texts::

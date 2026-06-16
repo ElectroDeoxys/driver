@@ -262,7 +262,10 @@ Gfx_c7ff0:: INCBIN "gfx/gfx_c7ff0.2bpp"
 
 SECTION "Bank32", ROMX, BANK[$32]
 
-SECTION "Car01Gfx", ROMX[$78c0], BANK[$32]
+SECTION "Car01Gfx", ROMX[$7860], BANK[$32]
+
+MapPlayerGfx::      INCBIN "gfx/map_player.2bpp"
+MapDestinationGfx:: INCBIN "gfx/map_destination.2bpp"
 
 Car01Gfx:: INCBIN "gfx/cars/car01.2bpp"
 Car02Gfx:: INCBIN "gfx/cars/car02.2bpp"
@@ -1237,6 +1240,147 @@ Pals_da3a0::
 	rgb 25, 25, 25
 ; 0xda3c8
 
-SECTION "Gfx_dbf00", ROMX[$7f00], BANK[$36]
+SECTION "Gfx_da3e0", ROMX[$63e0], BANK[$36]
+
+Pals_da3e0::
+	rgb 29, 29, 29
+	rgb 20, 20, 20
+	rgb 10, 10, 10
+	rgb  0,  0,  0
+
+	rgb 26, 21, 15
+	rgb  0, 25,  0
+	rgb 10, 10, 10
+	rgb  0,  0,  0
+
+	rgb 26, 21, 15
+	rgb  0, 22, 31
+	rgb  5, 31, 31
+	rgb  0,  0,  0
+
+	rgb 20, 20, 20
+	rgb 10, 10, 10
+	rgb  0,  0,  0
+	rgb  0, 25,  0
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+	rgb 26, 21, 15
+	rgb 29, 29, 29
+	rgb 20, 20, 20
+	rgb  0,  0,  0
+
+	rgb 26, 21, 15
+	rgb 29, 29, 29
+	rgb 20, 20, 20
+	rgb 10, 10, 10
+
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+	rgb 31,  0, 31
+
+Gfx_da420:: INCBIN "gfx/gfx_da420.2bpp"
+Gfx_dac20:: INCBIN "gfx/gfx_dac20.2bpp"
+BG_daf50:: INCBIN "gfx/bg_daf50.tilemap"
+BG_db0b8:: INCBIN "gfx/bg_db0b8.attrmap"
+
+Pals_db220::
+	rgb 31, 31, 31
+	rgb 15, 15, 15
+	rgb  7,  7,  7
+	rgb  0,  0,  0
+
+	rgb 30, 25,  0
+	rgb 21, 14,  0
+	rgb 11,  7,  0
+	rgb  0,  0,  0
+
+	rgb  0,  2, 14
+	rgb 15, 15, 15
+	rgb  7,  7,  7
+	rgb  0,  0,  0
+
+	rgb  0, 31,  0
+	rgb  0,  9, 31
+	rgb  0,  2, 14
+	rgb  0,  0,  0
+
+	rgb 11,  7,  0
+	rgb 15, 15, 15
+	rgb  7,  7,  7
+	rgb  0,  0,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+Gfx_db260:: INCBIN "gfx/gfx_db260.2bpp"
+Gfx_dba60:: INCBIN "gfx/gfx_dba60.2bpp"
+
+Pals_dbec0::
+	rgb 31, 31, 31
+	rgb 21, 21, 21
+	rgb  9,  9,  9
+	rgb  0,  0,  0
+
+	rgb 21, 21, 21
+	rgb 16, 15, 13
+	rgb  9,  9,  9
+	rgb  0,  0,  0
+
+	rgb 31, 31, 31
+	rgb 24, 22, 10
+	rgb 23, 10,  9
+	rgb  0,  0,  0
+
+	rgb 31, 31, 31
+	rgb 10, 17, 24
+	rgb  7,  9, 21
+	rgb  0,  0,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
+	rgb 16, 15, 13
+	rgb 31, 31, 31
+	rgb 21, 21, 21
+	rgb  0,  0,  0
+
+	rgb 16, 15, 13
+	rgb 10, 17, 24
+	rgb  7,  9, 21
+	rgb  0,  0,  0
+
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+	rgb  0, 31,  0
+
 Gfx_dbf00:: INCBIN "gfx/gfx_dbf00.2bpp"
-; 0xbf20
+
+SECTION "Bank37", ROMX, BANK[$37]
+BG_dc000:: INCBIN "gfx/bg_dc000.tilemap"
+BG_dc168:: INCBIN "gfx/bg_dc168.attrmap"
+
+SECTION "Gfx_dc2d0", ROMX[$42d0], BANK[$37]
+Gfx_dc2d0:: INCBIN "gfx/gfx_dc2d0.2bpp"
+Gfx_dcad0:: INCBIN "gfx/gfx_dcad0.2bpp"
+BG_dcf80:: INCBIN "gfx/bg_dcf80.tilemap"
+BG_dd0e8:: INCBIN "gfx/bg_dd0e8.attrmap"

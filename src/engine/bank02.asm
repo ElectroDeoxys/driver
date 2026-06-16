@@ -474,12 +474,12 @@ Func_8329:
 	add hl, hl
 	call GetHUDGfxPointer
 	add hl, de
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v0Tiles1 tile $48
 	ld b, 1 ; tile
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -563,7 +563,7 @@ Func_83c9:
 	ld [hli], a
 	ld [hl], a
 	ld [wd893], a
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call GetHUDGfxPointer
 	ld hl, $60
@@ -571,7 +571,7 @@ Func_83c9:
 	ld de, v0Tiles1 tile $49
 	ld b, 1 ; tile
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld hl, $43f9
 	call Func_847f
@@ -836,10 +836,10 @@ Func_85b6:
 	ld a, $06
 	add_hl
 	call Func_8867
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call Func_8867
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	call Func_856b
 	ld a, $03
@@ -861,7 +861,7 @@ Func_85b6:
 	ld de, v0Tiles1
 	ld b, $80
 	call SafeCopyFarTiles
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call GetHUDGfxPointer
 	ld hl, $4b0
@@ -869,7 +869,7 @@ Func_85b6:
 	ld de, v0Tiles2
 	ld b, $1a
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	call Func_88b1
 	call Func_88e9
@@ -1050,26 +1050,32 @@ Func_870a:
 	ret
 
 Func_872f:
-	ld de, $4753
+	ld de, Data_8753
 	ld a, [wFrameCounter]
 	and $10
 	jr nz, Func_873c
-	ld de, $4767
+	ld de, Data_8767
 Func_873c:
 	ld hl, v0BGMap1
 	lb bc, 1, 20
 	jp CopyBGMapBox
 
 Func_8745:
-	ld de, $477b
+	ld de, Data_877b
 	ld a, [wd898]
 	and a
 	jr z, Func_873c
-	ld de, $478f
+	ld de, Data_878f
 	jr Func_873c
-; 0x8753
 
-SECTION "Func_87a3", ROMX[$47a3], BANK[$2]
+Data_8753:
+	db $80, $80, $04, $05, $06, $07, $80, $80, $80, $80, $80, $80, $80, $08, $09, $0a, $0b, $0c, $0d, $80
+Data_8767:
+	db $80, $80, $04, $05, $06, $07, $80, $80, $00, $01, $02, $03, $80, $08, $09, $0a, $0b, $0c, $0d, $80
+Data_877b:
+	db $80, $80, $80, $16, $17, $80, $80, $80, $0e, $0f, $10, $11, $80, $80, $80, $14, $15, $80, $80, $80
+Data_878f:
+	db $80, $80, $80, $12, $13, $80, $80, $80, $0e, $0f, $10, $11, $80, $80, $80, $18, $19, $80, $80, $80
 
 Func_87a3:
 	call Func_882c
@@ -1262,25 +1268,26 @@ Func_88e0:
 	jp CopyBGMapBox
 
 Func_88e9:
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v0Tiles1 tile $74
-	ld hl, $7860
-	ld c, $32
-	ld b, $03
+	ld hl, MapPlayerGfx
+	ld c, BANK(MapPlayerGfx)
+	ld b, 3 ; tiles
 	xor a
 	call CopyTilesWithAlternatingBlackTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
-	ld a, $01
+
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v0Tiles1 tile $7a
-	ld hl, $7890
-	ld c, $32
-	ld b, $03
+	ld hl, MapDestinationGfx
+	ld c, BANK(MapDestinationGfx)
+	ld b, 3 ; tiles
 	xor a
 	call CopyTilesWithAlternatingBlackTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -2260,7 +2267,7 @@ Func_8f78::
 	ld a, 2 ; tiles
 	call PushTilesToVRAM
 
-	ld de, $5030
+	ld de, Func_9030
 	ld hl, wMenuUpdateFunc
 	ld [hl], e
 	inc hl
@@ -2348,9 +2355,40 @@ Func_8ff0:
 	xor a
 	ld [de], a
 	ret
-; 0x9030
 
-SECTION "Func_905c", ROMX[$505c], BANK[$2]
+Func_9030:
+	ld hl, wc683
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+	ld de, wdc21
+	ldh a, [hff99]
+	ld c, a
+	ld c, $28
+	ld b, $02
+.asm_9046
+	ld a, c
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+	ld a, $58
+	ld [hli], a
+	ldh a, [hff99]
+	ld [hli], a
+	ld a, c
+	add $20
+	ld c, a
+	inc de
+	dec b
+	jr nz, .asm_9046
+	ld a, $ff
+	ld [hl], a
+	ret
 
 Func_905c:
 	ld a, [wc57a]
@@ -2760,23 +2798,27 @@ Func_92b5::
 	ld a, c
 	ld [wCity], a
 	call Func_8ddb
-	ld hl, $5325
+	ld hl, PtrTable_9325
 	ld a, [wCity]
 	get_pointer
 	call Func_935e
+
 	ld de, Func_9879
 	ld hl, wMenuUpdateFunc
 	ld [hl], e
 	inc hl
 	ld [hl], d
+
 	xor a
 	ld [wd54d], a
 	ld hl, Pals_9317
 	ld de, wTempBGPals palette 7
 	ld b, 1 palettes
 	call CopyHLtoDE
-	ld bc, $f00
+
+	lb bc, $0f, $00
 	call Func_945c
+
 	ld a, [wCity]
 	ld hl, Texts_931f
 	get_pointer
@@ -2808,19 +2850,58 @@ Pals_9317:
 	rgb 16, 12,  2
 
 Texts_931f:
+	table_width 2
 	dw SweetDrivinLAHereWeComeTexts        ; MIAMI
 	dw TheBigAppleWannHaveSomeRealFunTexts ; LOS_ANGELES
 	dw GoodWorkYouGotWheelsOfGoldTexts     ; NEW_YORK
-; 0x9325
+	assert_table_length NUM_CITIES
 
-SECTION "Func_935e", ROMX[$535e], BANK[$2]
+PtrTable_9325:
+	table_width 2
+	dw .Miami      ; MIAMI
+	dw .LosAngeles ; LOS_ANGELES
+	dw .NewYork    ; NEW_YORK
+	assert_table_length NUM_CITIES
+
+.Miami:
+	dba Gfx_da420
+	db $80 ; tiles
+
+	dba Gfx_dac20
+	db $80 ; tiles
+
+	dba BG_daf50 ; tilemap
+	dba BG_db0b8 ; attrmap
+	dba Pals_da3e0 ; palettes
+
+.LosAngeles:
+	dba Gfx_db260
+	db $80 ; tiles
+
+	dba Gfx_dba60
+	db $80 ; tiles
+
+	dba BG_dc000 ; tilemap
+	dba BG_dc168 ; attrmap
+	dba Pals_db220 ; palettes
+
+.NewYork:
+	dba Gfx_dc2d0
+	db $80 ; tiles
+
+	dba Gfx_dcad0
+	db $80 ; tiles
+
+	dba BG_dcf80 ; tilemap
+	dba BG_dd0e8 ; attrmap
+	dba Pals_dbec0 ; palettes
 
 Func_935e:
 	push hl
 	call ClearVRAMTiles
 	pop hl
 
-	; v0Tiles0
+	; v0Tiles2
 	ld c, [hl]
 	inc hl
 	ld e, [hl]
@@ -3634,7 +3715,6 @@ Func_97f2:
 	ld c, $33
 	call .LoadToBuffer
 	call .CopyToBGMap
-
 	ld hl, $5e63
 	ld c, $33
 	call .LoadToBuffer
@@ -4956,22 +5036,22 @@ Func_9eb2:
 	ld de, .Data_a07e
 	hlbgcoord 0, 0, v0BGMap1
 	call .Func_a086
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, .Data_a082
 	hlbgcoord 0, 0, v0BGMap1
 	call .Func_a086
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ld de, .Data_a07a
 	hlbgcoord 15, 0, v0BGMap1
 	call .Func_a086
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, .Data_a082
 	hlbgcoord 15, 0, v0BGMap1
 	call .Func_a086
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
@@ -5226,11 +5306,11 @@ Func_a1c5:
 
 	xor a
 	call Func_a283
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld a, $0d
 	call Func_a283
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 
 	ld de, Func_a2cd
@@ -5342,10 +5422,10 @@ Func_a298:
 	ld l, e
 	ld de, v1Tiles0
 	ld b, $40 ; tiles
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	pop hl
 
@@ -5528,8 +5608,6 @@ PtrTable_a38a:
 	dba Pals_da0a0
 	dbw $36, $6070
 
-SECTION "RetIfNoAOrStartBtn", ROMX[$63cc], BANK[$2]
-
 RetIfNoAOrStartBtn:
 	ld a, [wJoypadPressed]
 	and PAD_A | PAD_START
@@ -5573,28 +5651,52 @@ Func_a404:
 	ld hl, LanguageTexts
 	call ProcessTitleText
 	jp Func_a47a
-; 0xa416
 
-SECTION "Func_a429", ROMX[$6429], BANK[$2]
-
+Func_a416:
+	call RetIfNoAOrStartBtn
+	xor a
+	ld [wd822], a
+	jr Func_a42c
+Func_a41f:
+	call RetIfNoAOrStartBtn
+	ld a, $01
+	ld [wd822], a
+	jr Func_a42c
 Func_a429:
 	call RetIfNoAOrStartBtn
+Func_a42c:
 	ld a, MIAMI
 	jp Func_a467
-; 0xa431
 
-SECTION "Func_a444", ROMX[$6444], BANK[$2]
-
+Func_a431:
+	call RetIfNoAOrStartBtn
+	xor a
+	ld [wd822], a
+	jr Func_a447
+Func_a43a:
+	call RetIfNoAOrStartBtn
+	ld a, $01
+	ld [wd822], a
+	jr Func_a447
 Func_a444:
 	call RetIfNoAOrStartBtn
+Func_a447:
 	ld a, LOS_ANGELES
 	jp Func_a467
-; 0xa44c
 
-SECTION "Func_a45f", ROMX[$645f], BANK[$2]
-
+Func_a44c:
+	call RetIfNoAOrStartBtn
+	xor a
+	ld [wd822], a
+	jr Func_a462
+Func_a455:
+	call RetIfNoAOrStartBtn
+	ld a, $01
+	ld [wd822], a
+	jr Func_a462
 Func_a45f:
 	call RetIfNoAOrStartBtn
+Func_a462:
 	ld a, NEW_YORK
 	jp Func_a467
 
@@ -5722,7 +5824,7 @@ Func_a524:
 	call RetIfNoAOrStartBtn
 	ld a, MODE_CHECKPOINT
 	ld [wGameMode], a
-	ld hl, $6686
+	ld hl, Data_a686
 	ld de, Data_a604
 	xor a
 	jp Func_a58b
@@ -5731,7 +5833,7 @@ Func_a536:
 	call RetIfNoAOrStartBtn
 	ld a, MODE_GET_AWAY
 	ld [wGameMode], a
-	ld hl, $6686
+	ld hl, Data_a686
 	ld de, Data_a604
 	xor a
 	jp Func_a58b
@@ -5740,7 +5842,7 @@ Func_a548:
 	call RetIfNoAOrStartBtn
 	ld a, MODE_PURSUIT
 	ld [wGameMode], a
-	ld hl, $6686
+	ld hl, Data_a686
 	ld de, Data_a604
 	xor a
 	jp Func_a58b
@@ -5749,7 +5851,7 @@ Func_a55a:
 	call RetIfNoAOrStartBtn
 	ld a, MODE_SURVIVAL
 	ld [wGameMode], a
-	ld hl, $666d
+	ld hl, Data_a66d
 	ld de, Data_a604
 	xor a
 	jp Func_a58b
@@ -5858,9 +5960,27 @@ Data_a654:
 	menu_item $03, NewYorkTexts, Func_a45f
 	menu_item $00, BackTexts, Func_a3e0
 	db -1 ; end
-; 0xa66d
 
-SECTION "MissionTitleTextTable", ROMX[$66ae], BANK[$2]
+Data_a66d:
+	dw Func_a3e3
+	dw ChooseAMissionTexts
+	menu_item $01, MiamiTexts, Func_a429
+	menu_item $02, LosAngelesTexts, Func_a444
+	menu_item $03, NewYorkTexts, Func_a45f
+	menu_item $00, BackTexts, Func_a3e0
+	db -1 ; end
+
+Data_a686:
+	dw Func_a3e3
+	dw ChooseAMissionTexts
+	menu_item $01, Miami1Texts, Func_a416
+	menu_item $01, Miami2Texts, Func_a41f
+	menu_item $02, LosAngeles1Texts, Func_a431
+	menu_item $02, LosAngeles2Texts, Func_a43a
+	menu_item $03, NewYork1Texts, Func_a44c
+	menu_item $03, NewYork2Texts, Func_a455
+	menu_item $00, BackTexts, Func_a3e0
+	db -1 ; end
 
 MissionTitleTextTable:
 	table_width 2

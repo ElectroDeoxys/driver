@@ -5218,9 +5218,9 @@ Func_5f27::
 	or CARFLAG_PLAYER | CARFLAG_UNK2
 	ld [hli], a
 	inc hl
-	ld [hl], e
+	ld [hl], e ; CARSTRUCT_02
 	inc hl
-	ld [hl], d
+	ld [hl], d ; CARSTRUCT_03
 	inc hl
 	inc hl
 	pop af
@@ -5238,8 +5238,8 @@ Func_5f27::
 	add a
 	ld e, a
 	add a
-	add e
-	ld de, $6105
+	add e ; *6
+	ld de, Data_6105
 	add_de
 	ld a, [de]
 	inc de
@@ -5274,7 +5274,7 @@ Func_5f27::
 	ld a, [wc57a]
 	and $0f
 	push hl
-	ld hl, $60f5
+	ld hl, Data_60f5
 	add_hl
 	ld a, [hl]
 	pop hl
@@ -5287,9 +5287,20 @@ Func_5f27::
 .asm_60f3
 	pop bc
 	ret
-; 0x60f5
 
-SECTION "Func_613b", ROMX[$613b], BANK[$1]
+Data_60f5:
+	db $00, $01, $02, $03, $04, $05, $06, $07, $08, $07, $06, $05, $04, $03, $02, $01
+
+Data_6105:
+	db $10, $08, $ea, $0a, $00, $00 ; $0
+	db $10, $10, $ec, $0a, $ee, $0a ; $1
+	db $10, $10, $f0, $0a, $f2, $0a ; $2
+	db $10, $10, $ec, $4a, $ee, $4a ; $3
+	db $10, $08, $ea, $4a, $00, $00 ; $4
+	db $10, $10, $ee, $6a, $ec, $6a ; $5
+	db $10, $10, $f2, $2a, $f0, $2a ; $6
+	db $10, $10, $ee, $2a, $ec, $2a ; $7
+	db $10, $08, $e8, $0a, $00, $00 ; $8
 
 Func_613b:
 	push af
@@ -6669,7 +6680,7 @@ Func_69ae:
 
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_MissionTheBankJob_1
+	ld hl, DestinationCoords_TheBankJob_1
 	call SetDestinationCoords
 
 	ld hl, Timer_MissionTheBankJob
@@ -6702,7 +6713,7 @@ Func_69ae:
 	call Func_658f
 	call StartCountUpTimer
 
-	ld hl, DestinationCoords_MissionTheBankJob_2
+	ld hl, DestinationCoords_TheBankJob_2
 	call SetDestinationCoords
 
 	ld a, 14
@@ -9408,14 +9419,14 @@ Data_7eb2:
 	dw 3408, 6160
 	db 0 deg
 
-DestinationCoords_MissionTheBankJob_1:
+DestinationCoords_TheBankJob_1:
 	dw 3440
 	dw 3060
 ; 0x7ebb
 
-SECTION "DestinationCoords_MissionTheBankJob_2", ROMX[$7ebf], BANK[$1]
+SECTION "DestinationCoords_TheBankJob_2", ROMX[$7ebf], BANK[$1]
 
-DestinationCoords_MissionTheBankJob_2:
+DestinationCoords_TheBankJob_2:
 	dw 7460
 	dw 4640
 ; 0x7ec3
