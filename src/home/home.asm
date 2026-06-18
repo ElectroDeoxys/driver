@@ -6342,7 +6342,8 @@ Func_26b8::
 	cp c
 	ret
 
-Func_26c5:
+; returns nz if car's speed is at least 0.0625q12
+IsCarSpeedNonZero:
 	push hl
 	ld a, CARSTRUCT_SPEED + 1
 	add_hl
@@ -6380,7 +6381,7 @@ Func_26db::
 	push de
 	ld de, CARSTRUCT_SPEED + 1
 	add hl, de
-	bit 7, [hl]
+	bit 7, [hl] ; negative speed?
 	pop de
 	pop hl
 	ret z
@@ -6652,8 +6653,11 @@ Func_27e5::
 	pop de
 	ret
 
-Func_284b::
-	call Func_26c5
+; output:
+; - bc = y offset
+; - de = x offset
+CalculateCarSpeedOffsets::
+	call IsCarSpeedNonZero
 	jr nz, .non_zero
 	ld b, a
 	ld c, a
@@ -6661,31 +6665,31 @@ Func_284b::
 	ld e, a
 	ret
 .non_zero
-	call Func_29d6
+	call CalculateCarDirectionComponents
 	ld a, b
 	or c
-	call nz, Func_286d
+	call nz, CalculateCarSpeedComponent
 	ld a, d
 	or e
-	jr z, .asm_286a
+	jr z, .ret_nz
 	push bc
 	ld b, d
 	ld c, e
-	call Func_286d
+	call CalculateCarSpeedComponent
 	ld d, b
 	ld e, c
 	pop bc
-.asm_286a
+.ret_nz
 	xor a
 	dec a
 	ret
 
-Func_286d:
+CalculateCarSpeedComponent:
 	ld a, CARSTRUCT_SPEED + 1
 	push hl
 	add_hl
 	ld a, [hl]
-	call Func_2998
+	call CalculateSpeedComponent
 	pop hl
 	ret
 
@@ -6694,7 +6698,7 @@ Func_2877::
 	ld a, CARSTRUCT_0F
 	add_hl
 	ld a, [hl]
-	call Func_29ea
+	call CalculateDirectionComponents
 	pop hl
 	ld a, b
 	or c
@@ -6719,7 +6723,7 @@ Func_2877::
 	push hl
 	add_hl
 	ld a, [hl]
-	call Func_2998
+	call CalculateSpeedComponent
 	pop hl
 	ret
 
@@ -6844,7 +6848,7 @@ Func_292a:
 	ld l, b
 	push hl
 	ld a, c
-	call Func_29ea
+	call CalculateDirectionComponents
 	pop hl
 	push de
 	ld d, b
@@ -6918,7 +6922,11 @@ AddToCarCoordinates::
 	ld a, CARSTRUCT_X_FRAC
 	jp AddBCToStructField
 
-Func_2998::
+; given bc, a q8 number, multiply it
+; with a, a q4 number (which is taken from the
+; high byte of a q12 precision number)
+; output result in bc
+CalculateSpeedComponent::
 	ld hl, 0
 	bit 7, a ; negative?
 	jr z, .Func_29ac
@@ -6935,7 +6943,7 @@ Func_2998::
 	ld b, a
 	ret
 
-; calculates bc = bc * (a / 16)
+; calculates bc = bc * (a >> 4)
 .Func_29ac:
 	push af
 	and $0f
@@ -6968,12 +6976,17 @@ Func_2998::
 	jr nz, .asm_29d1
 	ret
 
-Func_29d6::
+; input:
+; - hl = Car*
+; output:
+; - de = cos(Car->dir)
+; - bc = sin(Car->dir)
+CalculateCarDirectionComponents::
 	push hl
 	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	call Func_29ea
+	call CalculateDirectionComponents
 	pop hl
 	ret
 
@@ -6986,7 +6999,12 @@ Func_29e0::
 	pop hl
 	ret
 
-Func_29ea::
+; outputs components in x and y of
+; a unit vector with direction given by a
+; output:
+; - de = cos(a)
+; - bc = sin(a)
+CalculateDirectionComponents::
 	ld c, a
 	swap a
 	and $0c
@@ -7006,14 +7024,14 @@ Func_29ea::
 	jp hl
 
 .PtrTable:
-	dw Func_2a2c
-	dw Func_2a10
-	dw Func_2a3c
-	dw Func_2a17
-	dw Func_2a49
-	dw Func_2a1e
-	dw Func_2a59
-	dw Func_2a25
+	dw Func_2a2c ; 0 deg < angle < 90 deg
+	dw Func_2a10 ; angle == 0 deg
+	dw Func_2a3c ; 90 deg < angle < 180 deg
+	dw Func_2a17 ; angle == 90 deg
+	dw Func_2a49 ; 180 deg < angle < 270 deg
+	dw Func_2a1e ; angle == 180 deg
+	dw Func_2a59 ; 270 deg < angle < 360 deg
+	dw Func_2a25 ; angle == 270 deg
 
 ; outputs (-1.0, 0.0)
 Func_2a10:
@@ -7111,7 +7129,7 @@ Cosine:
 	ret
 
 Func_2a7e:
-	call Func_29ea
+	call CalculateDirectionComponents
 	xor a
 	sub e
 	ld e, a
@@ -7546,7 +7564,7 @@ Func_2cbb:
 Func_2d2c:
 	push hl
 	ld a, [wdc7c + 0]
-	call Func_29ea
+	call CalculateDirectionComponents
 	ld a, b
 	or c
 	call nz, Func_2d47
@@ -7566,7 +7584,7 @@ Func_2d2c:
 
 Func_2d47:
 	ld a, [wdc7a]
-	jp Func_2998
+	jp CalculateSpeedComponent
 ; 0x2d4d
 
 SECTION "Func_2d66", ROM0[$2d66]
@@ -8339,7 +8357,7 @@ Func_3259:
 Func_3275::
 	push de
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	ld hl, wda68
 	ld [hl], c
 	inc hl
@@ -9368,7 +9386,7 @@ Func_37be:
 	ld a, ENT_UNK05
 	call GetStructByte_A
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	pop hl
 	push bc
 	ld b, d
@@ -9390,7 +9408,7 @@ Func_37e3:
 	call GetStructByte_A
 	push de
 	push hl
-	call Func_2998
+	call CalculateSpeedComponent
 	pop hl
 	pop de
 	ret

@@ -32,7 +32,10 @@ DEF CARSTRUCT_Y_FRAC RB ; $06
 DEF CARSTRUCT_Y RW ; $07
 DEF CARSTRUCT_X_FRAC RB ; $09
 DEF CARSTRUCT_X RW ; $0a
+; direction is in 256th of a full circle
+; (0 == 0 degrees, 256 == 360 degrees)
 DEF CARSTRUCT_DIR RB ; $0c
+; speed is (signed) q12 fixed precision
 DEF CARSTRUCT_SPEED RW ; $0d
 DEF CARSTRUCT_0F RB ; $0f
 DEF CARSTRUCT_10 RB ; $10

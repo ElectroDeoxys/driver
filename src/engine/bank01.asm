@@ -459,15 +459,15 @@ Func_42e1::
 	call Func_4382
 .asm_42fc
 	call GetEntityCarPtr
-	call Func_284b
-	bit 7, b
+	call CalculateCarSpeedOffsets
+	bit 7, b ; negative y offset?
 	jr z, .asm_4309
 	xor a
 	sub b
 	ld b, a
 .asm_4309
 	inc b
-	bit 7, d
+	bit 7, d ; negative x offset?
 	jr z, .asm_4311
 	xor a
 	sub d
@@ -593,7 +593,7 @@ Func_43be::
 	call Func_29e0
 	jr .asm_43cf
 .asm_43cc
-	call Func_29d6
+	call CalculateCarDirectionComponents
 .asm_43cf
 	push hl
 	ld h, b
@@ -3252,11 +3252,16 @@ Func_53c2:
 	jr .asm_53eb
 
 Func_5431:
-	call Func_284b
+	; apply speed to position
+	call CalculateCarSpeedOffsets
 	call AddToCarCoordinates
+
+	; update sprite struct
 	call Func_3047
+
 	ld a, 1
 	call YieldEntityUpdate
+
 	call Func_4c73
 	call Func_586a
 	call Func_54b3
@@ -3955,7 +3960,7 @@ Func_5805::
 	db $04, $1c, $10, $0e
 
 Func_586a:
-	bit 2, [hl]
+	bit CARFLAG_UNK2_F, [hl]
 	ret z
 	call Func_589b
 	ld a, [wd838]
@@ -3967,7 +3972,7 @@ Func_586a:
 	ld a, [wGameMode]
 	cp MODE_SURVIVAL
 	jr z, .asm_5888
-	ld a, $22
+	ld a, CARSTRUCT_22
 	call GetStructByte_A
 	and a
 	ret z
@@ -3983,7 +3988,7 @@ Func_5893:
 	jp SetStructWord_BC
 
 Func_589b:
-	ld a, $22
+	ld a, CARSTRUCT_22
 	ld c, $00
 	call SetStructByte_C
 	call Func_270f
@@ -4026,7 +4031,7 @@ Func_589b:
 	jr nc, .asm_58e0
 	pop hl
 	ld c, $01
-	ld a, $22
+	ld a, CARSTRUCT_22
 	jp SetStructByte_C
 .asm_58e0
 	pop hl
@@ -4399,7 +4404,7 @@ Func_5b25:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call Func_284b
+	call CalculateCarSpeedOffsets
 	ld h, d
 	ld l, e
 	call .Func_5b76
@@ -4869,7 +4874,7 @@ Func_5dfd:
 
 .Func_5e54:
 	ld [wdc7a], a
-	call Func_29ea
+	call CalculateDirectionComponents
 	ld h, b
 	ld l, c
 	add hl, hl
@@ -5147,7 +5152,7 @@ Func_5f27::
 	add $10
 	push af
 	and $e0
-	call Func_29ea
+	call CalculateDirectionComponents
 	ld h, b
 	ld l, c
 	call .Func_60d3
@@ -5376,7 +5381,7 @@ Func_6186:
 	ld a, CARSTRUCT_SPEED
 	call GetStructByte_A
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	ld h, b
 	ld l, c
 	call Func_6239
@@ -5392,7 +5397,7 @@ Func_6186:
 	ld a, CARSTRUCT_SPEED
 	call GetStructByte_A
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	call Random
 	and $03
 	jumptable
@@ -5556,7 +5561,7 @@ Func_6288:
 	ld a, CARSTRUCT_SPEED
 	call GetStructByte_A
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	ld h, b
 	ld l, c
 	call Func_633b
@@ -5572,7 +5577,7 @@ Func_6288:
 	ld a, $0d
 	call GetStructByte_A
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	call Random
 	and $03
 	jumptable
@@ -5782,19 +5787,19 @@ Func_6398:
 	add_hl
 	ld a, [hli]
 	push hl
-	call Func_29ea
+	call CalculateDirectionComponents
 	pop hl
 	ld a, [hl]
 	push bc
 	ld b, d
 	ld c, e
 	push af
-	call Func_2998
+	call CalculateSpeedComponent
 	pop af
 	ld d, b
 	ld e, c
 	pop bc
-	call Func_2998
+	call CalculateSpeedComponent
 	call GetEntityCarPtr
 	ld a, CARSTRUCT_01
 	push de
@@ -7069,7 +7074,7 @@ Func_6bbb:
 
 .Func_6c9e:
 	ld a, [wda7c]
-	call Func_29ea
+	call CalculateDirectionComponents
 	call GetEntityCarPtr
 	push de
 	ld a, CARSTRUCT_01
@@ -7080,7 +7085,7 @@ Func_6bbb:
 	push af
 	push hl
 	ld a, [wda7d]
-	call Func_2998
+	call CalculateSpeedComponent
 	pop hl
 	pop af
 	jp AddBCToStructField
