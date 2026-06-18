@@ -886,7 +886,7 @@ Func_861f:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld b, $38
+	ld b, 7 palettes
 	ld de, wTempDMGPals
 	call FarCopy
 	ld a, $01
