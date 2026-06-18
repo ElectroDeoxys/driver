@@ -1057,9 +1057,9 @@ SafeCopyBTiles:
 SafeCopyTile:
 	ld b, TILE_SIZE
 	call SafeCopyHLToDE
-	ld a, [wd7f7]
+	ld a, [wNumCopiedTiles]
 	inc a
-	ld [wd7f7], a
+	ld [wNumCopiedTiles], a
 	ld a, e
 	and a
 	ret nz
@@ -2769,9 +2769,9 @@ Func_1124::
 	and a
 	ret
 
-Func_1142::
+ResetNumberOfCopiedTiles::
 	xor a
-	ld [wd7f7], a
+	ld [wNumCopiedTiles], a
 	ret
 
 Func_1147::
@@ -3620,23 +3620,22 @@ SpawnEntity::
 	inc hl
 	ld [hl], c ; ENT_UPDATE_FUNC_BANK
 	inc hl
-	; loads ENT_UNK50 address to ENT_STACK_POINTER
 	ld d, h
 	ld e, l
-	ld a, ENT_UNK50 - ENT_STACK_POINTER
+	ld a, (ENT_STACK_BOTTOM - 8) - ENT_STACK_POINTER
 	add_de
 	ld [hl], e ; ENT_STACK_POINTER
 	inc hl     ;
 	ld [hl], d ;
 	inc hl
 	ld [hl], b ; ENT_UNK05
-	ld a, (ENT_UNK56 + 1) - ENT_UNK05
+	ld a, (ENT_STACK_BOTTOM - 1) - ENT_UNK05
 	add_hl
 	pop de ; input hl
-	ld [hl], d ; ENT_UNK56
-	dec hl     ;
-	ld [hl], e ;
-	ld de, -ENT_UNK56
+	ld [hl], d
+	dec hl
+	ld [hl], e
+	ld de, -(ENT_STACK_BOTTOM - 2)
 	add hl, de
 	and a
 	ret
@@ -3652,13 +3651,12 @@ Func_1569::
 	push de
 	ld d, h
 	ld e, l
-	ld a, ENT_UNK4F - ENT_UPDATE_FUNC_BANK
+	ld a, (ENT_STACK_BOTTOM - 9) - ENT_UPDATE_FUNC_BANK
 	add_de
-	; write ENT_UNK4F address to ENT_STACK_POINTER
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld a, (ENT_UNK56 + 1) - (ENT_STACK_POINTER + 1)
+	ld a, (ENT_STACK_BOTTOM - 1) - (ENT_STACK_POINTER + 1)
 	add_hl
 	pop de ; input de
 	ld [hl], d ; ENT_UNK56
@@ -3666,13 +3664,13 @@ Func_1569::
 	ld [hl], e
 	ret
 
-Func_157f::
+SetEntityUpdateFunc::
 	bankswitch
 	ld hl, wEntityPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $58
+	ld a, ENT_STACK_BOTTOM
 	add_hl
 	ld sp, hl
 	ld h, d
@@ -3756,7 +3754,7 @@ GameLoop:
 	ld a, [wd820]
 	cp $03
 	jr z, .asm_1669
-	call Func_1142
+	call ResetNumberOfCopiedTiles
 	call Func_1c57
 	call Func_1c7b
 	ld a, [wc579]
@@ -4690,6 +4688,7 @@ Func_1c57:
 	ld a, c
 	ld [wc573], a
 
+	; handle input to disply debug mode
 	ld a, [wActiveCheats]
 	and CHEAT_TEST_STUFF
 	ret z
@@ -4702,18 +4701,26 @@ Func_1c57:
 	ret
 
 Func_1c7b:
+	; exit if not in Credits
 	ld a, [wGameMode]
 	cp MODE_CREDITS
 	ret z
+
+	; exit if fading active
 	ld a, [wFadeActive]
 	and a
 	ret nz
+
+	; exit if wd820 != 1
 	ld a, [wd820]
 	cp $01
 	ret nz
+
+	; exit if not pressing Start
 	ld a, [wc574]
 	and PAD_START
 	ret z
+
 	ld a, [wc579]
 	and a
 	jr nz, .asm_1ca9
@@ -6741,11 +6748,11 @@ Func_289f::
 	pop af
 .asm_28ae
 	push af
-	ld a, ENT_UNK10
+	ld a, CARSTRUCT_10
 	call SetStructWord_BC
 	pop af
 	ld c, a
-	ld a, ENT_UNK0F
+	ld a, CARSTRUCT_0F
 	jp SetStructByte_C
 
 Func_28bb::
@@ -9061,18 +9068,18 @@ Func_35ad:
 	call SetStructWord_DE
 	call Func_1124
 	jr c, .asm_362e
-	ld a, ENT_UNK11
+	ld a, CARSTRUCT_11
 	call SetStructWord_DE
 	ld a, [de]
-	or $06
+	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
 	ld [de], a
-	ld a, $07
+	ld a, SPRITESTRUCT_UNK07
 	add_de
 	ld a, $10
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK07
 	inc de
 	ld a, $08
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK08
 	jp Func_3637
 .asm_362b
 	xor a
@@ -9080,7 +9087,7 @@ Func_35ad:
 	ret
 .asm_362e
 	ld [hl], $00
-	ld a, $0f
+	ld a, CARSTRUCT_0F
 	call GetStructWord_DE
 	jr .asm_362b
 
@@ -9319,14 +9326,14 @@ Func_3743:
 	jp Func_37f0
 
 Func_3773:
-	ld a, ENT_UNK08
+	ld a, CARSTRUCT_Y + 1
 	call GetStructByte_A
 	rrca
 	rrca
 	and $3f
 	ld b, a
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	ld c, [hl]
 	dec hl
@@ -9383,7 +9390,7 @@ Func_3798:
 
 Func_37be:
 	call Func_37fb
-	ld a, ENT_UNK05
+	ld a, CARSTRUCT_05
 	call GetStructByte_A
 	push hl
 	call CalculateDirectionComponents
@@ -9404,7 +9411,7 @@ Func_37be:
 	jp AddBCToStructField
 
 Func_37e3:
-	ld a, ENT_UNK08
+	ld a, CARSTRUCT_Y + 1
 	call GetStructByte_A
 	push de
 	push hl
@@ -9423,7 +9430,7 @@ Func_37f0:
 	jr Func_3802
 Func_37fb:
 	push hl
-	ld a, $09
+	ld a, CARSTRUCT_X_FRAC
 	add_hl
 	ld de, wda6e
 Func_3802:

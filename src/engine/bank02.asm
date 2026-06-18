@@ -2157,7 +2157,7 @@ BestTimesMenu:
 
 	ld de, Func_8f51
 	ld a, BANK(Func_8f51)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 .Func_8eed:
 	inc de
@@ -3175,7 +3175,7 @@ Func_94d8:
 	xor a
 	ld [wdc29], a
 .asm_94f5
-	call Func_1142
+	call ResetNumberOfCopiedTiles
 	call Random ; advance RNG
 	call UpdateEntities
 	ld a, [wdc29]
@@ -4626,7 +4626,7 @@ OptionsMenu:
 	call Func_9962
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 LanguageMenu:
 	call Func_98c5
@@ -4634,7 +4634,7 @@ LanguageMenu:
 	call Func_9962
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 DrivingGamesMenu:
 	call Func_98c5
@@ -4642,7 +4642,7 @@ DrivingGamesMenu:
 	call Func_9962
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 TakeARideMenu:
 	ld hl, NULL
@@ -4657,7 +4657,7 @@ TakeARideMenu:
 	call Func_9962
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 CheatsMenu:
 	call Func_98c5
@@ -4665,7 +4665,7 @@ CheatsMenu:
 	call Func_9962
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 UndercoverMenu:
 	call Func_98c5
@@ -4673,7 +4673,7 @@ UndercoverMenu:
 	call Func_9962
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_9dce:
 	call YieldEntityUpdateUntilFadeEnds
@@ -4816,7 +4816,7 @@ Func_9e6c:
 	ld [wMainMenuEntry], a
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_9eb2:
 	xor a
@@ -5709,7 +5709,7 @@ Func_a467:
 	jp nz, ExitTitlescreenOrMainScreen
 	ld de, Func_a1c5
 	ld a, BANK(Func_a1c5)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_a47a:
 	call Func_94c1
@@ -5719,7 +5719,7 @@ Func_a47a:
 	ld [wMainMenuEntry], a
 	ld de, Func_961f
 	ld a, BANK(Func_961f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 ExitTitlescreenOrMainScreen:
 	ld a, $17
@@ -5860,7 +5860,7 @@ Func_a56c:
 	call RetIfNoAOrStartBtn
 	ld de, Func_9eb2
 	ld a, BANK(Func_9eb2)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_a577:
 	call RetIfNoAOrStartBtn
@@ -5870,7 +5870,7 @@ Func_a577:
 	ld [wMission], a
 	ld de, ExitTitlescreenOrMainScreen
 	ld a, BANK(ExitTitlescreenOrMainScreen)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_a58b:
 	push af
@@ -5897,7 +5897,7 @@ Func_a58b:
 	ld [wMainMenuEntry], a
 	ld de, Func_9dce
 	ld a, BANK(Func_9dce)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_a5c5:
 	ld a, [wMainMenuEntry]

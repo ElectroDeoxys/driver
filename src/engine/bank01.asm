@@ -65,7 +65,7 @@ Func_4066:
 	jr z, .asm_407b
 	ld de, Func_4446
 	ld a, BANK(Func_4446)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_408f:
 	call GetEntityCarPtr
@@ -720,7 +720,7 @@ Func_4446:
 	res CARFLAG_PLAYER_F, [hl]
 	ld de, Func_5c32
 	ld a, BANK(Func_5c32)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 .asm_4489
 	call Func_4626
@@ -1704,7 +1704,7 @@ Func_4a51:
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	swap_hl_de
-	ld a, ENT_UNK23
+	ld a, CARSTRUCT_ENT_PTR
 	call SetStructWord_DE
 	and a
 	ret
@@ -2094,7 +2094,7 @@ Func_4c73:
 .asm_4c97
 	ld de, Func_4c9f
 	ld a, BANK(Func_4c9f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_4c9f:
 	ld hl, wda56
@@ -2571,7 +2571,7 @@ Func_4ec7:
 	call Func_55e3
 	ld de, Func_5110
 	ld a, BANK(Func_5110)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_4fbc
 	ld a, $14
 	ld c, $08
@@ -2591,11 +2591,11 @@ Func_4ec7:
 	call Func_55e3
 	ld de, Func_523b
 	ld a, BANK(Func_523b)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_4fe0
 	ld de, Func_535f
 	ld a, BANK(Func_535f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_4fe8:
 	call GetEntityCarPtr
@@ -2743,7 +2743,7 @@ Func_4fe8:
 	call Func_55e3
 	ld de, Func_5110
 	ld a, BANK(Func_5110)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_50e4
 	ld a, $14
 	ld c, $08
@@ -2763,11 +2763,11 @@ Func_4fe8:
 	call Func_55e3
 	ld de, Func_523b
 	ld a, BANK(Func_523b)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5108
 	ld de, Func_535f
 	ld a, BANK(Func_535f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_5110:
 	call GetEntityCarPtr
@@ -2918,7 +2918,7 @@ Func_5110:
 	call Func_55f4
 	ld de, Func_4fe8
 	ld a, BANK(Func_4fe8)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_520f
 	ld a, $14
 	ld c, $01
@@ -2938,11 +2938,11 @@ Func_5110:
 	call Func_55f4
 	ld de, Func_4ec7
 	ld a, BANK(Func_4ec7)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5233
 	ld de, Func_535f
 	ld a, BANK(Func_535f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_523b:
 	call GetEntityCarPtr
@@ -3086,7 +3086,7 @@ Func_523b:
 	call Func_55f4
 	ld de, Func_4fe8
 	ld a, BANK(Func_4fe8)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5333
 	ld a, $14
 	ld c, $01
@@ -3106,11 +3106,11 @@ Func_523b:
 	call Func_55f4
 	ld de, Func_4ec7
 	ld a, BANK(Func_4ec7)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5357
 	ld de, Func_535f
 	ld a, BANK(Func_535f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_535f:
 	call GetEntityCarPtr
@@ -3124,7 +3124,7 @@ Func_535f:
 .asm_5373
 	ld de, Func_4c9f
 	ld a, BANK(Func_4c9f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_537b:
 	ld a, $0d
@@ -3631,19 +3631,26 @@ SpawnCivilianCar:
 
 Func_5643:
 	call Random
-	and $07
+	maskbits 8
 	ld de, .data
 	add_de
 	ld a, [de]
 	ld b, a
-	ld a, ENT_UNK15
+	ld a, CARSTRUCT_15
 	call SetStructByte_B
-	ld a, ENT_UNK0D
+	ld a, CARSTRUCT_SPEED
 	ld c, $00
 	jp SetStructWord_BC
 
 .data
-	db $20, $20, $20, $18, $18, $28, $28, $10
+	db HIGH(2.0q12)
+	db HIGH(2.0q12)
+	db HIGH(2.0q12)
+	db HIGH(1.5q12)
+	db HIGH(1.5q12)
+	db HIGH(2.5q12)
+	db HIGH(2.5q12)
+	db HIGH(1.0q12)
 
 ; input:
 ; - a  = direction
@@ -3795,7 +3802,7 @@ Func_56db:
 	ret nz
 	ld de, Func_5906
 	ld a, BANK(Func_5906)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5756
 	ld c, a
 	ld a, [wd86c]
@@ -3806,7 +3813,7 @@ Func_56db:
 	ret nc
 	ld de, Func_5e75
 	ld a, BANK(Func_5e75)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_576a
 	ld a, c
 	and a
@@ -3954,7 +3961,7 @@ Func_5805::
 	call Func_5893
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 .data
 	db $04, $1c, $10, $0e
@@ -3980,7 +3987,7 @@ Func_586a:
 	call Func_5893
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_5893:
 	ld a, CARSTRUCT_1C
@@ -4093,7 +4100,7 @@ Func_5906:
 	call SetStructByte_C
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_5950:
 	call GetEntityCarPtr
@@ -4112,7 +4119,7 @@ Func_5950:
 	ld [wda6d], a
 	xor a
 	ld [wda74], a
-	ld a, $1f
+	ld a, CARSTRUCT_1F
 	call GetStructByte_C
 	ld a, [wda6d]
 	call Func_271b
@@ -4131,7 +4138,7 @@ Func_5950:
 	jr z, .asm_59b7
 	cpl
 	ld b, a
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	call Func_271b
 	ld c, a
@@ -4146,7 +4153,7 @@ Func_5950:
 	call Func_2747
 	ld [wda6d], a
 .asm_59b7
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	call GetStructByte_C
 	ld a, [wda6d]
 	sub c
@@ -4185,7 +4192,7 @@ Func_5950:
 	call Func_5aa0
 	jr .asm_59f8
 .asm_59f8
-	ld a, $1f
+	ld a, CARSTRUCT_1F
 	ld c, $00
 	call SetStructByte_C
 	ld a, $10
@@ -4195,7 +4202,7 @@ Func_5950:
 	ld a, [wd839]
 	and a
 	jr nz, .asm_5a29
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	call GetStructWord_BC
 	srl b
 	rr c
@@ -4205,10 +4212,10 @@ Func_5950:
 	call Func_289f
 	ld de, Func_56db
 	ld a, BANK(Func_56db)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5a29
 	push hl
-	ld a, $1f
+	ld a, CARSTRUCT_1F
 	add_hl
 	ld [hl], c
 	pop hl
@@ -4216,7 +4223,7 @@ Func_5950:
 	call Func_5b7a
 	ld c, a
 	push hl
-	ld a, $1f
+	ld a, CARSTRUCT_1F
 	add_hl
 	ld a, c
 	or [hl]
@@ -4281,7 +4288,7 @@ Func_5a84:
 	jr z, .asm_5a99
 	ld de, Func_4c9f
 	ld a, BANK(Func_4c9f)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_5a99
 	ld a, 1
 	call YieldEntityUpdate
@@ -4908,7 +4915,7 @@ Func_5e75:
 	res CARFLAG_UNK4_F, [hl]
 	ld de, Func_5c32
 	ld a, BANK(Func_5c32)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_5e97::
 	ld a, [wGameMode]
@@ -5878,7 +5885,7 @@ Func_6446:
 	call PlayMusic
 	ld de, Func_64e2
 	ld a, BANK(Func_64e2)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 .asm_6484
 	ld a, [wHUDMessageStep]
@@ -5890,7 +5897,7 @@ Func_6446:
 .asm_6491
 	ld de, Func_64b4
 	ld a, BANK(Func_64b4)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_6499:
 	call Func_6563
@@ -6118,7 +6125,7 @@ Func_65b4::
 	jr nz, .asm_65e4
 	ld de, Func_64b1
 	ld a, BANK(Func_64b1)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 .asm_6619
 	ld a, 1
 	call YieldEntityUpdate
@@ -6292,7 +6299,7 @@ Func_66fa::
 	jr nz, .asm_671f
 	ld de, Func_6499
 	ld a, BANK(Func_6499)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_6732::
 	call YieldEntityUpdateUntilFadeEnds
@@ -6344,7 +6351,7 @@ Func_6732::
 	call PlayMusic
 	ld de, Func_64e2
 	ld a, BANK(Func_64e2)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 .Func_679c:
 	ld a, [wd86c]
@@ -6352,7 +6359,7 @@ Func_6732::
 	ret c
 	ld de, Func_6499
 	ld a, BANK(Func_6499)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_67aa::
 	ld a, $02
@@ -6562,7 +6569,7 @@ SetMissionFailed:
 	ld [wTitlescreenTransition], a
 	ld de, Func_64e2
 	ld a, BANK(Func_64e2)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 SetMissionComplete:
 	ld a, $02
@@ -6587,7 +6594,7 @@ SetMissionComplete:
 	ld [wTitlescreenTransition], a
 	ld de, Func_64e2
 	ld a, BANK(Func_64e2)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 LoadMission::
 	ld hl, MissionLoadPointerTable
@@ -7672,7 +7679,7 @@ Func_70d8:
 	jr z, .loop
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 Func_70eb:
 	ld a, ENT_CAR_PTR
@@ -8303,7 +8310,7 @@ Func_7637:
 	call SetStructWord_BC
 	ld de, Func_5950
 	ld a, BANK(Func_5950)
-	jp Func_157f
+	jp SetEntityUpdateFunc
 
 SECTION "Data_764a", ROMX[$764a], BANK[$1]
 

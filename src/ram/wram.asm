@@ -195,7 +195,9 @@ wVRAMNumTiles_v1_8000:: db ; d7f4
 wVRAMNumTiles_v1_9000:: db ; d7f5
 wVRAMNumTiles_v1_8800:: db ; d7f6
 
-wd7f7:: db ; d7f7
+; incremented each time SafeCopyTile is invoked
+; value is never used, possibly was used for debugging
+wNumCopiedTiles:: db ; d7f7
 
 wNumTilesToPush:: db ; d7f8
 
