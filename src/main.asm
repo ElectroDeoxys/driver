@@ -1,5 +1,7 @@
 SECTION "Bank01", ROMX
 INCLUDE "engine/bank01.asm"
+SECTION "PlayerSpawnParams_TheBankJob", ROMX[$7eb2], BANK[$1]
+INCLUDE "data/missions.asm"
 
 SECTION "Bank02", ROMX
 INCLUDE "engine/bank02.asm"

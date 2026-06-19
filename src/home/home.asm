@@ -3851,7 +3851,7 @@ Func_16e2:
 	assert_table_length NUM_GAME_MODES
 
 .TakeARide:
-	call Func_1972
+	call ChooseCarPool_WithCop
 
 	ld a, [wCity]
 	call SetCity
@@ -3893,7 +3893,7 @@ Func_16e2:
 	ret
 
 .Checkpoint:
-	call Func_1977
+	call ChooseCarPool_WithoutCop
 	ld a, [wCity]
 	call SetCity
 	call SetDefaultPlayerCar
@@ -3902,7 +3902,7 @@ Func_16e2:
 	ret
 
 .GetAway:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, [wCity]
 	call SetCity
 	call SetDefaultPlayerCar
@@ -3911,7 +3911,7 @@ Func_16e2:
 	ret
 
 .Pursuit:
-	call Func_1977
+	call ChooseCarPool_WithoutCop
 	ld a, [wCity]
 	call SetCity
 	call SetDefaultPlayerCar
@@ -3920,7 +3920,7 @@ Func_16e2:
 	ret
 
 .Survival:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, [wCity]
 	call SetCity
 	call SetDefaultPlayerCar
@@ -3948,7 +3948,7 @@ Func_178e:
 	assert_table_length NUM_GAME_MODES
 
 Func_17a0:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	ld hl, Func_65a9
@@ -3973,7 +3973,7 @@ Func_17b4:
 	ld a, $00
 	vramswitch
 
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	call Func_1928
@@ -3998,7 +3998,7 @@ Func_17b4:
 	ret
 
 Func_1808:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld a, $01
@@ -4030,8 +4030,8 @@ Func_1808:
 	ret
 
 Func_184b:
-	ld a, $04
-	ld [wd82d], a
+	ld a, 4
+	ld [wMaxNumNPCCars], a
 	ld hl, NULL
 	call Func_1eda
 	xor a
@@ -4070,7 +4070,7 @@ Func_184b:
 
 Func_1899:
 	xor a
-	ld [wd82d], a
+	ld [wMaxNumNPCCars], a
 	ld hl, NULL
 	call Func_1eda
 	ld a, MAX_FELONY
@@ -4098,7 +4098,7 @@ Func_18c5:
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
 
-	call Func_1972
+	call ChooseCarPool_WithCop
 
 	ld a, [wCity]
 	call SetCity
@@ -4133,7 +4133,7 @@ Func_18c5:
 	ret
 
 Func_190f:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	ld a, MAX_FELONY
@@ -4197,13 +4197,13 @@ Func_195e::
 	bankswitch
 	ret
 
-Func_1972::
-	ld hl, Data_1f97
-	jr Func_197c
-Func_1977::
-	ld hl, Data_1f67
-	jr Func_197c ; useless jump
-Func_197c:
+ChooseCarPool_WithCop::
+	ld hl, NPCCarPool_WithCop
+	jr ChooseCarPool
+ChooseCarPool_WithoutCop::
+	ld hl, NPCCarPool_WithoutCop
+	jr ChooseCarPool ; useless jump
+ChooseCarPool:
 	call Random
 	and $03
 	add a
@@ -5089,9 +5089,10 @@ ShowHUDMessage::
 	bankswitch
 	ret
 
-Func_1ed4::
-	ld a, $05
-	ld [wd82d], a
+; sets wMaxNumNPCCars to 5
+SetDefaultMaxNumNPCCars::
+	ld a, 5
+	ld [wMaxNumNPCCars], a
 	ret
 
 ; input:
@@ -5159,7 +5160,7 @@ Data_1f37::
 
 SECTION "Func_1f67", ROM0[$1f67]
 
-Data_1f67:
+NPCCarPool_WithoutCop:
 	db CAR_03, CAR_04, CAR_05, TAXI
 	db CAR_03, CAR_03, CAR_04, CAR_04, CAR_05, CAR_05, TAXI, TAXI
 
@@ -5172,7 +5173,7 @@ Data_1f67:
 	db CAR_04, CAR_09, CAR_10, TAXI
 	db CAR_04, CAR_04, CAR_09, CAR_09, CAR_10, CAR_10, TAXI, TAXI
 
-Data_1f97:
+NPCCarPool_WithCop:
 	db COP_CAR, TAXI, CAR_03, CAR_04
 	db CAR_03, CAR_03, CAR_03, CAR_04, CAR_04, CAR_04, TAXI, TAXI
 

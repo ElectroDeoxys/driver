@@ -261,7 +261,8 @@ wPlayerCarSpawnY:: dw ; d82a
 
 wPlayerCarSpawnDir:: db ; d82c
 
-wd82d:: db ; d82d
+; the maximum number of NPC cars that are allowed to be spawned in
+wMaxNumNPCCars:: db ; d82d
 
 wd82e:: dw ; d82e
 
@@ -460,7 +461,8 @@ wda54:: db ; da54
 
 wda55:: db ; da55
 
-wda56:: db ; da56
+; how many NPC cars are currently spawned in
+wNumNPCCars:: db ; da56
 
 wda57:: db ; da57
 
@@ -529,7 +531,11 @@ wda7f:: db ; da7f
 
 wda80:: db ; da80
 
-wda81:: db ; da81
+; current restaurant to ram in Ram Raid Race mission
+wRamRaidRaceRestaurant:: ; da81
+; current car to ram in Granger's Gang mission
+wGrangersGangCar:: ; da81
+	db
 
 wda82:: db ; da82
 

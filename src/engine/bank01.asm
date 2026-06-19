@@ -1540,16 +1540,16 @@ Data_491d:
 
 EntUpdate_CarSpawner::
 	xor a
-	ld [wda56], a
+	ld [wNumNPCCars], a
 	ld [wda55], a
 	call Random
 	and $03
 	ld [wda57], a
 .loop
-	ld a, [wda56]
-	ld hl, wd82d
+	ld a, [wNumNPCCars]
+	ld hl, wMaxNumNPCCars
 	cp [hl]
-	jr nc, .yield
+	jr nc, .skip
 	ld a, [wda55]
 	ld hl, wd830
 	cp [hl]
@@ -1565,10 +1565,10 @@ EntUpdate_CarSpawner::
 	ld a, [wCopSpawnCooldown]
 	ld [hl], a ; wCopSpawnTimer
 	call Func_49c6
-	jr .yield
+	jr .skip
 .spawn_civilian
 	call Func_49e3
-.yield
+.skip
 	ld a, 1
 	call YieldEntityUpdate
 	jr .loop
@@ -1580,7 +1580,7 @@ Func_49c6:
 	jr z, .wait
 	call Func_4a3d
 	jr c, .wait
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	inc [hl]
 	ld hl, wda55
 	inc [hl]
@@ -1597,7 +1597,7 @@ Func_49e3:
 	jr z, .wait
 	call Func_4a48
 	jr c, .wait
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	inc [hl]
 	ret
 .wait
@@ -2097,7 +2097,7 @@ Func_4c73:
 	jp SetEntityUpdateFunc
 
 Func_4c9f:
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	call .Func_4cbd
 	call GetEntityCarPtr
 	ld a, CARSTRUCT_SPRITE_PTR
@@ -3940,7 +3940,7 @@ Func_5805::
 	call Func_58e2
 	ld hl, wda55
 	inc [hl]
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	inc [hl]
 .asm_583a
 	ld a, 1
@@ -6088,7 +6088,7 @@ Func_65b4::
 	cp $01
 	jr nz, .asm_65c6
 	ld a, TIMER_MODE_COUNT_UP
-	lb bc, $0, $00
+	ld bc, $0_00
 	call StartTimer
 	ld hl, Func_6620
 	ld c, BANK(Func_6620)
@@ -6282,8 +6282,8 @@ Func_66fa::
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
-	ld a, $02
-	ld bc, NULL
+	ld a, TIMER_MODE_COUNT_UP
+	ld bc, $0_00
 	call StartTimer
 	ld a, $01
 	ld [wd820], a
@@ -6311,8 +6311,8 @@ Func_6732::
 	ld a, $01
 	ld [wda7b], a
 	call WaitHUDMessage
-	ld a, $02
-	ld bc, NULL
+	ld a, TIMER_MODE_COUNT_UP
+	ld bc, $0_00
 	call StartTimer
 	ld a, $01
 	ld [wd820], a
@@ -6362,22 +6362,22 @@ Func_6732::
 	jp SetEntityUpdateFunc
 
 Func_67aa::
-	ld a, $02
-	ld [wd82d], a
+	ld a, 2
+	ld [wMaxNumNPCCars], a
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, ItsTheCopsGetOutOfHereTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
-	ld a, $02
-	ld bc, NULL
+	ld a, TIMER_MODE_COUNT_UP
+	ld bc, $0_00
 	call StartTimer
 	ld a, $01
 	ld [wd820], a
 	ld a, $1e
 	call YieldEntityUpdate
-	ld a, $05
-	ld [wd82d], a
+	ld a, 5
+	ld [wMaxNumNPCCars], a
 	ld hl, $1f4f
 	call Func_1eda
 	jp YieldEntityUpdateIndefinitely
@@ -6535,7 +6535,7 @@ StartCountDownTimer:
 ; starts count up timer, starts at 0:00
 StartCountUpTimer:
 	ld a, TIMER_MODE_COUNT_UP
-	lb bc, $0, $00
+	ld bc, $0_00
 	jp StartTimer
 
 Func_68b8:
@@ -6667,26 +6667,26 @@ Data_6967:
 	assert_table_length NUM_MISSIONS
 
 Func_6985:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7eb2
+	ld hl, PlayerSpawnParams_TheBankJob
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6997:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	call LoadPersonGfx
-	ld hl, Func_69ae
-	ld c, BANK(Func_69ae)
+	ld hl, EntUpdate_MissionController_TheBankJob
+	ld c, BANK(EntUpdate_MissionController_TheBankJob)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_69ae:
+EntUpdate_MissionController_TheBankJob:
 	call YieldEntityUpdateUntilFadeEnds
 
 	ld hl, GetToTheBankTexts
@@ -6696,10 +6696,11 @@ Func_69ae:
 
 	ld a, $01
 	ld [wd820], a
+	
 	ld hl, DestinationCoords_TheBankJob_1
 	call SetDestinationCoords
 
-	ld hl, Timer_MissionTheBankJob
+	ld hl, Timer_TheBankJob
 	call StartCountDownTimer
 
 .bank_loop
@@ -6789,19 +6790,19 @@ Func_6a51:
 	jp Func_79d8
 
 Func_6a6a:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
 	ld a, RED_CAR
 	ld [wPlayerCar], a
 	ld a, OBPAL_RED
 	ld [wPlayerCarOBPal], a
-	ld hl, PlayerSpawnParams_7ec9
+	ld hl, PlayerSpawnParams_HideTheEvidence
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6a83:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld hl, Func_6a97
@@ -6818,7 +6819,7 @@ Func_6a97:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_7ece
+	ld hl, DestinationCoords_HideTheEvidence
 	call SetDestinationCoords
 	call StartCountUpTimer
 	ld a, 14
@@ -6837,16 +6838,16 @@ Func_6a97:
 	jp SetMissionComplete
 
 Func_6ad5:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7ed2
+	ld hl, PlayerSpawnParams_BoatChase
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6ae7:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call Func_7bd4
@@ -6875,7 +6876,7 @@ Func_6b0c:
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wd820], a
-	ld hl, Timer_MissionBoatChase
+	ld hl, Timer_BoatChase
 	call StartCountDownTimer
 	ld a, $03
 	ld [wda76], a
@@ -6893,7 +6894,7 @@ Func_6b0c:
 	call YieldEntityUpdate
 	jr .asm_6b36
 .asm_6b50
-	ld hl, DestinationCoords_7edb
+	ld hl, DestinationCoords_BoatChase
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
@@ -7329,16 +7330,16 @@ Func_6bbb:
 	dw NULL
 
 Func_6e49:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7ee1
+	ld hl, PlayerSpawnParams_RamRaidRace
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6e5b:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call Func_7bfc
@@ -7351,14 +7352,14 @@ Func_6e5b:
 Func_6e72:
 	call YieldEntityUpdateUntilFadeEnds
 	xor a
-	ld [wda81], a
+	ld [wRamRaidRaceRestaurant], a
 	inc a
 	ld [wda82], a
 	call .Func_6ec9
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, Timer_MissionRamRaidRace
+	ld hl, Timer_RamRaidRace
 	call StartCountDownTimer
 .asm_6e8e
 	call .Func_6edf
@@ -7374,7 +7375,7 @@ Func_6e72:
 	ld a, 11
 	call IncreaseFelony
 	call .Func_6ee9
-	ld hl, wda81
+	ld hl, wRamRaidRaceRestaurant
 	inc [hl]
 	ld a, [hl]
 	cp $05
@@ -7390,7 +7391,7 @@ Func_6e72:
 	jp SetMissionFailed
 
 .Func_6ec9:
-	ld a, [wda81]
+	ld a, [wRamRaidRaceRestaurant]
 	ld hl, .TextsTable
 	get_pointer
 	ld c, 90
@@ -7404,8 +7405,8 @@ Func_6e72:
 	dw GetToTheLastRestaurantTexts
 
 .Func_6edf:
-	ld hl, Data_7ee6
-	ld a, [wda81]
+	ld hl, DestinationCoordsTable_RamRaidRace
+	ld a, [wRamRaidRaceRestaurant]
 	add a
 	add a ; *4
 	add_hl
@@ -7421,7 +7422,7 @@ Func_6e72:
 	inc hl
 	ld d, [hl]
 	ld hl, Data_7efa
-	ld a, [wda81]
+	ld a, [wRamRaidRaceRestaurant]
 	add_hl
 	ld l, [hl]
 	ld h, $14
@@ -7430,19 +7431,19 @@ Func_6e72:
 	jp PlaySFX
 
 Func_6f05:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
 	ld a, LIMOUSINE
 	ld [wPlayerCar], a
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
-	ld hl, PlayerSpawnParams_7f01
+	ld hl, PlayerSpawnParams_SuperflyDrive
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6f1e:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	ld hl, Func_6f32
@@ -7461,9 +7462,9 @@ Func_6f32:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_7f06
+	ld hl, DestinationCoords_SuperflyDrive
 	call SetDestinationCoords
-	ld hl, Timer_MissionSuperflyDrive
+	ld hl, Timer_SuperflyDrive
 	call StartCountDownTimer
 	xor a
 	ld [wda9a], a
@@ -7485,16 +7486,16 @@ Func_6f32:
 	jp SetMissionComplete
 
 Func_6f7b:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7f0c
+	ld hl, PlayerSpawnParams_BaitForATrap
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_6f8d:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	ld a, BROWN_CAR
@@ -7514,9 +7515,9 @@ Func_6fa9:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_7f11
+	ld hl, DestinationCoords_BaitForATrap_1
 	call SetDestinationCoords
-	ld hl, Timer_MissionBaitForATrap
+	ld hl, Timer_BaitForATrap
 	call StartCountDownTimer
 .asm_6fc8
 	ld a, 1
@@ -7541,7 +7542,7 @@ Func_6fa9:
 	cp e
 .asm_6fec
 	jr nc, .asm_6fc8
-	ld hl, DestinationCoords_7f11
+	ld hl, DestinationCoords_BaitForATrap_1
 	lb de, OBPAL_BLACK, BROWN_CAR
 	call Func_70f9
 	push hl
@@ -7596,7 +7597,7 @@ Func_6fa9:
 	ld hl, DontLoseHimTexts
 	ld c, 90
 	call ShowHUDMessage
-	ld hl, DestinationCoords_7f16
+	ld hl, DestinationCoords_BaitForATrap_2
 	call SetDestinationCoords
 	call StartCountUpTimer
 .asm_706a
@@ -7705,22 +7706,22 @@ Func_70f9:
 	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
-	ld a, [wda56]
+	ld a, [wNumNPCCars]
 	inc a
-	ld [wda56], a
+	ld [wNumNPCCars], a
 	ret
 
 Func_711a:
-	call Func_1977
+	call ChooseCarPool_WithoutCop
 	ld a, MIAMI
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7f1c
+	ld hl, PlayerSpawnParams_TakeOutDiAngelo
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_712c:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld a, RED_CAR
@@ -7741,7 +7742,7 @@ Func_7151:
 	ld hl, RamHimTexts
 	ld c, 90
 	call ShowHUDMessage
-	ld hl, NPCSpawnParams_7f21
+	ld hl, NPCSpawnParams_TakeOutDiAngelo
 	call Func_5bce
 	ld d, h
 	ld e, l
@@ -7751,7 +7752,7 @@ Func_7151:
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	inc [hl]
 	xor a
 	ld [wda7b], a
@@ -7763,7 +7764,7 @@ Func_7151:
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wd820], a
-	ld hl, Timer_MissionTakeOutDiAngelo
+	ld hl, Timer_TakeOutDiAngelo
 	call StartCountDownTimer
 .asm_718f
 	ld a, 1
@@ -7802,19 +7803,19 @@ Func_7151:
 	jp SetMissionComplete
 
 Func_71d2:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, LOS_ANGELES
 	call SetCity
 	ld a, COP_CAR
 	ld [wPlayerCar], a
 	ld a, OBPAL_BLACK
 	ld [wPlayerCarOBPal], a
-	ld hl, PlayerSpawnParams_7f2c
+	ld hl, PlayerSpawnParams_StealACopCar
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_71eb:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld hl, Func_71ff
@@ -7833,7 +7834,7 @@ Func_71ff:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_7f31
+	ld hl, DestinationCoords_StealACopCar
 	call SetDestinationCoords
 	call StartCountUpTimer
 	ld a, 14
@@ -7876,19 +7877,19 @@ Func_71ff:
 	jp SetMissionComplete
 
 Func_725e:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, LOS_ANGELES
 	call SetCity
 	ld a, BROWN_CAR
 	ld [wPlayerCar], a
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
-	ld hl, PlayerSpawnParams_7f35
+	ld hl, PlayerSpawnParams_GetLuckyToTheDocs
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7277:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
@@ -7908,9 +7909,9 @@ Func_728e:
 
 	ld a, $01
 	ld [wd820], a
-	ld hl, Timer_7f4a
+	ld hl, Timer_GetLuckyToTheDocs
 	call StartCountDownTimer
-	ld hl, DestinationCoords_7f3a
+	ld hl, DestinationCoords_GetLuckyToTheDocs_1
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
@@ -7937,7 +7938,7 @@ Func_728e:
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
-	ld hl, DestinationCoords_7f42
+	ld hl, DestinationCoords_GetLuckyToTheDocs_2
 	call SetDestinationCoords
 	call Func_658f
 	ld a, TRUE
@@ -7969,16 +7970,16 @@ Func_728e:
 	jp SetMissionFailed
 
 Func_7331:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, LOS_ANGELES
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7f4c
+	ld hl, PlayerSpawnParams_BeverlyHillsGetAway
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7343:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
@@ -7996,9 +7997,9 @@ Func_735a:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, Timer_7f6f
+	ld hl, Timer_BeverlyHillsGetAway
 	call StartCountDownTimer
-	ld hl, DestinationCoords_7f51
+	ld hl, DestinationCoords_BeverlyHillsGetAway_1
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
@@ -8026,7 +8027,7 @@ Func_735a:
 	call WaitHUDMessage
 	call Func_658f
 	call StartCountUpTimer
-	ld hl, DestinationCoords_7f59
+	ld hl, DestinationCoords_BeverlyHillsGetAway_2
 	call SetDestinationCoords
 	xor a
 	ld [wd837], a
@@ -8047,9 +8048,9 @@ Func_735a:
 	jr nc, .asm_73cc
 	xor a
 	ld [wda7b], a
-	ld hl, CopCarSpawnParams_7f5d
+	ld hl, CopCarSpawnParams_BeverlyHillsGetAway_1
 	call .Func_743c
-	ld hl, CopCarSpawnParams_7f62
+	ld hl, CopCarSpawnParams_BeverlyHillsGetAway_2
 	call .Func_743c
 .asm_73ef
 	ld a, 1
@@ -8072,7 +8073,7 @@ Func_735a:
 	call Func_42a0
 	ld a, $01
 	ld [wda7b], a
-	ld hl, DestinationCoords_7f67
+	ld hl, DestinationCoords_BeverlyHillsGetAway_3
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
@@ -8113,12 +8114,12 @@ Func_7460:
 	ld a, NEW_YORK
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7f71
+	ld hl, PlayerSpawnParams_GrandCentralStation
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7475:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
@@ -8136,9 +8137,9 @@ Func_748c:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_7f76
+	ld hl, DestinationCoords_GrandCentralStation_1
 	call SetDestinationCoords
-	ld hl, Timer_7f86
+	ld hl, Timer_GrandCentralStation_1
 	call StartCountDownTimer
 .asm_74ab
 	ld a, 1
@@ -8168,9 +8169,9 @@ Func_748c:
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
-	ld hl, DestinationCoords_7f7e
+	ld hl, DestinationCoords_GrandCentralStation_2
 	call SetDestinationCoords
-	ld hl, Timer_7f88
+	ld hl, Timer_GrandCentralStation_2
 	call StartCountDownTimer
 	xor a
 	ld [wd837], a
@@ -8205,9 +8206,9 @@ Func_748c:
 	call ShowHUDMessage
 	call WaitHUDMessage
 	call Func_658f
-	ld hl, DestinationCoords_7f71
+	ld hl, DestinationCoords_GrandCentralStation_3
 	call SetDestinationCoords
-	ld hl, Timer_7f8a
+	ld hl, Timer_GrandCentralStation_3
 	call StartCountDownTimer
 	call Func_761e
 .asm_7563
@@ -8331,16 +8332,16 @@ Func_7637:
 	jp SetEntityUpdateFunc
 
 Func_764a:
-	call Func_1972
+	call ChooseCarPool_WithCop
 	ld a, NEW_YORK
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7f8c
+	ld hl, PlayerSpawnParams_TrashGrangersWheels
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_765c:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	ld a, $08
@@ -8362,7 +8363,7 @@ Func_7681:
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
-	ld hl, NPCSpawnParams_7f95
+	ld hl, NPCSpawnParams_TrashGrangersWheels
 	call Func_5bce
 	ld d, h
 	ld e, l
@@ -8372,7 +8373,7 @@ Func_7681:
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	inc [hl]
 	xor a
 	ld [wda7b], a
@@ -8380,7 +8381,7 @@ Func_7681:
 	ld [wd83a], a
 	ld a, $01
 	ld [wd820], a
-	ld hl, Timer_7f9e
+	ld hl, Timer_TrashGrangersWheels
 	call StartCountDownTimer
 .asm_76b7
 	ld a, 1
@@ -8402,7 +8403,7 @@ Func_7681:
 	ld h, [hl]
 	ld l, a
 	res 3, [hl]
-	ld hl, DestinationCoords_7f91
+	ld hl, DestinationCoords_TrashGrangersWheels
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
@@ -8471,16 +8472,16 @@ Func_7681:
 	ret
 
 Func_775c:
-	call Func_1977
+	call ChooseCarPool_WithoutCop
 	ld a, NEW_YORK
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, PlayerSpawnParams_7fa0
+	ld hl, PlayerSpawnParams_StopGrangersGang
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_776e:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld a, $06
@@ -8498,7 +8499,7 @@ Func_776e:
 
 Func_7793:
 	xor a
-	ld [wda81], a
+	ld [wGrangersGangCar], a
 	ld a, $01
 	ld [wda7b], a
 .asm_779c
@@ -8509,7 +8510,7 @@ Func_7793:
 	call YieldEntityUpdateUntilFadeEnds
 	call .Func_77f9
 	call WaitHUDMessage
-	ld hl, Timer_7fa5
+	ld hl, Timer_StopGrangersGang
 	call StartCountDownTimer
 	ld a, $01
 	ld [wd820], a
@@ -8530,7 +8531,7 @@ Func_7793:
 	ld h, [hl]
 	ld l, a
 	res 3, [hl]
-	ld hl, wda81
+	ld hl, wGrangersGangCar
 	ld a, [hl]
 	inc a
 	ld [hl], a
@@ -8550,7 +8551,7 @@ Func_7793:
 
 .Func_77f9:
 	ld hl, .Texts
-	ld a, [wda81]
+	ld a, [wGrangersGangCar]
 	get_pointer
 	ld c, 90
 	jp ShowHUDMessage
@@ -8579,7 +8580,7 @@ Func_7793:
 	ld c, $06
 	call SetStructByte_C
 	ld de, Data_7870
-	ld a, [wda81]
+	ld a, [wGrangersGangCar]
 	add_de
 	ld a, [de]
 	ld c, a
@@ -8624,19 +8625,19 @@ Data_7870:
 	db $02, $07, $06, $05, $00
 
 Func_7875:
-	call Func_1977
+	call ChooseCarPool_WithoutCop
 	ld a, NEW_YORK
 	call SetCity
 	ld a, BROWN_CAR
 	ld [wPlayerCar], a
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
-	ld hl, PlayerSpawnParams_7fa7
+	ld hl, PlayerSpawnParams_ChaseOneOfGrangersBoys
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_788e:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld a, $07
@@ -8658,7 +8659,7 @@ Func_78b3:
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
-	ld hl, NPCSpawnParams_7fac
+	ld hl, NPCSpawnParams_ChaseOneOfGrangersBoys
 	call Func_5bce
 	ld d, h
 	ld e, l
@@ -8670,11 +8671,11 @@ Func_78b3:
 	ld [hl], d
 	ld a, $01
 	ld [wd820], a
-	ld hl, wda56
+	ld hl, wNumNPCCars
 	inc [hl]
 	ld a, $01
 	ld [wda7b], a
-	ld hl, Timer_7fb5
+	ld hl, Timer_ChaseOneOfGrangersBoys
 	call StartCountDownTimer
 .asm_78e6
 	ld a, 1
@@ -8750,19 +8751,19 @@ Func_78b3:
 	jp SetMissionComplete
 
 Func_796b:
-	call Func_1977
+	call ChooseCarPool_WithoutCop
 	ld a, NEW_YORK
 	call SetCity
 	ld a, BROWN_CAR
 	ld [wPlayerCar], a
 	ld a, OBPAL_VAR
 	ld [wPlayerCarOBPal], a
-	ld hl, PlayerSpawnParams_7fb7
+	ld hl, PlayerSpawnParams_CrossTownRecord
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
 Func_7984:
-	call Func_1ed4
+	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
 	ld hl, Func_7998
@@ -8779,9 +8780,9 @@ Func_7998:
 	call WaitHUDMessage
 	ld a, $01
 	ld [wd820], a
-	ld hl, DestinationCoords_7fbc
+	ld hl, DestinationCoords_CrossTownRecord
 	call SetDestinationCoords
-	ld hl, Timer_7fc0
+	ld hl, Timer_CrossTownRecord
 	call StartCountDownTimer
 .asm_79b7
 	ld a, [wTimerActive]
@@ -9404,236 +9405,3 @@ TakeARideSpawnCoords::
 	dw 1440, 7152
 	db 180 deg
 ; 0x7e9d
-
-SECTION "PlayerSpawnParams_7eb2", ROMX[$7eb2], BANK[$1]
-
-PlayerSpawnParams_7eb2:
-	dw 3408, 6160
-	db 0 deg
-
-DestinationCoords_TheBankJob_1:
-	dw 3440, 3060
-
-Data_7ebb:
-	db $70, $0d, $14, $0c
-
-DestinationCoords_TheBankJob_2:
-	dw 7460, 4640
-
-Data_7ec3:
-	db $44, $1d, $20, $12
-
-Timer_MissionTheBankJob:
-	dw $1_00
-
-PlayerSpawnParams_7ec9:
-	dw 7024, 80
-	db 0 deg
-
-DestinationCoords_7ece:
-	dw 3360, 5044
-
-PlayerSpawnParams_7ed2:
-	dw 4212, 4344
-	db 180 deg
-
-Data_7ed7:
-	dw 4272, 4382
-
-DestinationCoords_7edb:
-	dw 5392, 4824
-
-Timer_MissionBoatChase:
-	dw $0_45
-
-PlayerSpawnParams_7ee1:
-	dw 3408, 6160
-	db 0 deg
-
-Data_7ee6:
-	dw 3232, 4480 ; $0
-	dw 3744, 4468 ; $1
-	dw 2852, 3120 ; $2
-	dw  800, 3544 ; $3
-	dw 1024, 4688 ; $4
-
-Data_7efa:
-	db $40 ; $0
-	db $00 ; $1
-	db $c0 ; $2
-	db $00 ; $3
-	db $00 ; $4
-
-Timer_MissionRamRaidRace:
-	dw $2_15
-
-PlayerSpawnParams_7f01:
-	dw 504, 4464
-	db 90 deg
-
-DestinationCoords_7f06:
-	dw 7744, 600
-
-Timer_MissionSuperflyDrive:
-	dw $1_50
-
-PlayerSpawnParams_7f0c:
-	dw 3408, 6160
-	db 0 deg
-
-DestinationCoords_7f11:
-	dw 6960, 316
-	db 270 deg
-
-DestinationCoords_7f16:
-	dw 7696, 4668
-
-Timer_MissionBaitForATrap:
-	dw $1_50
-
-PlayerSpawnParams_7f1c:
-	dw 7088, 3408
-	db 0 deg
-
-NPCSpawnParams_7f21:
-	db RED_CAR
-	db OBPAL_BROWN
-	db $32
-	db $20
-	db 90 deg
-	dw 7000, 3332
-
-Timer_MissionTakeOutDiAngelo:
-	dw $1_30
-
-PlayerSpawnParams_7f2c:
-	dw 372, 3148
-	db 0 deg
-
-DestinationCoords_7f31:
-	dw 7424, 1076
-
-PlayerSpawnParams_7f35:
-	dw 3908, 2016
-	db 0 deg
-
-DestinationCoords_7f3a:
-	dw 6336, 1744
-
-Data_7f3e:
-	db $c0, $18, $f0, $06
-
-DestinationCoords_7f42:
-	dw 2696, 2720
-
-Data_7f46:
-	db $68, $0a, $a0, $0a
-
-Timer_7f4a:
-	dw $1_30
-
-PlayerSpawnParams_7f4c:
-	dw 56, 1056
-	db 90 deg
-
-DestinationCoords_7f51:
-	dw 3248, 2420
-
-Data_7f55:
-	db $b0, $0c, $94, $09
-
-DestinationCoords_7f59:
-	dw 3860, 624
-
-CopCarSpawnParams_7f5d:
-	dw 3844, 624
-	db 180 deg
-
-CopCarSpawnParams_7f62:
-	dw 3876, 624
-	db 180 deg
-
-DestinationCoords_7f67:
-	dw 5824, 5264
-
-Data_7f6b:
-	db $c0, $16, $70, $14
-
-Timer_7f6f:
-	dw $1_00
-
-DestinationCoords_7f71:
-PlayerSpawnParams_7f71:
-	dw 4052, 3988
-	db 270 deg
-
-DestinationCoords_7f76:
-	dw 832, 2156
-
-Data_7f7a:
-	db $40, $03, $4c, $08
-
-DestinationCoords_7f7e:
-	dw 6132, 7536
-
-Data_7f82:
-	db $14, $18, $70, $1d
-
-Timer_7f86:
-	dw $1_00
-
-Timer_7f88:
-	dw $2_15
-
-Timer_7f8a:
-	dw $1_45
-
-PlayerSpawnParams_7f8c:
-	dw 5856, 4892
-	db 270 deg
-
-DestinationCoords_7f91:
-	dw 2224, 6324
-
-NPCSpawnParams_7f95:
-	db LIMOUSINE
-	db OBPAL_BLACK
-	db $00
-	db $00
-	db 135 deg
-	dw 640, 2280
-
-Timer_7f9e:
-	dw $3_30
-
-PlayerSpawnParams_7fa0:
-	dw 2260, 6335
-	db 0 deg
-
-Timer_7fa5:
-	dw $4_00
-
-PlayerSpawnParams_7fa7:
-	dw 2260, 6335
-	db 0 deg
-
-NPCSpawnParams_7fac:
-	db RED_CAR
-	db OBPAL_BLACK
-	db $28
-	db $00
-	db 0 deg
-	dw 3218, 4080
-
-Timer_7fb5:
-	dw $2_30
-
-PlayerSpawnParams_7fb7:
-	dw 2960, 7760
-	db 180 deg
-
-DestinationCoords_7fbc:
-	dw 4936, 888
-
-Timer_7fc0:
-	dw $1_20
