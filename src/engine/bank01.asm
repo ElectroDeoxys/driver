@@ -6394,7 +6394,7 @@ Func_67aa::
 	call YieldEntityUpdate
 	ld a, 5
 	ld [wMaxNumNPCCars], a
-	ld hl, $1f4f
+	ld hl, Data_1f4f
 	call Func_1eda
 	jp YieldEntityUpdateIndefinitely
 

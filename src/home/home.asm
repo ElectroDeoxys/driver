@@ -254,9 +254,36 @@ FadeToWhite::
 	jr nz, .loop_pals
 	ld a, $01
 	jp InitFade
-; 0x2f5
 
-SECTION "EmptyScreen", ROM0[$320]
+; unreferenced
+Func_2f5:
+	ldh a, [hBootUpA]
+	cp BOOTUP_A_CGB
+	jr z, .cgb
+	lddmgpal a, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK
+	ld hl, wTempDMGPals
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	ld a, $03
+	jp InitFade
+
+.cgb
+	ld hl, wTempCGBPals
+	ld c, 8 + 8
+.loop_pals
+	ld b, 1 palettes
+	ld de, Pals_Black
+.loop_copy
+	ld a, [de]
+	ld [hli], a
+	inc de
+	dec b
+	jr nz, .loop_copy
+	dec c
+	jr nz, .loop_pals
+	ld a, $01
+	jp InitFade
 
 ; clears OAM, BG map and sets all palettes to white
 EmptyScreen::
@@ -588,9 +615,15 @@ EnableStatInterrupt:
 	or STAT_LYC
 	ldh [rSTAT], a
 	ret
-; 0x523
 
-SECTION "_Timer", ROM0[$52d]
+; unreferenced
+Func_523:
+	xor a
+	ldh [rIF], a
+	ldh a, [rIE]
+	res B_IE_STAT, a
+	ldh [rIE], a
+	ret
 
 _Timer:
 	reti
@@ -1130,9 +1163,29 @@ Random::
 	ld a, [hl]
 	pop hl
 	ret
-; 0x791
 
-SECTION "SetRNGSeed", ROM0[$7ab]
+; unreferenced
+Func_791:
+	push de
+	push hl
+	ld e, a
+	ld d, $00
+	ld h, d ; 0
+	ld l, d ; 0
+	call Random
+.loop
+	srl a
+	jr nc, .next
+	add hl, de
+.next
+	sla e
+	rl d
+	and a
+	jr nz, .loop
+	ld a, h
+	pop hl
+	pop de
+	ret
 
 ; initialises wRNG with a seed
 SetRNGSeed:
@@ -1149,9 +1202,22 @@ SetRNGSeed:
 
 .Seed:
 	db $ff, $80, $26, $37
-; 0x7be
 
-SECTION "CopyTilesWithAlternatingBlackTiles", ROM0[$7d5]
+; unreferenced
+Func_7be:
+	ldh a, [hROMBank]
+	ld b, a
+	push bc
+	ld a, c
+	bankswitch
+	ld bc, .return
+	push bc
+	jp hl
+.return
+	pop bc
+	ld a, b
+	bankswitch
+	ret
 
 ; copies b tiles from hl to de
 ; but alternating with a black tile
@@ -1489,9 +1555,16 @@ ClearBGMap:
 	dec b
 	jr nz, .loop_clear
 	ret
-; 0xa03
 
-SECTION "CoordinateToBGMapPtr", ROM0[$a0f]
+; unreferenced
+Func_a03:
+	srl l
+	srl l
+	srl l
+	srl h
+	srl h
+	srl h
+;	fallthrough
 
 ; converts tile coordinate (h, l) into
 ; pointer to its tile in BGMap
@@ -1714,9 +1787,155 @@ VRAMBlockAddresses:
 	db HIGH(v0Tiles0) ; V0TILES_8000 | V1TILES_8000
 	db HIGH(v0Tiles2) ; V0TILES_9000 | V1TILES_9000
 	db HIGH(v0Tiles1) ; V0TILES_8800 | V1TILES_8800
-; 0xb34
 
-SECTION "Func_bdd", ROM0[$bdd]
+; unreferenced
+Func_b34:
+	ld a, [hli]
+	cp [hl]
+	ret z
+	push hl
+	ld a, [hli]
+	add a
+	ld e, a
+	add a
+	add e
+	ld e, a
+	ld d, $00
+	ld a, [hli]
+	ld [wNumTilesToPush], a
+	add hl, de
+	ld a, [hl]
+	bankswitch
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	inc hl
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	push hl
+	ld h, b
+	ld l, c
+	ld a, [wNumTilesToPush]
+	ld b, a
+	call SafeCopyBTiles
+	ld b, h
+	ld c, l
+	pop hl
+	ld a, [wNumTilesToPush]
+	dec a
+	cpl
+	add [hl]
+	ld [hl], a
+	jr z, .asm_b77
+	dec hl
+	ld [hl], d
+	dec hl
+	ld [hl], e
+	dec hl
+	ld [hl], b
+	dec hl
+	ld [hl], c
+	pop hl
+	ld a, $01
+	and a
+	ret
+.asm_b77
+	pop hl
+	inc [hl]
+	ld a, [hld]
+	cp [hl]
+	ret
+
+; unreferenced
+Func_b7c:
+	push hl
+	ld l, $00
+.asm_b7f
+	sub 100
+	jr c, .asm_b86
+	inc l
+	jr .asm_b7f
+.asm_b86
+	add 100
+	call .Func_b9e
+	ld l, $00
+.asm_b8d
+	sub 10
+	jr c, .asm_b94
+	inc l
+	jr .asm_b8d
+.asm_b94
+	add 10
+	call .Func_b9e
+	add c
+	ld [de], a
+	inc de
+	pop hl
+	ret
+
+.Func_b9e:
+	push af
+	ld a, l
+	and a
+	jr nz, .asm_ba8
+	ld a, b
+	and a
+	jr nz, .asm_baf
+	ld a, l
+.asm_ba8
+	add c
+	ld [de], a
+	inc de
+	ld b, $00
+	pop af
+	ret
+.asm_baf
+	pop af
+	ret
+
+; unreferenced
+Func_bb1:
+	ld b, a
+	swap a
+	and $0f
+	add c
+	ld [de], a
+	inc de
+	ld a, b
+	and $0f
+	add c
+	ld [de], a
+	inc de
+	ret
+
+; unreferenced
+Func_bc0:
+	ld a, h
+	swap a
+	and $0f
+	add c
+	ld [de], a
+	inc de
+	ld a, h
+	and $0f
+	add c
+	ld [de], a
+	inc de
+	ld a, l
+	swap a
+	and $0f
+	add c
+	ld [de], a
+	inc de
+	ld a, l
+	and $0f
+	add c
+	ld [de], a
+	inc de
+	ret
 
 Func_bdd::
 	push hl
@@ -1898,13 +2117,33 @@ EnableDoubleSpeed:
 	ldh [rJOYP], a
 	stop
 	ret
-; 0xca0
 
-SECTION "LoadDefaultPalettes", ROM0[$cc2]
+; unreferenced
+Func_ca0:
+	ld de, wGfxBuffer
+	push bc
+.asm_ca4
+	push bc
+.asm_ca5
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .asm_ca5
+	pop bc
+	dec c
+	jr nz, .asm_ca4
+	pop bc
+	ld a, $01
+	vramswitch
+	ld de, wGfxBuffer
+	call CopyBGMapBox_ToCoordinate
+	ld a, $00
+	vramswitch
+	ret
 
 LoadDefaultPalettes:
 	lddmgpal c, SHADE_WHITE, SHADE_LIGHT, SHADE_DARK, SHADE_BLACK
-	ld hl, Pals_ec5
+	ld hl, Pals_Gray
 	jr FillPalettes ; useless jump
 
 ; fills BG/OB palettes with palette
@@ -2225,9 +2464,44 @@ FlushDMGPalettes:
 	ld a, [hl]
 	ldh [rOBP1], a
 	ret
-; 0xe5c
 
-SECTION "SafeCopyPalette", ROM0[$e8a]
+; unreferenced
+Func_e5c:
+	push af
+	push hl
+	call .Func_e6f
+	pop hl
+	pop af
+	add a
+	add a
+	add a
+	or OBPI_AUTOINC
+	ldh [rOBPI], a
+	ld c, LOW(rOBPD)
+	jp SafeCopyPalette
+
+.Func_e6f:
+	add a
+	add a
+	add a
+	push af
+	push hl
+	ld de, wOBPals
+	add_de
+	call .Func_e81
+	pop hl
+	pop af
+	ld de, wTempOBPals
+	add_de
+.Func_e81:
+	ld b, 1 palettes
+.loop
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .loop
+	ret
 
 ; input:
 ; - c = LOW(rBGPD) or LOW(rOBPD)
@@ -2251,11 +2525,15 @@ REPT PAL_SIZE / 2
 	ld [$ff00+c], a
 ENDR
 	ret
-; 0xebd
 
-SECTION "Pals_ec5", ROM0[$ec5]
+; unreferenced
+Pals_ebd:
+	rgb  0,  0,  0
+	rgb 10, 10, 10
+	rgb 21, 21, 21
+	rgb 31, 31, 31
 
-Pals_ec5:
+Pals_Gray:
 	rgb 31, 31, 31
 	rgb 21, 21, 21
 	rgb 10, 10, 10
@@ -2643,9 +2921,21 @@ AddStructWord_DE::
 	call Func_10b0
 	pop hl
 	ret
-; 0x10c1
 
-SECTION "GetStructWord_DE", ROM0[$10d0]
+; unreferenced
+SubStructWord_DE:
+	push de
+	push af
+	xor a
+	sub e
+	ld e, a
+	ld a, 0
+	sbc d
+	ld d, a
+	pop af
+	call AddStructWord_DE
+	pop de
+	ret
 
 GetStructWord_DE::
 	push hl
@@ -3410,9 +3700,34 @@ LoadSprites:
 	dec b
 	jr nz, .loop_load_oam
 	ret
-; 0x1454
 
-SECTION "AddBCToStructField", ROM0[$146c]
+; unreferenced
+Func_1454:
+	push hl
+	push af
+	ld a, $04
+	add_hl
+	pop af
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	ret
+
+; unreferenced
+Func_1460:
+	push hl
+	push af
+	ld a, $01
+	add_hl
+	pop af
+	ld [hli], a
+	ld [hl], e
+	inc hl
+	ld [hl], d
+	pop hl
+	ret
 
 ; input:
 ; - a = CARSTRUCT_* constant
@@ -5159,9 +5474,12 @@ Data_1f37::
 	db $01, $03, $15, $1c, $f0, $00
 	db $01, $02, $0f, $18, $2c, $01
 	db $02, $02, $07, $14, $68, $01
-; 0x1f4f
 
-SECTION "Func_1f67", ROM0[$1f67]
+Data_1f4f::
+	db $00, $00, $00, $00, $00, $00
+	db $00, $00, $00, $00, $00, $00
+	db $00, $00, $00, $00, $00, $00
+	db $03, $00, $07, $00, $f0, $00
 
 NPCCarPool_WithoutCop:
 	db CAR_03, CAR_04, CAR_05, TAXI
@@ -6339,9 +6657,37 @@ ApplyBrakeSpeed::
 	ld de, 0
 	ld a, CARSTRUCT_SPEED
 	jp SetStructWord_DE
-; 0x2688
 
-SECTION "CompareCarSpeed", ROM0[$26b8]
+; unreferenced
+Func_2688:
+	ld a, $0e
+	call GetStructByte_A
+	ld e, a
+	and $80
+	jr z, .asm_2699
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+.asm_2699
+	push de
+	ld a, $0d
+	call AddStructWord_BC
+	pop de
+	ld a, $0e
+	call GetStructByte_A
+	xor e
+	and $80
+	ret z
+	bit 7, e
+	ld de, $7f00
+	jr z, .asm_26b3
+	ld de, $8000
+.asm_26b3
+	ld a, $0d
+	jp SetStructWord_DE
 
 ; compares car's absolute speed to c
 ; returns carry set if abs(speed) < c
@@ -7599,9 +7945,28 @@ Func_2d2c:
 Func_2d47:
 	ld a, [wdc7a]
 	jp CalculateSpeedComponent
-; 0x2d4d
 
-SECTION "Func_2d66", ROM0[$2d66]
+; unreferenced
+Func_2d4d:
+	push hl
+	ld a, $0c
+	add_hl
+	ld a, [hl]
+	and $0f
+	cp $08
+	jr nc, .asm_2d5e
+	ld a, [hl]
+	and $f0
+	ld [hl], a
+	jr .asm_2d64
+.asm_2d5e
+	ld a, [hl]
+	and $f0
+	add $10
+	ld [hl], a
+.asm_2d64
+	pop hl
+	ret
 
 Func_2d66::
 	call Func_2d87
@@ -7775,9 +8140,18 @@ Data_2e5f:
 	db $2d, $20, $18, $13, $10, $0d, $0b, $0a, $09, $08, $07, $07, $06, $06, $05, $05
 	db $33, $28, $20, $1a, $16, $13, $10, $0f, $0d, $0c, $0b, $0a, $09, $09, $08, $08
 	db $36, $2d, $26, $20, $1b, $18, $15, $13, $11, $10, $0e, $0d, $0c, $0b, $0b, $0a
-; 0x2e9f
-
-SECTION "Func_2f5f", ROM0[$2f5f]
+    db $38, $30, $2a, $25, $20, $1c, $19, $17, $15, $13, $11, $10, $0f, $0e, $0d, $0c
+    db $39, $33, $2d, $28, $24, $20, $1d, $1a, $18, $16, $14, $13, $12, $10, $10, $0f
+    db $3a, $35, $30, $2b, $27, $23, $20, $1d, $1b, $19, $17, $16, $14, $13, $12, $11
+    db $3b, $36, $31, $2d, $29, $26, $23, $20, $1e, $1b, $1a, $18, $16, $15, $14, $13
+    db $3b, $37, $33, $2f, $2b, $28, $25, $22, $20, $1e, $1c, $1a, $19, $17, $16, $15
+    db $3c, $38, $34, $30, $2d, $2a, $27, $25, $22, $20, $1e, $1c, $1b, $19, $18, $17
+    db $3c, $39, $35, $32, $2f, $2c, $29, $26, $24, $22, $20, $1e, $1d, $1b, $1a, $19
+    db $3d, $39, $36, $33, $30, $2d, $2a, $28, $26, $24, $22, $20, $1e, $1d, $1b, $1a
+    db $3d, $3a, $37, $34, $31, $2e, $2c, $2a, $27, $25, $23, $22, $20, $1e, $1d, $1c
+    db $3d, $3a, $37, $35, $32, $30, $2d, $2b, $29, $27, $25, $23, $22, $20, $1f, $1d
+    db $3d, $3b, $38, $35, $33, $30, $2e, $2c, $2a, $28, $26, $25, $23, $21, $20, $1f
+    db $3d, $3b, $38, $36, $34, $31, $2f, $2d, $2b, $29, $27, $26, $24, $23, $21, $20
 
 Func_2f5f::
 	ldh a, [hROMBank]
@@ -9503,4 +9877,6 @@ PropGfxTable:
 Data_3864:
     db $04, $04, $04, $02, $02, $03, $00, $02
 	db $05, $02, $02, $03, $02, $02
-; 0x3872
+
+	db $00, $ff, $40, $ff, $00, $ff, $00, $ff, $c0, $fe, $00, $fd, $00, $ff, $40, $ff
+    db $40, $ff, $00, $ff, $00, $ff, $00, $ff, $c0, $fe, $00
