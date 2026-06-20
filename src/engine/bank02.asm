@@ -1984,7 +1984,7 @@ EntUpdate_MainMenuTimer:
 	call FindEntity
 	ld de, ExitTitlescreenOrMainScreen
 	ld a, BANK(ExitTitlescreenOrMainScreen)
-	call Func_1569
+	call OverwriteEntityUpdateFunc
 
 	ld a, MODE_CREDITS
 	ld [wGameMode], a
@@ -5727,7 +5727,7 @@ ExitTitlescreenOrMainScreen:
 	jr nc, .asm_a4a0
 	ld de, YieldEntityUpdateIndefinitely
 	ld a, BANK(YieldEntityUpdateIndefinitely)
-	call Func_1569
+	call OverwriteEntityUpdateFunc
 .asm_a4a0
 	call FadeToWhite
 	call YieldEntityUpdateUntilFadeEnds

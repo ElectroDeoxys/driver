@@ -3641,9 +3641,9 @@ SpawnEntity::
 	ret
 
 ; input:
-; - hl    = entity
-; - a:de  = ?
-Func_1569::
+; - hl   = entity
+; - a:de = update function
+OverwriteEntityUpdateFunc::
 	inc hl
 	ld [hl], 1 ; ENT_UPDATE_TIMER
 	inc hl
@@ -3664,6 +3664,9 @@ Func_1569::
 	ld [hl], e
 	ret
 
+; input:
+; - wEntityPtr = entity
+; - a:de = update function
 SetEntityUpdateFunc::
 	bankswitch
 	ld hl, wEntityPtr
@@ -5119,16 +5122,16 @@ Func_1eee:
 	and a
 	jr nz, Func_1f32
 	ld a, [wFelony]
-	ld de, $0
+	ld de, 0 * $6
 	cp 18
 	jr c, .add_hl_de
-	ld de, $6
+	ld de, 1 * $6
 	cp 36
 	jr c, .add_hl_de
-	ld de, $c
+	ld de, 2 * $6
 	cp 56
 	jr c, .add_hl_de
-	ld de, $12
+	ld de, 3 * $6
 .add_hl_de
 	add hl, de
 Func_1f19::
@@ -6309,7 +6312,8 @@ SpawnCar::
 	and a
 	ret
 
-Func_265f::
+; applies a brake with speed value in bc
+ApplyBrakeSpeed::
 	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	ld e, a
@@ -6337,16 +6341,18 @@ Func_265f::
 	jp SetStructWord_DE
 ; 0x2688
 
-SECTION "Func_26b8", ROM0[$26b8]
+SECTION "CompareCarSpeed", ROM0[$26b8]
 
-Func_26b8::
+; compares car's absolute speed to c
+; returns carry set if abs(speed) < c
+CompareCarSpeed::
 	ld a, CARSTRUCT_SPEED + 1
 	call GetStructByte_A
 	bit 7, a
-	jr z, .asm_26c3
+	jr z, .compare
 	cpl
 	inc a
-.asm_26c3
+.compare
 	cp c
 	ret
 
@@ -7354,7 +7360,7 @@ Func_2abe::
 Func_2bf2:
 	ld a, [wdc7e]
 	ld c, a
-	call Func_26b8
+	call CompareCarSpeed
 	ret c
 	call Func_2c34
 	push hl
@@ -7379,7 +7385,7 @@ Func_2bf2:
 Func_2c13:
 	ld a, [wdc7e]
 	ld c, a
-	call Func_26b8
+	call CompareCarSpeed
 	ret c
 	call Func_2c34
 	push hl
@@ -8240,7 +8246,7 @@ Func_3161:
 	ld l, a
 	ld de, Func_3705
 	ld a, BANK(Func_3705)
-	call Func_1569
+	call OverwriteEntityUpdateFunc
 	pop hl
 	pop de
 	ld a, [de]

@@ -63,27 +63,32 @@ Func_4066:
 	ld a, [wd820]
 	cp $00
 	jr z, .asm_407b
-	ld de, Func_4446
-	ld a, BANK(Func_4446)
+	ld de, EntUpdate_PlayerCar
+	ld a, BANK(EntUpdate_PlayerCar)
 	jp SetEntityUpdateFunc
 
 Func_408f:
 	call GetEntityCarPtr
+
 	ld a, [wda94]
 	and a
 	call nz, Func_f0c
+
 	xor a
 	ld [wda94], a
 	ld [wda95], a
 	ld [wda96], a
-	ld c, $18
-	call Func_26b8
+
+	ld c, HIGH(1.5q12)
+	call CompareCarSpeed
 	jr c, .asm_40af
 	ld a, SFX_1D
 	call PlaySFX
+
 .asm_40af
-	ld bc, $400
-	call Func_265f
+	ld bc, 0.25q12
+	call ApplyBrakeSpeed
+
 	ld a, CARSTRUCT_SPEED
 	call GetStructWord_BC
 	ld a, CARSTRUCT_10
@@ -93,8 +98,8 @@ Func_408f:
 	or d
 	or e
 	jr z, .asm_40d9
-	ld c, $18
-	call Func_26b8
+	ld c, HIGH(1.5q12)
+	call CompareCarSpeed
 	jr c, .asm_40d4
 	ld a, [wc57a]
 	and $01
@@ -690,7 +695,7 @@ Func_4436:
 	pop de
 	ret
 
-Func_4446:
+EntUpdate_PlayerCar:
 	call GetEntityCarPtr
 
 	ld bc, 0
@@ -828,9 +833,9 @@ Func_4531:
 	ld a, CARDATASTRUCT_STEERING
 	call GetPlayerCarData_Byte
 	ld b, a
-	call Func_4591
+	call .Func_4591
 	jr c, .asm_456c
-.asm_4549
+.got_steer_value
 	ld a, c
 	and PAD_RIGHT
 	jr nz, .turning_right
@@ -839,14 +844,15 @@ Func_4531:
 	push hl
 	ld a, CARSTRUCT_DIR
 	add_hl
-.asm_4552
+.loop_dec_dir
 	dec [hl]
 	ld a, [hl]
+	; snap to 16ths of a turn
 	and $0f
-	jr z, .asm_455b
+	jr z, .snapped_left
 	dec b
-	jr nz, .asm_4552
-.asm_455b
+	jr nz, .loop_dec_dir
+.snapped_left
 	pop hl
 	ret
 
@@ -854,14 +860,15 @@ Func_4531:
 	push hl
 	ld a, CARSTRUCT_DIR
 	add_hl
-.asm_4561
+.loop_inc_dir
 	inc [hl]
 	ld a, [hl]
 	and $0f
-	jr z, .asm_456a
+	; snap to 16ths of a turn
+	jr z, .snapped_right
 	dec b
-	jr nz, .asm_4561
-.asm_456a
+	jr nz, .loop_inc_dir
+.snapped_right
 	pop hl
 	ret
 
@@ -878,50 +885,59 @@ Func_4531:
 	ld a, CARDATASTRUCT_A
 	call GetPlayerCarData_Byte
 	ld b, a
-	call Func_4591
+	call .Func_4591
 	jr c, .asm_458d
 	ld a, b
 	and a
 	jr z, .asm_458d
-	jr .asm_4549
+	jr .got_steer_value
 .asm_458d
-	ld b, $01
-	jr .asm_4549
+	ld b, 2 deg
+	jr .got_steer_value
 
-Func_4591:
+.Func_4591:
 	push bc
 	ld a, CARDATASTRUCT_8
 	call GetPlayerCarData_Byte
 	ld c, a
-	call Func_26b8
-	jr nc, .asm_45bd
+	; speed < c?
+	call CompareCarSpeed
+	jr nc, .no_steering_change ; no
+	; speed < c/2?
 	srl c
-	call Func_26b8
-	jr c, .asm_45c0
+	call CompareCarSpeed
+	jr c, .set_carry ; yes
+	; speed < (3/4)*c?
 	ld a, c
 	srl c
 	add a
 	ld c, a
-	call Func_26b8
-	jr nc, .asm_45b3
+	call CompareCarSpeed
+	jr nc, .three_quarters_steering ; no
+
 	pop bc
 	srl b
+	; b = (1/2)*b
 	and a
 	ret
-.asm_45b3
+
+.three_quarters_steering
 	pop bc
 	srl b
 	ld a, b
 	srl b
 	add a
 	ld b, a
+	; b = (3/4)*b
 	and a
 	ret
-.asm_45bd
+
+.no_steering_change
 	pop bc
 	and a
 	ret
-.asm_45c0
+
+.set_carry
 	pop bc
 	scf
 	ret
@@ -932,7 +948,7 @@ Func_45c3:
 	and a
 	jr z, .asm_45d8 ; no
 	ld e, a
-	ld a, CARDATASTRUCT_4
+	ld a, CARDATASTRUCT_ACCELERATION
 	call GetPlayerCarData_Byte
 	ld d, a
 	; speed += d * e
@@ -945,7 +961,7 @@ Func_45c3:
 	and a
 	jr z, .limit_speed ; no
 	ld e, a
-	ld a, CARDATASTRUCT_5
+	ld a, CARDATASTRUCT_ACCELERATION_REVERSE
 	call GetPlayerCarData_Byte
 	ld d, a
 	; speed -= d * e
@@ -961,7 +977,7 @@ Func_45c3:
 .limit_speed
 	ld a, CARDATASTRUCT_B
 	call GetPlayerCarData_Word
-	call Func_265f
+	call ApplyBrakeSpeed
 	ld a, CARSTRUCT_SPEED
 	call GetStructWord_BC
 	bit 7, b
@@ -1070,11 +1086,11 @@ Func_469c:
 	ld bc, -$100
 	ld a, CARSTRUCT_10
 	call Func_28bb
-	ld c, $10
-	call Func_26b8
+	ld c, HIGH(1.0q12)
+	call CompareCarSpeed
 	jr c, .asm_46d4
 	ld bc, $100
-	call Func_265f
+	call ApplyBrakeSpeed
 .asm_46d4
 	ld a, $10
 	call Func_2abe
@@ -1454,13 +1470,13 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
 	db $08 ; CARDATASTRUCT_3
-	db $09 ; CARDATASTRUCT_4
-	db $09 ; CARDATASTRUCT_5
-	db $34 ; CARDATASTRUCT_TOP_SPEED
-	db -$20 ; CARDATASTRUCT_TOP_SPEED_REVERSE
-	db $14 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_STEERING
-	db $02 ; CARDATASTRUCT_A
+	db $09 ; CARDATASTRUCT_ACCELERATION
+	db $09 ; CARDATASTRUCT_ACCELERATION_REVERSE
+	db HIGH(3.3q12) ; CARDATASTRUCT_TOP_SPEED
+	db -HIGH(2.0q12) ; CARDATASTRUCT_TOP_SPEED_REVERSE
+	db HIGH(1.3q12) ; CARDATASTRUCT_8
+	db 6 deg ; CARDATASTRUCT_STEERING
+	db 3 deg ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
@@ -1472,13 +1488,13 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
 	db $08 ; CARDATASTRUCT_3
-	db $0a ; CARDATASTRUCT_4
-	db $0a ; CARDATASTRUCT_5
-	db $38 ; CARDATASTRUCT_TOP_SPEED
-	db -$24 ; CARDATASTRUCT_TOP_SPEED_REVERSE
-	db $12 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_STEERING
-	db $02 ; CARDATASTRUCT_A
+	db $0a ; CARDATASTRUCT_ACCELERATION
+	db $0a ; CARDATASTRUCT_ACCELERATION_REVERSE
+	db HIGH(3.5q12) ; CARDATASTRUCT_TOP_SPEED
+	db -HIGH(2.3q12) ; CARDATASTRUCT_TOP_SPEED_REVERSE
+	db HIGH(1.15q12) ; CARDATASTRUCT_8
+	db 6 deg ; CARDATASTRUCT_STEERING
+	db 3 deg ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
@@ -1490,13 +1506,13 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
 	db $08 ; CARDATASTRUCT_3
-	db $09 ; CARDATASTRUCT_4
-	db $09 ; CARDATASTRUCT_5
-	db $38 ; CARDATASTRUCT_TOP_SPEED
-	db -$24 ; CARDATASTRUCT_TOP_SPEED_REVERSE
-	db $14 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_STEERING
-	db $02 ; CARDATASTRUCT_A
+	db $09 ; CARDATASTRUCT_ACCELERATION
+	db $09 ; CARDATASTRUCT_ACCELERATION_REVERSE
+	db HIGH(3.5q12) ; CARDATASTRUCT_TOP_SPEED
+	db -HIGH(2.3q12) ; CARDATASTRUCT_TOP_SPEED_REVERSE
+	db HIGH(1.3q12) ; CARDATASTRUCT_8
+	db 6 deg ; CARDATASTRUCT_STEERING
+	db 3 deg ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
@@ -1508,13 +1524,13 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
 	db $08 ; CARDATASTRUCT_3
-	db $08 ; CARDATASTRUCT_4
-	db $08 ; CARDATASTRUCT_5
-	db $3a ; CARDATASTRUCT_TOP_SPEED
-	db -$20 ; CARDATASTRUCT_TOP_SPEED_REVERSE
-	db $14 ; CARDATASTRUCT_8
-	db $03 ; CARDATASTRUCT_STEERING
-	db $02 ; CARDATASTRUCT_A
+	db $08 ; CARDATASTRUCT_ACCELERATION
+	db $08 ; CARDATASTRUCT_ACCELERATION_REVERSE
+	db HIGH(3.65q12) ; CARDATASTRUCT_TOP_SPEED
+	db -HIGH(2.0q12) ; CARDATASTRUCT_TOP_SPEED_REVERSE
+	db HIGH(1.3q12) ; CARDATASTRUCT_8
+	db 5 deg ; CARDATASTRUCT_STEERING
+	db 3 deg ; CARDATASTRUCT_A
 	db $90, $00 ; CARDATASTRUCT_B
 	db $38, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
@@ -1526,13 +1542,13 @@ Data_491d:
 	db $08 ; CARDATASTRUCT_1
 	db $04 ; CARDATASTRUCT_2
 	db $08 ; CARDATASTRUCT_3
-	db $08 ; CARDATASTRUCT_4
-	db $08 ; CARDATASTRUCT_5
-	db $38 ; CARDATASTRUCT_TOP_SPEED
-	db -$24 ; CARDATASTRUCT_TOP_SPEED_REVERSE
-	db $12 ; CARDATASTRUCT_8
-	db $04 ; CARDATASTRUCT_STEERING
-	db $02 ; CARDATASTRUCT_A
+	db $08 ; CARDATASTRUCT_ACCELERATION
+	db $08 ; CARDATASTRUCT_ACCELERATION_REVERSE
+	db HIGH(3.5q12) ; CARDATASTRUCT_TOP_SPEED
+	db -HIGH(2.3q12) ; CARDATASTRUCT_TOP_SPEED_REVERSE
+	db HIGH(1.15q12) ; CARDATASTRUCT_8
+	db 6 deg ; CARDATASTRUCT_STEERING
+	db 3 deg ; CARDATASTRUCT_A
 	db $80, $00 ; CARDATASTRUCT_B
 	db $00, $ff ; CARDATASTRUCT_D
 	db $28, $fd ; CARDATASTRUCT_F
@@ -2098,7 +2114,7 @@ Func_4c73:
 
 Func_4c9f:
 	ld hl, wNumNPCCars
-	call .Func_4cbd
+	call .DecrementIfNonZero
 	call GetEntityCarPtr
 	ld a, CARSTRUCT_SPRITE_PTR
 	call GetStructWord_DE
@@ -2108,10 +2124,10 @@ Func_4c9f:
 	ld [hl], $00
 	ld hl, wda55
 	and $04
-	call nz, .Func_4cbd
+	call nz, .DecrementIfNonZero
 	jp DespawnEntity
 
-.Func_4cbd:
+.DecrementIfNonZero:
 	ld a, [hl]
 	and a
 	ret z
@@ -3728,7 +3744,7 @@ Func_56a2:
 	ld l, a
 	ld de, Func_56db
 	ld a, BANK(Func_56db)
-	call Func_1569
+	call OverwriteEntityUpdateFunc
 	pop hl
 	pop de
 	ret
@@ -4283,7 +4299,7 @@ Func_5a84:
 	set 4, [hl]
 .asm_5a86
 	ld bc, $100
-	call Func_265f
+	call ApplyBrakeSpeed
 	call Func_270f
 	jr z, .asm_5a99
 	ld de, Func_4c9f
@@ -4560,7 +4576,7 @@ Func_5c32:
 .asm_5c44
 	res CARFLAG_UNK4_F, [hl]
 	set CARFLAG_UNK7_F, [hl]
-	ld c, $20
+	ld c, PAD_LEFT
 	ld a, CARSTRUCT_20
 	call SetStructByte_C
 	ld c, $00
@@ -4669,7 +4685,7 @@ Func_5c32:
 	cp $08
 	ret c
 	ld a, CARSTRUCT_20
-	ld c, $20
+	ld c, PAD_LEFT
 	call SetStructByte_C
 	push hl
 	ld a, CARSTRUCT_DIR
@@ -4737,11 +4753,11 @@ Func_5c32:
 	ld a, CARSTRUCT_DIR
 	call GetStructByte_A
 	sub c
-	ld b, $fc
+	ld b, -(6 deg)
 	jr nc, .asm_5d74
 	cpl
 	inc a
-	ld b, $04
+	ld b, 6 deg
 .asm_5d74
 	cp $80
 	jr c, .asm_5d7c
@@ -4751,26 +4767,26 @@ Func_5c32:
 	ld b, a
 .asm_5d7c
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	add b
 	ld [hl], a
 	pop hl
-	ld c, $20
+	ld c, PAD_LEFT
 	bit 7, b
 	jr nz, .asm_5d8c
-	ld c, $10
+	ld c, PAD_RIGHT
 .asm_5d8c
-	ld a, $20
+	ld a, CARSTRUCT_20
 	jp SetStructByte_C
 .asm_5d91
-	ld b, $04
+	ld b, 6 deg
 	ld a, CARSTRUCT_20
 	call GetStructByte_A
-	and $10
+	and PAD_RIGHT
 	jr nz, .asm_5d7c
-	ld b, $fc
+	ld b, -(6 deg)
 	jr .asm_5d7c
 
 .Func_5da0:
@@ -5855,7 +5871,7 @@ Func_642c::
 	call FindEntity
 	ld de, Func_6446
 	ld a, BANK(Func_6446)
-	call Func_1569
+	call OverwriteEntityUpdateFunc
 	ret
 
 Func_6446:
@@ -6044,7 +6060,7 @@ Func_6575:
 	ld l, a
 	ld de, Func_408f
 	ld a, BANK(Func_408f)
-	call Func_1569
+	call OverwriteEntityUpdateFunc
 	ld a, $01
 	ld [wd83f], a
 	ret
@@ -6059,9 +6075,9 @@ Func_658f:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, Func_4446
-	ld a, BANK(Func_4446)
-	call Func_1569
+	ld de, EntUpdate_PlayerCar
+	ld a, BANK(EntUpdate_PlayerCar)
+	call OverwriteEntityUpdateFunc
 	ld a, $00
 	ld [wd83f], a
 	ret
@@ -8874,58 +8890,63 @@ Func_7a35:
 	call SetStructWord_DE
 	inc de
 	xor a
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK01
 	inc de
+
 	ld hl, wdc7c
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, -$4
+	ld bc, -4
 	add hl, bc
 	ld a, l
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_Y
 	inc de
 	ld a, h
 	ld [de], a
 	inc de
 	xor a
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK04
 	inc de
+
 	ld hl, wdc7a
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, -$4
+	ld bc, -4
 	add hl, bc
 	ld a, l
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_X
 	inc de
 	ld a, h
 	ld [de], a
 	inc de
 	ld a, $10
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK07
 	inc de
+
 	ld a, $08
-	ld [de], a
-	ld a, $05
+	ld [de], a ; SPRITESTRUCT_UNK08
+
+	ld a, SPRITESTRUCT_UNK0D - SPRITESTRUCT_UNK08
 	add_de
 	ld hl, wdc80
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld a, l
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK0D
 	inc de
 	ld a, h
 	ld [de], a
 	inc de
+
 	ld hl, wdc7e
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld a, l
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_UNK0F
 	inc de
 	ld a, h
 	ld [de], a
@@ -8934,7 +8955,7 @@ Func_7a35:
 Func_7a94:
 	call GetEntityCarPtr
 	ld a, [hl]
-	or CARFLAG_PLAYER | CARFLAG_UNK2
+	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
 	ld [hl], a
 .asm_7a9b
 	call .Func_7af8
@@ -8953,8 +8974,8 @@ Func_7a94:
 	jp DespawnEntity
 
 .Func_7abc:
-	ld de, NULL
-	ld bc, NULL
+	ld de, 0
+	ld bc, 0
 	ld a, [wda59]
 	bit 0, a
 	call nz, .Func_7ae8
@@ -8966,10 +8987,10 @@ Func_7a94:
 	call nz, .Func_7af0
 	call GetEntityCarPtr
 	push de
-	ld a, CARSTRUCT_01
+	ld a, SPRITESTRUCT_UNK01
 	call AddBCToStructField
 	pop bc
-	ld a, CARSTRUCT_04
+	ld a, SPRITESTRUCT_UNK04
 	jp AddBCToStructField
 
 .Func_7ae8:
@@ -8993,12 +9014,12 @@ Func_7a94:
 	push hl
 	inc hl
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; SPRITESTRUCT_Y
 	inc hl
 	ld d, [hl]
 	inc hl
 	inc hl
-	ld c, [hl]
+	ld c, [hl] ; SPRITESTRUCT_X
 	inc hl
 	ld b, [hl]
 	ld a, $04
@@ -9033,7 +9054,7 @@ Func_7a94:
 
 .Func_7b31:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_X_FRAC
+	ld a, SPRITESTRUCT_UNK09
 	add_hl
 	ld a, [wdc7a + 0]
 	ld c, a
@@ -9067,7 +9088,7 @@ Func_7a94:
 Func_7b62:
 	xor a
 	ld [wda59], a
-	ld a, $0d
+	ld a, SPRITESTRUCT_UNK0D
 	add_hl
 	ld a, [hli]
 	push hl
@@ -9096,7 +9117,7 @@ Func_7b62:
 	ld e, l
 	pop hl
 	inc hl
-	ld a, [hli]
+	ld a, [hli] ; SPRITESTRUCT_UNK0F
 	ld h, [hl]
 	ld l, a
 	call HLMinusBC
