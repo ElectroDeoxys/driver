@@ -1,7 +1,6 @@
 PlayerSpawnParams_GrandCentralStation:
 DestinationCoords_GrandCentralStation_3:
-	dw 4052, 3988
-	db 270 deg
+	coords_dir 4052, 3988, 270 deg
 
 DestinationCoords_GrandCentralStation_1:
 	dw 832, 2156

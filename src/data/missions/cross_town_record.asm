@@ -1,6 +1,5 @@
 PlayerSpawnParams_CrossTownRecord:
-	dw 2960, 7760
-	db 180 deg
+	coords_dir 2960, 7760, 180 deg
 
 DestinationCoords_CrossTownRecord:
 	dw 4936, 888

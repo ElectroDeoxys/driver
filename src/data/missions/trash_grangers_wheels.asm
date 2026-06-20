@@ -1,6 +1,5 @@
 PlayerSpawnParams_TrashGrangersWheels:
-	dw 5856, 4892
-	db 270 deg
+	coords_dir 5856, 4892, 270 deg
 
 DestinationCoords_TrashGrangersWheels:
 	dw 2224, 6324

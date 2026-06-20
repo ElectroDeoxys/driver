@@ -1,6 +1,5 @@
 PlayerSpawnParams_BoatChase:
-	dw 4212, 4344
-	db 180 deg
+	coords_dir 4212, 4344, 180 deg
 
 Data_7ed7:
 	dw 4272, 4382

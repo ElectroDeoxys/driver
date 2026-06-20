@@ -1,6 +1,5 @@
 PlayerSpawnParams_SuperflyDrive:
-	dw 504, 4464
-	db 90 deg
+	coords_dir 504, 4464, 90 deg
 
 DestinationCoords_SuperflyDrive:
 	dw 7744, 600

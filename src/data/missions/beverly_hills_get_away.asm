@@ -1,6 +1,5 @@
 PlayerSpawnParams_BeverlyHillsGetAway:
-	dw 56, 1056
-	db 90 deg
+	coords_dir 56, 1056, 90 deg
 
 DestinationCoords_BeverlyHillsGetAway_1:
 	dw 3248, 2420
@@ -12,12 +11,10 @@ DestinationCoords_BeverlyHillsGetAway_2:
 	dw 3860, 624
 
 CopCarSpawnParams_BeverlyHillsGetAway_1:
-	dw 3844, 624
-	db 180 deg
+	coords_dir 3844, 624, 180 deg
 
 CopCarSpawnParams_BeverlyHillsGetAway_2:
-	dw 3876, 624
-	db 180 deg
+	coords_dir 3876, 624, 180 deg
 
 DestinationCoords_BeverlyHillsGetAway_3:
 	dw 5824, 5264

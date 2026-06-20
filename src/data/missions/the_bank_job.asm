@@ -1,6 +1,5 @@
 PlayerSpawnParams_TheBankJob:
-	dw 3408, 6160
-	db 0 deg
+	coords_dir 3408, 6160, 0 deg
 
 DestinationCoords_TheBankJob_1:
 	dw 3440, 3060

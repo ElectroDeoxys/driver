@@ -37,3 +37,9 @@ MACRO? menu_item
 	dw \2 ; text
 	dw \3 ; handler function
 ENDM
+
+MACRO? coords_dir
+	dw \1 ; x
+	dw \2 ; y
+	db \3 ; direction
+ENDM

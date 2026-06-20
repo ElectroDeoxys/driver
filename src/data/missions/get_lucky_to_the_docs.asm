@@ -1,6 +1,5 @@
 PlayerSpawnParams_GetLuckyToTheDocs:
-	dw 3908, 2016
-	db 0 deg
+	coords_dir 3908, 2016, 0 deg
 
 DestinationCoords_GetLuckyToTheDocs_1:
 	dw 6336, 1744

@@ -8380,24 +8380,21 @@ Func_748c:
 	dw 6656, 32
 
 .Data_75ff:
-	dw 5504, 6680
-	db 270 deg
+	coords_dir 5504, 6680, 270 deg
 
 .Data_7604:
 	dw 5424, 16
 	dw 6704, 32
 
 .Data_760c:
-	dw 5504, 6728
-	db 270 deg
+	coords_dir 5504, 6728, 270 deg
 
 .Data_7611:
 	dw 5048, 16
 	dw 8024, 80
 
 .Data_7619:
-	dw 5128, 8060
-	db 270 deg
+	coords_dir 5128, 8060, 270 deg
 
 Func_761e:
 	ld hl, .Data_7631
@@ -9410,8 +9407,7 @@ Data_7d05::
 	assert_table_length NUM_CITIES
 
 .Miami_1:
-	dw 3636, 3792
-	db 0 deg
+	coords_dir 3636, 3792, 0 deg
 
 	dw 3168, 3956
 	dw 2840, 3080
@@ -9421,8 +9417,7 @@ Data_7d05::
 	dw 4152, 4200
 
 .Miami_2:
-	dw 7645, 4014
-	db 270 deg
+	coords_dir 7645, 4014, 270 deg
 
 	dw 7468, 3210
 	dw 7191, 1086
@@ -9432,8 +9427,7 @@ Data_7d05::
 	dw  390, 4525
 
 .LosAngeles_1:
-	dw 2305, 1146
-	db 180 deg
+	coords_dir 2305, 1146, 180 deg
 
 	dw 2658, 1748
 	dw 2863, 2199
@@ -9443,8 +9437,7 @@ Data_7d05::
 	dw 1971, 3556
 
 .LosAngeles_2:
-	dw 69, 3544
-	db 0 deg
+	coords_dir 69, 3544, 0 deg
 
 	dw   46, 1061
 	dw 1947, 1756
@@ -9454,8 +9447,7 @@ Data_7d05::
 	dw 5714, 5293
 
 .NewYork_1:
-	dw 3494, 4017
-	db 0 deg
+	coords_dir 3494, 4017, 0 deg
 
 	dw 3909, 3850
 	dw 4851, 3229
@@ -9465,8 +9457,7 @@ Data_7d05::
 	dw 1969, 3558
 
 .NewYork_2:
-	dw 2964, 7767
-	db 90 deg
+	coords_dir 2964, 7767, 90 deg
 
 	dw 3917, 7312
 	dw 4016, 5512
@@ -9483,46 +9474,28 @@ Data_7dbf::
 	assert_table_length NUM_CITIES
 
 .Miami_1:
-	dw 4196, 4360
-	db 225 deg
-
-	dw 4212, 4344
-	db 225 deg
+	coords_dir 4196, 4360, 225 deg
+	coords_dir 4212, 4344, 225 deg
 
 .Miami_2:
-	dw 7022, 80
-	db 0 deg
-
-	dw 6957, 64
-	db 90 deg
+	coords_dir 7022, 80,  0 deg
+	coords_dir 6957, 64, 90 deg
 
 .LosAngeles_1:
-	dw 1056, 5904
-	db 0 deg
-
-	dw 1056, 5928
-	db 0 deg
+	coords_dir 1056, 5904, 0 deg
+	coords_dir 1056, 5928, 0 deg
 
 .LosAngeles_2:
-	dw 4396, 1750
-	db 270 deg
-
-	dw 4396, 1725
-	db 90 deg
+	coords_dir 4396, 1750, 270 deg
+	coords_dir 4396, 1725,  90 deg
 
 .NewYork_1:
-	dw 1568, 7232
-	db 90 deg
-
-	dw 1544, 7232
-	db 90 deg
+	coords_dir 1568, 7232, 90 deg
+	coords_dir 1544, 7232, 90 deg
 
 .NewYork_2:
-	dw 3441, 4078
-	db 90 deg
-
-	dw 3391, 4078
-	db 90 deg
+	coords_dir 3441, 4078, 90 deg
+	coords_dir 3391, 4078, 90 deg
 
 Data_7e07::
 	table_width 4
@@ -9600,16 +9573,13 @@ CreditsPlayerSpawnParams::
 	assert_table_length NUM_CITIES
 
 .Miami:
-	dw 7472, 3248
-	db 270 deg
+	coords_dir 7472, 3248, 270 deg
 
 .LosAngeles:
-	dw 3852, 600
-	db 180 deg
+	coords_dir 3852, 600, 180 deg
 
 .NewYork:
-	dw 6124, 7536
-	db 0 deg
+	coords_dir 6124, 7536, 0 deg
 
 TakeARidePlayerSpawnParams::
 	table_width 2
@@ -9619,16 +9589,13 @@ TakeARidePlayerSpawnParams::
 	assert_table_length NUM_CITIES
 
 .Miami:
-	dw 7472, 3248
-	db 270 deg
+	coords_dir 7472, 3248, 270 deg
 
 .LosAngeles:
-	dw 1056, 5928
-	db 0 deg
+	coords_dir 1056, 5928, 0 deg
 
 .NewYork:
-	dw 1440, 7152
-	db 180 deg
+	coords_dir 1440, 7152, 180 deg
 
 SurvivalPlayerSpawnParams::
 	table_width 2
@@ -9638,13 +9605,10 @@ SurvivalPlayerSpawnParams::
 	assert_table_length NUM_CITIES
 
 .Miami:
-	dw 7652, 4544
-	db 315 deg
+	coords_dir 7652, 4544, 315 deg
 
 .LosAngeles:
-	dw 1936, 3104
-	db 270 deg
+	coords_dir 1936, 3104, 270 deg
 
 .NewYork:
-	dw 1580, 7232
-	db 180 deg
+	coords_dir 1580, 7232, 180 deg

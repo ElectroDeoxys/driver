@@ -1,6 +1,5 @@
 PlayerSpawnParams_TakeOutDiAngelo:
-	dw 7088, 3408
-	db 0 deg
+	coords_dir 7088, 3408, 0 deg
 
 NPCSpawnParams_TakeOutDiAngelo:
 	db RED_CAR

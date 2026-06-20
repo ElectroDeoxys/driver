@@ -1,6 +1,5 @@
 PlayerSpawnParams_ChaseOneOfGrangersBoys:
-	dw 2260, 6335
-	db 0 deg
+	coords_dir 2260, 6335, 0 deg
 
 NPCSpawnParams_ChaseOneOfGrangersBoys:
 	db RED_CAR

@@ -1,6 +1,5 @@
 PlayerSpawnParams_RamRaidRace:
-	dw 3408, 6160
-	db 0 deg
+	coords_dir 3408, 6160, 0 deg
 
 DestinationCoordsTable_RamRaidRace:
 	dw 3232, 4480 ; $0
