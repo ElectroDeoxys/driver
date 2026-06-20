@@ -4205,7 +4205,7 @@ Func_16e2:
 	ld [wPlayerCarOBPal], a
 
 .get_spawn_coords
-	ld hl, TakeARideSpawnCoords
+	ld hl, TakeARidePlayerSpawnParams
 	call Func_1946
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
@@ -4242,7 +4242,7 @@ Func_16e2:
 	ld a, [wCity]
 	call SetCity
 	call SetDefaultPlayerCar
-	ld hl, $7e9d
+	ld hl, SurvivalPlayerSpawnParams
 	call Func_1946
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
@@ -4421,7 +4421,7 @@ Func_18c5:
 	ld a, [wCity]
 	call SetCity
 
-	ld hl, $7e73
+	ld hl, CreditsPlayerSpawnParams
 	call Func_1946
 	call SetPlayerSpawnCoordinatesAndDirection
 
@@ -4479,7 +4479,7 @@ Func_1937:
 	ld hl, Data_7d05
 	jr Func_194f
 Func_193c:
-	ld hl, $7dbf
+	ld hl, Data_7dbf
 	jr Func_194f
 Func_1941:
 	ld hl, Data_7e07

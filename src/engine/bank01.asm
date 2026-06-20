@@ -44,9 +44,24 @@ Func_4000::
 	call SetStructWord_DE
 
 	jp Func_3047
-; 0x4057
 
-SECTION "Func_4066", ROMX[$4066], BANK[$1]
+; unreferenced
+Func_4057:
+	push hl
+	add_hl
+	xor a
+	ld [hli], a
+	ld a, e
+	add c
+	ld [hli], a
+	jr nc, .asm_4061
+	inc b
+.asm_4061
+	ld a, d
+	add b
+	ld [hl], a
+	pop hl
+	ret
 
 Func_4066:
 	call GetEntityCarPtr
@@ -329,9 +344,32 @@ Func_421c:
 	add c
 	pop bc
 	jp InflictDamage
-; 0x423d
 
-SECTION "Func_4258", ROMX[$4258], BANK[$1]
+; unreferenced
+Func_423d:
+	push hl
+	ld hl, wda68
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	inc hl
+	ld c, [hl]
+	inc hl
+	ld b, [hl]
+	xor a
+	sub e
+	ld e, a
+	ld a, $00
+	sbc d
+	ld d, a
+	xor a
+	sub c
+	ld c, a
+	ld a, $00
+	sbc b
+	ld b, a
+	pop hl
+	ret
 
 Func_4258:
 	push hl
@@ -1027,9 +1065,20 @@ Func_4626:
 	ld a, $20
 	ld [wda90], a
 	ret
-; 0x4644
 
-SECTION "Func_4658", ROMX[$4658], BANK[$1]
+; unreferenced
+Func_4644:
+	ld a, CARDATASTRUCT_0
+	call GetPlayerCarData_Byte
+	ld c, a
+	ld a, [wda90]
+	add c
+	cp $20
+	jr c, .asm_4654
+	ld a, $20
+.asm_4654
+	ld [wda90], a
+	ret
 
 Func_4658:
 	ld a, [wJoypadDown]
@@ -1049,9 +1098,20 @@ Func_4658:
 	ld a, $20
 	ld [wda91], a
 	ret
-; 0x4676
 
-SECTION "Func_468a", ROMX[$468a], BANK[$1]
+; unreferenced
+Func_4676:
+	ld a, CARDATASTRUCT_2
+	call GetPlayerCarData_Byte
+	ld c, a
+	ld a, [wda91]
+	add c
+	cp $20
+	jr c, .asm_4686
+	ld a, $20
+.asm_4686
+	ld [wda91], a
+	ret
 
 Func_468a:
 	push hl
@@ -4075,9 +4135,16 @@ Func_58e2:
 	or SPRITEFLAG_UNK7
 	ld [de], a
 	ret
-; 0x58fa
 
-SECTION "Func_5906", ROMX[$5906], BANK[$1]
+; unreferenced
+Func_58fa:
+	res 7, [hl]
+	ld a, $25
+	call GetStructWord_DE
+	ld a, [de]
+	and $7f
+	ld [de], a
+	ret
 
 Func_5906:
 	call GetEntityCarPtr
@@ -4251,9 +4318,17 @@ Func_5950:
 	call Func_4c73
 	call Func_5a58
 	jp .asm_595d
-; 0x5a4f
 
-SECTION "Func_5a58", ROMX[$5a58], BANK[$1]
+; unreferenced
+Func_5a4f:
+	push hl
+	ld a, $1c
+	add_hl
+	xor a
+	ld [hli], a
+	ld [hl], a
+	pop hl
+	ret
 
 Func_5a58:
 	call Func_5a6b
@@ -9328,14 +9403,126 @@ CheckSkipCompanies::
 	db FALSE
 
 Data_7d05::
-	dw $7d11, $7d2e ; MIAMI
-	dw $7d4b, $7d68 ; LOS_ANGELES
-	dw $7d85, $7da2 ; NEW_YORK
+	table_width 4
+	dw .Miami_1,      .Miami_2      ; MIAMI
+	dw .LosAngeles_1, .LosAngeles_2 ; LOS_ANGELES
+	dw .NewYork_1,    .NewYork_2    ; NEW_YORK
+	assert_table_length NUM_CITIES
 
-	db $34, $0e, $d0, $0e, $00, $60, $0c, $74, $0f, $18, $0b, $08, $0c, $24, $0b, $64, $0f, $64, $0d, $d0, $11, $74, $0e, $d0, $10, $38, $10, $68, $10
-; 0x7d2e
+.Miami_1:
+	dw 3636, 3792
+	db 0 deg
 
-SECTION "Data_7e07", ROMX[$7e07], BANK[$1]
+	dw 3168, 3956
+	dw 2840, 3080
+	dw 2852, 3940
+	dw 3428, 4560
+	dw 3700, 4304
+	dw 4152, 4200
+
+.Miami_2:
+	dw 7645, 4014
+	db 270 deg
+
+	dw 7468, 3210
+	dw 7191, 1086
+	dw 5840, 3449
+	dw 3756, 3565
+	dw 3036, 5799
+	dw  390, 4525
+
+.LosAngeles_1:
+	dw 2305, 1146
+	db 180 deg
+
+	dw 2658, 1748
+	dw 2863, 2199
+	dw 4296, 1790
+	dw 3414, 1197
+	dw 1838, 2379
+	dw 1971, 3556
+
+.LosAngeles_2:
+	dw 69, 3544
+	db 0 deg
+
+	dw   46, 1061
+	dw 1947, 1756
+	dw 3821, 2433
+	dw 6843, 1138
+	dw 7470, 2863
+	dw 5714, 5293
+
+.NewYork_1:
+	dw 3494, 4017
+	db 0 deg
+
+	dw 3909, 3850
+	dw 4851, 3229
+	dw 4429, 2017
+	dw 3627, 2269
+	dw 3116, 2225
+	dw 1969, 3558
+
+.NewYork_2:
+	dw 2964, 7767
+	db 90 deg
+
+	dw 3917, 7312
+	dw 4016, 5512
+	dw 1613, 3484
+	dw 1000, 1443
+	dw 2130,  522
+	dw 5223, 5165
+
+Data_7dbf::
+	table_width 4
+	dw .Miami_1,      .Miami_2      ; MIAMI
+	dw .LosAngeles_1, .LosAngeles_2 ; LOS_ANGELES
+	dw .NewYork_1,    .NewYork_2    ; NEW_YORK
+	assert_table_length NUM_CITIES
+
+.Miami_1:
+	dw 4196, 4360
+	db 225 deg
+
+	dw 4212, 4344
+	db 225 deg
+
+.Miami_2:
+	dw 7022, 80
+	db 0 deg
+
+	dw 6957, 64
+	db 90 deg
+
+.LosAngeles_1:
+	dw 1056, 5904
+	db 0 deg
+
+	dw 1056, 5928
+	db 0 deg
+
+.LosAngeles_2:
+	dw 4396, 1750
+	db 270 deg
+
+	dw 4396, 1725
+	db 90 deg
+
+.NewYork_1:
+	dw 1568, 7232
+	db 90 deg
+
+	dw 1544, 7232
+	db 90 deg
+
+.NewYork_2:
+	dw 3441, 4078
+	db 90 deg
+
+	dw 3391, 4078
+	db 90 deg
 
 Data_7e07::
 	table_width 4
@@ -9403,11 +9590,28 @@ Data_7e07::
 	db $32, $00
 	db 90 deg ; target direction
 	dw 4440, 3220 ; target coordinates
-; 0x7e73
 
-SECTION "TakeARideSpawnCoords", ROMX[$7e88], BANK[$1]
+ 
+CreditsPlayerSpawnParams::
+	table_width 2
+	dw .Miami      ; MIAMI
+	dw .LosAngeles ; LOS_ANGELES
+	dw .NewYork    ; NEW_YORK
+	assert_table_length NUM_CITIES
 
-TakeARideSpawnCoords::
+.Miami:
+	dw 7472, 3248
+	db 270 deg
+
+.LosAngeles:
+	dw 3852, 600
+	db 180 deg
+
+.NewYork:
+	dw 6124, 7536
+	db 0 deg
+
+TakeARidePlayerSpawnParams::
 	table_width 2
 	dw .Miami      ; MIAMI
 	dw .LosAngeles ; LOS_ANGELES
@@ -9425,4 +9629,22 @@ TakeARideSpawnCoords::
 .NewYork:
 	dw 1440, 7152
 	db 180 deg
-; 0x7e9d
+
+SurvivalPlayerSpawnParams::
+	table_width 2
+	dw .Miami      ; MIAMI
+	dw .LosAngeles ; LOS_ANGELES
+	dw .NewYork    ; NEW_YORK
+	assert_table_length NUM_CITIES
+
+.Miami:
+	dw 7652, 4544
+	db 315 deg
+
+.LosAngeles:
+	dw 1936, 3104
+	db 270 deg
+
+.NewYork:
+	dw 1580, 7232
+	db 180 deg
