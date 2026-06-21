@@ -1,6 +1,6 @@
 SECTION "Bank31", ROMX, BANK[$31]
 
-MiamiGfx:: INCBIN "gfx/miami.2bpp"
+MiamiGfx:: INCBIN "gfx/cities/miami.2bpp"
 
 Pals_c5320::
 	rgb 22, 22, 17
@@ -45,7 +45,7 @@ Pals_c5358::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 
-MiamiDebugGfx:: INCBIN "gfx/miami_debug.2bpp"
+MiamiDebugGfx:: INCBIN "gfx/cities/miami_debug.2bpp"
 
 Pals_c5450::
 	rgb 26,  8,  3
@@ -90,7 +90,7 @@ Pals_c5488::
 	rgb  0,  0,  0
 	rgb  0,  0,  0
 
-LosAngelesGfx:: INCBIN "gfx/los_angeles.2bpp"
+LosAngelesGfx:: INCBIN "gfx/cities/los_angeles.2bpp"
 
 Pals_c6800::
 	rgb  0,  8, 15
@@ -135,7 +135,7 @@ Pals_c6838::
 	rgb 12, 12, 11
 	rgb 31, 31, 31
 
-LosAngelesDebugGfx:: INCBIN "gfx/los_angeles_debug.2bpp"
+LosAngelesDebugGfx:: INCBIN "gfx/cities/los_angeles_debug.2bpp"
 
 Pals_c6930::
 	rgb  0,  0, 31
@@ -176,7 +176,7 @@ Pals_c6930::
 
 SECTION "NewYorkGfx", ROMX[$6970], BANK[$31]
 
-NewYorkGfx:: INCBIN "gfx/new_york.2bpp"
+NewYorkGfx:: INCBIN "gfx/cities/new_york.2bpp"
 
 Pals_c7a40::
 	rgb 12, 12, 12
@@ -217,7 +217,7 @@ Pals_c7a40::
 
 SECTION "NewYorkDebugGfx", ROMX[$7a80], BANK[$31]
 
-NewYorkDebugGfx:: INCBIN "gfx/new_york_debug.2bpp"
+NewYorkDebugGfx:: INCBIN "gfx/cities/new_york_debug.2bpp"
 
 Pals_c7b70::
 	rgb 10,  0, 11
@@ -256,13 +256,141 @@ Pals_c7b70::
 	rgb  0,  0,  0
 ; 0xc7ba8
 
-SECTION "Gfx_c7ff0", ROMX[$7ff0], BANK[$31]
+SECTION "Pals_c7bb0", ROMX[$7bb0], BANK[$31]
+Pals_c7bb0::
+	rgb 31,  1,  0
+	rgb 31, 23,  5
+	rgb  0, 24,  0
+	rgb  0, 20, 31
+
+	rgb 31, 23,  5
+	rgb 13, 10,  0
+	rgb 13, 10,  0
+	rgb  0,  0,  0
+
+	rgb 31, 23,  5
+	rgb  0, 20, 31
+	rgb 31,  1,  0
+	rgb  0,  0,  0
+
+	rgb 31, 23,  5
+	rgb  0, 20, 31
+	rgb  0,  9, 15
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+; 0xc7be8
+
+SECTION "Gfx_c7bf0", ROMX[$7bf0], BANK[$31]
+
+MiamiMapTilemap:: INCBIN "gfx/maps/miami.tilemap"
 Gfx_c7ff0:: INCBIN "gfx/gfx_c7ff0.2bpp"
 
 
 SECTION "Bank32", ROMX, BANK[$32]
 
-SECTION "Car01Gfx", ROMX[$7860], BANK[$32]
+MiamiMapGfx:: INCBIN "gfx/maps/miami.2bpp"
+MiamiMapAttrmap:: INCBIN "gfx/maps/miami.attrmap"
+
+Pals_c9280::
+	rgb 31,  1,  0
+	rgb 31, 23,  5
+	rgb  0, 24,  0
+	rgb  0, 20, 31
+
+	rgb 31, 23,  5
+	rgb 13, 10,  0
+	rgb 13, 10,  0
+	rgb  0,  0,  0
+
+	rgb 31, 23,  5
+	rgb  0, 20, 31
+	rgb 31,  1,  0
+	rgb  0,  0,  0
+
+	rgb 31, 23,  5
+	rgb  0, 20, 31
+	rgb  0,  9, 15
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+; 0xc92b8
+
+SECTION "Pals_ca2c0", ROMX[$52c0], BANK[$32]
+
+LosAngelesMapGfx:: INCBIN "gfx/maps/los_angeles.2bpp"
+LosAngelesMapTilemap:: INCBIN "gfx/maps/los_angeles.tilemap"
+LosAngelesMapAttrmap:: INCBIN "gfx/maps/los_angeles.attrmap"
+
+SECTION "Pals_ca340", ROMX[$6340], BANK[$32]
+Pals_ca340::
+	rgb 31,  1,  0
+	rgb 31, 23,  5
+	rgb  0, 24,  0
+	rgb  0, 20, 31
+
+	rgb 31, 23,  5
+	rgb 13, 10,  0
+	rgb 13, 10,  0
+	rgb  0,  0,  0
+
+	rgb 31, 23,  5
+	rgb  0, 20, 31
+	rgb 31,  1,  0
+	rgb  0,  0,  0
+
+	rgb 31, 23,  5
+	rgb  0, 20, 31
+	rgb  0,  9, 15
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+	rgb  0,  0,  0
+; 0xca378
+
+SECTION "LosAngelesMapGfx", ROMX[$6380], BANK[$32]
+
+NewYorkMapGfx:: INCBIN "gfx/maps/new_york.2bpp"
+NewYorkMapTilemap:: INCBIN "gfx/maps/new_york.tilemap"
+NewYorkMapAttrmap:: INCBIN "gfx/maps/new_york.attrmap"
 
 MapPlayerGfx::      INCBIN "gfx/map_player.2bpp"
 MapDestinationGfx:: INCBIN "gfx/map_destination.2bpp"
@@ -314,7 +442,20 @@ Pals_cbec0::
 	rgb  0,  0,  0
 ; 0xcbf00
 
-SECTION "Pals_cbf70", ROMX[$7f70], BANK[$32]
+SECTION "Pals_cbf40", ROMX[$7f40], BANK[$32]
+
+Tilemap_cbf40::
+	db $00, $01, $02, $03, $04, $05
+	db $00, $06, $05, $05, $05, $07
+	db $08, $09, $0a, $0b, $0c, $0d
+	db $0e, $0f, $10, $11, $12, $13
+
+Attrmap_cbf58::
+	db $01, $01, $01, $01, $01, $01
+	db $01, $01, $01, $01, $01, $01
+	db $01, $01, $01, $01, $01, $01
+	db $01, $01, $01, $01, $01, $01
+
 Pals_cbf70::
 	rgb 31, 25,  0
 	rgb 23, 23, 23
@@ -1005,6 +1146,16 @@ SECTION "Go123Gfx", ROMX[$7efd], BANK[$35]
 
 Go123Gfx:: INCBIN "gfx/go_123.2bpp"
 
+Data_d7f9d::
+    db $00, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00, $06, $00, $07, $00
+    db $08, $00, $09, $00, $0a, $00, $0b, $00, $0c, $00, $0d, $00, $0e, $00, $0f, $00
+    db $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17, $00
+
+Data_d7fcd::
+	db $00, $04, $01, $04, $02, $04, $03, $04, $04, $00, $05, $00, $06, $00, $07, $04
+    db $08, $04, $09, $00, $0a, $00, $0b, $00, $0c, $00, $0d, $00, $0e, $00, $0f, $03
+    db $10, $04, $11, $01, $12, $01, $13, $00, $14, $01, $15, $04, $16, $04, $17, $04
+
 SECTION "Bank36", ROMX, BANK[$36]
 
 ItalianHUDGfx::
@@ -1083,7 +1234,11 @@ SECTION "RedCarPicGfx", ROMX[$5320], BANK[$36]
 
 RedCarPicGfx:: INCBIN "gfx/cars/pics/red_car.2bpp"
 
-SECTION "Pals_d9650", ROMX[$5650], BANK[$36]
+Data_d9620::
+	db $00, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00, $06, $03, $07, $00
+	db $08, $02, $09, $04, $0a, $00, $0b, $00, $0c, $00, $0d, $00, $0e, $00, $0f, $01
+	db $10, $02, $11, $02, $12, $00, $13, $02, $14, $00, $15, $00, $16, $00, $17, $00
+
 Pals_d9650::
 	rgb  0,  0,  0
 	rgb 31, 13, 10
@@ -1114,6 +1269,11 @@ Pals_d9650::
 SECTION "LimousinePicGfx", ROMX[$5690], BANK[$36]
 
 LimousinePicGfx:: INCBIN "gfx/cars/pics/limousine.2bpp"
+
+Data_d9990::
+	db $00, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00, $06, $00, $07, $00
+	db $08, $00, $09, $00, $0a, $00, $0b, $00, $0c, $00, $0d, $00, $0e, $00, $0f, $00
+	db $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17, $00
 
 SECTION "Pals_d99c0", ROMX[$59c0], BANK[$36]
 
@@ -1148,7 +1308,10 @@ SECTION "CopCarPicGfx", ROMX[$5a00], BANK[$36]
 
 CopCarPicGfx:: INCBIN "gfx/cars/pics/cop_car.2bpp"
 
-SECTION "Pals_d9d30", ROMX[$5d30], BANK[$36]
+Data_d9d00::
+	db $00, $00, $01, $00, $02, $00, $03, $00, $04, $02, $05, $01, $06, $00, $07, $00
+	db $08, $00, $09, $00, $0a, $00, $0b, $00, $0c, $00, $0d, $00, $0e, $00, $0f, $00
+	db $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17, $00
 
 Pals_d9d30::
 	rgb  0,  0,  0
@@ -1181,7 +1344,10 @@ SECTION "TaxiPicGfx", ROMX[$5d70], BANK[$36]
 
 TaxiPicGfx:: INCBIN "gfx/cars/pics/taxi.2bpp"
 
-SECTION "Pals_da0a0", ROMX[$60a0], BANK[$36]
+Data_da070::
+	db $00, $00, $01, $00, $02, $00, $03, $00, $04, $02, $05, $02, $06, $00, $07, $00
+	db $08, $03, $09, $04, $0a, $04, $0b, $00, $0c, $00, $0d, $00, $0e, $00, $0f, $00
+	db $10, $01, $11, $01, $12, $01, $13, $00, $14, $01, $15, $00, $16, $00, $17, $00
 
 Pals_da0a0::
 	rgb  0,  0,  0

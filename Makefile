@@ -93,9 +93,11 @@ $(rom): $(rom_obj) src/layout.link
 src/gfx/font.2bpp: RGBGFX += --trim-end 5
 src/gfx/font_checkbox.2bpp: RGBGFX += --trim-end 5
 
-src/gfx/miami.2bpp: RGBGFX += --trim-end 14
-src/gfx/los_angeles.2bpp: RGBGFX += --trim-end 9
-src/gfx/new_york.2bpp: RGBGFX += --trim-end 3
+src/gfx/cities/miami.2bpp: RGBGFX += --trim-end 14
+src/gfx/cities/los_angeles.2bpp: RGBGFX += --trim-end 9
+src/gfx/cities/new_york.2bpp: RGBGFX += --trim-end 3
+
+src/gfx/maps/new_york.2bpp: RGBGFX += --trim-end 2
 
 ### Interleaved gfx
 

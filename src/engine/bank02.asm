@@ -573,13 +573,13 @@ Func_83c9:
 	call SafeCopyFarTiles
 	ld a, BANK("VRAM0")
 	vramswitch
-	ld hl, $43f9
+	ld hl, Data_83f9
 	call Func_847f
 	call Func_84a1
 	ret
-; 0x83f9
 
-SECTION "Func_840d", ROMX[$440d], BANK[$2]
+Data_83f9:
+	db $15, $16, $13, $14, $22, $23, $24, $25, $26, $27, $00, $00, $00, $00, $00, $00, $17, $48, $18, $49
 
 Func_840d:
 	ld hl, wd88f
@@ -587,13 +587,13 @@ Func_840d:
 	ld [hli], a
 	ld [hli], a
 	ld [hl], a
-	ld hl, $441f
+	ld hl, Data_841f
 	call Func_847f
 	call Func_84a1
 	ret
-; 0x841f
 
-SECTION "Func_8433", ROMX[$4433], BANK[$2]
+Data_841f:
+	db $00, $00, $00, $00, $00, $15, $16, $13, $14, $22, $23, $24, $25, $26, $27, $00, $00, $00, $00, $00
 
 Func_8433:
 	ld hl, wd88f
@@ -603,27 +603,27 @@ Func_8433:
 	ld [hl], a
 	xor a
 	ld [wd86d], a
-	ld hl, $4449
+	ld hl, Data_8449
 	call Func_847f
 	call Func_84a1
 	ret
-; 0x8449
 
-SECTION "Func_845d", ROMX[$445d], BANK[$2]
+Data_8449:
+	db $15, $16, $13, $14, $22, $23, $24, $25, $26, $27, $00, $01, $02, $02, $02, $02, $02, $02, $02, $19
 
 Func_845d:
 	xor a
 	ld [wd86d], a
-	ld hl, $446b
+	ld hl, Data_846b
 	call Func_847f
 	call Func_84a1
 	ret
-; 0x846b
 
-SECTION "Func_847f", ROMX[$447f], BANK[$2]
+Data_846b:
+	db $00, $0b, $0c, $0d, $0e, $00, $00, $00, $00, $00, $00, $01, $02, $02, $02, $02, $02, $02, $02, $19
 
 Func_847f:
-	ld b, $14
+	ld b, SCREEN_WIDTH
 	ld de, wd878
 .asm_8484
 	ld a, [hli]
@@ -805,13 +805,28 @@ Func_856b:
 
 .PtrTable:
 	table_width 2
-	dw $4579
-	dw $4585
-	dw $4591
+	dw .Miami      ; MIAMI
+	dw .LosAngeles ; LOS_ANGELES
+	dw .NewYork    ; NEW_YORK
 	assert_table_length NUM_CITIES
-; 0x8579
 
-SECTION "Func_859d", ROMX[$459d], BANK[$2]
+.Miami:
+	dba Pals_c7bb0
+	dba MiamiMapGfx
+	dba MiamiMapTilemap
+	dba MiamiMapAttrmap
+
+.LosAngeles:
+	dba Pals_c9280
+	dba LosAngelesMapGfx
+	dba LosAngelesMapTilemap
+	dba LosAngelesMapAttrmap
+
+.NewYork:
+	dba Pals_ca340
+	dba NewYorkMapGfx
+	dba NewYorkMapTilemap
+	dba NewYorkMapAttrmap
 
 Func_859d::
 	ld a, [wd895]
@@ -856,11 +871,12 @@ Func_85b6:
 	call SafeCopyFarTiles
 	pop hl
 	pop bc
-	ld de, $800
+	ld de, $80 tiles
 	add hl, de
 	ld de, v0Tiles1
 	ld b, $80
 	call SafeCopyFarTiles
+
 	ld a, BANK("VRAM1")
 	vramswitch
 	call GetHUDGfxPointer
@@ -1056,7 +1072,7 @@ Func_872f:
 	jr nz, Func_873c
 	ld de, Data_8767
 Func_873c:
-	ld hl, v0BGMap1
+	hlbgcoord 0, 0, v0BGMap1
 	lb bc, 1, 20
 	jp CopyBGMapBox
 
@@ -1263,8 +1279,8 @@ Func_88b1:
 	ret
 
 Func_88e0:
-	ld hl, v0BGMap1
-	lb bc, $1, $14
+	hlbgcoord 0, 0, v0BGMap1
+	lb bc, 1, SCREEN_WIDTH
 	jp CopyBGMapBox
 
 Func_88e9:
@@ -2427,9 +2443,6 @@ Func_905c:
 	db 92, 2, 52, 2 ; ITALIAN
 	db 92, 2, 52, 2 ; SPANISH
 	assert_table_length NUM_LANGUAGES
-; 0x9086
-
-SECTION "Func_909a", ROMX[$509a], BANK[$2]
 
 Pals_909a:
 	rgb  0,  0,  0
@@ -3070,9 +3083,6 @@ Func_9434:
 	ld hl, v0BGMap0
 	ld b, $20
 	jp Func_94ac
-; 0x945c
-
-SECTION "Func_945c", ROMX[$545c], BANK[$2]
 
 ; fills v0BGMap1 with c
 ; and   v1BGMap1 with b
@@ -3711,12 +3721,12 @@ Func_97f2:
 	cp MAINMENU_OPTIONS
 	jr z, .options
 
-	ld hl, $5cfb
-	ld c, $33
+	ld hl, Tilemap_cdc80 + $7b
+	ld c, BANK(Tilemap_cdc80)
 	call .LoadToBuffer
 	call .CopyToBGMap
-	ld hl, $5e63
-	ld c, $33
+	ld hl, Attrmap_cdde8 + $7b
+	ld c, BANK(Attrmap_cdde8)
 	call .LoadToBuffer
 	ld a, BANK("VRAM1")
 	vramswitch
@@ -3726,8 +3736,8 @@ Func_97f2:
 	ret
 
 .options
-	ld hl, $7f40
-	ld c, $32
+	ld hl, Tilemap_cbf40
+	ld c, BANK(Tilemap_cbf40)
 	call .Func_9865
 	ld hl, wGfxBuffer
 	ld b, $18
@@ -3738,8 +3748,8 @@ Func_97f2:
 	dec b
 	jr nz, .asm_982e
 	call .CopyToBGMap
-	ld hl, $7f58
-	ld c, $32
+	ld hl, Attrmap_cbf58
+	ld c, BANK(Attrmap_cbf58)
 	call .Func_9865
 	ld a, BANK("VRAM1")
 	vramswitch
@@ -3766,7 +3776,7 @@ Func_97f2:
 
 .Func_9865:
 	ld de, wGfxBuffer
-	ld b, $18
+	ld b, 4 * 6
 	jp FarCopy
 
 .CopyToBGMap:
@@ -5402,7 +5412,7 @@ Func_a283:
 	ld bc, $30
 	call FillMemory
 	ld de, wGfxBuffer
-	ld hl, v0BGMap1
+	hlbgcoord 0, 0, v0BGMap1
 	lb bc, 6, 8
 	jp CopyBGMapBox
 
@@ -5581,32 +5591,32 @@ PtrTable_a38a:
 .BlackCar:
 	dba BlackCarPicGfx
 	dba Pals_d8fa0
-	dbw $35, $7f9d
+	dba Data_d7f9d
 
 .BrownCar:
 	dba BrownCarPicGfx
 	dba Pals_d92e0
-	dbw $35, $7fcd
+	dba Data_d7fcd
 
 .RedCar:
 	dba RedCarPicGfx
 	dba Pals_d9650
-	dbw $36, $5620
+	dba Data_d9620
 
 .Limousine:
 	dba LimousinePicGfx
 	dba Pals_d99c0
-	dbw $36, $5990
+	dba Data_d9990
 
 .CopCar:
 	dba CopCarPicGfx
 	dba Pals_d9d30
-	dbw $36, $5d00
+	dba Data_d9d00
 
 .Taxi:
 	dba TaxiPicGfx
 	dba Pals_da0a0
-	dbw $36, $6070
+	dba Data_da070
 
 RetIfNoAOrStartBtn:
 	ld a, [wJoypadPressed]
@@ -5816,9 +5826,6 @@ Func_a500:
 	ld a, SFX_05
 	call PlaySFX
 	jp Func_a5c5
-; 0xa524
-
-SECTION "Func_a56c", ROMX[$6524], BANK[$2]
 
 Func_a524:
 	call RetIfNoAOrStartBtn
