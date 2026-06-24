@@ -11,7 +11,7 @@ ENDM
 
 MACRO? note
 	db \1 + C_3 ; note
-	
+
 	IF _NARG > 1
 		db \2 ; ?
 		IF _NARG > 2

@@ -6787,7 +6787,7 @@ EntUpdate_MissionController_TheBankJob:
 
 	ld a, $01
 	ld [wd820], a
-	
+
 	ld hl, DestinationCoords_TheBankJob_1
 	call SetDestinationCoords
 
@@ -9293,7 +9293,7 @@ Data_7c48::
 .Miami:
 	; props
 	db PROP_5, PROP_B, PROP_0, PROP_7, PROP_2, PROP_3, PROP_A, PROP_C
-	
+
 	; OB pals
 	dw Pals_f644
 	dw NULL
@@ -9326,7 +9326,7 @@ Data_7c48::
 .LosAngeles:
 	; props
 	db PROP_B, PROP_0, PROP_1, PROP_2, PROP_3, PROP_4, PROP_A, PROP_D
-	
+
 	; OB pals
 	dw Pals_f644
     dw NULL
@@ -9359,7 +9359,7 @@ Data_7c48::
 .NewYork:
 	; props
 	db PROP_1, PROP_7, PROP_0, PROP_2, PROP_3, PROP_A, PROP_C, PROP_D
-	
+
 	; OB pals
 	dw Pals_f644
 	dw NULL

@@ -1,0 +1,2 @@
+_Timer:
+	reti

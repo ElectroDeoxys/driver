@@ -760,15 +760,15 @@ ChooseACityTexts::
 	dw ChooseACityTextIT
 	dw ChooseACityTextES
 
-ChooseACityTextEN:	
+ChooseACityTextEN:
 	db "CHOOSE A CITY\0"
-ChooseACityTextFR:	
+ChooseACityTextFR:
 	db "CHOISIR UNE VILLE\0"
-ChooseACityTextDE:	
+ChooseACityTextDE:
 	db "STADT WeHLEN\0"
-ChooseACityTextIT:	
+ChooseACityTextIT:
 	db "SCEGLI UNA CITT<BIG_À>\0"
-ChooseACityTextES:	
+ChooseACityTextES:
 	db "ELIGE UNA CIUDAD\0"
 
 ChooseAMissionTexts::
@@ -814,15 +814,15 @@ ContinueGameTexts::
 	dw ContinueGameTextIT
 	dw ContinueGameTextES
 
-ContinueGameTextFR:	
+ContinueGameTextFR:
 	db "CONTINUER PARTIE\0"
-ContinueGameTextDE:	
+ContinueGameTextDE:
 	db "SPIEL FORTSETZEN\0"
-ContinueGameTextIT:	
+ContinueGameTextIT:
 	db "CONTINUA PARTITA\0"
-ContinueGameTextES:	
+ContinueGameTextES:
 	db "CONTINUAR\0"
-ContinueGameTextEN:	
+ContinueGameTextEN:
 	db "CONTINUE GAME\0"
 
 EnterCodeTexts::
@@ -868,15 +868,15 @@ NewGameTexts::
 	dw NewGameTextIT
 	dw NewGameTextES
 
-NewGameTextFR:	
+NewGameTextFR:
 	db "NOUVELLE PARTIE\0"
-NewGameTextDE:	
+NewGameTextDE:
 	db "NEUES SPIEL\0"
-NewGameTextIT:	
+NewGameTextIT:
 	db "NUOVA PARTITA\0"
-NewGameTextES:	
+NewGameTextES:
 	db "JUEGO NUEVO\0"
-NewGameTextEN:	
+NewGameTextEN:
 	db "NEW GAME\0"
 
 MiamiTexts::
