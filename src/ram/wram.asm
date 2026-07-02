@@ -165,7 +165,7 @@ wd548:: db ; d548
 
 	ds $d54b - $d549
 
-wd54b:: db ; d54b
+wSpriteWidthInTiles:: db ; d54b
 
 wd54c:: db ; d54c
 
@@ -744,13 +744,15 @@ NEXTU
 wMaxNumOfSetCharacters:: db ; dc7a
 ENDU
 
+UNION
 wdc7e:: db ; dc7e
-
 wdc7f:: db ; dc7f
-
 wdc80:: db ; dc80
-
 wdc81:: db ; dc81
+NEXTU
+wTempX:: dw ; dc7e
+wTempY:: dw ; dc80
+ENDU
 
 wdc82:: db ; dc82
 

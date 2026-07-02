@@ -5,7 +5,7 @@ DestinationCoords_TheBankJob_1:
 	dw 3440, 3060
 
 Data_7ebb:
-	db $70, $0d, $14, $0c
+	dw 3440, 3092
 
 DestinationCoords_TheBankJob_2:
 	dw 7460, 4640

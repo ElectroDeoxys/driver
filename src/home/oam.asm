@@ -106,9 +106,9 @@ Func_1186:
 	cp -1
 	jp nz, .asm_1242
 	push de
-	ld a, SPRITESTRUCT_UNK07 - (SPRITESTRUCT_Y + 1)
+	ld a, SPRITESTRUCT_HEIGHT - (SPRITESTRUCT_Y + 1)
 	add_de
-	ld a, [de] ; SPRITESTRUCT_UNK07
+	ld a, [de] ; SPRITESTRUCT_HEIGHT
 	add b
 	pop de
 	jp nc, .asm_1242
@@ -137,7 +137,7 @@ Func_1186:
 	cp -1
 	jr nz, .asm_1242
 	push de
-	ld a, SPRITESTRUCT_UNK08 - (SPRITESTRUCT_X + 1)
+	ld a, SPRITESTRUCT_WIDTH - (SPRITESTRUCT_X + 1)
 	add_de
 	ld a, [de]
 	add c
@@ -167,22 +167,22 @@ Func_1186:
 	ld c, a
 .asm_11f0
 	inc hl
-	ld a, [hli] ; SPRITESTRUCT_UNK07
+	ld a, [hli] ; SPRITESTRUCT_HEIGHT
 	swap a
 	ld d, a
-	ld a, [hli] ; SPRITESTRUCT_UNK08
+	ld a, [hli] ; SPRITESTRUCT_WIDTH
 	rrca
 	rrca
 	ld e, a ; /4
 	rrca
-	ld [wd54b], a ; /8
+	ld [wSpriteWidthInTiles], a ; /8
 	ld a, [wSpriteFlags]
 	and SPRITEFLAG_UNK7
 	call nz, Func_1315
 	ld a, [wSpriteFlags]
 	and SPRITEFLAG_UNK4
 	jr z, .asm_120f
-	ld a, [hli] ; SPRITESTRUCT_UNK09
+	ld a, [hli] ; SPRITESTRUCT_TILE_1
 	ld h, [hl]
 	ld l, a
 .asm_120f
@@ -202,7 +202,7 @@ Func_1186:
 	ld a, b
 	cp SCREEN_HEIGHT_PX
 	call c, Func_1293
-	add $10
+	add 2 * TILE_HEIGHT
 	ld b, a
 	ld a, e
 	add l
@@ -324,7 +324,7 @@ Func_1293:
 	adc h
 	ld h, a
 
-	ld a, [wd54b]
+	ld a, [wSpriteWidthInTiles]
 .loop
 	push af
 	ld a, [bc]
@@ -414,7 +414,7 @@ Func_1338:
 	push bc
 	push de
 	ld c, a
-	and $20
+	and SPRITEFLAG_XFLIP
 	jr z, .asm_1364
 	ld b, d
 	push bc

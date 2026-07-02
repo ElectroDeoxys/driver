@@ -151,8 +151,8 @@ Func_178e:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
-	ld hl, Func_65a9
-	ld c, BANK(Func_65a9)
+	ld hl, EntUpdate_PlayerDamageController_TakeARide
+	ld c, BANK(EntUpdate_PlayerDamageController_TakeARide)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -191,8 +191,8 @@ Func_178e:
 	ld c, $01
 	call Func_195e
 
-	ld hl, Func_65b4
-	ld c, BANK(Func_65b4)
+	ld hl, EntUpdate_PlayerDamageController_Checkpoint
+	ld c, BANK(EntUpdate_PlayerDamageController_Checkpoint)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -223,8 +223,8 @@ Func_178e:
 	pop hl
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
-	ld hl, Func_66fa
-	ld c, BANK(Func_66fa)
+	ld hl, EntUpdate_PlayerDamageController_GetAway
+	ld c, BANK(EntUpdate_PlayerDamageController_GetAway)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -262,8 +262,8 @@ Func_178e:
 	ld [wDestinationTargetPtr + 0], a
 	ld a, h
 	ld [wDestinationTargetPtr + 1], a
-	ld hl, Func_6732
-	ld c, BANK(Func_6732)
+	ld hl, EntUpdate_PlayerDamageController_Pursuit
+	ld c, BANK(EntUpdate_PlayerDamageController_Pursuit)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -278,8 +278,8 @@ Func_178e:
 	call Func_1928
 	ld c, $04
 	call Func_195e
-	ld hl, Func_67aa
-	ld c, BANK(Func_67aa)
+	ld hl, EntUpdate_PlayerDamageController_Survival
+	ld c, BANK(EntUpdate_PlayerDamageController_Survival)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -2708,7 +2708,7 @@ Func_275f::
 	push hl
 	ld h, [hl]
 	ld l, a
-	ld a, $07
+	ld a, CARSTRUCT_Y
 	add_de
 	ld a, [de]
 	ld c, a
@@ -4326,11 +4326,11 @@ Func_3047::
 	inc de
 .asm_30c7
 	inc de
-	ld a, $10
-	ld [de], a ; SPRITESTRUCT_UNK07
+	ld a, 2 * TILE_HEIGHT
+	ld [de], a ; SPRITESTRUCT_HEIGHT
 	inc de
 	ld a, b
-	ld [de], a ; SPRITESTRUCT_UNK08
+	ld [de], a ; SPRITESTRUCT_WIDTH
 	inc de
 	push hl
 	inc hl
@@ -4347,15 +4347,15 @@ Func_3047::
 	ld b, a
 	ld h, d
 	ld l, e
-	ld [hl], c ; SPRITESTRUCT_UNK09
+	ld [hl], c ; SPRITESTRUCT_TILE_1
 	inc hl
-	ld [hl], b
+	ld [hl], b ; SPRITESTRUCT_ATTR_1
 	inc hl
 	inc c
 	inc c
-	ld [hl], c ; SPRITESTRUCT_UNK0B
+	ld [hl], c ; SPRITESTRUCT_TILE_2
 	inc hl
-	ld [hl], b
+	ld [hl], b ; SPRITESTRUCT_ATTR_2
 	pop hl
 	pop af
 	bankswitch
@@ -5362,13 +5362,13 @@ Func_35ad:
 	ld a, [de]
 	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [de], a
-	ld a, SPRITESTRUCT_UNK07
+	ld a, SPRITESTRUCT_HEIGHT
 	add_de
-	ld a, $10
-	ld [de], a ; SPRITESTRUCT_UNK07
+	ld a, 2 * TILE_HEIGHT
+	ld [de], a ; SPRITESTRUCT_HEIGHT
 	inc de
-	ld a, $08
-	ld [de], a ; SPRITESTRUCT_UNK08
+	ld a, TILE_WIDTH
+	ld [de], a ; SPRITESTRUCT_WIDTH
 	jp Func_3637
 .asm_362b
 	xor a

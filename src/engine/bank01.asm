@@ -1734,7 +1734,7 @@ Func_49fc:
 ; - bc = x coordinate
 ; - de = y coordinate
 Func_4a3d:
-	call SpawnNPCCopCar
+	call SpawnNPCCar_Cop
 	ret c
 	ld b, $05
 	ld de, PtrTable_4bff
@@ -1745,7 +1745,7 @@ Func_4a3d:
 ; - bc = x coordinate
 ; - de = y coordinate
 Func_4a48:
-	call SpawnCivilianCar
+	call SpawnNPCCar_Civilian
 	ret c
 	ld b, $04
 	ld de, PtrTable_4bff
@@ -3658,7 +3658,7 @@ Func_55f4:
 ; - a  = direction
 ; - bc = x coordinate
 ; - de = y coordinate
-SpawnCivilianCar:
+SpawnNPCCar_Civilian:
 	push af
 	; pick random car
 	call Random
@@ -3733,7 +3733,7 @@ Func_5643:
 ; - a  = direction
 ; - bc = x coordinate
 ; - de = y coordinate
-SpawnNPCCopCar:
+SpawnNPCCar_Cop:
 	ld l, COP_CAR
 	ld h, OBPAL_BLACK
 	call SpawnCar
@@ -4002,7 +4002,7 @@ Func_5805::
 	ld d, [hl]
 	inc hl
 	ld a, [hl]
-	call SpawnNPCCopCar
+	call SpawnNPCCar_Cop
 	ld d, h
 	ld e, l
 	call GetEntityPtr
@@ -5079,18 +5079,19 @@ EntUpdate_NearbyDestinationArrow::
 	inc hl
 	ld [hl], b
 	inc hl
-	ld a, $10
-	ld [hli], a ; SPRITESTRUCT_UNK07
-	ld [hli], a ; SPRITESTRUCT_UNK08
-	ld a, $7a
-	ld b, $0a
-	ld [hli], a ; SPRITESTRUCT_UNK09
-	ld [hl], b
+	ld a, 2 * TILE_WIDTH
+	ld [hli], a ; SPRITESTRUCT_HEIGHT
+	ld [hli], a ; SPRITESTRUCT_WIDTH
+	ld a, $7a ; tile ID
+	ld b, 2 | OAM_BANK1 ; attributes
+	ld [hli], a ; SPRITESTRUCT_TILE_1
+	ld [hl], b ; SPRITESTRUCT_ATTR_1
 	inc hl
 	inc a
 	inc a
-	ld [hli], a ; SPRITESTRUCT_UNK0B
-	ld [hl], b
+	; a = $7c
+	ld [hli], a ; SPRITESTRUCT_TILE_2
+	ld [hl], b ; SPRITESTRUCT_ATTR_2
 	ret
 .set_invisible
 	call GetEntityCarPtr
@@ -5358,21 +5359,21 @@ EntUpdate_DestinationArrow::
 	add_de
 	ld a, [de]
 	inc de
-	ld [hli], a ; SPRITESTRUCT_UNK07
+	ld [hli], a ; SPRITESTRUCT_HEIGHT
 	ld a, [de]
 	inc de
-	ld [hli], a ; SPRITESTRUCT_UNK08
+	ld [hli], a ; SPRITESTRUCT_WIDTH
 	ld a, [de]
 	inc de
-	ld [hli], a ; SPRITESTRUCT_UNK09
-	ld a, [de]
+	ld [hli], a ; SPRITESTRUCT_TILE_1
+	ld a, [de] ; SPRITESTRUCT_ATTR_1
 	inc de
 	ld [hli], a
 	ld a, [de]
 	inc de
-	ld [hli], a ; SPRITESTRUCT_UNK0B
+	ld [hli], a ; SPRITESTRUCT_TILE_2
 	ld a, [de]
-	ld [hl], a
+	ld [hl], a ; SPRITESTRUCT_ATTR_2
 	ret
 
 .Func_60d3:
@@ -5406,16 +5407,28 @@ EntUpdate_DestinationArrow::
 Data_60f5:
 	db $00, $01, $02, $03, $04, $05, $06, $07, $08, $07, $06, $05, $04, $03, $02, $01
 
+
+MACRO? data_6105
+	db \1 * TILE_HEIGHT ; height in tiles
+	db \2 * TILE_WIDTH  ; width in tiles
+	db \3, \4 ; tile ID, attribute
+	IF _NARG == 6
+		db \5, \6 ; tile ID, attribute
+	ELSE
+		db $00, $00
+	ENDC
+ENDM
+
 Data_6105:
-	db $10, $08, $ea, $0a, $00, $00 ; $0
-	db $10, $10, $ec, $0a, $ee, $0a ; $1
-	db $10, $10, $f0, $0a, $f2, $0a ; $2
-	db $10, $10, $ec, $4a, $ee, $4a ; $3
-	db $10, $08, $ea, $4a, $00, $00 ; $4
-	db $10, $10, $ee, $6a, $ec, $6a ; $5
-	db $10, $10, $f2, $2a, $f0, $2a ; $6
-	db $10, $10, $ee, $2a, $ec, $2a ; $7
-	db $10, $08, $e8, $0a, $00, $00 ; $8
+	data_6105 2, 1, $ea, 2 | OAM_BANK1                                                                     ; $0
+	data_6105 2, 2, $ec, 2 | OAM_BANK1,                         $ee, 2 | OAM_BANK1                         ; $1
+	data_6105 2, 2, $f0, 2 | OAM_BANK1,                         $f2, 2 | OAM_BANK1                         ; $2
+	data_6105 2, 2, $ec, 2 | OAM_BANK1 | OAM_YFLIP,             $ee, 2 | OAM_BANK1 | OAM_YFLIP             ; $3
+	data_6105 2, 1, $ea, 2 | OAM_BANK1 | OAM_YFLIP                                                         ; $4
+	data_6105 2, 2, $ee, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP, $ec, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP ; $5
+	data_6105 2, 2, $f2, 2 | OAM_BANK1 | OAM_XFLIP,             $f0, 2 | OAM_BANK1 | OAM_XFLIP             ; $6
+	data_6105 2, 2, $ee, 2 | OAM_BANK1 | OAM_XFLIP,             $ec, 2 | OAM_BANK1 | OAM_XFLIP             ; $7
+	data_6105 2, 1, $e8, 2 | OAM_BANK1                                                                     ; $8
 
 Func_613b:
 	push af
@@ -5442,27 +5455,27 @@ Func_613b:
 	ld l, e
 	pop de
 	pop bc
-	set CARFLAG_UNK2_F, [hl]
+	set SPRITEFLAG_FIXED_F, [hl]
 	inc hl
-	ld [hl], $00
+	ld [hl], $00 ; SPRITESTRUCT_UNK01
 	inc hl
-	ld [hl], e
+	ld [hl], e ; SPRITESTRUCT_Y
 	inc hl
 	ld [hl], d
 	inc hl
-	ld [hl], $00
+	ld [hl], $00 ; SPRITESTRUCT_UNK04
 	inc hl
-	ld [hl], c
+	ld [hl], c ; SPRITESTRUCT_X
 	inc hl
 	ld [hl], b
 	inc hl
-	ld [hl], $10
+	ld [hl], 2 * TILE_HEIGHT ; SPRITESTRUCT_HEIGHT
 	inc hl
-	ld [hl], $08
-	ld a, $05
+	ld [hl], TILE_WIDTH ; SPRITESTRUCT_WIDTH
+	ld a, SPRITESTRUCT_UNK0D - SPRITESTRUCT_WIDTH
 	add_hl
 	pop af
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK0D
 	ret
 .asm_6180
 	ld [hl], $00
@@ -5622,27 +5635,27 @@ Func_623d:
 	ld l, e
 	pop de
 	pop bc
-	set CARFLAG_UNK2_F, [hl]
+	set SPRITEFLAG_FIXED_F, [hl]
 	inc hl
-	ld [hl], $00
+	ld [hl], $00 ; SPRITESTRUCT_UNK01
 	inc hl
-	ld [hl], e
+	ld [hl], e ; SPRITESTRUCT_Y
 	inc hl
 	ld [hl], d
 	inc hl
-	ld [hl], $00
+	ld [hl], $00 ; SPRITESTRUCT_UNK04
 	inc hl
-	ld [hl], c
+	ld [hl], c ; SPRITESTRUCT_X
 	inc hl
 	ld [hl], b
 	inc hl
-	ld [hl], $10
+	ld [hl], 2 * TILE_HEIGHT ; SPRITESTRUCT_HEIGHT
 	inc hl
-	ld [hl], $08
-	ld a, $05
+	ld [hl], TILE_WIDTH ; SPRITESTRUCT_WIDTH
+	ld a, SPRITESTRUCT_UNK0D - SPRITESTRUCT_WIDTH
 	add_hl
 	pop af
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK0D
 	ret
 .asm_6282
 	ld [hl], $00
@@ -5654,17 +5667,17 @@ Func_623d:
 
 Func_6288:
 	call GetEntityCarPtr
-	set CARFLAG_PLAYER_F, [hl]
+	set SPRITEFLAG_VISIBLE_F, [hl]
 	call Random
 	and $03
 	add $04
 	ld c, a
-	ld a, CARSTRUCT_SPEED + 1
+	ld a, SPRITESTRUCT_UNK0D + 1
 	call SetStructByte_C
 	ld b, $00
 	ld a, CARSTRUCT_0F
 	call SetStructWord_BC
-	ld a, CARSTRUCT_SPEED
+	ld a, SPRITESTRUCT_UNK0D
 	call GetStructByte_A
 	push hl
 	call CalculateDirectionComponents
@@ -5849,9 +5862,9 @@ Func_635e:
 Func_6398:
 	call GetEntityCarPtr
 	ld a, [hl]
-	or CARFLAG_PLAYER | CARFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hl], a
-	ld a, CARSTRUCT_SPEED
+	ld a, SPRITESTRUCT_UNK0D
 	add_hl
 	call Random
 	ld b, a
@@ -5861,12 +5874,15 @@ Func_6398:
 	cpl
 	inc a
 .asm_63ae
+	; a = random number between [-31, 31]
 	add [hl]
 	ld [hli], a
+
 	call Random
 	and $07
 	add [hl]
 	ld [hli], a
+
 	call Random
 	and $07
 	add $08
@@ -5874,6 +5890,7 @@ Func_6398:
 	call Random
 	and $03
 	ld [hl], a
+
 .asm_63c5
 	call .Func_63df
 	call .Func_6409
@@ -5889,7 +5906,7 @@ Func_6398:
 
 .Func_63df:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_SPEED
+	ld a, SPRITESTRUCT_UNK0D
 	add_hl
 	ld a, [hli]
 	push hl
@@ -5907,7 +5924,7 @@ Func_6398:
 	pop bc
 	call CalculateSpeedComponent
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_01
+	ld a, SPRITESTRUCT_UNK01
 	push de
 	call AddBCToStructField
 	pop bc
@@ -5916,7 +5933,7 @@ Func_6398:
 
 .Func_6409:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_0F
+	ld a, SPRITESTRUCT_UNK0F
 	add_hl
 	ld a, [hli]
 	add [hl]
@@ -5925,7 +5942,7 @@ Func_6398:
 
 .Func_6413:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_10
+	ld a, SPRITESTRUCT_UNK0F + 1
 	add_hl
 	ld a, [hl]
 	swap a
@@ -5935,11 +5952,11 @@ Func_6398:
 	add a
 	add $c8
 	ld c, a
-	ld a, CARSTRUCT_10 - CARSTRUCT_X_FRAC
+	ld a, (SPRITESTRUCT_UNK0F + 1) - SPRITESTRUCT_TILE_1
 	sub_hl
-	ld [hl], c ; CARSTRUCT_X_FRAC
+	ld [hl], c ; SPRITESTRUCT_TILE_1
 	inc hl
-	ld [hl], $0b
+	ld [hl], 3 | OAM_BANK1 ; SPRITESTRUCT_ATTR_1
 	ret
 
 Func_642c::
@@ -6165,13 +6182,13 @@ Func_658f:
 	ld [wd83f], a
 	ret
 
-Func_65a9::
+EntUpdate_PlayerDamageController_TakeARide::
 	call YieldEntityUpdateUntilFadeEnds
 	ld a, $01
 	ld [wd820], a
 	jp YieldEntityUpdateIndefinitely
 
-Func_65b4::
+EntUpdate_PlayerDamageController_Checkpoint::
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, Func_667a
 	ld c, BANK(Func_667a)
@@ -6238,7 +6255,7 @@ Func_6620:
 	ld a, [hl]
 	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hl], a
-	ld a, SPRITESTRUCT_UNK07
+	ld a, SPRITESTRUCT_HEIGHT
 	add_hl
 	ld [hl], $10
 	inc hl
@@ -6375,7 +6392,7 @@ Func_667a:
 	ld a, SFX_2D
 	jp Func_f1f
 
-Func_66fa::
+EntUpdate_PlayerDamageController_GetAway::
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, LoseTheTailTexts
 	ld c, 90
@@ -6400,7 +6417,7 @@ Func_66fa::
 	ld a, BANK(Func_6499)
 	jp SetEntityUpdateFunc
 
-Func_6732::
+EntUpdate_PlayerDamageController_Pursuit::
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, RamHimTexts
 	ld c, 90
@@ -6460,7 +6477,7 @@ Func_6732::
 	ld a, BANK(Func_6499)
 	jp SetEntityUpdateFunc
 
-Func_67aa::
+EntUpdate_PlayerDamageController_Survival::
 	ld a, 2
 	ld [wMaxNumNPCCars], a
 	call YieldEntityUpdateUntilFadeEnds
@@ -6539,24 +6556,30 @@ Func_6816:
 	dec [hl]
 .asm_6822
 	call GetDistanceToDestination
-	ld a, $40
+	ld a, 64
 	cp c
-	jr c, .asm_684d
+	jr c, .over_64_px_away
 	cp b
-	jr c, .asm_684d
+	jr c, .over_64_px_away
 	ld a, $01
 	ld [wd837], a
 	call CalculateEuclideanDistance
 	ld c, a
-	ld a, $40
+
+	; exit if distance >= 64
+	ld a, 64
 	cp c
 	ret c
+
 	push bc
 	call .Func_685a
 	pop bc
-	ld a, $0c
+
+	; exit if distance >= 12
+	ld a, 12
 	cp c
 	ret c
+
 	ld a, [wda97]
 	and a
 	jr nz, .asm_684b
@@ -6565,7 +6588,7 @@ Func_6816:
 .asm_684b
 	scf
 	ret
-.asm_684d
+.over_64_px_away
 	ld a, $fe
 	cp c
 	ret c
@@ -6588,7 +6611,7 @@ Func_6816:
 	ret nz
 	ld a, SFX_20
 	call PlaySFX
-	ld [hl], $b4 ; wda9a
+	ld [hl], 180 ; wda9a
 	ld hl, LoseTheTailTexts
 	ld c, 60
 	jp ShowHUDMessage
@@ -6677,7 +6700,7 @@ SetMissionComplete:
 	ld a, MUSIC_MISSION_COMPLETE
 	call PlayMusic
 
-	ld c, $5a
+	ld c, 90
 	ld a, h
 	or l
 	jr z, .asm_690e
@@ -6819,7 +6842,7 @@ EntUpdate_MissionController_TheBankJob:
 	call Func_6575
 	call Func_67e9
 	ld hl, Data_7ebb
-	call Func_6a38
+	call ShowThreePeopleGettingIntoPlayersCar
 
 	ld hl, GetToTheLockUpTexts
 	ld c, 90
@@ -6846,7 +6869,7 @@ EntUpdate_MissionController_TheBankJob:
 	jr c, .lock_up_loop
 	call Func_6879
 	ld hl, Data_7ec3
-	call Func_6a51
+	call ShowThreePeopleGettingOutOfPlayersCar
 	ld hl, NULL
 	jp SetMissionComplete
 
@@ -6854,39 +6877,43 @@ EntUpdate_MissionController_TheBankJob:
 	ld hl, TooLateTexts
 	jp SetMissionFailed
 
-Func_6a38:
-	ld b, $03
-.asm_6a3a
+ShowThreePeopleGettingIntoPlayersCar:
+	ld b, 3
+.loop_persons
 	push bc
 	push hl
-	call Func_79e5
+	call SpawnPerson_GettingIntoPlayersCar
 	pop hl
 	pop bc
-	call Random
-	and $0f
-	add 24
-	; a = number in [24, 39]
-	call YieldEntityUpdate
-	dec b
-	jr nz, .asm_6a3a
-	jp Func_79d8
 
-Func_6a51:
-	ld b, $03
-.asm_6a53
-	push bc
-	push hl
-	call Func_7a0c
-	pop hl
-	pop bc
+	; wait between 24 and 39 frames
 	call Random
 	and $0f
 	add 24
-	; a = number in [24, 39]
 	call YieldEntityUpdate
+
 	dec b
-	jr nz, .asm_6a53
-	jp Func_79d8
+	jr nz, .loop_persons
+	jp WaitForPersonToDespawn
+
+ShowThreePeopleGettingOutOfPlayersCar:
+	ld b, 3
+.loop_persons
+	push bc
+	push hl
+	call SpawnPerson_GettingOutOfPlayersCar
+	pop hl
+	pop bc
+
+	; wait between 24 and 39 frames
+	call Random
+	and $0f
+	add 24
+	call YieldEntityUpdate
+
+	dec b
+	jr nz, .loop_persons
+	jp WaitForPersonToDespawn
 
 Func_6a6a:
 	call ChooseCarPool_WithCop
@@ -6904,34 +6931,40 @@ Func_6a83:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
-	ld hl, Func_6a97
-	ld c, BANK(Func_6a97)
+	ld hl, EntUpdate_MissionController_HideTheEvidence
+	ld c, BANK(EntUpdate_MissionController_HideTheEvidence)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_6a97:
+EntUpdate_MissionController_HideTheEvidence:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, GoToTheBreakersTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld a, $01
 	ld [wd820], a
+
 	ld hl, DestinationCoords_HideTheEvidence
 	call SetDestinationCoords
+
 	call StartCountUpTimer
 	ld a, 14
 	call IncreaseFelony
 	ld hl, Data_1f37
 	call Func_1eda
+
 	xor a
 	ld [wda9a], a
-.asm_6ac2
+
+.loop
 	ld a, 1
 	call YieldEntityUpdate
 	call Func_6816
-	jr c, .asm_6ac2
+	jr c, .loop
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
@@ -6952,41 +6985,49 @@ Func_6ae7:
 	call Func_7bd4
 	xor a
 	ld [wda7b], a
-	ld hl, Func_6b0c
-	ld c, BANK(Func_6b0c)
+
+	ld hl, EntUpdate_MissionController_BoatChase
+	ld c, BANK(EntUpdate_MissionController_BoatChase)
 	ld b, $0b
 	call SpawnEntity
+
 	ld hl, Func_6bbb
 	ld c, BANK(Func_6bbb)
 	ld b, $0f
 	call SpawnEntity
 	ret
 
-Func_6b0c:
+EntUpdate_MissionController_BoatChase:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, WeNeedThatKeyTexts
 	ld c, 90
 	call ShowHUDMessage
-	ld a, $56
+
+	ld a, 86
 	call YieldEntityUpdate
+
 	ld a, $01
 	ld [wda7b], a
-	ld a, $04
+	ld a, 4
 	call YieldEntityUpdate
+
 	ld a, $01
 	ld [wd820], a
+
 	ld hl, Timer_BoatChase
 	call StartCountDownTimer
+
 	ld a, DESTINATION_SPRITE
 	ld [wDestinationType], a
 .asm_6b36
 	call .Func_6b8a
 	ld a, b
 	cp $02
-	jr nc, .asm_6ba7
+	jr nc, .lost_him
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_6ba7
+	jr z, .lost_him
 	call .Func_6b73
 	jr c, .asm_6b50
 	ld a, 1
@@ -7002,7 +7043,7 @@ Func_6b0c:
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_6bad
+	jr z, .too_late
 	call Func_6816
 	jr c, .asm_6b5a
 	call Func_6879
@@ -7026,7 +7067,7 @@ Func_6b0c:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $01
+	ld a, SPRITESTRUCT_UNK01
 	add_hl
 	ld de, wda23Coords
 	ld b, $06
@@ -7037,10 +7078,12 @@ Func_6b0c:
 	ld l, a
 	ld de, wda23
 	jp Func_275f
-.asm_6ba7
+
+.lost_him
 	ld hl, YouLostHimTexts
 	jp SetMissionFailed
-.asm_6bad
+
+.too_late
 	ld hl, TooLateTexts
 	jp SetMissionFailed
 
@@ -7058,6 +7101,7 @@ Func_6bbb:
 	call SetStructWord_DE
 	ld h, d
 	ld l, e
+
 	push hl
 	ld hl, Data_7ed7
 	ld c, [hl]
@@ -7076,32 +7120,34 @@ Func_6bbb:
 	ld d, h
 	ld e, l
 	pop hl
+
 	push hl
 	ld a, [hl]
 	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hli], a
 	xor a
-	ld [hli], a
-	ld [hl], e
+	ld [hli], a ; SPRITESTRUCT_UNK01
+	ld [hl], e ; SPRITESTRUCT_Y
 	inc hl
 	ld [hl], d
 	inc hl
-	ld [hli], a
-	ld [hl], c
+	ld [hli], a ; SPRITESTRUCT_UNK04
+	ld [hl], c ; SPRITESTRUCT_X
 	inc hl
 	ld [hl], b
 	inc hl
-	ld a, $10
-	ld [hli], a
+	ld a, 2 * TILE_WIDTH
+	ld [hli], a ; SPRITESTRUCT_HEIGHT
 	ld [hl], a
 	pop hl
+
 	xor a
 	ld [wda7d], a
 	ld a, $00
 	ld [wda7c], a
 	call .Func_6d55
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_02
+	ld a, SPRITESTRUCT_Y
 	add_hl
 .asm_6c0f
 	ld a, $0e
@@ -7133,11 +7179,12 @@ Func_6bbb:
 	dec b
 	jr nz, .asm_6c34
 	ret
+
 .asm_6c43
 	pop hl
 	ld a, $08
 	ld [wda7d], a
-	ld a, $ff
+	ld a, -1
 	ld [wda7e], a
 .asm_6c4e
 	ld hl, wda7e
@@ -7175,7 +7222,7 @@ Func_6bbb:
 	xor a
 	ld [wda7b], a
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_05
+	ld a, SPRITESTRUCT_X
 	add_hl
 	jp .asm_6c0f
 
@@ -7285,14 +7332,14 @@ Func_6bbb:
 
 .Func_6d2d:
 	call GetEntityCarPtr
-	ld a, CARSTRUCT_SPEED
+	ld a, SPRITESTRUCT_UNK0D
 	add_hl
 	ld d, h
 	ld e, l
 	ld hl, .Data_6e03
 	ld a, [wda7e]
 	add a
-	add a
+	add a ; *4
 	add_hl
 	push hl
 	ld a, [hli]
@@ -7321,34 +7368,34 @@ Func_6bbb:
 .Func_6d55:
 	call GetEntityCarPtr
 	call .Func_6d95
-	jr nc, .asm_6d60
-	res CARFLAG_PLAYER_F, [hl]
+	jr nc, .is_visible
+	res SPRITEFLAG_VISIBLE_F, [hl]
 	ret
-.asm_6d60
-	set CARFLAG_PLAYER_F, [hl]
+.is_visible
+	set SPRITEFLAG_VISIBLE_F, [hl]
 	ld d, h
 	ld e, l
-	ld a, CARSTRUCT_X_FRAC
+	ld a, SPRITESTRUCT_TILE_1
 	add_de
 	ld a, [wda7c]
 	add $08
 	swap a
 	and $0f
 	add a
-	add a
+	add a ; *4
 	ld hl, .Data_6dbb
 	add_hl
 	ld a, [hli]
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_TILE_1
 	inc de
 	ld a, [hli]
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_ATTR_1
 	inc de
 	ld a, [hli]
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_TILE_2
 	inc de
 	ld a, [hl]
-	ld [de], a
+	ld [de], a ; SPRITESTRUCT_ATTR_2
 	ld a, [wFrameCounter]
 	and $03
 	ret nz
@@ -7372,38 +7419,38 @@ Func_6bbb:
 	push hl
 	inc hl
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; SPRITESTRUCT_Y
 	inc hl
 	ld d, [hl]
 	inc hl
 	inc hl
-	ld c, [hl]
+	ld c, [hl] ; SPRITESTRUCT_X
 	inc hl
 	ld b, [hl]
-	ld a, $08
+	ld a, 8
 	add_de
-	ld a, $08
+	ld a, 8
 	add_bc
 	pop hl
 	ret
 
 .Data_6dbb:
-	dw $0ac8, $0aca
-	dw $0acc, $0ace
-	dw $0ad0, $0ad2
-	dw $0ad4, $0ad6
-	dw $0ad8, $0ada
-	dw $4ad4, $4ad6
-	dw $4ad0, $4ad2
-	dw $4acc, $4ace
-	dw $4ac8, $4aca
-	dw $6ace, $6acc
-	dw $6ad2, $6ad0
-	dw $6ad6, $6ad4
-	dw $2ada, $2ad8
-	dw $2ad6, $2ad4
-	dw $2ad2, $2ad0
-	dw $2ace, $2acc
+	db $c8, 2 | OAM_BANK1,                         $ca, 2 | OAM_BANK1
+	db $cc, 2 | OAM_BANK1,                         $ce, 2 | OAM_BANK1
+	db $d0, 2 | OAM_BANK1,                         $d2, 2 | OAM_BANK1
+	db $d4, 2 | OAM_BANK1,                         $d6, 2 | OAM_BANK1
+	db $d8, 2 | OAM_BANK1,                         $da, 2 | OAM_BANK1
+	db $d4, 2 | OAM_BANK1 | OAM_YFLIP,             $d6, 2 | OAM_BANK1 | OAM_YFLIP
+	db $d0, 2 | OAM_BANK1 | OAM_YFLIP,             $d2, 2 | OAM_BANK1 | OAM_YFLIP
+	db $cc, 2 | OAM_BANK1 | OAM_YFLIP,             $ce, 2 | OAM_BANK1 | OAM_YFLIP
+	db $c8, 2 | OAM_BANK1 | OAM_YFLIP,             $ca, 2 | OAM_BANK1 | OAM_YFLIP
+	db $ce, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP, $cc, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP
+	db $d2, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP, $d0, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP
+	db $d6, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP, $d4, 2 | OAM_BANK1 | OAM_XFLIP | OAM_YFLIP
+	db $da, 2 | OAM_BANK1 | OAM_XFLIP,             $d8, 2 | OAM_BANK1 | OAM_XFLIP
+	db $d6, 2 | OAM_BANK1 | OAM_XFLIP,             $d4, 2 | OAM_BANK1 | OAM_XFLIP
+	db $d2, 2 | OAM_BANK1 | OAM_XFLIP,             $d0, 2 | OAM_BANK1 | OAM_XFLIP
+	db $ce, 2 | OAM_BANK1 | OAM_XFLIP,             $cc, 2 | OAM_BANK1 | OAM_XFLIP
 
 .Data_6dfb:
 	db $98, $0f, $80, $00, $5e, $0e, $40, $00
@@ -8031,8 +8078,8 @@ Func_728e:
 	call Func_6575
 	call Func_67e9
 	ld hl, Data_7f3e
-	call Func_79e5
-	call Func_79d8
+	call SpawnPerson_GettingIntoPlayersCar
+	call WaitForPersonToDespawn
 	ld hl, GetLuckyToTheDocsMsgTexts
 	ld c, 90
 	call ShowHUDMessage
@@ -8059,8 +8106,8 @@ Func_728e:
 	jr c, .asm_7309
 	call Func_6879
 	ld hl, Data_7f46
-	call Func_7a0c
-	call Func_79d8
+	call SpawnPerson_GettingOutOfPlayersCar
+	call WaitForPersonToDespawn
 	ld hl, NULL
 	jp SetMissionComplete
 
@@ -8119,7 +8166,7 @@ Func_735a:
 	call Func_6575
 	call Func_67e9
 	ld hl, Data_7f55
-	call Func_6a38
+	call ShowThreePeopleGettingIntoPlayersCar
 	ld hl, GetToTheLockUpTexts
 	ld c, 90
 	call ShowHUDMessage
@@ -8183,7 +8230,7 @@ Func_735a:
 	jr c, .asm_7423
 	call Func_6879
 	ld hl, Data_7f6b
-	call Func_6a51
+	call ShowThreePeopleGettingOutOfPlayersCar
 	ld hl, NULL
 	jp SetMissionComplete
 
@@ -8257,13 +8304,13 @@ Func_748c:
 	call Func_6575
 	call Func_67e9
 	ld hl, Data_7f7a
-	call Func_7a0c
-	call Func_79d8
+	call SpawnPerson_GettingOutOfPlayersCar
+	call WaitForPersonToDespawn
 	ld a, $3c
 	call YieldEntityUpdate
 	ld hl, Data_7f7a
-	call Func_79e5
-	call Func_79d8
+	call SpawnPerson_GettingIntoPlayersCar
+	call WaitForPersonToDespawn
 	ld hl, GetToGrandCentralStationTexts
 	ld c, 90
 	call ShowHUDMessage
@@ -8293,13 +8340,13 @@ Func_748c:
 	call Func_6575
 	call Func_67e9
 	ld hl, Data_7f82
-	call Func_7a0c
-	call Func_79d8
+	call SpawnPerson_GettingOutOfPlayersCar
+	call WaitForPersonToDespawn
 	ld a, $3c
 	call YieldEntityUpdate
 	ld hl, Data_7f82
-	call Func_79e5
-	call Func_79d8
+	call SpawnPerson_GettingIntoPlayersCar
+	call WaitForPersonToDespawn
 	ld hl, ReturnTheKeyToTheLockUpTexts
 	ld c, 90
 	call ShowHUDMessage
@@ -8897,7 +8944,7 @@ Func_7998:
 	ld hl, TooSlowTexts
 	jp SetMissionFailed
 
-Func_79d8:
+WaitForPersonToDespawn:
 .loop
 	ld a, 1
 	call YieldEntityUpdate
@@ -8906,31 +8953,31 @@ Func_79d8:
 	ret nc
 	jr .loop
 
-Func_79e5:
-	ld b, $04
+SpawnPerson_GettingIntoPlayersCar:
+	ld b, $2 + $2
 	ld de, wdc7a
-.asm_79ea
+.loop_copy_coords
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec b
-	jr nz, .asm_79ea
+	jr nz, .loop_copy_coords
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	call GetCarCoordinates
 	ld a, c
-	ld [wdc7e], a
+	ld [wTempX + 0], a
 	ld a, b
-	ld [wdc7f], a
+	ld [wTempX + 1], a
 	ld a, e
-	ld [wdc80], a
+	ld [wTempY + 0], a
 	ld a, d
-	ld [wdc81], a
-	jp Func_7a35
+	ld [wTempY + 1], a
+	jp _SpawnPerson
 
-Func_7a0c:
+SpawnPerson_GettingOutOfPlayersCar:
 	push hl
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
@@ -8946,22 +8993,22 @@ Func_7a0c:
 	ld a, d
 	ld [wdc7c + 1], a
 	pop hl
-	ld b, $04
-	ld de, wdc7e
-.asm_7a2c
+	ld b, $2 + $2
+	ld de, wTempX
+.loop_copy_coords
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec b
-	jr nz, .asm_7a2c
-	jp Func_7a35
+	jr nz, .loop_copy_coords
+	jp _SpawnPerson
 
-Func_7a35:
+_SpawnPerson:
 	call AllocateSprite
 	ret c
 	push de
-	ld hl, Func_7a94
-	ld c, BANK(Func_7a94)
+	ld hl, EntUpdate_Person
+	ld c, BANK(EntUpdate_Person)
 	ld b, $0e
 	call SpawnEntity
 	pop de
@@ -8985,10 +9032,10 @@ Func_7a35:
 	ld a, h
 	ld [de], a
 	inc de
+
 	xor a
 	ld [de], a ; SPRITESTRUCT_UNK04
 	inc de
-
 	ld hl, wdc7a
 	ld a, [hli]
 	ld h, [hl]
@@ -9001,16 +9048,18 @@ Func_7a35:
 	ld a, h
 	ld [de], a
 	inc de
-	ld a, $10
-	ld [de], a ; SPRITESTRUCT_UNK07
+
+	ld a, 2 * TILE_HEIGHT
+	ld [de], a ; SPRITESTRUCT_HEIGHT
 	inc de
 
-	ld a, $08
-	ld [de], a ; SPRITESTRUCT_UNK08
+	ld a, TILE_WIDTH
+	ld [de], a ; SPRITESTRUCT_WIDTH
 
-	ld a, SPRITESTRUCT_UNK0D - SPRITESTRUCT_UNK08
+	ld a, SPRITESTRUCT_UNK0D - SPRITESTRUCT_WIDTH
 	add_de
-	ld hl, wdc80
+
+	ld hl, wTempY
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -9021,7 +9070,7 @@ Func_7a35:
 	ld [de], a
 	inc de
 
-	ld hl, wdc7e
+	ld hl, wTempX
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -9032,39 +9081,39 @@ Func_7a35:
 	ld [de], a
 	ret
 
-Func_7a94:
+EntUpdate_Person:
 	call GetEntityCarPtr
 	ld a, [hl]
 	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hl], a
-.asm_7a9b
-	call .Func_7af8
-	call .Func_7b21
+.loop
+	call .CalculateDistanceToTarget
+	call .CheckIfReachedTarget
 	ld a, [wda59]
 	and a
-	jr z, .asm_7ab4
-	call .Func_7abc
-	call .Func_7b31
+	jr z, .despawn
+	call .ApplyMovement
+	call .UpdateAnimation
 	ld a, 1
 	call YieldEntityUpdate
-	jr .asm_7a9b
-.asm_7ab4
+	jr .loop
+.despawn
 	call GetEntityCarPtr
 	ld [hl], $00
 	jp DespawnEntity
 
-.Func_7abc:
+.ApplyMovement:
 	ld de, 0
 	ld bc, 0
 	ld a, [wda59]
 	bit 0, a
-	call nz, .Func_7ae8
+	call nz, .MovingUp
 	bit 2, a
-	call nz, .Func_7aec
+	call nz, .MovingDown
 	bit 1, a
-	call nz, .Func_7af4
+	call nz, .MovingRight
 	bit 3, a
-	call nz, .Func_7af0
+	call nz, .MovingLeft
 	call GetEntityCarPtr
 	push de
 	ld a, SPRITESTRUCT_UNK01
@@ -9073,23 +9122,23 @@ Func_7a94:
 	ld a, SPRITESTRUCT_UNK04
 	jp AddBCToStructField
 
-.Func_7ae8:
-	ld bc, -$80
+.MovingUp:
+	ld bc, -0.5
 	ret
 
-.Func_7aec:
-	ld bc, $80
+.MovingDown:
+	ld bc, 0.5
 	ret
 
-.Func_7af0:
-	ld de, -$80
+.MovingLeft:
+	ld de, -0.5
 	ret
 
-.Func_7af4:
-	ld de, $80
+.MovingRight:
+	ld de, 0.5
 	ret
 
-.Func_7af8:
+.CalculateDistanceToTarget:
 	call GetEntityCarPtr
 	push hl
 	inc hl
@@ -9102,9 +9151,9 @@ Func_7a94:
 	ld c, [hl] ; SPRITESTRUCT_X
 	inc hl
 	ld b, [hl]
-	ld a, $04
+	ld a, 4
 	add_bc
-	ld a, $04
+	ld a, 4
 	add_de
 	pop hl
 	call Func_7b62
@@ -9118,23 +9167,24 @@ Func_7a94:
 	ld [wdc7c + 1], a
 	ret
 
-.Func_7b21:
+.CheckIfReachedTarget:
 	ld a, d
 	or b
 	ret nz
 	ld a, c
-	cp $02
+	cp 2
 	ret nc
 	ld a, e
-	cp $02
+	cp 2
 	ret nc
+	; x and y are < 2 pixels
 	xor a
 	ld [wda59], a
 	ret
 
-.Func_7b31:
+.UpdateAnimation:
 	call GetEntityCarPtr
-	ld a, SPRITESTRUCT_UNK09
+	ld a, SPRITESTRUCT_TILE_1
 	add_hl
 	ld a, [wdc7a + 0]
 	ld c, a
@@ -9158,11 +9208,11 @@ Func_7a94:
 	rrca
 	rrca
 	and $03
-	add a
+	add a ; * 2
 	add $c8
 	add c
-	ld [hli], a
-	ld [hl], $0a
+	ld [hli], a ; SPRITESTRUCT_TILE_1
+	ld [hl], 2 | OAM_BANK1 ; SPRITESTRUCT_ATTR_1
 	ret
 
 Func_7b62:
