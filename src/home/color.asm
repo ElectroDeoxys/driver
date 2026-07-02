@@ -13,11 +13,11 @@ Func_ca0:
 	dec c
 	jr nz, .asm_ca4
 	pop bc
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, wGfxBuffer
 	call CopyBGMapBox_ToCoordinate
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 

@@ -295,7 +295,7 @@ Func_8220:
 	ld a, [hl]
 	cp $10
 	jr nc, .asm_8249
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $08
 	jr z, .asm_8256
 .asm_8249
@@ -1067,7 +1067,7 @@ Func_870a:
 
 Func_872f:
 	ld de, Data_8753
-	ld a, [wFrameCounter]
+	ld a, [wGlobalFrameCounter]
 	and $10
 	jr nz, Func_873c
 	ld de, Data_8767
@@ -2266,7 +2266,7 @@ Func_8f51:
 	jp Func_a47a
 
 Func_8f6d:
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	jp z, Func_9d1a
 	jp Func_9cd4
@@ -2407,7 +2407,7 @@ Func_9030:
 	ret
 
 Func_905c:
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	ret z
 	ld hl, .LanguageOAMData
@@ -2569,7 +2569,7 @@ Func_9159:
 	; for Italian/Spanish,       x = 64
 	ld b, 126 ; y
 	call LoadMissionCodeOAM
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	jp z, Func_9d1a
 	jp Func_9cd4
@@ -3171,7 +3171,7 @@ Func_94c1:
 
 Func_94d8:
 	xor a
-	ld [wc57a], a
+	ld [wFrameCounter], a
 	ld [wTitleScreenFinished], a
 	ld [wdc29], a
 
@@ -3202,7 +3202,7 @@ Func_94d8:
 	call_hl
 	call Func_1147
 
-	ld hl, wc57a
+	ld hl, wFrameCounter
 	inc [hl]
 
 	; loop while !(wTitleScreenFinished)
@@ -3627,7 +3627,7 @@ LoadMainMenuCursorOAM:
 	ld [hli], a ; tile
 	ld a, [de]
 	ld [hl], a ; attribute
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	rrca
 	rrca
 	and $01
@@ -4516,7 +4516,7 @@ Func_9c91:
 	ld a, [wdbfa]
 	and a
 	jp z, Func_9d1a
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	jr nz, Func_9d1a
 	ld a, [wdbfe]
@@ -5107,7 +5107,7 @@ Func_a0a3:
 	ld a, [wdc2c]
 	and a
 	ret z
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	ret z
 	ld a, [wMainMenuEntry]
@@ -5540,7 +5540,7 @@ Func_a2fd:
 	dec a
 	jr nz, .loop_rows
 
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	ret z
 

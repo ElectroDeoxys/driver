@@ -31,7 +31,7 @@ GameLoop:
 	ld a, $00
 	ld [wd895], a
 	xor a
-	ld [wc57a], a
+	ld [wFrameCounter], a
 	ld [wc579], a
 .asm_1610
 	call PostVBlank
@@ -47,10 +47,10 @@ GameLoop:
 	call UpdateEntities
 	call Func_23d1
 	call Func_332a
-	homecall Func_5471
+	homecall TickCarHornSFXTimer
 	homecall Func_642c
 	call Func_1eee
-	ld hl, wc57a
+	ld hl, wFrameCounter
 	inc [hl]
 .asm_164d
 	homecall Func_8162

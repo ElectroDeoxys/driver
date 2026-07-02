@@ -221,11 +221,11 @@ Func_d3:
 .safe
 	ret
 
-; waits for wFrameCounter to change 
+; waits for wGlobalFrameCounter to change 
 _DoFrame:
 	push af
 	push hl
-	ld hl, wFrameCounter
+	ld hl, wGlobalFrameCounter
 	ld a, [hl]
 .loop
 	cp [hl]

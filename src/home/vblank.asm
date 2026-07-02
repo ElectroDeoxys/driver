@@ -3,7 +3,7 @@ _VBlank:
 	push bc
 	push de
 	push hl
-	ld hl, wFrameCounter
+	ld hl, wGlobalFrameCounter
 	inc [hl]
 	ld hl, wc56d
 	inc [hl]
@@ -21,7 +21,7 @@ _VBlank:
 
 .push_oam
 	; is it odd or even frame?
-	ld a, [wFrameCounter]
+	ld a, [wGlobalFrameCounter]
 	and $1
 	ld d, a
 	; we take value in wBufferedVirtualOAM

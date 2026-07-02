@@ -74,3 +74,12 @@ DEF NUM_CITY_PROPS EQU 8 ; how many props in stage
 ; wTimerMode constants
 DEF TIMER_MODE_COUNT_DOWN EQU $1
 DEF TIMER_MODE_COUNT_UP   EQU $2
+
+; wDestinationType constants
+	const_def 1
+	; destination is a point in the map
+	const DESTINATION_COORDINATE ; $1
+	; destination is a target car
+	const DESTINATION_TARGET     ; $2
+	; destination is a sprite
+	const DESTINATION_SPRITE     ; $3

@@ -69,7 +69,7 @@ wAudioQueue::         ds MAX_AUDIO_QUEUE_SIZE * 2 ; c54a
 wResetDisabled:: db ; c56a
 wResetDelay::    db ; c56b
 
-wFrameCounter:: db ; c56c
+wGlobalFrameCounter:: db ; c56c
 wc56d:: db ; c56d
 
 wVBlankExecuted:: db ; c56e
@@ -88,7 +88,7 @@ wRNG:: ; c575
 
 wc579:: db ; c579
 
-wc57a:: db ; c57a
+wFrameCounter:: db ; c57a
 
 	ds $c57d - $c57b
 
@@ -514,10 +514,15 @@ wda74:: db ; da74
 
 	ds $da76 - $da75
 
-wda76:: db ; da76
+; a DESTINATION_* constant
+wDestinationType:: db ; da76
+UNION
 wDestinationCoords::
 wDestinationX:: dw ; da77
 wDestinationY:: dw ; da79
+NEXTU
+wDestinationTargetPtr:: dw ; da77
+ENDU
 
 wda7b:: db ; da7b
 
@@ -527,9 +532,7 @@ wda7d:: db ; da7d
 
 wda7e:: db ; da7e
 
-wda7f:: db ; da7f
-
-wda80:: db ; da80
+wDestinationSpritePtr:: dw ; da7f
 
 ; current restaurant to ram in Ram Raid Race mission
 wRamRaidRaceRestaurant:: ; da81
@@ -559,16 +562,13 @@ wda95:: db ; da95
 wda96:: db ; da96
 
 wda97:: db ; da97
-
 wda98:: db ; da98
-
 wda99:: db ; da99
 
 wda9a:: db ; da9a
 
-wda9b:: db ; da9b
-
-wda9c:: db ; da9c
+wCarHornSFX::      db ; da9b
+wCarHornSFXTimer:: db ; da9c
 
 wda9d:: db ; da9d
 

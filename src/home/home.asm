@@ -14,8 +14,8 @@ UpdateUnlockedCities::
 
 LoadMap:
 	xor a
-	ld [wda9b], a
-	ld [wda9c], a
+	ld [wCarHornSFX], a
+	ld [wCarHornSFXTimer], a
 	ld [wda97], a
 	ld [wda98], a
 	ld [wda99], a
@@ -158,7 +158,7 @@ Func_178e:
 	ret
 
 .Checkpoint:
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld hl, CheckpointGfx
 	ld de, v0Tiles1 tile $4a
@@ -170,7 +170,7 @@ Func_178e:
 	ld c, BANK(Go123Gfx)
 	ld b, $0a ; tiles
 	call SafeCopyFarTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 
 	call SetDefaultMaxNumNPCCars
@@ -256,12 +256,12 @@ Func_178e:
 	pop hl
 	homecall Func_5bce
 
-	ld a, $02
-	ld [wda76], a
+	ld a, DESTINATION_TARGET
+	ld [wDestinationType], a
 	ld a, l
-	ld [wDestinationCoords + 0], a
+	ld [wDestinationTargetPtr + 0], a
 	ld a, h
-	ld [wDestinationCoords + 1], a
+	ld [wDestinationTargetPtr + 1], a
 	ld hl, Func_6732
 	ld c, BANK(Func_6732)
 	ld b, $0b
@@ -742,15 +742,13 @@ Func_1b4e:
 	call SetStructWord_DE
 
 	xor a
-	ld [wda76], a
-
-	ld hl, Func_5f27
-	ld c, BANK(Func_5f27)
+	ld [wDestinationType], a
+	ld hl, EntUpdate_DestinationArrow
+	ld c, BANK(EntUpdate_DestinationArrow)
 	ld b, $07
 	call SpawnEntity
-
-	ld hl, Func_5e97
-	ld c, BANK(Func_5e97)
+	ld hl, EntUpdate_NearbyDestinationArrow
+	ld c, BANK(EntUpdate_NearbyDestinationArrow)
 	ld b, $08
 	call SpawnEntity
 
@@ -1326,7 +1324,7 @@ Func_1eee:
 	cp 36
 	jr c, .add_hl_de
 	ld de, 2 * $6
-	cp 56
+	cp MAX_FELONY
 	jr c, .add_hl_de
 	ld de, 3 * $6
 .add_hl_de
@@ -1352,16 +1350,16 @@ Func_1f32:
 	ret
 
 Data_1f37::
-	db $01, $04, $1e, $20, $b4, $00
-	db $01, $03, $15, $1c, $f0, $00
-	db $01, $02, $0f, $18, $2c, $01
-	db $02, $02, $07, $14, $68, $01
+	db $01, 4, $1e, $20, $b4, $00 ;  0 <= felony < 18
+	db $01, 3, $15, $1c, $f0, $00 ; 18 <= felony < 36
+	db $01, 2, $0f, $18, $2c, $01 ; 36 <= felony < MAX_FELONY
+	db $02, 2, $07, $14, $68, $01 ; felony == MAX_FELONY
 
 Data_1f4f::
-	db $00, $00, $00, $00, $00, $00
-	db $00, $00, $00, $00, $00, $00
-	db $00, $00, $00, $00, $00, $00
-	db $03, $00, $07, $00, $f0, $00
+	db $00, 0, $00, $00, $00, $00 ;  0 <= felony < 18
+	db $00, 0, $00, $00, $00, $00 ; 18 <= felony < 36
+	db $00, 0, $00, $00, $00, $00 ; 36 <= felony < MAX_FELONY
+	db $03, 0, $07, $00, $f0, $00 ; felony == MAX_FELONY
 
 NPCCarPool_WithoutCop:
 	db CAR_03, CAR_04, CAR_05, TAXI
@@ -3850,8 +3848,12 @@ Func_2d4d:
 	pop hl
 	ret
 
+; input:
+; - b = y component
+; - c = x component
+; - [wda59] = ?
 Func_2d66::
-	call Func_2d87
+	call Arctan
 	ld c, a
 	ld a, [wda59]
 	and $0c
@@ -3865,30 +3867,34 @@ Func_2d66::
 	inc a
 	ret
 .asm_2d7d
-	ld a, $80
+	ld a, 180 deg
 	sub c
 	ret
 .asm_2d81
 	ld a, c
-	add $80
+	add 180 deg
 	ret
 .asm_2d85
 	ld a, c
 	ret
 
-Func_2d87:
-.asm_2d87
+; output:
+; - a = atan(c/b)
+Arctan:
+.loop
 	ld a, c
 	and a
-	ret z
+	ret z ; exit with 0 deg
 	ld a, b
 	and a
-	jr z, .asm_2dac
-	cp $11
-	jr nc, .asm_2da6
+	jr z, .zero_y
+	cp 17
+	jr nc, .halve_vals
 	ld a, c
-	cp $11
-	jr nc, .asm_2da6
+	cp 17
+	jr nc, .halve_vals
+	; 0 < b < 16
+	; 0 < c < 16
 	dec a
 	dec b
 	add a
@@ -3896,18 +3902,19 @@ Func_2d87:
 	add a
 	add a
 	add b
+	; a = (c - 1) * 16 + (b - 1)
 	push hl
-	ld hl, Data_2e5f
+	ld hl, ArctanTable
 	add_hl
 	ld a, [hl]
 	pop hl
 	ret
-.asm_2da6
+.halve_vals
 	srl c
 	srl b
-	jr .asm_2d87
-.asm_2dac
-	ld a, $40
+	jr .loop
+.zero_y
+	ld a, 90 deg
 	ret
 
 ; outputs a = sqrt(c*c + b*b)
@@ -3946,20 +3953,25 @@ CalculateEuclideanDistance::
 	ld a, b
 	ret
 
+; output:
+; - bc = x coordinate
+; - de = y coordinate
 Func_2dd5::
-	ld a, [wda76]
+	ld a, [wDestinationType]
 	and a
 	ret z
-	cp $01
-	jr z, .asm_2df7
-	cp $03
-	jr z, .asm_2e05
+	cp DESTINATION_COORDINATE
+	jr z, .coordinate
+	cp DESTINATION_SPRITE
+	jr z, .sprite
+
+; target
 	push hl
-	ld hl, wDestinationCoords
+	ld hl, wDestinationTargetPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $07
+	ld a, CARSTRUCT_Y
 	add_hl
 	ld e, [hl]
 	inc hl
@@ -3973,39 +3985,39 @@ Func_2dd5::
 	scf
 	ret
 
-.asm_2df7
+.coordinate
 	push hl
 	ld hl, wDestinationCoords
-	ld c, [hl]
+	ld c, [hl] ; x
 	inc hl
 	ld b, [hl]
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; y
 	inc hl
 	ld d, [hl]
 	pop hl
 	scf
 	ret
 
-.asm_2e05
+.sprite
 	push hl
-	ld hl, wda7f
+	ld hl, wDestinationSpritePtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	inc hl
 	inc hl
-	ld e, [hl]
+	ld e, [hl] ; SPRITESTRUCT_Y
 	inc hl
 	ld d, [hl]
 	inc hl
 	inc hl
-	ld c, [hl]
+	ld c, [hl] ; SPRITESTRUCT_X
 	inc hl
 	ld b, [hl]
-	ld a, $08
+	ld a, 8
 	add_de
-	ld a, $08
+	ld a, 8
 	add_bc
 	pop hl
 	scf
@@ -4017,23 +4029,37 @@ SineTable:
 	ENDR
 SineTableEnd:
 
-Data_2e5f:
-	db $20, $13, $0d, $0a, $08, $07, $06, $05, $05, $04, $04, $03, $03, $03, $03, $03
-	db $2d, $20, $18, $13, $10, $0d, $0b, $0a, $09, $08, $07, $07, $06, $06, $05, $05
-	db $33, $28, $20, $1a, $16, $13, $10, $0f, $0d, $0c, $0b, $0a, $09, $09, $08, $08
-	db $36, $2d, $26, $20, $1b, $18, $15, $13, $11, $10, $0e, $0d, $0c, $0b, $0b, $0a
-    db $38, $30, $2a, $25, $20, $1c, $19, $17, $15, $13, $11, $10, $0f, $0e, $0d, $0c
-    db $39, $33, $2d, $28, $24, $20, $1d, $1a, $18, $16, $14, $13, $12, $10, $10, $0f
-    db $3a, $35, $30, $2b, $27, $23, $20, $1d, $1b, $19, $17, $16, $14, $13, $12, $11
-    db $3b, $36, $31, $2d, $29, $26, $23, $20, $1e, $1b, $1a, $18, $16, $15, $14, $13
-    db $3b, $37, $33, $2f, $2b, $28, $25, $22, $20, $1e, $1c, $1a, $19, $17, $16, $15
-    db $3c, $38, $34, $30, $2d, $2a, $27, $25, $22, $20, $1e, $1c, $1b, $19, $18, $17
-    db $3c, $39, $35, $32, $2f, $2c, $29, $26, $24, $22, $20, $1e, $1d, $1b, $1a, $19
-    db $3d, $39, $36, $33, $30, $2d, $2a, $28, $26, $24, $22, $20, $1e, $1d, $1b, $1a
-    db $3d, $3a, $37, $34, $31, $2e, $2c, $2a, $27, $25, $23, $22, $20, $1e, $1d, $1c
-    db $3d, $3a, $37, $35, $32, $30, $2d, $2b, $29, $27, $25, $23, $22, $20, $1f, $1d
-    db $3d, $3b, $38, $35, $33, $30, $2e, $2c, $2a, $28, $26, $25, $23, $21, $20, $1f
-    db $3d, $3b, $38, $36, $34, $31, $2f, $2d, $2b, $29, $27, $26, $24, $23, $21, $20
+
+MACRO? dbdeg
+	REPT _NARG
+		db \1 deg
+		SHIFT
+	ENDR
+ENDM
+
+; seems like some values are slightly off from RGBDS' built-in ATAN
+;	FOR x, 1.0, 17.0, 1.0
+;		FOR y, 1.0, 17.0, 1.0
+;			db ATAN(DIV(x, y))
+;		ENDR
+;	ENDR
+ArctanTable:
+	dbdeg 45, 27, 19, 15, 12, 10,  9,  8,  8,  6,  6,  5,  5,  5,  5,  5
+	dbdeg 64, 45, 34, 27, 23, 19, 16, 15, 13, 12, 10, 10,  9,  9,  8,  8
+	dbdeg 72, 57, 45, 37, 31, 27, 23, 22, 19, 17, 16, 15, 13, 13, 12, 12
+	dbdeg 76, 64, 54, 45, 38, 34, 30, 27, 24, 23, 20, 19, 17, 16, 16, 15
+	dbdeg 79, 68, 60, 53, 45, 40, 36, 33, 30, 27, 24, 23, 22, 20, 19, 17
+	dbdeg 81, 72, 64, 57, 51, 45, 41, 37, 34, 31, 29, 27, 26, 23, 23, 22
+	dbdeg 82, 75, 68, 61, 55, 50, 45, 41, 38, 36, 33, 31, 29, 27, 26, 24
+	dbdeg 83, 76, 69, 64, 58, 54, 50, 45, 43, 38, 37, 34, 31, 30, 29, 27
+	dbdeg 83, 78, 72, 67, 61, 57, 53, 48, 45, 43, 40, 37, 36, 33, 31, 30
+	dbdeg 85, 79, 74, 68, 64, 60, 55, 53, 48, 45, 43, 40, 38, 36, 34, 33
+	dbdeg 85, 81, 75, 71, 67, 62, 58, 54, 51, 48, 45, 43, 41, 38, 37, 36
+	dbdeg 86, 81, 76, 72, 68, 64, 60, 57, 54, 51, 48, 45, 43, 41, 38, 37
+	dbdeg 86, 82, 78, 74, 69, 65, 62, 60, 55, 53, 50, 48, 45, 43, 41, 40
+	dbdeg 86, 82, 78, 75, 71, 68, 64, 61, 58, 55, 53, 50, 48, 45, 44, 41
+	dbdeg 86, 83, 79, 75, 72, 68, 65, 62, 60, 57, 54, 53, 50, 47, 45, 44
+	dbdeg 86, 83, 79, 76, 74, 69, 67, 64, 61, 58, 55, 54, 51, 50, 47, 45
 
 Func_2f5f::
 	ldh a, [hROMBank]
@@ -4247,7 +4273,7 @@ Func_3047::
 	ld a, [de]
 	and ~(SPRITEFLAG_XFLIP | SPRITEFLAG_YFLIP)
 	or [hl]
-	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [de], a
 	ld a, [hl]
 	pop hl
@@ -5329,12 +5355,12 @@ Func_35ad:
 	swap_hl_de
 	ld a, CARSTRUCT_0F
 	call SetStructWord_DE
-	call Func_1124
+	call AllocateSprite
 	jr c, .asm_362e
 	ld a, CARSTRUCT_11
 	call SetStructWord_DE
 	ld a, [de]
-	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [de], a
 	ld a, SPRITESTRUCT_UNK07
 	add_de

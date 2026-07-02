@@ -14,7 +14,7 @@ Func_110b::
 	ld [hl], a
 	ret
 
-Func_1124::
+AllocateSprite::
 	push hl
 	push bc
 	ld hl, wSprites
@@ -59,8 +59,8 @@ Func_1147::
 	ld b, NUM_SPRITE_STRUCTS
 .loop
 	ld a, [hl]
-	and SPRITEFLAG_ACTIVE | SPRITEFLAG_UNK1
-	cp SPRITEFLAG_ACTIVE | SPRITEFLAG_UNK1
+	and SPRITEFLAG_ACTIVE | SPRITEFLAG_VISIBLE
+	cp SPRITEFLAG_ACTIVE | SPRITEFLAG_VISIBLE
 	jr nz, .next
 	push bc
 	call Func_1186
@@ -89,7 +89,7 @@ Func_1186:
 	ld a, [hli]
 	ld [wSpriteFlags], a
 	inc hl
-	and SPRITEFLAG_UNK2
+	and SPRITEFLAG_FIXED
 	jr z, .asm_11e6
 	ld d, h
 	ld e, l
@@ -228,7 +228,7 @@ Func_1186:
 
 .screen_check
 	ld a, [wSpriteFlags]
-	and SPRITEFLAG_UNK2
+	and SPRITEFLAG_FIXED
 	jr nz, .skip_screen_check
 
 	; are we inside screen coordinates?
@@ -399,7 +399,7 @@ Func_1315:
 	sub 4
 	ld b, a
 	lb de, 2 | OAM_BANK1, $70
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $04
 	jr z, .asm_1331
 	ld d, 3 | OAM_BANK1 | OAM_XFLIP

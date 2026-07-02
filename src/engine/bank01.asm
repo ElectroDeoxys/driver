@@ -39,7 +39,7 @@ Func_4000::
 	ld a, CARSTRUCT_ENT_PTR
 	call SetStructWord_DE
 
-	call Func_1124
+	call AllocateSprite
 	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 
@@ -116,7 +116,7 @@ Func_408f:
 	ld c, HIGH(1.5q12)
 	call CompareCarSpeed
 	jr c, .asm_40d4
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $01
 	call z, Func_42b8
 .asm_40d4
@@ -3203,19 +3203,19 @@ Func_535f:
 	jp SetEntityUpdateFunc
 
 Func_537b:
-	ld a, $0d
+	ld a, CARSTRUCT_SPEED
 	ld bc, NULL
 	call SetStructWord_BC
 	call Func_3047
-	ld a, $13
+	ld a, CARSTRUCT_13
 	call SetStructByte_C
-	set 5, [hl]
+	set CARFLAG_UNK5_F, [hl]
 .asm_538d
 	ld a, 1
 	call YieldEntityUpdate
 	call Func_4c73
 	push hl
-	ld a, $13
+	ld a, CARSTRUCT_13
 	add_hl
 	inc [hl]
 	ld a, [hl]
@@ -3225,7 +3225,7 @@ Func_537b:
 	call Func_53a8
 	jr c, .asm_538d
 .asm_53a5
-	res 5, [hl]
+	res CARFLAG_UNK5_F, [hl]
 	ret
 
 Func_53a8:
@@ -3342,7 +3342,7 @@ Func_5431:
 	call Func_586a
 	call Func_54b3
 	ret nc
-	set 6, [hl]
+	set CARFLAG_UNK6_F, [hl]
 	ld c, $00
 .asm_544d
 	ld a, 1
@@ -3364,12 +3364,12 @@ Func_5431:
 	pop bc
 	jr .asm_544d
 .asm_546e
-	res 6, [hl]
+	res CARFLAG_UNK6_F, [hl]
 	ret
 
-; ticks down wda9c
-Func_5471::
-	ld hl, wda9c
+; ticks down wCarHornSFXTimer
+TickCarHornSFXTimer::
+	ld hl, wCarHornSFXTimer
 	ld a, [hl]
 	and a
 	ret z
@@ -3377,7 +3377,7 @@ Func_5471::
 	ret
 
 Func_5479:
-	ld a, [wda9c]
+	ld a, [wCarHornSFXTimer]
 	and a
 	ret nz
 	ld a, [wd820]
@@ -3386,31 +3386,32 @@ Func_5479:
 	ld a, [wGameMode]
 	cp MODE_CREDITS
 	ret z
-	bit 2, [hl]
+	bit CARFLAG_UNK2_F, [hl]
 	ret nz
 	call Func_270f
 	ret nz
 	call Random
-	and $03
-	add a
+	maskbits 4
+	add a ; *2
 	push hl
 	ld hl, .data
 	add_hl
-	ld c, [hl]
+	ld c, [hl] ; timer
 	inc hl
-	ld b, [hl]
+	ld b, [hl] ; sfx
 	pop hl
 	ld a, c
-	ld [wda9c], a
+	ld [wCarHornSFXTimer], a
 	ld a, b
-	ld [wda9b], a
+	ld [wCarHornSFX], a
 	jp PlaySFX
 
 .data
-	db $2d, SFX_08
-	db $2d, SFX_09
-	db $2d, SFX_0A
-	db $2d, SFX_0B
+	; duration, sfx
+	db 45, SFX_08
+	db 45, SFX_09
+	db 45, SFX_0A
+	db 45, SFX_0B
 
 Func_54b3:
 	xor a
@@ -3687,7 +3688,7 @@ SpawnCivilianCar:
 	pop af
 	call SpawnCar
 	ret c
-	call Func_1124
+	call AllocateSprite
 	jr c, .asm_563c
 	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
@@ -3738,7 +3739,7 @@ SpawnNPCCopCar:
 	call SpawnCar
 	ret c
 	set CARFLAG_UNK2_F, [hl]
-	call Func_1124
+	call AllocateSprite
 	jr c, .asm_567e
 	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
@@ -3864,11 +3865,11 @@ Func_56db:
 	jr .asm_56ef
 
 .Func_573b:
-	ld a, $11
+	ld a, CARSTRUCT_11
 	call GetStructByte_A
-	bit 2, [hl]
+	bit CARFLAG_UNK2_F, [hl]
 	jr nz, .asm_574c
-	bit 3, [hl]
+	bit CARFLAG_UNK3_F, [hl]
 	jr nz, .asm_5756
 	and a
 	ret nz
@@ -4004,7 +4005,7 @@ Func_5805::
 	call SpawnNPCCopCar
 	ld d, h
 	ld e, l
-	call Func_1591
+	call GetEntityPtr
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	swap_hl_de
@@ -4138,11 +4139,11 @@ Func_58e2:
 
 ; unreferenced
 Func_58fa:
-	res 7, [hl]
-	ld a, $25
+	res CARFLAG_UNK7_F, [hl]
+	ld a, CARSTRUCT_SPRITE_PTR
 	call GetStructWord_DE
 	ld a, [de]
-	and $7f
+	and ~SPRITEFLAG_UNK7
 	ld [de], a
 	ret
 
@@ -4174,7 +4175,7 @@ Func_5906:
 	dec b
 	jr nz, .asm_5929
 .asm_5936
-	res 4, [hl]
+	res CARFLAG_UNK4_F, [hl]
 	ld bc, 1.0q12
 	ld a, CARSTRUCT_SPEED
 	call SetStructWord_BC
@@ -4371,7 +4372,7 @@ Func_5a6b:
 	ret
 
 Func_5a84:
-	set 4, [hl]
+	set CARFLAG_UNK4_F, [hl]
 .asm_5a86
 	ld bc, $100
 	call ApplyBrakeSpeed
@@ -4610,7 +4611,7 @@ Func_5bce::
 	ld h, a
 	pop af
 	call SpawnCar
-	set 3, [hl]
+	set CARFLAG_UNK3_F, [hl]
 	push hl
 	ld hl, Func_5c32
 	ld c, BANK(Func_5c32)
@@ -4622,7 +4623,7 @@ Func_5bce::
 	swap_hl_de
 	ld a, CARSTRUCT_ENT_PTR
 	call SetStructWord_DE
-	call Func_1124
+	call AllocateSprite
 	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
@@ -5008,34 +5009,34 @@ Func_5e75:
 	ld a, BANK(Func_5c32)
 	jp SetEntityUpdateFunc
 
-Func_5e97::
+EntUpdate_NearbyDestinationArrow::
 	ld a, [wGameMode]
 	cp MODE_UNDERCOVER
 	jr z, .loop
 	jp DespawnEntity
 
 .loop
-	ld a, [wda76]
+	ld a, [wDestinationType]
 	and a
 	jr nz, .asm_5eae
 	ld a, 1
 	call YieldEntityUpdate
 	jr .loop
 .asm_5eae
-	call Func_1124
+	call AllocateSprite
 	jr nc, .asm_5eba
 	ld a, 1
 	call YieldEntityUpdate
 	jr .asm_5eae
 .asm_5eba
-	call Func_1591
+	call GetEntityPtr
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 .asm_5ec2
 	call .Func_5ed7
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wda76]
+	ld a, [wDestinationType]
 	and a
 	jr nz, .asm_5ec2
 	call GetEntityCarPtr
@@ -5043,18 +5044,18 @@ Func_5e97::
 	jr .loop
 
 .Func_5ed7:
-	ld a, [wda76]
-	cp $01
-	jr nz, .asm_5f21
+	ld a, [wDestinationType]
+	cp DESTINATION_COORDINATE
+	jr nz, .set_invisible
 	ld a, [wd83c]
 	and a
-	jr nz, .asm_5f21
+	jr nz, .set_invisible
 	ld a, [wda82]
 	and a
-	jr nz, .asm_5f21
-	ld a, [wc57a]
-	and $08
-	jr nz, .asm_5f21
+	jr nz, .set_invisible
+	ld a, [wFrameCounter]
+	and %1000
+	jr nz, .set_invisible
 	call Func_2dd5
 	ld hl, -$8
 	add hl, de
@@ -5066,76 +5067,81 @@ Func_5e97::
 	ld c, l
 	call GetEntityCarPtr
 	ld a, [hl]
-	or CARFLAG_PLAYER | CARFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hli], a
 	inc hl
-	ld [hl], e
+	ld [hl], e ; SPRITESTRUCT_Y
 	inc hl
 	ld [hl], d
 	inc hl
 	inc hl
-	ld [hl], c
+	ld [hl], c ; SPRITESTRUCT_X
 	inc hl
 	ld [hl], b
 	inc hl
 	ld a, $10
-	ld [hli], a
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK07
+	ld [hli], a ; SPRITESTRUCT_UNK08
 	ld a, $7a
 	ld b, $0a
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK09
 	ld [hl], b
 	inc hl
 	inc a
 	inc a
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK0B
 	ld [hl], b
 	ret
-.asm_5f21
+.set_invisible
 	call GetEntityCarPtr
-	res CARFLAG_PLAYER_F, [hl]
+	res SPRITEFLAG_VISIBLE_F, [hl]
 	ret
 
-Func_5f27::
+EntUpdate_DestinationArrow::
 	xor a
 	ld [wd83c], a
 
+	; if none of the following game modes, despawn
 	ld a, [wGameMode]
 	cp MODE_UNDERCOVER
-	jr z, .loop
+	jr z, .wait_destination_loop
 	cp MODE_PURSUIT
-	jr z, .loop
+	jr z, .wait_destination_loop
 	cp MODE_CHECKPOINT
-	jr z, .loop
+	jr z, .wait_destination_loop
 	jp DespawnEntity
 
-.loop
-	ld a, [wda76]
+; waits until destination type != NONE
+.wait_destination_loop
+	ld a, [wDestinationType]
 	and a
-	jr nz, .asm_5f4a
+	jr nz, .wait_allocate_sprite_loop
 	ld a, 1
 	call YieldEntityUpdate
-	jr .loop
-.asm_5f4a
-	call Func_1124
+	jr .wait_destination_loop
+
+; wait until a sprite is allocated successfully
+.wait_allocate_sprite_loop
+	call AllocateSprite
 	jr nc, .asm_5f56
 	ld a, 1
 	call YieldEntityUpdate
-	jr .asm_5f4a
+	jr .wait_allocate_sprite_loop
+
 .asm_5f56
-	call Func_1591
+	call GetEntityPtr
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 .asm_5f5e
 	call .Func_5f73
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wda76]
+	ld a, [wDestinationType]
 	and a
 	jr nz, .asm_5f5e
 	call GetEntityCarPtr
 	ld [hl], $00
-	jr .loop
+	jr .wait_destination_loop
 
 .Func_5f73:
 	xor a
@@ -5210,56 +5216,57 @@ Func_5f27::
 .asm_5fe3
 	ld b, h
 	ld c, l
-	ld l, $00
+
+	ld l, FALSE
 .asm_5fe7
 	ld a, d
 	or b
 	jr z, .asm_5ff7
-	ld l, $01
+	ld l, TRUE
 	srl d
 	rr e
 	srl b
 	rr c
 	jr .asm_5fe7
 .asm_5ff7
-	ld b, e
-	ld a, [wda76]
-	cp $01
+	ld b, e ; y
+	ld a, [wDestinationType]
+	cp DESTINATION_COORDINATE
 	jr nz, .asm_600a
 	ld a, l
 	and a
 	jr nz, .asm_600a
 	call CalculateEuclideanDistance
-	cp $40
+	cp 64
 	jr c, .asm_605e
 .asm_600a
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $08
-	jr z, .asm_601d
+	jr z, .set_invisible
 	xor a
 	ld [wdc7a], a
 	call Func_2d66
 	call .Func_6023
 	jr .asm_6091
-.asm_601d
+.set_invisible
 	call GetEntityCarPtr
-	res CARFLAG_PLAYER_F, [hl]
+	res SPRITEFLAG_VISIBLE_F, [hl]
 	ret
 
 .Func_6023:
-	add $10
+	add 23 deg
 	push af
 	and $e0
 	call CalculateDirectionComponents
 	ld h, b
 	ld l, c
 	call .Func_60d3
-	ld b, h
+	ld b, h ; y offset
 	ld c, $00
 	ld h, d
 	ld l, e
 	call .Func_60d3
-	ld d, h
+	ld d, h ; x offset
 	ld e, $00
 	ld hl, wda23
 	call AddToCarCoordinates
@@ -5269,11 +5276,12 @@ Func_5f27::
 	rrca
 	and $07
 	ret
+
 .asm_604b
 	ld a, $01
 	ld [wd83c], a
 	call Func_2dd5
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	rrca
 	and $03
 	add_de
@@ -5290,7 +5298,7 @@ Func_5f27::
 .asm_606b
 	ld a, l
 	cp $0c
-	jr c, .asm_601d
+	jr c, .set_invisible
 	ld a, $01
 	ld [wdc7a], a
 	push bc
@@ -5306,7 +5314,7 @@ Func_5f27::
 	ld [hl], b
 	pop bc
 	call Func_2d66
-	add $80
+	add 180 deg
 	call .Func_6023
 	add $04
 	and $07
@@ -5322,12 +5330,12 @@ Func_5f27::
 	push af
 	call GetEntityCarPtr
 	ld a, [hl]
-	or CARFLAG_PLAYER | CARFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hli], a
 	inc hl
-	ld [hl], e ; CARSTRUCT_02
+	ld [hl], e ; SPRITESTRUCT_Y
 	inc hl
-	ld [hl], d ; CARSTRUCT_03
+	ld [hl], d
 	inc hl
 	inc hl
 	pop af
@@ -5337,7 +5345,7 @@ Func_5f27::
 	ld a, $04
 	add_bc
 .asm_60b4
-	ld [hl], c
+	ld [hl], c ; SPRITESTRUCT_X
 	inc hl
 	ld [hl], b
 	inc hl
@@ -5350,19 +5358,19 @@ Func_5f27::
 	add_de
 	ld a, [de]
 	inc de
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK07
+	ld a, [de]
+	inc de
+	ld [hli], a ; SPRITESTRUCT_UNK08
+	ld a, [de]
+	inc de
+	ld [hli], a ; SPRITESTRUCT_UNK09
 	ld a, [de]
 	inc de
 	ld [hli], a
 	ld a, [de]
 	inc de
-	ld [hli], a
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	inc de
-	ld [hli], a
+	ld [hli], a ; SPRITESTRUCT_UNK0B
 	ld a, [de]
 	ld [hl], a
 	ret
@@ -5378,7 +5386,7 @@ Func_5f27::
 	ld a, [wdc7a]
 	and a
 	jr z, .asm_60f3
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $0f
 	push hl
 	ld hl, Data_60f5
@@ -5426,7 +5434,7 @@ Func_613b:
 	ld b, $09
 	call SpawnEntity
 	jr c, .asm_6182
-	call Func_1124
+	call AllocateSprite
 	jr c, .asm_6180
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
@@ -5434,7 +5442,7 @@ Func_613b:
 	ld l, e
 	pop de
 	pop bc
-	set 2, [hl]
+	set CARFLAG_UNK2_F, [hl]
 	inc hl
 	ld [hl], $00
 	inc hl
@@ -5606,7 +5614,7 @@ Func_623d:
 	ld b, $10
 	call SpawnEntity
 	jr c, .asm_6284
-	call Func_1124
+	call AllocateSprite
 	jr c, .asm_6282
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
@@ -5614,7 +5622,7 @@ Func_623d:
 	ld l, e
 	pop de
 	pop bc
-	set 2, [hl]
+	set CARFLAG_UNK2_F, [hl]
 	inc hl
 	ld [hl], $00
 	inc hl
@@ -5802,7 +5810,7 @@ Func_635e:
 	ld b, $11
 	call SpawnEntity
 	jr c, .asm_6394
-	call Func_1124
+	call AllocateSprite
 	jr c, .asm_6394
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
@@ -6116,7 +6124,7 @@ Func_651b:
 
 Func_6563:
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	ld a, $02
 	ld [wd820], a
@@ -6194,8 +6202,8 @@ Func_65b4::
 	add a
 	add a
 	add_hl
-	ld de, wda76
-	ld a, $01
+	ld de, wDestinationType
+	ld a, DESTINATION_COORDINATE
 	ld [de], a
 	ld b, $04
 .asm_65f8
@@ -6223,14 +6231,14 @@ Func_65b4::
 	jr .asm_65fe
 
 Func_6620:
-	call Func_1124
+	call AllocateSprite
 	ld h, d
 	ld l, e
 	push hl
 	ld a, [hl]
-	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hl], a
-	ld a, $07
+	ld a, SPRITESTRUCT_UNK07
 	add_hl
 	ld [hl], $10
 	inc hl
@@ -6239,10 +6247,10 @@ Func_6620:
 .asm_6633
 	call Func_2dd5
 	jr c, .asm_663c
-	res 1, [hl]
+	res SPRITEFLAG_VISIBLE_F, [hl]
 	jr .asm_6659
 .asm_663c
-	set 1, [hl]
+	set SPRITEFLAG_VISIBLE_F, [hl]
 	call .Func_6660
 	push hl
 	ld hl, -$8
@@ -6267,7 +6275,7 @@ Func_6620:
 	push hl
 	ld a, $09
 	add_hl
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	rrca
 	rrca
 	and $03
@@ -6285,11 +6293,11 @@ Func_6620:
 	ret
 
 Func_667a:
-	call Func_1591
+	call GetEntityPtr
 	ld a, $06
 	add_hl
 	ld c, [hl]
-	call Func_1124
+	call AllocateSprite
 	ld h, d
 	ld l, e
 	inc hl
@@ -6419,9 +6427,9 @@ Func_6732::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wDestinationCoords + 0]
+	ld a, [wDestinationTargetPtr + 0]
 	ld e, a
-	ld a, [wDestinationCoords + 1]
+	ld a, [wDestinationTargetPtr + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $128
@@ -6494,8 +6502,8 @@ Func_67e9:
 ; input:
 ; - hl = coordinate data (x and y)
 SetDestinationCoords:
-	ld de, wda76
-	ld a, $01
+	ld de, wDestinationType
+	ld a, DESTINATION_COORDINATE
 	ld [de], a
 	ld b, $2 + $2
 .loop_copy
@@ -6588,7 +6596,7 @@ Func_6816:
 Func_6879:
 	call Func_68b8
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	call Func_6575
 	jp Func_67e9
@@ -6806,7 +6814,7 @@ EntUpdate_MissionController_TheBankJob:
 
 .reached_bank
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	call Func_6575
 	call Func_67e9
@@ -6969,8 +6977,8 @@ Func_6b0c:
 	ld [wd820], a
 	ld hl, Timer_BoatChase
 	call StartCountDownTimer
-	ld a, $03
-	ld [wda76], a
+	ld a, DESTINATION_SPRITE
+	ld [wDestinationType], a
 .asm_6b36
 	call .Func_6b8a
 	ld a, b
@@ -7014,7 +7022,7 @@ Func_6b0c:
 	jp Func_bdd
 
 .Func_6b8a:
-	ld hl, wda7f
+	ld hl, wDestinationSpritePtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -7040,12 +7048,12 @@ Func_6b0c:
 	db $08, $14, $40, $00, $a0, $13, $40, $00
 
 Func_6bbb:
-	call Func_1591
-	call Func_1124
+	call GetEntityPtr
+	call AllocateSprite
 	ld a, e
-	ld [wda7f], a
+	ld [wDestinationSpritePtr + 0], a
 	ld a, d
-	ld [wda80], a
+	ld [wDestinationSpritePtr + 1], a
 	ld a, ENT_CAR_PTR
 	call SetStructWord_DE
 	ld h, d
@@ -7070,7 +7078,7 @@ Func_6bbb:
 	pop hl
 	push hl
 	ld a, [hl]
-	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hli], a
 	xor a
 	ld [hli], a
@@ -7341,7 +7349,7 @@ Func_6bbb:
 	inc de
 	ld a, [hl]
 	ld [de], a
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	and $03
 	ret nz
 	call GetEntityCarPtr
@@ -7643,14 +7651,14 @@ Func_6fa9:
 	call SpawnEntity
 	pop de
 	call Func_70eb
-	set 2, [hl]
-	set 4, [hl]
-	ld a, $02
-	ld [wda76], a
+	set CARFLAG_UNK2_F, [hl]
+	set CARFLAG_UNK4_F, [hl]
+	ld a, DESTINATION_TARGET
+	ld [wDestinationType], a
 	ld a, l
-	ld [wDestinationCoords + 0], a
+	ld [wDestinationTargetPtr + 0], a
 	ld a, h
-	ld [wDestinationCoords + 1], a
+	ld [wDestinationTargetPtr + 1], a
 	ld hl, wda55
 	inc [hl]
 	call .Func_7084
@@ -7793,7 +7801,7 @@ Func_70f9:
 	ld a, [hl] ; direction
 	pop hl
 	call SpawnCar
-	call Func_1124
+	call AllocateSprite
 	ld a, CARSTRUCT_SPRITE_PTR
 	call SetStructWord_DE
 	call Func_3047
@@ -7837,8 +7845,8 @@ Func_7151:
 	call Func_5bce
 	ld d, h
 	ld e, l
-	ld hl, wda76
-	ld [hl], $02
+	ld hl, wDestinationType
+	ld [hl], DESTINATION_TARGET
 	inc hl
 	ld [hl], e
 	inc hl
@@ -7870,9 +7878,9 @@ Func_7151:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wDestinationCoords + 0]
+	ld a, [wDestinationTargetPtr + 0]
 	ld e, a
-	ld a, [wDestinationCoords + 1]
+	ld a, [wDestinationTargetPtr + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $128
@@ -8015,7 +8023,7 @@ Func_728e:
 	call Func_6816
 	jr c, .asm_72b1
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	ld a, $01
 	ld [wd837], a
@@ -8103,7 +8111,7 @@ Func_735a:
 	call Func_6816
 	jr c, .asm_737d
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	ld a, $01
 	ld [wd837], a
@@ -8189,8 +8197,8 @@ Func_735a:
 	call SpawnEntity
 	pop de
 	call Func_70eb
-	set 2, [hl]
-	set 4, [hl]
+	set CARFLAG_UNK2_F, [hl]
+	set CARFLAG_UNK4_F, [hl]
 	ld hl, wda55
 	inc [hl]
 	ret
@@ -8241,7 +8249,7 @@ Func_748c:
 	call Func_6816
 	jr c, .asm_74ab
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	ld a, $01
 	ld [wd837], a
@@ -8277,7 +8285,7 @@ Func_748c:
 	call Func_6816
 	jr c, .asm_7509
 	xor a
-	ld [wda76], a
+	ld [wDestinationType], a
 	ld [wTimerActive], a
 	ld a, $01
 	ld [wd837], a
@@ -8344,8 +8352,8 @@ Func_748c:
 	call SpawnEntity
 	pop de
 	call Func_70eb
-	set 2, [hl]
-	set 4, [hl]
+	set CARFLAG_UNK2_F, [hl]
+	set CARFLAG_UNK4_F, [hl]
 	ld hl, wda55
 	inc [hl]
 	ret
@@ -8455,8 +8463,8 @@ Func_7681:
 	call Func_5bce
 	ld d, h
 	ld e, l
-	ld hl, wda76
-	ld [hl], $02
+	ld hl, wDestinationType
+	ld [hl], DESTINATION_TARGET
 	inc hl
 	ld [hl], e
 	inc hl
@@ -8486,7 +8494,7 @@ Func_7681:
 	call ShowHUDMessage
 	xor a
 	ld [wd877], a
-	ld hl, wDestinationCoords
+	ld hl, wDestinationTargetPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -8516,9 +8524,9 @@ Func_7681:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wDestinationCoords + 0]
+	ld a, [wDestinationTargetPtr + 0]
 	ld e, a
-	ld a, [wDestinationCoords + 1]
+	ld a, [wDestinationTargetPtr + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $180
@@ -8612,8 +8620,8 @@ Func_7793:
 	ld a, [wd86c]
 	cp $38
 	jr c, .asm_77c4
-	ld hl, wda76
-	ld [hl], $00
+	ld hl, wDestinationType
+	ld [hl], NONE
 	inc hl
 	ld a, [hli]
 	ld h, [hl]
@@ -8679,8 +8687,8 @@ Func_7793:
 	call SetStructByte_C
 	ld d, h
 	ld e, l
-	ld hl, wda76
-	ld [hl], $02
+	ld hl, wDestinationType
+	ld [hl], DESTINATION_TARGET
 	inc hl
 	ld [hl], e
 	inc hl
@@ -8751,8 +8759,8 @@ Func_78b3:
 	call Func_5bce
 	ld d, h
 	ld e, l
-	ld hl, wda76
-	ld [hl], $02
+	ld hl, wDestinationType
+	ld [hl], DESTINATION_TARGET
 	inc hl
 	ld [hl], e
 	inc hl
@@ -8775,9 +8783,9 @@ Func_78b3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wDestinationCoords + 0]
+	ld a, [wDestinationTargetPtr + 0]
 	ld e, a
-	ld a, [wDestinationCoords + 1]
+	ld a, [wDestinationTargetPtr + 1]
 	ld d, a
 	call Func_275f
 	ld hl, $30
@@ -8791,7 +8799,7 @@ Func_78b3:
 	ld hl, RamHimTexts
 	ld c, 90
 	call ShowHUDMessage
-	ld hl, wDestinationCoords
+	ld hl, wDestinationTargetPtr
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -8811,9 +8819,9 @@ Func_78b3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wDestinationCoords + 0]
+	ld a, [wDestinationTargetPtr + 0]
 	ld e, a
-	ld a, [wDestinationCoords + 1]
+	ld a, [wDestinationTargetPtr + 1]
 	ld d, a
 	call Func_275f
 	ld a, c
@@ -8949,7 +8957,7 @@ Func_7a0c:
 	jp Func_7a35
 
 Func_7a35:
-	call Func_1124
+	call AllocateSprite
 	ret c
 	push de
 	ld hl, Func_7a94
@@ -9027,7 +9035,7 @@ Func_7a35:
 Func_7a94:
 	call GetEntityCarPtr
 	ld a, [hl]
-	or SPRITEFLAG_UNK1 | SPRITEFLAG_UNK2
+	or SPRITEFLAG_VISIBLE | SPRITEFLAG_FIXED
 	ld [hl], a
 .asm_7a9b
 	call .Func_7af8
@@ -9146,7 +9154,7 @@ Func_7a94:
 	jr nc, .asm_7b53
 	ld c, $08
 .asm_7b53
-	ld a, [wc57a]
+	ld a, [wFrameCounter]
 	rrca
 	rrca
 	and $03
@@ -9218,7 +9226,7 @@ Func_7b62:
 	ret
 
 LoadPersonGfx:
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v0Tiles1 tile $48
 	ld hl, PersonGfx
@@ -9226,12 +9234,12 @@ LoadPersonGfx:
 	ld b, 8 ; tiles
 	xor a
 	call CopyTilesWithAlternatingBlackTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
 Func_7bd4:
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v0Tiles1 tile $48
 	ld hl, BoatGfx
@@ -9244,12 +9252,12 @@ Func_7bd4:
 	ld b, 4 ; tiles
 	xor a
 	call CopyTilesWithAlternatingBlackTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 
 Func_7bfc:
-	ld a, $01
+	ld a, BANK("VRAM1")
 	vramswitch
 	ld de, v0Tiles1 tile $48
 	ld hl, Gfx_d11dd
@@ -9257,7 +9265,7 @@ Func_7bfc:
 	ld b, 4 ; tiles
 	xor a
 	call CopyTilesWithAlternatingBlackTiles
-	ld a, $00
+	ld a, BANK("VRAM0")
 	vramswitch
 	ret
 

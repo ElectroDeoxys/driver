@@ -264,7 +264,7 @@ SetEntityUpdateFunc::
 	ld l, e
 	jp hl
 
-Func_1591::
+GetEntityPtr::
 	ld hl, wEntityPtr
 	ld a, [hli]
 	ld h, [hl]
