@@ -1,11 +1,11 @@
-; input:
-; - bc = x coordinate
-; - de = y coordinate
-; - wdc7a = ?
-; - wdc7c = ?
-; - wdc7e = ?
-; - wdc80 = ?
-Func_bdd::
+; checks whether coordinates given in (bc, de) are
+; within a WxH rectangle located at (X, Y) where:
+; - X = wdc7a
+; - W = wdc7c
+; - Y = wdc7e
+; - H = wdc80
+; outputs carry if yes
+IsWithinRectangle::
 	push hl
 	ld hl, wdc7a
 	ld a, [hli]

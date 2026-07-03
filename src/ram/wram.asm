@@ -526,11 +526,9 @@ ENDU
 
 wda7b:: db ; da7b
 
-wda7c:: db ; da7c
-
-wda7d:: db ; da7d
-
-wda7e:: db ; da7e
+wBoatDirection:: db ; da7c
+wBoatSpeed::     db ; da7d
+wBoatWaypoint::  db ; da7e
 
 wDestinationSpritePtr:: dw ; da7f
 

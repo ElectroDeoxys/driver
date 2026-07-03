@@ -9,11 +9,11 @@ DestinationCoordsTable_RamRaidRace:
 	dw 1024, 4688 ; $4
 
 Data_7efa:
-	db $40 ; $0
-	db $00 ; $1
-	db $c0 ; $2
-	db $00 ; $3
-	db $00 ; $4
+	db  90 deg ; $0
+	db   0 deg ; $1
+	db 270 deg ; $2
+	db   0 deg ; $3
+	db   0 deg ; $4
 
 Timer_RamRaidRace:
 	dw $2_15
