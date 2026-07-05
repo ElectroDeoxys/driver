@@ -235,7 +235,7 @@ Func_178e:
 	ld hl, NULL
 	call Func_1eda
 	xor a
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	ld [wda7b], a
 	call Func_1928
 	ld c, $03

@@ -7,8 +7,8 @@ DestinationCoords_TrashGrangersWheels:
 NPCSpawnParams_TrashGrangersWheels:
 	db LIMOUSINE
 	db OBPAL_BLACK
-	db $00
-	db $00
+	db 0.0q4
+	db 0.0q4
 	db 135 deg
 	dw 640, 2280
 

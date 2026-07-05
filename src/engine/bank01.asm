@@ -312,13 +312,13 @@ Func_41ec:
 	add a
 .asm_420d
 	ld c, a
-	ld a, [wd86c]
+	ld a, [wTargetCarDamage]
 	add c
-	cp $38
+	cp MAX_DAMAGE
 	jr c, .asm_4218
-	ld a, $38
+	ld a, MAX_DAMAGE
 .asm_4218
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	ret
 
 Func_421c:
@@ -755,7 +755,7 @@ EntUpdate_PlayerCar:
 	jr nz, .asm_4489
 	ld a, $01
 	ld [wda7b], a
-	ld c, $34
+	ld c, 3.25q4
 	ld a, CARSTRUCT_15
 	call SetStructByte_C
 	set CARFLAG_UNK3_F, [hl] ; CARSTRUCT_FLAGS
@@ -2194,6 +2194,9 @@ Func_4c9f:
 	dec [hl]
 	ret
 
+; input:
+; - bc = ?
+; - e  = q4 speed
 Func_4cc2:
 	ld a, b
 	or c
@@ -2592,7 +2595,7 @@ Func_4ec7:
 	jp nz, .asm_4fe0
 	ld a, CARSTRUCT_18
 	call SetStructWord_DE
-	ld e, $10
+	ld e, 1.0q4
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
@@ -2764,7 +2767,7 @@ Func_4fe8:
 	jp nz, .asm_5108
 	ld a, CARSTRUCT_18
 	call SetStructWord_DE
-	ld e, $10
+	ld e, 1.0q4
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
@@ -2940,7 +2943,7 @@ Func_5110:
 	jp nz, .asm_5233
 	ld a, CARSTRUCT_1A
 	call SetStructWord_DE
-	ld e, $10
+	ld e, 1.0q4
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
@@ -3108,7 +3111,7 @@ Func_523b:
 	jp nz, .asm_5357
 	ld a, CARSTRUCT_1A
 	call SetStructWord_DE
-	ld e, $10
+	ld e, 1.0q4
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
@@ -3720,14 +3723,14 @@ Func_5643:
 	jp SetStructWord_BC
 
 .data
-	db HIGH(2.0q12)
-	db HIGH(2.0q12)
-	db HIGH(2.0q12)
-	db HIGH(1.5q12)
-	db HIGH(1.5q12)
-	db HIGH(2.5q12)
-	db HIGH(2.5q12)
-	db HIGH(1.0q12)
+	db 2.0q4
+	db 2.0q4
+	db 2.0q4
+	db 1.5q4
+	db 1.5q4
+	db 2.5q4
+	db 2.5q4
+	db 1.0q4
 
 ; input:
 ; - a  = direction
@@ -3882,8 +3885,8 @@ Func_56db:
 	jp SetEntityUpdateFunc
 .asm_5756
 	ld c, a
-	ld a, [wd86c]
-	cp $38
+	ld a, [wTargetCarDamage]
+	cp MAX_DAMAGE
 	jr z, .asm_576a
 	ld a, c
 	cp $10
@@ -6492,8 +6495,8 @@ EntUpdate_PlayerDamageController_Pursuit::
 	jp SetEntityUpdateFunc
 
 .Func_679c:
-	ld a, [wd86c]
-	cp $38
+	ld a, [wTargetCarDamage]
+	cp MAX_DAMAGE
 	ret c
 	ld de, Func_6499
 	ld a, BANK(Func_6499)
@@ -7742,7 +7745,7 @@ EntUpdate_MissionController_BaitForATrap:
 	ld hl, Timer_BaitForATrap
 	call StartCountDownTimer
 
-.asm_6fc8
+.go_to_bal_harbour_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
@@ -7764,11 +7767,12 @@ EntUpdate_MissionController_BaitForATrap:
 	ld a, l
 	cp e
 .asm_6fec
-	jr nc, .asm_6fc8
+	jr nc, .go_to_bal_harbour_loop
 
+	; spawn car
 	ld hl, DestinationCoords_BaitForATrap_1
 	lb de, OBPAL_BLACK, BROWN_CAR
-	call Func_70f9
+	call SpawnScriptedCar
 	push hl
 	ld hl, Func_70cc
 	ld c, BANK(Func_70cc)
@@ -7787,6 +7791,7 @@ EntUpdate_MissionController_BaitForATrap:
 	ld hl, wda55
 	inc [hl]
 	call .Func_7084
+
 .asm_701e
 	ld a, 1
 	call YieldEntityUpdate
@@ -7807,7 +7812,7 @@ EntUpdate_MissionController_BaitForATrap:
 	ld c, 90
 	call ShowHUDMessage
 	ld hl, wda7b
-.asm_7043
+.ram_loop
 	ld [hl], $00
 	ld a, 1
 	call YieldEntityUpdate
@@ -7816,7 +7821,7 @@ EntUpdate_MissionController_BaitForATrap:
 	jr z, .too_late
 	ld a, [hl]
 	and a
-	jr nz, .asm_7043
+	jr nz, .ram_loop
 
 	ld a, 1
 	call Func_42a0
@@ -7827,7 +7832,7 @@ EntUpdate_MissionController_BaitForATrap:
 	ld hl, DestinationCoords_BaitForATrap_2
 	call SetDestinationCoords
 	call StartCountUpTimer
-.asm_706a
+.go_to_lockup_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld hl, wda55
@@ -7835,7 +7840,7 @@ EntUpdate_MissionController_BaitForATrap:
 	and a
 	jr z, .lost_him
 	call HasReachedDestination
-	jr c, .asm_706a
+	jr c, .go_to_lockup_loop
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
@@ -7918,7 +7923,7 @@ Func_70eb:
 ; input:
 ; - d = OBPAL_* constant
 ; - e = CAR_* constant
-Func_70f9:
+SpawnScriptedCar:
 	push de
 	ld c, [hl] ; x
 	inc hl
@@ -7957,20 +7962,22 @@ Func_712c:
 	ld hl, NULL
 	call LoadCarGfxAndPals
 	xor a
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
-	ld hl, Func_7151
-	ld c, BANK(Func_7151)
+	ld hl, EntUpdate_MissionController_TakeOutDiAngelo
+	ld c, BANK(EntUpdate_MissionController_TakeOutDiAngelo)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_7151:
+EntUpdate_MissionController_TakeOutDiAngelo:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, RamHimTexts
 	ld c, 90
 	call ShowHUDMessage
+
 	ld hl, NPCSpawnParams_TakeOutDiAngelo
 	call Func_5bce
 	ld d, h
@@ -7985,25 +7992,27 @@ Func_7151:
 	inc [hl]
 	xor a
 	ld [wda7b], a
-	ld a, $1e
+
+	ld a, 30
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wda7b], a
-	ld a, $1e
+	ld a, 30
 	call YieldEntityUpdate
 	ld a, $01
 	ld [wd820], a
+
 	ld hl, Timer_TakeOutDiAngelo
 	call StartCountDownTimer
-.asm_718f
+.loop
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86c]
-	cp $38
-	jr nc, .asm_71c9
+	ld a, [wTargetCarDamage]
+	cp MAX_DAMAGE
+	jr nc, .mission_complete
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_71c3
+	jr z, .too_slow
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -8020,13 +8029,15 @@ Func_7151:
 	ld a, l
 	cp c
 .asm_71bb
-	jr nc, .asm_718f
+	jr nc, .loop
 	ld hl, YouLostHimTexts
 	jp SetMissionFailed
-.asm_71c3
+
+.too_slow
 	ld hl, TooSlowTexts
 	jp SetMissionFailed
-.asm_71c9
+
+.mission_complete
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
@@ -8047,22 +8058,27 @@ Func_71eb:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
-	ld hl, Func_71ff
-	ld c, BANK(Func_71ff)
+	ld hl, EntUpdate_MissionController_StealACopCar
+	ld c, BANK(EntUpdate_MissionController_StealACopCar)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_71ff:
+EntUpdate_MissionController_StealACopCar:
 	call YieldEntityUpdateUntilFadeEnds
+
+	; car takes 3x damage
 	ld a, 3
 	ld [wDamageMultiplier], a
+
 	ld hl, GetToTheLockUpTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld a, $01
 	ld [wd820], a
+
 	ld hl, DestinationCoords_StealACopCar
 	call SetDestinationCoords
 	call StartCountUpTimer
@@ -8072,16 +8088,17 @@ Func_71ff:
 	call Func_1eda
 	xor a
 	ld [wda9a], a
+
 	ld c, $00
-.asm_7231
+.loop
 	push bc
 	call HasReachedDestinationWithoutTail
 	pop bc
-	jr nc, .asm_7255
+	jr nc, .mission_complete
 	call .ShowDamageWarningMessage
 	ld a, 1
 	call YieldEntityUpdate
-	jr .asm_7231
+	jr .loop
 
 .ShowDamageWarningMessage:
 	; did we already show the message?
@@ -8100,7 +8117,7 @@ Func_71ff:
 	ld c, TRUE
 	ret
 
-.asm_7255
+.mission_complete
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
@@ -8319,7 +8336,7 @@ Func_735a:
 
 .Func_743c:
 	lb de, OBPAL_BLACK, COP_CAR
-	call Func_70f9
+	call SpawnScriptedCar
 	push hl
 	ld hl, Func_70d8
 	ld c, BANK(Func_70d8)
@@ -8474,7 +8491,7 @@ Func_748c:
 
 .Func_75a7:
 	lb de, OBPAL_BROWN, CAR_10
-	call Func_70f9
+	call SpawnScriptedCar
 	push hl
 	ld hl, Func_7637
 	ld c, BANK(Func_7637)
@@ -8574,7 +8591,7 @@ Func_765c:
 	ld hl, NULL
 	call LoadCarGfxAndPals
 	xor a
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
 	ld hl, Func_7681
@@ -8616,8 +8633,8 @@ Func_7681:
 	ld a, [wTimerActive]
 	and a
 	jr z, .asm_7703
-	ld a, [wd86c]
-	cp $38
+	ld a, [wTargetCarDamage]
+	cp MAX_DAMAGE
 	jr c, .asm_76b7
 	ld hl, GetBackToYourHotelTexts
 	ld c, 90
@@ -8714,7 +8731,7 @@ Func_776e:
 	ld hl, NULL
 	call LoadCarGfxAndPals
 	xor a
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
 	ld hl, Func_7793
@@ -8747,8 +8764,8 @@ Func_7793:
 	jr nc, .asm_77bc
 .asm_77c4
 	call .Func_7856
-	ld a, [wd86c]
-	cp $38
+	ld a, [wTargetCarDamage]
+	cp MAX_DAMAGE
 	jr c, .asm_77c4
 	ld hl, wDestinationType
 	ld [hl], NONE
@@ -8770,7 +8787,7 @@ Func_7793:
 	dec b
 	jr nz, .asm_77e9
 	xor a
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	inc a
 	ld [wd86d], a
 	jr .asm_77bc
@@ -8813,7 +8830,7 @@ Func_7793:
 	ld a, CARSTRUCT_02
 	call SetStructByte_C
 	ld a, CARSTRUCT_15
-	ld c, $30
+	ld c, 3.0q4
 	call SetStructByte_C
 	ld d, h
 	ld e, l
@@ -8870,7 +8887,7 @@ Func_788e:
 	ld hl, NULL
 	call LoadCarGfxAndPals
 	xor a
-	ld [wd86c], a
+	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
 	ld hl, Func_78b3
@@ -8939,8 +8956,8 @@ Func_78b3:
 .asm_7920
 	ld a, 1
 	call YieldEntityUpdate
-	ld a, [wd86c]
-	cp $38
+	ld a, [wTargetCarDamage]
+	cp MAX_DAMAGE
 	jr nc, .asm_7962
 	ld a, [wTimerActive]
 	and a
@@ -9654,7 +9671,7 @@ Data_7e07::
 	dw Pals_f644 palette 7 ; target palette
 	db BROWN_CAR ; target car
 	db OBPAL_VAR ; target pal ID
-	db $32, $00
+	db 3.12q4, 0.0q4
 	db 270 deg ; target direction
 	dw 7680, 4468 ; target coordinates
 
@@ -9664,7 +9681,7 @@ Data_7e07::
 	dw NULL ; target palette
 	db RED_CAR ; target car
 	db OBPAL_RED ; target pal ID
-	db $32, $00
+	db 3.12q4, 0.0q4
 	db 180 deg ; target direction
 	dw 3316, 4484 ; target coordinates
 
@@ -9674,7 +9691,7 @@ Data_7e07::
 	dw NULL ; target palette
 	db LIMOUSINE ; target car
 	db OBPAL_BROWN ; target pal ID
-	db $32, $00
+	db 3.12q4, 0.0q4
 	db 180 deg ; target direction
 	dw 2316, 2644 ; target coordinates
 
@@ -9684,7 +9701,7 @@ Data_7e07::
 	dw NULL ; target palette
 	db RED_CAR ; target car
 	db OBPAL_BLACK ; target pal ID
-	db $32, $00
+	db 3.12q4, 0.0q4
 	db 180 deg ; target direction
 	dw 3852, 660 ; target coordinates
 
@@ -9694,7 +9711,7 @@ Data_7e07::
 	dw Pals_f644 palette 7 ; target palette
 	db BROWN_CAR ; target car
 	db OBPAL_VAR ; target pal ID
-	db $32, $00
+	db 3.12q4, 0.0q4
 	db 180 deg ; target direction
 	dw 1580, 7232 ; target coordinates
 
@@ -9704,7 +9721,7 @@ Data_7e07::
 	dw NULL ; target palette
 	db LIMOUSINE ; target car
 	db OBPAL_BLACK ; target pal ID
-	db $32, $00
+	db 3.12q4, 0.0q4
 	db 90 deg ; target direction
 	dw 4440, 3220 ; target coordinates
 

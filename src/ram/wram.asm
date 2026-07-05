@@ -337,7 +337,8 @@ wd869::   db ; d869
 wFelony:: db ; d86a
 wd86b::   db ; d86b
 
-wd86c:: db ; d86c
+; target car's damage
+wTargetCarDamage:: db ; d86c
 
 wd86d:: db ; d86d
 

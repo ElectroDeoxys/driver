@@ -4,8 +4,8 @@ PlayerSpawnParams_TakeOutDiAngelo:
 NPCSpawnParams_TakeOutDiAngelo:
 	db RED_CAR
 	db OBPAL_BROWN
-	db $32
-	db $20
+	db 3.12q4
+	db 2.0q4
 	db 90 deg
 	dw 7000, 3332
 

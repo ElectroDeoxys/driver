@@ -4,8 +4,8 @@ PlayerSpawnParams_ChaseOneOfGrangersBoys:
 NPCSpawnParams_ChaseOneOfGrangersBoys:
 	db RED_CAR
 	db OBPAL_BLACK
-	db $28
-	db $00
+	db 2.5q4
+	db 0.0q4
 	db 0 deg
 	dw 3218, 4080
 

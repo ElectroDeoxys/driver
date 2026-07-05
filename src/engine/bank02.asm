@@ -496,7 +496,7 @@ Func_8369:
 	ld b, $a2
 	call Func_84a7
 Func_8374:
-	ld hl, wd86c
+	ld hl, wTargetCarDamage
 	call Func_839e
 	ret z
 	ld hl, wd88a
@@ -531,9 +531,9 @@ Func_839e:
 	dec [hl]
 .asm_83a7
 	ld a, [hl]
-	cp $39
+	cp MAX_DAMAGE + 1
 	jr c, .asm_83ae
-	ld [hl], $38
+	ld [hl], MAX_DAMAGE
 .asm_83ae
 	xor a
 	dec a
