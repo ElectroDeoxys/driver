@@ -83,3 +83,6 @@ DEF TIMER_MODE_COUNT_UP   EQU $2
 	const DESTINATION_TARGET     ; $2
 	; destination is a sprite
 	const DESTINATION_SPRITE     ; $3
+
+; number of checkpoints in Checkpoint mode
+DEF NUM_CHECKPOINTS EQU 6

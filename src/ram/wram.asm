@@ -234,9 +234,7 @@ wd80d:: db ; d80d
 
 wd80e:: db ; d80e
 
-wd80f:: db ; d80f
-
-	ds $d81e - $d810
+wd80f:: ds $f ; d80f
 
 wDebugModeActive:: db ; d81e
 
@@ -387,7 +385,7 @@ wd88f:: db ; d88f
 
 wd891:: db ; d891
 
-wd892:: db ; d892
+wNumCheckpointsReached:: db ; d892
 
 wd893:: db ; d893
 
@@ -399,6 +397,7 @@ wd896:: db ; d896
 
 wd897:: db ; d897
 
+wTryAgainSelection::
 wd898:: db ; d898
 
 ; holds set of characters of a given text
@@ -790,7 +789,9 @@ wdc95:: db ; dc95
 
 	ds $dcb5 - $dc96
 
-wdcb5:: db ; dcb5
+; if TRUE, then player exited credits by
+; inputing A or Start button
+wCreditsExitedByInput:: db ; dcb5
 
 wTextBuffer:: db ; dcb6
 

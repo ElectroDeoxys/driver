@@ -1,4 +1,4 @@
-Func_4000::
+SpawnPlayer::
 	xor a
 	ld [wDamage], a
 	ld [wFelony], a
@@ -87,7 +87,7 @@ Func_408f:
 
 	ld a, [wda94]
 	and a
-	call nz, Func_f0c
+	call nz, StopSFX
 
 	xor a
 	ld [wda94], a
@@ -1331,7 +1331,7 @@ Func_475f:
 	ld a, [wda94]
 	cp c
 	ret z
-	call .Func_489c
+	call .StopSFXIfNonZero
 	ld a, c
 	ld [wda94], a
 	call PlaySFX
@@ -1345,35 +1345,35 @@ Func_475f:
 	lb bc, $01, $08
 	jr .asm_4860
 .Func_4830:
-	ld a, $24
+	ld a, SFX_24
 	jr .asm_4885
 .Func_4834:
 	ld a, SFX_25
 	lb bc, $01, $08
 	jr .asm_4860
 .Func_483b:
-	ld a, $25
+	ld a, SFX_25
 	jr .asm_4885
 .Func_483f:
 	ld a, SFX_1A
 	lb bc, $02, $07
 	jr .asm_4860
 .Func_4846:
-	ld a, $1a
+	ld a, SFX_1A
 	jr .asm_4885
 .Func_484a:
 	ld a, SFX_1B
 	lb bc, $03, $0a
 	jr .asm_4860
 .Func_4851:
-	ld a, $1b
+	ld a, SFX_1B
 	jr .asm_4885
 .Func_4855:
 	ld a, SFX_1C
 	lb bc, $04, $1e
 	jr .asm_4860
 .Func_485c:
-	ld a, $1c
+	ld a, SFX_1C
 	jr .asm_4885
 .asm_4860
 	ld e, a
@@ -1388,7 +1388,7 @@ Func_475f:
 	ret z
 .asm_486f
 	ld a, [wda94]
-	call .Func_489c
+	call .StopSFXIfNonZero
 	ld a, e
 	ld [wda94], a
 	call PlaySFX
@@ -1405,17 +1405,17 @@ Func_475f:
 	cp [hl]
 	pop hl
 	ret nz
-	call Func_f0c
+	call StopSFX
 	xor a
 	ld [wda94], a
 	ld [wda95], a
 	ld [wda96], a
 	ret
 
-.Func_489c:
+.StopSFXIfNonZero:
 	and a
 	ret z
-	jp Func_f0c
+	jp StopSFX
 
 Func_48a1:
 	xor a
@@ -2196,6 +2196,7 @@ Func_4c9f:
 
 ; input:
 ; - bc = ?
+; - d  = ?
 ; - e  = q4 speed
 Func_4cc2:
 	ld a, b
@@ -2216,7 +2217,7 @@ Func_4cc2:
 	add hl, hl
 	add hl, hl
 	add hl, hl
-	add hl, hl
+	add hl, hl ; *$10
 	ld b, h
 	ld c, l
 	pop hl
@@ -2563,12 +2564,12 @@ Func_4ec7:
 	ld a, $10
 .asm_4f21
 	ld d, a
-	ld e, $01
+	ld e, 0.06q4
 	call Func_4cc2
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call GetStructWord_DE
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -2599,10 +2600,10 @@ Func_4ec7:
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call GetStructWord_DE
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -2632,17 +2633,17 @@ Func_4ec7:
 	cp $08
 	jr z, .asm_4fbc
 .asm_4f98
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $02
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	add $04
+	add 6 deg
 	ld [hl], a
 	pop hl
-	cp $40
+	cp 90 deg
 	jr z, .asm_4fb1
 	call Func_5431
 	jr .asm_4f98
@@ -2652,17 +2653,17 @@ Func_4ec7:
 	ld a, BANK(Func_5110)
 	jp SetEntityUpdateFunc
 .asm_4fbc
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $08
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	sub $04
+	sub 6 deg
 	ld [hl], a
 	pop hl
-	cp $c0
+	cp 270 deg
 	jr z, .asm_4fd5
 	call Func_5431
 	jr .asm_4fbc
@@ -2733,12 +2734,12 @@ Func_4fe8:
 	ld a, $10
 .asm_5049
 	ld d, a
-	ld e, $01
+	ld e, 0.06q4
 	call Func_4cc2
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call GetStructWord_DE
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -2771,10 +2772,10 @@ Func_4fe8:
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
-	ld a, $18
+	ld a, CARSTRUCT_18
 	call GetStructWord_DE
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -2804,17 +2805,17 @@ Func_4fe8:
 	cp $08
 	jr z, .asm_50e4
 .asm_50c0
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $02
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	sub $04
+	sub 6 deg
 	ld [hl], a
 	pop hl
-	cp $40
+	cp 90 deg
 	jr z, .asm_50d9
 	call Func_5431
 	jr .asm_50c0
@@ -2824,17 +2825,17 @@ Func_4fe8:
 	ld a, BANK(Func_5110)
 	jp SetEntityUpdateFunc
 .asm_50e4
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $08
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	add $04
+	add 6 deg
 	ld [hl], a
 	pop hl
-	cp $c0
+	cp 270 deg
 	jr z, .asm_50fd
 	call Func_5431
 	jr .asm_50e4
@@ -2907,12 +2908,12 @@ Func_5110:
 	ld a, $10
 .asm_5173
 	ld d, a
-	ld e, $01
+	ld e, 0.06q4
 	call Func_4cc2
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call GetStructWord_BC
 	push hl
-	ld a, $09
+	ld a, CARSTRUCT_X_FRAC
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -2947,7 +2948,7 @@ Func_5110:
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call GetStructWord_BC
 	push hl
 	ld a, $07
@@ -2979,14 +2980,14 @@ Func_5110:
 	cp $01
 	jr z, .asm_520f
 .asm_51eb
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $04
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	add $04
+	add 6 deg
 	ld [hl], a
 	pop hl
 	cp $80
@@ -2999,14 +3000,14 @@ Func_5110:
 	ld a, BANK(Func_4fe8)
 	jp SetEntityUpdateFunc
 .asm_520f
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $01
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	sub $04
+	sub 6 deg
 	ld [hl], a
 	pop hl
 	cp $00
@@ -3077,12 +3078,12 @@ Func_523b:
 	ld a, $10
 .asm_5297
 	ld d, a
-	ld e, $01
+	ld e, 0.06q4
 	call Func_4cc2
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call GetStructWord_BC
 	push hl
-	ld a, $09
+	ld a, CARSTRUCT_X_FRAC
 	add_hl
 	ld [hl], $00
 	inc hl
@@ -3115,7 +3116,7 @@ Func_523b:
 	ld a, CARSTRUCT_15
 	call GetStructByte_D
 	call Func_4cc2
-	ld a, $1a
+	ld a, CARSTRUCT_1A
 	call GetStructWord_BC
 	push hl
 	ld a, $07
@@ -3147,14 +3148,14 @@ Func_523b:
 	cp $01
 	jr z, .asm_5333
 .asm_530f
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $04
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	sub $04
+	sub 6 deg
 	ld [hl], a
 	pop hl
 	cp $80
@@ -3167,14 +3168,14 @@ Func_523b:
 	ld a, BANK(Func_4fe8)
 	jp SetEntityUpdateFunc
 .asm_5333
-	ld a, $14
+	ld a, CARSTRUCT_14
 	ld c, $01
 	call SetStructByte_C
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
-	add $04
+	add 6 deg
 	ld [hl], a
 	pop hl
 	cp $00
@@ -3627,7 +3628,7 @@ Func_551b:
 
 Func_55e3:
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	xor a
 	ld [hli], a
@@ -3643,7 +3644,7 @@ Func_55e3:
 
 Func_55f4:
 	push hl
-	ld a, $06
+	ld a, CARSTRUCT_Y_FRAC
 	add_hl
 	xor a
 	ld [hli], a
@@ -3754,6 +3755,10 @@ SpawnNPCCar_Cop:
 	ld [hl], $00
 	ret
 
+; input:
+; - a  = ?
+; - bc = x coordinate
+; - de = y coordinate
 Func_5681:
 	push hl
 	push af
@@ -3845,7 +3850,7 @@ Func_56db:
 .asm_5714
 	ld c, a
 	push hl
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 	ld a, [hl]
 	add c
@@ -4780,7 +4785,7 @@ Func_5c32:
 .asm_5d24
 	push hl
 	ld b, $02
-	ld a, $0c
+	ld a, CARSTRUCT_DIR
 	add_hl
 .asm_5d2a
 	ld a, [hl]
@@ -6215,13 +6220,15 @@ EntUpdate_PlayerDamageController_TakeARide::
 
 EntUpdate_PlayerDamageController_Checkpoint::
 	call YieldEntityUpdateUntilFadeEnds
-	ld hl, Func_667a
-	ld c, BANK(Func_667a)
+
+	ld hl, EntUpdate_Go123
+	ld c, BANK(EntUpdate_Go123)
 	ld b, $0c
 	call SpawnEntity
-	ld a, $06
+	ld a, ENT_CAR_PTR
 	add_hl
-	ld [hl], $5a
+	ld [hl], $5a ; base tile ID
+
 .asm_65c6
 	ld a, 1
 	call YieldEntityUpdate
@@ -6240,7 +6247,7 @@ EntUpdate_PlayerDamageController_Checkpoint::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [wd892]
+	ld a, [wNumCheckpointsReached]
 	add a
 	add a
 	add_hl
@@ -6259,10 +6266,10 @@ EntUpdate_PlayerDamageController_Checkpoint::
 	jr c, .asm_6619
 	ld a, SFX_2C
 	call PlaySFX
-	ld hl, wd892
+	ld hl, wNumCheckpointsReached
 	inc [hl]
 	ld a, [hl]
-	cp $06
+	cp NUM_CHECKPOINTS
 	jr nz, .asm_65e4
 	ld de, Func_64b1
 	ld a, BANK(Func_64b1)
@@ -6282,9 +6289,9 @@ Func_6620:
 	ld [hl], a
 	ld a, SPRITESTRUCT_HEIGHT
 	add_hl
-	ld [hl], $10
+	ld [hl], 2 * TILE_HEIGHT
 	inc hl
-	ld [hl], $10
+	ld [hl], 2 * TILE_WIDTH
 	pop hl
 .asm_6633
 	call Func_2dd5
@@ -6304,9 +6311,9 @@ Func_6620:
 	ld b, h
 	ld c, l
 	pop hl
-	ld a, $05
+	ld a, SPRITESTRUCT_X
 	call SetStructWord_BC
-	ld a, $02
+	ld a, SPRITESTRUCT_Y
 	call SetStructWord_DE
 .asm_6659
 	ld a, 1
@@ -6334,7 +6341,7 @@ Func_6620:
 	pop hl
 	ret
 
-Func_667a:
+EntUpdate_Go123:
 	call GetEntityPtr
 	ld a, $06
 	add_hl
@@ -6344,72 +6351,77 @@ Func_667a:
 	ld l, e
 	inc hl
 	inc hl
-	ld [hl], $38
+	ld [hl], $38 ; SPRITESTRUCT_Y
 	inc hl
 	inc hl
 	inc hl
-	ld [hl], $4c
+	ld [hl], $4c ; SPRITESTRUCT_X
 	inc hl
 	inc hl
-	ld [hl], $10
+	ld [hl], 2 * TILE_HEIGHT ; SPRITESTRUCT_HEIGHT
 	inc hl
-	ld [hl], $08
+	ld [hl], TILE_WIDTH ; SPRITESTRUCT_WIDTH
 	inc hl
 	ld a, c
 	add $88
-	ld [hli], a
-	ld [hl], $0a
+	ld [hli], a ; SPRITESTRUCT_TILE_1
+	ld [hl], 2 | OAM_BANK1 ; SPRITESTRUCT_ATTR_1
 	dec hl
-	ld b, $03
-.asm_66a0
+
+	; counts down from 3 to 1
+	ld b, 3
+.countdown_loop
 	ld a, [de]
-	or $02
+	or SPRITEFLAG_VISIBLE
 	ld [de], a
 	call .Func_66f5
-	ld a, $0f
+	ld a, 15
 	call YieldEntityUpdate
 	ld a, [de]
-	and $fd
+	and ~SPRITEFLAG_VISIBLE
 	ld [de], a
-	ld a, $0f
+	ld a, 15
 	call YieldEntityUpdate
 	dec [hl]
 	dec [hl]
 	dec b
-	jr nz, .asm_66a0
+	jr nz, .countdown_loop
 	ld a, $01
 	ld [wd820], a
 	ld h, d
 	ld l, e
-	ld a, $05
+	ld a, SPRITESTRUCT_X
 	add_hl
 	ld [hl], $48
-	ld a, $03
+	ld a, SPRITESTRUCT_WIDTH - SPRITESTRUCT_X
 	add_hl
-	ld [hl], $10
+	ld [hl], 2 * TILE_WIDTH
 	inc hl
 	ld a, c
 	add $80
-	ld [hli], a
-	ld [hl], $0a
+	ld [hli], a ; SPRITESTRUCT_TILE_1
+	ld [hl], 2 | OAM_BANK1 ; SPRITESTRUCT_ATTR_1
 	inc hl
 	inc a
 	inc a
-	ld [hli], a
-	ld [hl], $0a
+	ld [hli], a ; SPRITESTRUCT_TILE_2
+	ld [hl], 2 | OAM_BANK1 ; SPRITESTRUCT_ATTR_2
 	ld h, d
 	ld l, e
-	ld b, $03
-.asm_66dc
-	set 1, [hl]
+
+	; blinks 3 times
+	ld b, 3
+.go_loop
+	set SPRITEFLAG_VISIBLE_F, [hl]
 	call .Func_66f5
-	ld a, $07
+	ld a, 7
 	call YieldEntityUpdate
-	res 1, [hl]
-	ld a, $07
+	res SPRITEFLAG_VISIBLE_F, [hl]
+	ld a, 7
 	call YieldEntityUpdate
 	dec b
-	jr nz, .asm_66dc
+	jr nz, .go_loop
+
 	ld [hl], $00
 	jp DespawnEntity
 
@@ -9001,7 +9013,7 @@ EntUpdate_MissionController_ChaseOneOfGrangersBoys:
 	ld l, a
 	ld a, CARSTRUCT_15
 	add_hl
-	ld [hl], $36
+	ld [hl], 3.4q4
 .ram_loop
 	ld a, 1
 	call YieldEntityUpdate
@@ -9479,24 +9491,29 @@ Func_7bfc:
 	vramswitch
 	ret
 
-Func_7c17::
+EntUpdate_CreditsController::
 	ld a, $01
 	ld [wd820], a
+
 	call YieldEntityUpdateUntilFadeEnds
-	xor a
-	ld [wdcb5], a
-.asm_7c23
+
+	xor a ; FALSE
+	ld [wCreditsExitedByInput], a
+
+; waits until A or Start buttons are pressed
+; or until Credits are finished
+.loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wdc92]
 	and a
-	jr nz, .asm_7c3a
+	jr nz, .exit_credits
 	ld a, [wJoypadPressed]
 	and PAD_A | PAD_START
-	jr z, .asm_7c23
-	ld a, $01
-	ld [wdcb5], a
-.asm_7c3a
+	jr z, .loop
+	ld a, TRUE
+	ld [wCreditsExitedByInput], a
+.exit_credits
 	call FadeToWhite
 	call YieldEntityUpdateUntilFadeEnds
 	ld a, $03
@@ -9627,62 +9644,80 @@ Data_7d05::
 .Miami_1:
 	coords_dir 3636, 3792, 0 deg
 
+	; checkpoint coordinates
+	table_width 4
 	dw 3168, 3956
 	dw 2840, 3080
 	dw 2852, 3940
 	dw 3428, 4560
 	dw 3700, 4304
 	dw 4152, 4200
+	assert_table_length NUM_CHECKPOINTS
 
 .Miami_2:
 	coords_dir 7645, 4014, 270 deg
 
+	; checkpoint coordinates
+	table_width 4
 	dw 7468, 3210
 	dw 7191, 1086
 	dw 5840, 3449
 	dw 3756, 3565
 	dw 3036, 5799
 	dw  390, 4525
+	assert_table_length NUM_CHECKPOINTS
 
 .LosAngeles_1:
 	coords_dir 2305, 1146, 180 deg
 
+	; checkpoint coordinates
+	table_width 4
 	dw 2658, 1748
 	dw 2863, 2199
 	dw 4296, 1790
 	dw 3414, 1197
 	dw 1838, 2379
 	dw 1971, 3556
+	assert_table_length NUM_CHECKPOINTS
 
 .LosAngeles_2:
 	coords_dir 69, 3544, 0 deg
 
+	; checkpoint coordinates
+	table_width 4
 	dw   46, 1061
 	dw 1947, 1756
 	dw 3821, 2433
 	dw 6843, 1138
 	dw 7470, 2863
 	dw 5714, 5293
+	assert_table_length NUM_CHECKPOINTS
 
 .NewYork_1:
 	coords_dir 3494, 4017, 0 deg
 
+	; checkpoint coordinates
+	table_width 4
 	dw 3909, 3850
 	dw 4851, 3229
 	dw 4429, 2017
 	dw 3627, 2269
 	dw 3116, 2225
 	dw 1969, 3558
+	assert_table_length NUM_CHECKPOINTS
 
 .NewYork_2:
 	coords_dir 2964, 7767, 90 deg
 
+	; checkpoint coordinates
+	table_width 4
 	dw 3917, 7312
 	dw 4016, 5512
 	dw 1613, 3484
 	dw 1000, 1443
 	dw 2130,  522
 	dw 5223, 5165
+	assert_table_length NUM_CHECKPOINTS
 
 Data_7dbf::
 	table_width 4

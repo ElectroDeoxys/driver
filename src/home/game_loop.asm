@@ -18,10 +18,10 @@ GameLoop:
 
 .titlescreen
 	homecall Titlescreen
-	jr .asm_15ef
+	jr .next_mission
 .main_menu
 	homecall MainMenu
-.asm_15ef
+.next_mission
 	call UpdateUnlockedCities
 	homecall MissionBriefing
 	call LoadMap
@@ -33,7 +33,7 @@ GameLoop:
 	xor a
 	ld [wFrameCounter], a
 	ld [wc579], a
-.asm_1610
+.main_loop
 	call PostVBlank
 	ld a, [wd820]
 	cp $03
@@ -57,7 +57,7 @@ GameLoop:
 	homecall Func_859d
 	call Func_1a71
 	call Func_1147
-	jr .asm_1610
+	jr .main_loop
 
 .asm_1669
 	ld a, [wGameMode]
@@ -73,11 +73,12 @@ GameLoop:
 	ld [hl], a
 	call Func_ef1
 .asm_1681
-	call Func_f41
+	call StopSound
 .asm_1684
 	call Func_198f
-	and a
-	jp z, .asm_15ef
-	dec a
+	and a ; cp EXIT_TO_NEXT_MISSION
+	jp z, .next_mission
+	dec a ; cp EXIT_TO_MAIN_MENU
 	jp z, .main_menu
+	; a = EXIT_TO_TITLESCREEN
 	jp .titlescreen

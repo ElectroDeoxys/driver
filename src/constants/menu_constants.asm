@@ -54,3 +54,8 @@ DEF NUM_MISSION_CODE_SYMBOLS EQU const_value
 
 ; how many symbols in each mission code
 DEF MISSION_CODE_SIZE EQU 4
+
+	const_def
+	const EXIT_TO_NEXT_MISSION ; $0
+	const EXIT_TO_MAIN_MENU    ; $1
+	const EXIT_TO_TITLESCREEN  ; $2

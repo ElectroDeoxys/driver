@@ -24,7 +24,7 @@ PostVBlank::
 	lddmgpal c, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK, SHADE_BLACK
 	call FillPalettes
 
-	call Func_f41
+	call StopSound
 
 .wait_buttons_release
 	do_frame

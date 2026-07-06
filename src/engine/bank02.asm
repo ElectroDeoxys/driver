@@ -461,7 +461,7 @@ Func_8329:
 	ld de, wd891
 	ld b, $a2
 	call Func_84a7
-	ld a, [wd892]
+	ld a, [wNumCheckpointsReached]
 	ld hl, wd893
 	cp [hl]
 	ret z
@@ -2271,11 +2271,14 @@ Func_8f6d:
 	jp z, Func_9d1a
 	jp Func_9cd4
 
-Func_8f78::
+; shows Try Again? screen, prompting the player
+; with a Yes/No selection
+; 
+TryAgain::
 	ld a, MUSIC_BRIEFING
 	call PlayMusic
 	xor a
-	ld [wd898], a
+	ld [wTryAgainSelection], a
 	call Func_8ddb
 	ld de, Gfx_dbf00
 	ld c, BANK(Gfx_dbf00)
@@ -2312,47 +2315,52 @@ Func_8f78::
 	ld b, 1 palettes
 	call CopyHLtoDE
 
-	ld bc, $800
+	lb bc, $08, $00
 	call Func_9434
 
 	ld hl, TryAgainTexts
 	call ProcessTitleText
+
 	ld a, [wdc20]
 	xor $01
 	ld [wdc20], a
+
 	ld hl, YesNoTexts
 	call ProcessTitleText
-	ld hl, Func_8ff0
-	ld c, BANK(Func_8ff0)
+
+	ld hl, EntUpdate_TryAgainController
+	ld c, BANK(EntUpdate_TryAgainController)
 	ld b, $18
 	call SpawnEntity
+
 	ld a, $03
 	call InitFade
 	jp Func_94d8
 
-Func_8ff0:
+EntUpdate_TryAgainController:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, wJoypadPressed
-	ld de, wd898
-.asm_8ff9
+	ld de, wTryAgainSelection
+.loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [hl]
 	and PAD_LEFT
-	call nz, .Func_9019
+	call nz, .DLeft
 	ld a, [hl]
 	and PAD_RIGHT
-	call nz, .Func_9025
+	call nz, .DRight
 	ld a, [hl]
 	and PAD_A | PAD_START
-	jr nz, .asm_9011
-	jr .asm_8ff9
-.asm_9011
+	jr nz, .a_or_start_btn
+	jr .loop
+
+.a_or_start_btn
 	ld a, SFX_06
 	call PlaySFX
 	jp ExitTitlescreenOrMainScreen
 
-.Func_9019:
+.DLeft:
 	ld a, [de]
 	and a
 	ret nz
@@ -2362,7 +2370,7 @@ Func_8ff0:
 	ld [de], a
 	ret
 
-.Func_9025:
+.DRight:
 	ld a, [de]
 	and a
 	ret z
@@ -2415,7 +2423,7 @@ Func_905c:
 	add a
 	add a
 	add_hl
-	ld a, [wd898]
+	ld a, [wTryAgainSelection]
 	add a
 	add_hl
 	ld c, [hl] ; x
@@ -2836,14 +2844,18 @@ Func_92b5::
 	ld hl, Texts_931f
 	get_pointer
 	call ProcessTitleText
+
 	ld hl, Func_9305
 	ld c, BANK(Func_9305)
 	ld b, $14
 	call SpawnEntity
+
 	ld a, $03
 	call InitFade
+
 	ld a, MUSIC_BRIEFING
 	call PlayMusic
+	
 	jp Func_94d8
 
 Func_9305:

@@ -39,7 +39,9 @@ PlaySFX::
 	pop bc
 	ret
 
-Func_f0c::
+; input:
+; - a = SFX_* constant
+StopSFX::
 	push bc
 	push de
 	push hl
@@ -47,7 +49,7 @@ Func_f0c::
 	ld a, [wc544]
 	and a
 	jr z, .asm_f1b
-	ld b, AUDIOFUNC_UNK3
+	ld b, AUDIOFUNC_STOP_SFX
 	call AddToAudioQueue
 .asm_f1b
 	pop hl
@@ -57,7 +59,7 @@ Func_f0c::
 
 Func_f1f::
 	push af
-	call Func_f0c
+	call StopSFX
 	pop af
 	jp PlaySFX
 
@@ -89,12 +91,12 @@ PlayMusic::
 	pop bc
 	ret
 
-Func_f41:
+StopSound:
 	push af
 	push bc
 	push de
 	push hl
-	ld b, AUDIOFUNC_UNK2
+	ld b, AUDIOFUNC_STOP_SOUND
 	call AddToAudioQueue
 	pop hl
 	pop de
@@ -168,8 +170,8 @@ UpdateAudio:
 	jumptable
 	dw Func_fba  ; AUDIOFUNC_PLAY_SFX
 	dw Func_fd3  ; AUDIOFUNC_PLAY_MUSIC
-	dw Func_1009 ; AUDIOFUNC_UNK2
-	dw Func_1010 ; AUDIOFUNC_UNK3
+	dw Func_1009 ; AUDIOFUNC_STOP_SOUND
+	dw Func_1010 ; AUDIOFUNC_STOP_SFX
 	dw Func_101e ; AUDIOFUNC_UNK4
 .return
 	pop hl

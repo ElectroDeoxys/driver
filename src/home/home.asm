@@ -51,7 +51,7 @@ InitGameMode:
 	dw .Pursuit    ; MODE_PURSUIT
 	dw .Survival   ; MODE_SURVIVAL
 	dw .Undercover ; MODE_UNDERCOVER
-	dw Func_18c5   ; MODE_CREDITS
+	dw InitCredits   ; MODE_CREDITS
 	assert_table_length NUM_GAME_MODES
 
 .TakeARide:
@@ -148,7 +148,7 @@ LoadGameMode:
 	dw .Pursuit    ; MODE_PURSUIT
 	dw .Survival   ; MODE_SURVIVAL
 	dw .Undercover ; MODE_UNDERCOVER
-	dw Func_190f   ; MODE_CREDITS
+	dw LoadCredits   ; MODE_CREDITS
 	assert_table_length NUM_GAME_MODES
 
 .TakeARide:
@@ -191,7 +191,7 @@ LoadGameMode:
 	ld a, h
 	ld [de], a
 	xor a
-	ld [wd892], a
+	ld [wNumCheckpointsReached], a
 	ld c, $01
 	call Func_195e
 
@@ -293,7 +293,7 @@ LoadGameMode:
 	bankswitch
 	jp LoadMission
 
-Func_18c5:
+InitCredits:
 	ld a, [wCreditsCity]
 	ld [wCity], a
 
@@ -313,7 +313,7 @@ Func_18c5:
 
 	ld hl, Credits1Text
 	ld a, [wWhichCreditsText]
-	and $01
+	and %1
 	jr z, .got_credits_text
 	ld hl, Credits2Text
 .got_credits_text
@@ -323,7 +323,7 @@ Func_18c5:
 	ld [wdc93 + 1], a
 	ld hl, wWhichCreditsText
 	ld a, [hl]
-	xor $1
+	xor %1
 	ld [hl], a
 
 	ld hl, wCreditsCity
@@ -336,14 +336,14 @@ Func_18c5:
 	ld [hl], a
 	ret
 
-Func_190f:
+LoadCredits:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	ld a, MAX_FELONY
 	ld [wFelony], a
-	ld hl, Func_7c17
-	ld c, BANK(Func_7c17)
+	ld hl, EntUpdate_CreditsController
+	ld c, BANK(EntUpdate_CreditsController)
 	ld b, $0b
 	call SpawnEntity
 	ret
@@ -421,30 +421,40 @@ Func_1987::
 	ld b, NUM_INITIAL_CARS + NUM_SPAWNABLE_CARS
 	jp CopyHLtoDE
 
+; ouptut:
+; - a = EXIT_TO_* constant
 Func_198f:
 	ld a, [wGameMode]
 	jumptable
 	table_width 2
 	dw .TakeARide  ; MODE_TAKE_A_RIDE
-	dw .Func_19ab ; MODE_CHECKPOINT
-	dw .Func_19ab ; MODE_GET_AWAY
-	dw .Func_19ab ; MODE_PURSUIT
-	dw .Func_19ab ; MODE_SURVIVAL
+	dw .Checkpoint ; MODE_CHECKPOINT
+	dw .GetAway    ; MODE_GET_AWAY
+	dw .Pursuit    ; MODE_PURSUIT
+	dw .Survival   ; MODE_SURVIVAL
 	dw .Undercover ; MODE_UNDERCOVER
 	dw .Credits    ; MODE_CREDITS
 	assert_table_length NUM_GAME_MODES
 
 .Credits:
-	ld a, [wdcb5]
+	; if player exited via input, then
+	; exit to Main Menu, otherwise go to Title screen
+	ld a, [wCreditsExitedByInput]
 	and a
-	jr z, .asm_1a0f
-	jr .asm_1a0c
+	jr z, .exit_to_titlescreen
+	jr .exit_to_main_menu
+
 .TakeARide:
-	jr .asm_1a0c
-.Func_19ab:
+	; always exit to Main Menu
+	jr .exit_to_main_menu
+
+.Checkpoint:
+.GetAway:
+.Pursuit:
+.Survival:
 	ld a, [wTitlescreenTransition]
 	cp $02
-	jr nz, .asm_19c0
+	jr nz, .try_again
 	call Func_1a43
 	ld de, wd88c
 	ld a, [de]
@@ -455,53 +465,53 @@ Func_198f:
 	inc de
 	ld a, [de]
 	ld [hl], a
-.asm_19c0
-	homecall Func_8f78
-	ld a, [wd898]
+.try_again
+	homecall TryAgain
+	ld a, [wTryAgainSelection]
 	and a
-	jr z, .asm_1a0c
-	jr .asm_1a0a
+	jr z, .exit_to_main_menu
+	jr .exit_to_next_mission
 
 .Undercover:
 	ld a, [wTitlescreenTransition]
 	cp $02
-	jr nz, .asm_19c0
+	jr nz, .try_again
 	call .Func_19ec
 	ld hl, wMission
 	ld a, [hl]
 	inc a
 	cp NUM_MISSIONS
-	jr c, .asm_19e9
+	jr c, .go_to_next_mission
 	ld [hl], NUM_MISSIONS - 1
-	jr .asm_1a0f
-.asm_19e9
+	jr .exit_to_titlescreen
+.go_to_next_mission
 	ld [hl], a
-	jr .asm_1a0a
+	jr .exit_to_next_mission
 
 .Func_19ec:
 	ld a, [wMission]
-	ld c, $00
+	ld c, MIAMI
 	cp LOS_ANGELES_MISSIONS - 1
-	jr z, .asm_1a00
-	ld c, $01
+	jr z, .got_city
+	ld c, LOS_ANGELES
 	cp NEW_YORK_MISSIONS - 1
-	jr z, .asm_1a00
-	ld c, $02
+	jr z, .got_city
+	ld c, NEW_YORK
 	cp NUM_MISSIONS - 1
 	ret nz
-.asm_1a00
+.got_city
 	ld a, BANK(Func_92b5)
 	bankswitch
 	jp Func_92b5
 
-.asm_1a0a
-	xor a
+.exit_to_next_mission
+	xor a ; EXIT_TO_NEXT_MISSION
 	ret
-.asm_1a0c
-	ld a, $01
+.exit_to_main_menu
+	ld a, EXIT_TO_MAIN_MENU
 	ret
-.asm_1a0f
-	ld a, $02
+.exit_to_titlescreen
+	ld a, EXIT_TO_TITLESCREEN
 	ret
 
 ; sets the default car as the car driven by the player
@@ -732,7 +742,7 @@ Func_1b4e:
 	ld b, $03
 	call SpawnEntity
 
-	homecall Func_4000
+	homecall SpawnPlayer
 
 	ld hl, Func_42e1
 	ld c, BANK(Func_42e1)
@@ -759,7 +769,7 @@ Func_1b4e:
 	ld a, [wGameMode]
 	cp MODE_CREDITS
 	jr z, .skip_music
-	call Func_f41
+	call StopSound
 	ld a, [wCity]
 	ld hl, .MusicIDs
 	add_hl
@@ -1507,11 +1517,12 @@ Func_2026:
 	ld [wCameraY + 1], a
 	ld [wd7f9 + 1], a
 	call Func_2216
+
 	ld de, wd80f
 	xor a
 	ld [wdc7e], a
 .asm_209c
-	call Func_20dc
+	call .Func_20dc
 	ld a, $35
 	bankswitch
 	ld hl, $7e0d
@@ -1520,7 +1531,7 @@ Func_2026:
 	push bc
 	push de
 	push hl
-	call Func_20ce
+	call .Func_20ce
 	pop hl
 	pop de
 	pop bc
@@ -1543,7 +1554,7 @@ Func_2026:
 	jr nz, .asm_209c
 	ret
 
-Func_20ce:
+.Func_20ce:
 	ld de, wGfxBuffer
 	ld b, $10
 .asm_20d3
@@ -1556,7 +1567,7 @@ Func_20ce:
 	jr nz, .asm_20d3
 	ret
 
-Func_20dc:
+.Func_20dc:
 	push bc
 	push de
 	ld l, a
@@ -1663,6 +1674,9 @@ LoadCityPalettesAndTiles:
 	pop hl
 	ret
 
+; input:
+; - bc = x coordinate
+; - de = y coordinate
 Func_2185:
 	ld hl, wd80c
 	call Func_21a4
@@ -1683,13 +1697,24 @@ Func_2185:
 	ld h, a
 	ret
 
+; input:
+; - bc = x coordinate
+; - de = y coordinate
+; - [hl] = bank
+; output:
+; - h = ?
+; - l = ?
 Func_21a4:
 	push bc
 	push hl
+
+	; de = %bb_yyyyy_zzzzz
+	; where %bb is added to [hl] to get the bank number
+	; and %yyyyy is row number
 	ld a, d
 	rrca
 	rrca
-	rrca
+	rrca ; /8
 	and $03
 	add [hl]
 	bankswitch
@@ -1702,6 +1727,8 @@ Func_21a4:
 	add hl, hl
 	add hl, hl
 	add hl, hl
+
+	; bc = %xxxxxxxx_zzzzz
 	ld a, c
 	swap a
 	rrca
@@ -1713,14 +1740,17 @@ Func_21a4:
 	add a
 	and $f8
 	or c
+
 	add l
 	ld l, a
+	; hl = %yyyyyxxxxxxxx
 	ld a, $40
 	add h
 	ld h, a
 	ld a, [hl]
 	pop hl
 	pop bc
+
 	push af
 	ld a, [hl]
 	add $04
@@ -1730,6 +1760,7 @@ Func_21a4:
 	and $e0
 	ld l, a
 	add hl, hl
+	; hl = ((de & $ffe0) << 1)
 	ld a, $40
 	add h
 	ld h, a
@@ -2328,6 +2359,11 @@ Func_2551:
 	ld d, [hl]
 	ret
 
+; input:
+; - bc = x coordinate
+; - de = y coordinate
+; output:
+; - a  = ?
 Func_2558::
 	push bc
 	push hl
@@ -2437,7 +2473,9 @@ Func_25e5:
 	jr nz, .loop_cars
 	ret
 
-Func_25f4:
+; returns in hl pointer to first inactive car in wCars
+; returns carry if all of them are active
+FindFreeCarSlot:
 	push bc
 	push de
 	ld b, MAX_NUM_CARS
@@ -2487,8 +2525,8 @@ SpawnCar::
 	ld [wdc7c], a
 	ld a, h
 	ld [wdc7e], a
-	call Func_25f4
-	ret c
+	call FindFreeCarSlot
+	ret c ; couldn't find free slot
 	push hl
 	inc hl
 	ld a, [wdc7c]

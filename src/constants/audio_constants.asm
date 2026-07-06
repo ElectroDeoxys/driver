@@ -185,6 +185,6 @@ DEF MAX_AUDIO_QUEUE_SIZE EQU 16
 	const_def
 	const AUDIOFUNC_PLAY_SFX   ; $0
 	const AUDIOFUNC_PLAY_MUSIC ; $1
-	const AUDIOFUNC_UNK2       ; $2
-	const AUDIOFUNC_UNK3       ; $3
+	const AUDIOFUNC_STOP_SOUND ; $2
+	const AUDIOFUNC_STOP_SFX       ; $3
 	const AUDIOFUNC_UNK4       ; $4
