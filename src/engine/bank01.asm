@@ -6718,6 +6718,8 @@ SetMissionFailed:
 	ld a, BANK(Func_64e2)
 	jp SetEntityUpdateFunc
 
+; input:
+; - hl = custom message (can be NULL)
 SetMissionComplete:
 	ld a, $02
 	ld [wd820], a
@@ -6728,12 +6730,12 @@ SetMissionComplete:
 	ld c, 90
 	ld a, h
 	or l
-	jr z, .asm_690e
+	jr z, .no_custom_message
 	ld c, 45
 	call ShowHUDMessage
 	call WaitHUDMessage
 	ld c, 45
-.asm_690e
+.no_custom_message
 	ld hl, MissionCompleteTexts
 	call ShowHUDMessage
 
@@ -6743,13 +6745,13 @@ SetMissionComplete:
 	ld a, BANK(Func_64e2)
 	jp SetEntityUpdateFunc
 
+InitMission::
+	ld hl, MissionInitPointers
+	jr InitOrLoadMission
 LoadMission::
-	ld hl, MissionLoadPointerTable
-	jr Func_692b
-Func_6926::
-	ld hl, Data_6967
-	jr Func_692b ; useless jump
-Func_692b:
+	ld hl, MissionLoadPointers
+	jr InitOrLoadMission ; useless jump
+InitOrLoadMission:
 	ld d, h
 	ld e, l
 .test_mission
@@ -6775,45 +6777,45 @@ Func_692b:
 	ld l, e
 	jr .test_mission
 
-MissionLoadPointerTable:
+MissionInitPointers:
 	table_width 2
-	dw Func_6985 ; MISSION_THE_BANK_JOB
-	dw Func_6a6a ; MISSION_HIDE_THE_EVIDENCE
-	dw Func_6ad5 ; MISSION_BOAT_CHASE
-	dw Func_6e49 ; MISSION_RAM_RAID_RACE
-	dw Func_6f05 ; MISSION_SUPERFLY_DRIVE
-	dw Func_6f7b ; MISSION_BAIT_FOR_A_TRAP
-	dw Func_711a ; MISSION_TAKE_OUT_DIANGELO
-	dw Func_71d2 ; MISSION_STEAL_A_COP_CAR
-	dw Func_725e ; MISSION_GET_LUCKY_TO_THE_DOCS
-	dw Func_7331 ; MISSION_BEVERLY_HILLS_GET_AWAY
-	dw Func_7460 ; MISSION_GRAND_CENTRAL_STATION
-	dw Func_764a ; MISSION_TRASH_GRANGERS_WHEELS
-	dw Func_775c ; MISSION_STOP_GRANGERS_GANG
-	dw Func_7875 ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
-	dw Func_796b ; MISSION_CROSS_TOWN_RECORD
+	dw InitMission_TheBankJob             ; MISSION_THE_BANK_JOB
+	dw InitMission_HideTheEvidence        ; MISSION_HIDE_THE_EVIDENCE
+	dw InitMission_BoatChase              ; MISSION_BOAT_CHASE
+	dw InitMission_RamRaidRace            ; MISSION_RAM_RAID_RACE
+	dw InitMission_SupaflyDrive           ; MISSION_SUPERFLY_DRIVE
+	dw InitMission_BaitForATrap           ; MISSION_BAIT_FOR_A_TRAP
+	dw InitMission_TakeOutDiAngelo        ; MISSION_TAKE_OUT_DIANGELO
+	dw InitMission_StealACopCar           ; MISSION_STEAL_A_COP_CAR
+	dw InitMission_GetLuckyToTheDocs      ; MISSION_GET_LUCKY_TO_THE_DOCS
+	dw InitMission_BeverlyHillsGetAway    ; MISSION_BEVERLY_HILLS_GET_AWAY
+	dw InitMission_GrandCentralStation    ; MISSION_GRAND_CENTRAL_STATION
+	dw InitMission_TrashGrangersWheels    ; MISSION_TRASH_GRANGERS_WHEELS
+	dw InitMission_StopGrangersGang       ; MISSION_STOP_GRANGERS_GANG
+	dw InitMission_ChaseOneOfGrangersBoys ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	dw InitMission_CrossTownRecord        ; MISSION_CROSS_TOWN_RECORD
 	assert_table_length NUM_MISSIONS
 
-Data_6967:
+MissionLoadPointers:
 	table_width 2
-	dw Func_6997 ; MISSION_THE_BANK_JOB
-	dw Func_6a83 ; MISSION_HIDE_THE_EVIDENCE
-	dw Func_6ae7 ; MISSION_BOAT_CHASE
-	dw Func_6e5b ; MISSION_RAM_RAID_RACE
-	dw Func_6f1e ; MISSION_SUPERFLY_DRIVE
-	dw Func_6f8d ; MISSION_BAIT_FOR_A_TRAP
-	dw Func_712c ; MISSION_TAKE_OUT_DIANGELO
-	dw Func_71eb ; MISSION_STEAL_A_COP_CAR
-	dw Func_7277 ; MISSION_GET_LUCKY_TO_THE_DOCS
-	dw Func_7343 ; MISSION_BEVERLY_HILLS_GET_AWAY
-	dw Func_7475 ; MISSION_GRAND_CENTRAL_STATION
-	dw Func_765c ; MISSION_TRASH_GRANGERS_WHEELS
-	dw Func_776e ; MISSION_STOP_GRANGERS_GANG
-	dw Func_788e ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
-	dw Func_7984 ; MISSION_CROSS_TOWN_RECORD
+	dw LoadMission_TheBankJob             ; MISSION_THE_BANK_JOB
+	dw LoadMission_HideTheEvidence        ; MISSION_HIDE_THE_EVIDENCE
+	dw LoadMission_BoatChase              ; MISSION_BOAT_CHASE
+	dw LoadMission_RamRaidRace            ; MISSION_RAM_RAID_RACE
+	dw LoadMission_SupaflyDrive           ; MISSION_SUPERFLY_DRIVE
+	dw LoadMission_BaitForATrap           ; MISSION_BAIT_FOR_A_TRAP
+	dw LoadMission_TakeOutDiAngelo        ; MISSION_TAKE_OUT_DIANGELO
+	dw LoadMission_StealACopCar           ; MISSION_STEAL_A_COP_CAR
+	dw LoadMission_GetLuckyToTheDocs      ; MISSION_GET_LUCKY_TO_THE_DOCS
+	dw LoadMission_BeverlyHillsGetAway    ; MISSION_BEVERLY_HILLS_GET_AWAY
+	dw LoadMission_GrandCentralStation    ; MISSION_GRAND_CENTRAL_STATION
+	dw LoadMission_TrashGrangersWheels    ; MISSION_TRASH_GRANGERS_WHEELS
+	dw LoadMission_StopGrangersGang       ; MISSION_STOP_GRANGERS_GANG
+	dw LoadMission_ChaseOneOfGrangersBoys ; MISSION_CHASE_ONE_OF_GRANGERS_BOYS
+	dw LoadMission_CrossTownRecord        ; MISSION_CROSS_TOWN_RECORD
 	assert_table_length NUM_MISSIONS
 
-Func_6985:
+InitMission_TheBankJob:
 	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
@@ -6822,7 +6824,7 @@ Func_6985:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_6997:
+LoadMission_TheBankJob:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
@@ -6940,7 +6942,7 @@ ShowThreePeopleGettingOutOfPlayersCar:
 	jr nz, .loop_persons
 	jp WaitForPersonToDespawn
 
-Func_6a6a:
+InitMission_HideTheEvidence:
 	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
@@ -6952,7 +6954,7 @@ Func_6a6a:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_6a83:
+LoadMission_HideTheEvidence:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
@@ -6994,7 +6996,7 @@ EntUpdate_MissionController_HideTheEvidence:
 	ld hl, NULL
 	jp SetMissionComplete
 
-Func_6ad5:
+InitMission_BoatChase:
 	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
@@ -7003,7 +7005,7 @@ Func_6ad5:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_6ae7:
+LoadMission_BoatChase:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
@@ -7535,7 +7537,7 @@ EntUpdate_Boat:
 	dw 5322, 4791
 	dw NULL ; end
 
-Func_6e49:
+InitMission_RamRaidRace:
 	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
@@ -7544,7 +7546,7 @@ Func_6e49:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_6e5b:
+LoadMission_RamRaidRace:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
@@ -7642,7 +7644,7 @@ EntUpdate_MissionController_RamRaidRace:
 	ld a, SFX_26
 	jp PlaySFX
 
-Func_6f05:
+InitMission_SupaflyDrive:
 	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
@@ -7654,7 +7656,7 @@ Func_6f05:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_6f1e:
+LoadMission_SupaflyDrive:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
@@ -7706,7 +7708,7 @@ EntUpdate_MissionController_SupaflyDrive:
 	ld hl, NULL
 	jp SetMissionComplete
 
-Func_6f7b:
+InitMission_BaitForATrap:
 	call ChooseCarPool_WithCop
 	ld a, MIAMI
 	call SetCity
@@ -7715,7 +7717,7 @@ Func_6f7b:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_6f8d:
+LoadMission_BaitForATrap:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
@@ -7945,7 +7947,7 @@ SpawnScriptedCar:
 	ld [wNumNPCCars], a
 	ret
 
-Func_711a:
+InitMission_TakeOutDiAngelo:
 	call ChooseCarPool_WithoutCop
 	ld a, MIAMI
 	call SetCity
@@ -7954,7 +7956,7 @@ Func_711a:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_712c:
+LoadMission_TakeOutDiAngelo:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
@@ -8042,7 +8044,7 @@ EntUpdate_MissionController_TakeOutDiAngelo:
 	ld hl, NULL
 	jp SetMissionComplete
 
-Func_71d2:
+InitMission_StealACopCar:
 	call ChooseCarPool_WithCop
 	ld a, LOS_ANGELES
 	call SetCity
@@ -8054,7 +8056,7 @@ Func_71d2:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_71eb:
+LoadMission_StealACopCar:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
@@ -8122,7 +8124,7 @@ EntUpdate_MissionController_StealACopCar:
 	ld hl, NULL
 	jp SetMissionComplete
 
-Func_725e:
+InitMission_GetLuckyToTheDocs:
 	call ChooseCarPool_WithCop
 	ld a, LOS_ANGELES
 	call SetCity
@@ -8134,18 +8136,18 @@ Func_725e:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_7277:
+LoadMission_GetLuckyToTheDocs:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
-	ld hl, Func_728e
-	ld c, BANK(Func_728e)
+	ld hl, EntUpdate_MissionController_GetLuckyToTheDocs
+	ld c, BANK(EntUpdate_MissionController_GetLuckyToTheDocs)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_728e:
+EntUpdate_MissionController_GetLuckyToTheDocs:
 	call YieldEntityUpdateUntilFadeEnds
 
 	ld hl, PickUpLuckyTexts
@@ -8161,14 +8163,16 @@ Func_728e:
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
-.asm_72b1
+
+.pick_up_lucky_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
-	jp z, .asm_732b
+	jp z, .luckys_bought_it
 	call HasReachedDestinationWithoutTail
-	jr c, .asm_72b1
+	jr c, .pick_up_lucky_loop
+
 	xor a
 	ld [wDestinationType], a
 	ld [wTimerActive], a
@@ -8196,14 +8200,16 @@ Func_728e:
 	call IncreaseFelony
 	xor a
 	ld [wda9a], a
-.asm_7309
+
+.go_to_docs_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_732b
+	jr z, .luckys_bought_it
 	call HasReachedDestinationWithoutTail
-	jr c, .asm_7309
+	jr c, .go_to_docs_loop
+
 	call Func_6879
 	ld hl, Data_7f46
 	call SpawnPerson_GettingOutOfPlayersCar
@@ -8211,11 +8217,11 @@ Func_728e:
 	ld hl, NULL
 	jp SetMissionComplete
 
-.asm_732b
+.luckys_bought_it
 	ld hl, LuckysBoughtItTexts
 	jp SetMissionFailed
 
-Func_7331:
+InitMission_BeverlyHillsGetAway:
 	call ChooseCarPool_WithCop
 	ld a, LOS_ANGELES
 	call SetCity
@@ -8224,23 +8230,25 @@ Func_7331:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_7343:
+LoadMission_BeverlyHillsGetAway:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
-	ld hl, Func_735a
-	ld c, BANK(Func_735a)
+	ld hl, EntUpdate_MissionController_BeverlyHillsGetAway
+	ld c, BANK(EntUpdate_MissionController_BeverlyHillsGetAway)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_735a:
+EntUpdate_MissionController_BeverlyHillsGetAway:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, GetToBeverlyHillsTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld a, $01
 	ld [wd820], a
 	ld hl, Timer_BeverlyHillsGetAway
@@ -8249,14 +8257,16 @@ Func_735a:
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
-.asm_737d
+
+.go_to_beverly_hills_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
 	jp z, .too_late
 	call HasReachedDestinationWithoutTail
-	jr c, .asm_737d
+	jr c, .go_to_beverly_hills_loop
+
 	xor a
 	ld [wDestinationType], a
 	ld [wTimerActive], a
@@ -8280,7 +8290,7 @@ Func_735a:
 	ld [wd838], a
 	ld a, 14
 	call IncreaseFelony
-.asm_73cc
+.go_to_lockup_loop
 	ld a, 1
 	call YieldEntityUpdate
 	call Func_70af
@@ -8291,13 +8301,15 @@ Func_735a:
 	ld a, l
 	cp e
 .asm_73dd
-	jr nc, .asm_73cc
+	jr nc, .go_to_lockup_loop
+
 	xor a
 	ld [wda7b], a
 	ld hl, CopCarSpawnParams_BeverlyHillsGetAway_1
 	call .Func_743c
 	ld hl, CopCarSpawnParams_BeverlyHillsGetAway_2
 	call .Func_743c
+
 .asm_73ef
 	ld a, 1
 	call YieldEntityUpdate
@@ -8310,11 +8322,14 @@ Func_735a:
 	cp e
 .asm_7400
 	jr nc, .asm_73ef
+
 	ld hl, TooManyCopsGetToTheCribTexts
 	ld c, 90
 	call ShowHUDMessage
-	ld a, $1e
+
+	ld a, 30
 	call YieldEntityUpdate
+
 	ld a, 1
 	call Func_42a0
 	ld a, $01
@@ -8323,11 +8338,12 @@ Func_735a:
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
-.asm_7423
+.go_to_crib_loop
 	ld a, 1
 	call YieldEntityUpdate
 	call HasReachedDestinationWithoutTail
-	jr c, .asm_7423
+	jr c, .go_to_crib_loop
+
 	call Func_6879
 	ld hl, Data_7f6b
 	call ShowThreePeopleGettingOutOfPlayersCar
@@ -8354,8 +8370,8 @@ Func_735a:
 	ld hl, TooLateTexts
 	jp SetMissionFailed
 
-Func_7460:
-	ld hl, $1fbb
+InitMission_GrandCentralStation:
+	ld hl, NPCCarPool_GrandCentralStation
 	call Func_1987
 	ld a, NEW_YORK
 	call SetCity
@@ -8364,23 +8380,25 @@ Func_7460:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_7475:
+LoadMission_GrandCentralStation:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
 	call LoadPersonGfx
-	ld hl, Func_748c
-	ld c, BANK(Func_748c)
+	ld hl, EntUpdate_MissionController_GrandCentralStation
+	ld c, BANK(EntUpdate_MissionController_GrandCentralStation)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_748c:
+EntUpdate_MissionController_GrandCentralStation:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GetToThePickUpTexts
+
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld a, $01
 	ld [wd820], a
 	ld hl, DestinationCoords_GrandCentralStation_1
@@ -8395,6 +8413,7 @@ Func_748c:
 	jp z, .too_slow
 	call HasReachedDestinationWithoutTail
 	jr c, .asm_74ab
+
 	xor a
 	ld [wDestinationType], a
 	ld [wTimerActive], a
@@ -8403,18 +8422,21 @@ Func_748c:
 	ld [wd838], a
 	call Func_6575
 	call Func_67e9
+
 	ld hl, Data_7f7a
 	call SpawnPerson_GettingOutOfPlayersCar
 	call WaitForPersonToDespawn
-	ld a, $3c
+	ld a, 60
 	call YieldEntityUpdate
 	ld hl, Data_7f7a
 	call SpawnPerson_GettingIntoPlayersCar
 	call WaitForPersonToDespawn
+
 	ld hl, GetToGrandCentralStationTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld hl, DestinationCoords_GrandCentralStation_2
 	call SetDestinationCoords
 	ld hl, Timer_GrandCentralStation_2
@@ -8423,6 +8445,7 @@ Func_748c:
 	ld [wd837], a
 	ld [wd838], a
 	call Func_658f
+
 .asm_7509
 	ld a, 1
 	call YieldEntityUpdate
@@ -8439,24 +8462,28 @@ Func_748c:
 	ld [wd838], a
 	call Func_6575
 	call Func_67e9
+
 	ld hl, Data_7f82
 	call SpawnPerson_GettingOutOfPlayersCar
 	call WaitForPersonToDespawn
-	ld a, $3c
+	ld a, 60
 	call YieldEntityUpdate
 	ld hl, Data_7f82
 	call SpawnPerson_GettingIntoPlayersCar
 	call WaitForPersonToDespawn
+
 	ld hl, ReturnTheKeyToTheLockUpTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	call Func_658f
 	ld hl, DestinationCoords_GrandCentralStation_3
 	call SetDestinationCoords
 	ld hl, Timer_GrandCentralStation_3
 	call StartCountDownTimer
 	call Func_761e
+
 .asm_7563
 	ld a, 1
 	call YieldEntityUpdate
@@ -8470,9 +8497,11 @@ Func_748c:
 	call Func_42a0
 	ld a, $01
 	ld [wd839], a
+
 	ld hl, YouveBeenBuggedLoseTheTailTexts
 	ld c, 90
 	call ShowHUDMessage
+
 .asm_7588
 	ld a, 1
 	call YieldEntityUpdate
@@ -8481,6 +8510,7 @@ Func_748c:
 	jr z, .too_slow
 	call HasReachedDestinationWithoutTail
 	jr c, .asm_7588
+
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
@@ -8574,7 +8604,7 @@ Func_7637:
 	ld a, BANK(Func_5950)
 	jp SetEntityUpdateFunc
 
-Func_764a:
+InitMission_TrashGrangersWheels:
 	call ChooseCarPool_WithCop
 	ld a, NEW_YORK
 	call SetCity
@@ -8583,7 +8613,7 @@ Func_764a:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_765c:
+LoadMission_TrashGrangersWheels:
 	call SetDefaultMaxNumNPCCars
 	ld hl, Data_1f37
 	call Func_1eda
@@ -8594,18 +8624,20 @@ Func_765c:
 	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
-	ld hl, Func_7681
-	ld c, BANK(Func_7681)
+	ld hl, EntUpdate_MissionController_TrashGrangersWheels
+	ld c, BANK(EntUpdate_MissionController_TrashGrangersWheels)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_7681:
+EntUpdate_MissionController_TrashGrangersWheels:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, FindAndWreckGrangersCarTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld hl, NPCSpawnParams_TrashGrangersWheels
 	call Func_5bce
 	ld d, h
@@ -8624,21 +8656,25 @@ Func_7681:
 	ld [wd83a], a
 	ld a, $01
 	ld [wd820], a
+
 	ld hl, Timer_TrashGrangersWheels
 	call StartCountDownTimer
-.asm_76b7
+
+.trash_granger_loop
 	ld a, 1
 	call YieldEntityUpdate
 	call .Func_7709
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_7703
+	jr z, .too_late
 	ld a, [wTargetCarDamage]
 	cp MAX_DAMAGE
-	jr c, .asm_76b7
+	jr c, .trash_granger_loop
+
 	ld hl, GetBackToYourHotelTexts
 	ld c, 90
 	call ShowHUDMessage
+
 	xor a
 	ld [wd877], a
 	ld hl, wDestinationTargetPtr
@@ -8650,19 +8686,21 @@ Func_7681:
 	call SetDestinationCoords
 	xor a
 	ld [wda9a], a
-.asm_76ea
+
+.go_to_hotel_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_7703
+	jr z, .too_late
 	call HasReachedDestinationWithoutTail
-	jr c, .asm_76ea
+	jr c, .go_to_hotel_loop
+
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
 
-.asm_7703
+.too_late
 	ld hl, TooLateTexts
 	jp SetMissionFailed
 
@@ -8714,7 +8752,7 @@ Func_7681:
 	jr nz, .loop_cars
 	ret
 
-Func_775c:
+InitMission_StopGrangersGang:
 	call ChooseCarPool_WithoutCop
 	ld a, NEW_YORK
 	call SetCity
@@ -8723,7 +8761,7 @@ Func_775c:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_776e:
+LoadMission_StopGrangersGang:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
@@ -8734,56 +8772,62 @@ Func_776e:
 	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
-	ld hl, Func_7793
-	ld c, BANK(Func_7793)
+	ld hl, EntUpdate_MissionController_StopGrangersGang
+	ld c, BANK(EntUpdate_MissionController_StopGrangersGang)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_7793:
+EntUpdate_MissionController_StopGrangersGang:
 	xor a
 	ld [wGrangersGangCar], a
 	ld a, $01
 	ld [wda7b], a
+
 .asm_779c
 	ld a, 1
 	call YieldEntityUpdate
 	call .Func_780f
 	jr nc, .asm_779c
+
 	call YieldEntityUpdateUntilFadeEnds
-	call .Func_77f9
+	call .GetCarsLeftHUDMessage
 	call WaitHUDMessage
+
 	ld hl, Timer_StopGrangersGang
 	call StartCountDownTimer
+
 	ld a, $01
 	ld [wd820], a
 	jr .asm_77c4
 .asm_77bc
-	call .Func_7856
+	call .SetMissionFailedIfTimerRunsOut
 	call .Func_780f
 	jr nc, .asm_77bc
 .asm_77c4
-	call .Func_7856
+	call .SetMissionFailedIfTimerRunsOut
 	ld a, [wTargetCarDamage]
 	cp MAX_DAMAGE
 	jr c, .asm_77c4
+
 	ld hl, wDestinationType
 	ld [hl], NONE
 	inc hl
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	res 3, [hl]
+	res CARFLAG_UNK3_F, [hl]
+
 	ld hl, wGrangersGangCar
 	ld a, [hl]
 	inc a
 	ld [hl], a
-	cp $05
-	jp z, .asm_7867
-	call .Func_77f9
-	ld b, $1e
+	cp 5
+	jp z, .mission_complete
+	call .GetCarsLeftHUDMessage
+	ld b, 30
 .asm_77e9
-	call .Func_7856
+	call .SetMissionFailedIfTimerRunsOut
 	dec b
 	jr nz, .asm_77e9
 	xor a
@@ -8792,7 +8836,7 @@ Func_7793:
 	ld [wd86d], a
 	jr .asm_77bc
 
-.Func_77f9:
+.GetCarsLeftHUDMessage:
 	ld hl, .Texts
 	ld a, [wGrangersGangCar]
 	get_pointer
@@ -8849,7 +8893,7 @@ Func_7793:
 	and a
 	ret
 
-.Func_7856:
+.SetMissionFailedIfTimerRunsOut:
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
@@ -8859,7 +8903,7 @@ Func_7793:
 	ld hl, ACarGotThroughTexts
 	jp SetMissionFailed
 
-.asm_7867
+.mission_complete
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
@@ -8867,7 +8911,7 @@ Func_7793:
 Data_7870:
 	db $02, $07, $06, $05, $00
 
-Func_7875:
+InitMission_ChaseOneOfGrangersBoys:
 	call ChooseCarPool_WithoutCop
 	ld a, NEW_YORK
 	call SetCity
@@ -8879,7 +8923,7 @@ Func_7875:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_788e:
+LoadMission_ChaseOneOfGrangersBoys:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
@@ -8890,18 +8934,20 @@ Func_788e:
 	ld [wTargetCarDamage], a
 	ld c, $05
 	call Func_195e
-	ld hl, Func_78b3
-	ld c, BANK(Func_78b3)
+	ld hl, EntUpdate_MissionController_ChaseOneOfGrangersBoys
+	ld c, BANK(EntUpdate_MissionController_ChaseOneOfGrangersBoys)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_78b3:
+EntUpdate_MissionController_ChaseOneOfGrangersBoys:
 	call YieldEntityUpdateUntilFadeEnds
+
 	ld hl, TrackDownTheCarAndSmashIntoItTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld hl, NPCSpawnParams_ChaseOneOfGrangersBoys
 	call Func_5bce
 	ld d, h
@@ -8918,14 +8964,16 @@ Func_78b3:
 	inc [hl]
 	ld a, $01
 	ld [wda7b], a
+
 	ld hl, Timer_ChaseOneOfGrangersBoys
 	call StartCountDownTimer
-.asm_78e6
+
+.track_down_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_795c
+	jr z, .too_slow
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -8942,7 +8990,8 @@ Func_78b3:
 	ld a, l
 	cp c
 .asm_790b
-	jr c, .asm_78e6
+	jr c, .track_down_loop
+
 	ld hl, RamHimTexts
 	ld c, 90
 	call ShowHUDMessage
@@ -8950,18 +8999,18 @@ Func_78b3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, $15
+	ld a, CARSTRUCT_15
 	add_hl
 	ld [hl], $36
-.asm_7920
+.ram_loop
 	ld a, 1
 	call YieldEntityUpdate
 	ld a, [wTargetCarDamage]
 	cp MAX_DAMAGE
-	jr nc, .asm_7962
+	jr nc, .mission_complete
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_795c
+	jr z, .too_slow
 	ld hl, wPlayerCarPtr
 	ld a, [hli]
 	ld h, [hl]
@@ -8982,18 +9031,20 @@ Func_78b3:
 	ld a, l
 	cp c
 .asm_7954
-	jr nc, .asm_7920
+	jr nc, .ram_loop
 	ld hl, YouLostHimTexts
 	jp SetMissionFailed
-.asm_795c
+
+.too_slow
 	ld hl, TooSlowTexts
 	jp SetMissionFailed
-.asm_7962
+
+.mission_complete
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
 
-Func_796b:
+InitMission_CrossTownRecord:
 	call ChooseCarPool_WithoutCop
 	ld a, NEW_YORK
 	call SetCity
@@ -9005,42 +9056,48 @@ Func_796b:
 	call SetPlayerSpawnCoordinatesAndDirection
 	ret
 
-Func_7984:
+LoadMission_CrossTownRecord:
 	call SetDefaultMaxNumNPCCars
 	ld hl, NULL
 	call Func_1eda
-	ld hl, Func_7998
-	ld c, BANK(Func_7998)
+	ld hl, EntUpdate_MissionController_CrossTownRecord
+	ld c, BANK(EntUpdate_MissionController_CrossTownRecord)
 	ld b, $0b
 	call SpawnEntity
 	ret
 
-Func_7998:
+EntUpdate_MissionController_CrossTownRecord:
 	call YieldEntityUpdateUntilFadeEnds
 	ld hl, GetAcrossTownAsQuickAsYouCanTexts
 	ld c, 90
 	call ShowHUDMessage
 	call WaitHUDMessage
+
 	ld a, $01
 	ld [wd820], a
+
 	ld hl, DestinationCoords_CrossTownRecord
 	call SetDestinationCoords
+
 	ld hl, Timer_CrossTownRecord
 	call StartCountDownTimer
-.asm_79b7
+
+.loop
 	ld a, [wTimerActive]
 	and a
-	jr z, .asm_79d2
+	jr z, .too_slow
 	call HasReachedDestination
-	jr nc, .asm_79c9
+	jr nc, .mission_complete
 	ld a, 1
 	call YieldEntityUpdate
-	jr .asm_79b7
-.asm_79c9
+	jr .loop
+
+.mission_complete
 	call Func_6879
 	ld hl, NULL
 	jp SetMissionComplete
-.asm_79d2
+
+.too_slow
 	ld hl, TooSlowTexts
 	jp SetMissionFailed
 
@@ -9724,7 +9781,6 @@ Data_7e07::
 	db 3.12q4, 0.0q4
 	db 90 deg ; target direction
 	dw 4440, 3220 ; target coordinates
-
  
 CreditsPlayerSpawnParams::
 	table_width 2

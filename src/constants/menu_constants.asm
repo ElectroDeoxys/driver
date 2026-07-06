@@ -51,3 +51,6 @@ DEF NUM_MAIN_MENU_ENTRIES EQU const_value
 	const CONE          ; $6
 	const TRAFFIC_LIGHT ; $7
 DEF NUM_MISSION_CODE_SYMBOLS EQU const_value
+
+; how many symbols in each mission code
+DEF MISSION_CODE_SIZE EQU 4

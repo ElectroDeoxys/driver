@@ -5256,7 +5256,7 @@ CheckInputMissionCode:
 	push bc
 	push hl
 	ld de, wMissionCode
-	ld b, $04
+	ld b, MISSION_CODE_SIZE
 .loop_symbols
 	ld a, [de]
 	cp [hl]
@@ -5274,7 +5274,7 @@ CheckInputMissionCode:
 	pop bc
 	jr c, .done
 	inc c
-	ld a, $04
+	ld a, MISSION_CODE_SIZE
 	add_hl
 	dec b
 	jr nz, .loop_codes
@@ -5283,7 +5283,7 @@ CheckInputMissionCode:
 	ret
 
 MissionCodes:
-	table_width 4
+	table_width MISSION_CODE_SIZE
 	db FACE,          FACE,       FACE,          FACE          ; MISSION_THE_BANK_JOB
 	db TIRE_MARK,     BADGE,      CONE,          RED_SIREN     ; MISSION_HIDE_THE_EVIDENCE
 	db TRAFFIC_LIGHT, WRENCH,     WRENCH,        BLUE_SIREN    ; MISSION_BOAT_CHASE

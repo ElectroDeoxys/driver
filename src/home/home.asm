@@ -26,18 +26,22 @@ LoadMap:
 	ld [wd83a], a
 	ld [wDamageMultiplier], a
 
+	; init means setting the city, spawning the player
+	; choosing the car pool, etc
 	ld a, $01
 	bankswitch
-	call Func_16e2
+	call InitGameMode
 
 	call Func_1b4e
 
+	; loading means setting NPC spawn rates, spawning
+	; controllers, and loading any assets that are needed
 	ld a, $01
 	bankswitch
-	call Func_178e
+	call LoadGameMode
 	ret
 
-Func_16e2:
+InitGameMode:
 	ld a, [wGameMode]
 	jumptable
 	table_width 2
@@ -130,11 +134,11 @@ Func_16e2:
 	ret
 
 .Undercover:
-	ld a, BANK(LoadMission)
+	ld a, BANK(InitMission)
 	bankswitch
-	jp LoadMission
+	jp InitMission
 
-Func_178e:
+LoadGameMode:
 	ld a, [wGameMode]
 	jumptable
 	table_width 2
@@ -285,9 +289,9 @@ Func_178e:
 	ret
 
 .Undercover:
-	ld a, BANK(Func_6926)
+	ld a, BANK(LoadMission)
 	bankswitch
-	jp Func_6926
+	jp LoadMission
 
 Func_18c5:
 	ld a, [wCreditsCity]
@@ -1384,6 +1388,7 @@ NPCCarPool_WithCop:
 	db COP_CAR, CAR_03, CAR_09, TAXI
 	db CAR_03, CAR_03, CAR_03, CAR_03, CAR_09, CAR_09, TAXI, TAXI
 
+NPCCarPool_GrandCentralStation::
 	db COP_CAR, CAR_05, CAR_10, TAXI
 	db CAR_05, CAR_05, CAR_05, CAR_05, CAR_10, CAR_10, TAXI, TAXI
 
