@@ -36,8 +36,6 @@ hTempROMBank:: db ; ff9d
 hVRAMBank::    db ; ff9e
 hWRAMBank::    db ; ff9f
 
-	ds $ffe0 - $ffa0
-
 SECTION "Stack", HRAM
 
 hStack:: ; ffe0

@@ -6122,15 +6122,15 @@ Func_651b:
 	ld a, [wGameMode]
 	cp MODE_SURVIVAL
 	jr nz, .asm_6531
-	ld a, [wd88e]
+	ld a, [wd88c + 2]
 	cp $aa
 	jr z, .asm_6551
-	ld hl, wd88e
+	ld hl, wd88c + 2
 	ld de, wTimer + 2
 	jr .asm_6537
 .asm_6531
 	ld hl, wTimer + 2
-	ld de, wd88e
+	ld de, wd88c + 2
 .asm_6537
 	ld a, [de]
 	cp [hl]

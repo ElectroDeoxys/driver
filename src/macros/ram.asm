@@ -59,6 +59,10 @@ MACRO? oam_group_struct
 \1OAMArray:: ds OBJ_SIZE * OAM_GROUP_SIZE
 ENDM
 
+MACRO? wda9d_struct
+	ds $13
+ENDM
+
 ; unk audio structure (see constants/audio_constants.asm)
 MACRO? audio_track_struct
 \1Unk00:: dw

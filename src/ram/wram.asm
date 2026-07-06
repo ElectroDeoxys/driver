@@ -42,14 +42,14 @@ wc52a:: db ; c52a
 
 wc52b:: db ; c52b
 
-	ds $c540 - $c52c
+	ds $14
 
 wAudioBank:: db ; c540
 wc541:: db ; c541
 
 wc542:: db ; c542
 
-	ds $c544 - $c543
+	ds $1
 
 SECTION "WRAM", WRAM0
 
@@ -90,7 +90,7 @@ wc579:: db ; c579
 
 wFrameCounter:: db ; c57a
 
-	ds $c57d - $c57b
+	ds $2
 
 ; palettes either for CGB or DMG
 UNION
@@ -163,7 +163,7 @@ wTempOAMY:: db ; d547
 
 wd548:: db ; d548
 
-	ds $d54b - $d549
+	ds $2
 
 wSpriteWidthInTiles:: db ; d54b
 
@@ -293,41 +293,31 @@ wDamageMultiplier:: db ; d83b
 
 wd83c:: db ; d83c
 
-wd83d:: db ; d83d
-
-	ds $d83f - $d83e
+wd83d:: dw ; d83d
 
 wd83f:: db ; d83f
 
 wd840:: db ; d840
 
-wd841:: db ; d841
+wd841:: ds $7 ; d841
+	ds $1
+wd849:: ds $2 ; d849
+	ds $1
+wd84c:: ds $7 ; d84c
 
-	ds $d849 - $d842
+	ds $2
 
-wd849:: db ; d849
+wd855:: ds $4 ; d855
 
-	ds $d84c - $d84a
+	ds $2
 
-wd84c:: db ; d84c
+wd85b:: ds $6 ; d85b
 
-	ds $d852 - $d84d
+	ds $2
 
-wd852:: db ; d852
+wd863:: ds $4 ; d863
 
-	ds $d855 - $d853
-
-wd855:: db ; d855
-
-	ds $d85b - $d856
-
-wd85b:: db ; d85b
-
-	ds $d863 - $d85c
-
-wd863:: db ; d863
-
-	ds $d868 - $d864
+	ds $1
 
 wDamage:: db ; d868
 wd869::   db ; d869
@@ -354,36 +344,20 @@ wTimer:: ; d871
 	ds $3
 
 wd874:: db ; d874
-
-	ds $d876 - $d875
-
+wd875:: db ; d875
 wd876:: db ; d876
 
 wd877:: db ; d877
 
-wd878:: db ; d878
+UNION
+wd878:: ds SCREEN_WIDTH ; d878
+NEXTU
+	ds $c
+wd884:: ds $7 ; d884
+ENDU
 
-	ds $d884 - $d879
-
-wd884:: db ; d884
-
-	ds $d88a - $d885
-
-wd88a:: db ; d88a
-
-	ds $d88c - $d88b
-
-wd88c:: db ; d88c
-
-	ds $d88e - $d88d
-
-wd88e:: db ; d88e
-
-wd88f:: db ; d88f
-
-	ds $d891 - $d890
-
-wd891:: db ; d891
+wd88c:: ds $3 ; d88c
+wd88f:: ds $3 ; d88f
 
 wNumCheckpointsReached:: db ; d892
 
@@ -408,11 +382,9 @@ wCharacterSet:: ; d899
 ; this buffer holds the text to print witch each character
 ; replaced by its corresponding index in the set
 wEncodedText:: ; d8b9
-	ds $13
+	ds $14
 
-wd8cc:: db ; d8cc
-
-	ds $d8e2 - $d8cd
+	ds $15
 
 wHUDMessageLength::
 wd8e2:: ; d8e2
@@ -441,7 +413,7 @@ wda23:: car_struct wda23 ; da23
 
 wPlayerCarPtr:: dw ; da4a
 
-	ds $da4d - $da4c
+	ds $1
 
 wda4d:: db ; da4d
 
@@ -496,23 +468,21 @@ wda65:: db ; da65
 
 wda66:: db ; da66
 
-	ds $da68 - $da67
+	ds $1
 
-wda68:: db ; da68
-
-	ds $da6c - $da69
+wda68:: dw ; da68
+wda6a:: dw ; da6a
 
 wda6c:: db ; da6c
 
 wda6d:: db ; da6d
 
-wda6e:: db ; da6e
-
-	ds $da74 - $da6f
+wda6e:: ds $3 ; da6e
+wda71:: ds $3 ; da71
 
 wda74:: db ; da74
 
-	ds $da76 - $da75
+	ds $1
 
 ; a DESTINATION_* constant
 wDestinationType:: db ; da76
@@ -568,17 +538,13 @@ wda9a:: db ; da9a
 wCarHornSFX::      db ; da9b
 wCarHornSFXTimer:: db ; da9c
 
-wda9d:: db ; da9d
+wda9d:: ; da9d
+FOR n, 0, $c
+	wda9d_struct wda9d_{u:n}
+ENDR
 
-	ds $db81 - $da9e
-
-wdb81:: db ; db81
-
-	ds $db83 - $db82
-
-wdb83:: db ; db83
-
-	ds $db85 - $db84
+wdb81:: dw ; db81
+wdb83:: dw ; db83
 
 wdb85:: ; db85
 	ds $40
@@ -610,13 +576,8 @@ wdc1f:: db ; dc1f
 
 wdc20:: db ; dc20
 
-wdc21:: db ; dc21
-
-	ds $dc23 - $dc22
-
-wdc23:: db ; dc23
-
-	ds $dc25 - $dc24
+wdc21:: ds $2 ; dc21
+wdc23:: ds $2 ; dc23
 
 wTextLine:: db ; dc25
 
@@ -647,93 +608,33 @@ wActiveCheats:: db ; dc32
 wUnlockedCities:: db ; dc33
 
 wMissionCode:: ; dc34
-	ds $4
+	ds MISSION_CODE_SIZE
 
 wMission:: db ; dc38
 
-wdc39:: db ; dc39
+wdc39:: ds $3 ; dc39
+wdc3c:: ds $3 ; dc3c
+wdc3f:: ds $3 ; dc3f
+wdc42:: ds $3 ; dc42
+wdc45:: ds $3 ; dc45
+wdc48:: ds $3 ; dc48
+wdc4b:: ds $3 ; dc4b
+wdc4e:: ds $3 ; dc4e
+wdc51:: ds $3 ; dc51
+wdc54:: ds $3 ; dc54
+wdc57:: ds $3 ; dc57
+wdc5a:: ds $3 ; dc5a
+wdc5d:: ds $3 ; dc5d
+wdc60:: ds $3 ; dc60
+wdc63:: ds $3 ; dc63
+wdc66:: ds $3 ; dc66
+wdc69:: ds $3 ; dc69
+wdc6c:: ds $3 ; dc6c
+wdc6f:: ds $3 ; dc6f
+wdc72:: ds $3 ; dc72
+wdc75:: ds $3 ; dc75
 
-	ds $dc3c - $dc3a
-
-wdc3c:: db ; dc3c
-
-	ds $dc3f - $dc3d
-
-wdc3f:: db ; dc3f
-
-	ds $dc42 - $dc40
-
-wdc42:: db ; dc42
-
-	ds $dc45 - $dc43
-
-wdc45:: db ; dc45
-
-	ds $dc48 - $dc46
-
-wdc48:: db ; dc48
-
-	ds $dc4b - $dc49
-
-wdc4b:: db ; dc4b
-
-	ds $dc4e - $dc4c
-
-wdc4e:: db ; dc4e
-
-	ds $dc51 - $dc4f
-
-wdc51:: db ; dc51
-
-	ds $dc54 - $dc52
-
-wdc54:: db ; dc54
-
-	ds $dc57 - $dc55
-
-wdc57:: db ; dc57
-
-	ds $dc5a - $dc58
-
-wdc5a:: db ; dc5a
-
-	ds $dc5d - $dc5b
-
-wdc5d:: db ; dc5d
-
-	ds $dc60 - $dc5e
-
-wdc60:: db ; dc60
-
-	ds $dc63 - $dc61
-
-wdc63:: db ; dc63
-
-	ds $dc66 - $dc64
-
-wdc66:: db ; dc66
-
-	ds $dc69 - $dc67
-
-wdc69:: db ; dc69
-
-	ds $dc6c - $dc6a
-
-wdc6c:: db ; dc6c
-
-	ds $dc6f - $dc6d
-
-wdc6f:: db ; dc6f
-
-	ds $dc72 - $dc70
-
-wdc72:: db ; dc72
-
-	ds $dc75 - $dc73
-
-wdc75:: db ; dc75
-
-	ds $dc7a - $dc76
+	ds $2
 
 UNION
 wdc7a:: dw ; dc7a
@@ -754,19 +655,19 @@ ENDU
 
 wdc82:: db ; dc82
 
-	ds $dc84 - $dc83
+	ds $1
 
 wdc84:: db ; dc84
 
-	ds $dc86 - $dc85
+	ds $1
 
 wdc86:: db ; dc86
 
-	ds $dc88 - $dc87
+	ds $1
 
 wdc88:: db ; dc88
 
-	ds $dc8c - $dc89
+	ds $3
 
 wdc8c:: db ; dc8c
 
@@ -785,14 +686,11 @@ wdc92:: db ; dc92
 
 wdc93:: dw ; dc93
 
-wdc95:: db ; dc95
-
-	ds $dcb5 - $dc96
+wdc95:: ds $20 ; dc95
 
 ; if TRUE, then player exited credits by
 ; inputing A or Start button
 wCreditsExitedByInput:: db ; dcb5
 
-wTextBuffer:: db ; dcb6
-
-	ds $e000 - $dcb7
+wTextBuffer:: ; dcb6
+	ds $100

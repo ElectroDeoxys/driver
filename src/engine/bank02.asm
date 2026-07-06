@@ -102,9 +102,9 @@ LoadHUD::
 
 	ld hl, wd874
 	ld a, $ff
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
+	ld [hli], a ; wd874
+	ld [hli], a ; wd875
+	ld [hl], a ; wd876
 
 	ld a, [wActiveCheats]
 	and CHEAT_TEST_STUFF
@@ -228,12 +228,12 @@ Func_81cd:
 	ld de, wTimer
 	ld hl, wd874
 	ld a, [de]
-	cp [hl]
+	cp [hl] ; wd874
 	jr nz, .asm_81e2
 	inc hl
 	inc de
 	ld a, [de]
-	cp [hl]
+	cp [hl] ; wd875
 	ret z
 .asm_81e2
 	ld b, $9c
@@ -259,9 +259,9 @@ Func_81cd:
 	ld a, $ff
 	cp [hl]
 	ret z
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
+	ld [hli], a ; wd874
+	ld [hli], a ; wd875
+	ld [hl], a ; wd876
 	ld hl, wd85b
 	ld a, $80
 	ld [hli], a
@@ -352,7 +352,7 @@ Func_829d:
 	ld hl, wFelony
 	call Func_82c7
 	ret z
-	ld hl, wd852
+	ld hl, wd84c + 6
 	ld b, 7 ; bar length
 .loop
 	sub 8
@@ -457,8 +457,8 @@ Func_8318:
 	dw Func_8374
 
 Func_8329:
-	ld hl, wd88e
-	ld de, wd891
+	ld hl, wd88c + 2
+	ld de, wd88f + 2
 	ld b, $a2
 	call Func_84a7
 	ld a, [wNumCheckpointsReached]
@@ -484,22 +484,22 @@ Func_8329:
 	ret
 
 Func_835d:
-	ld hl, wd88e
-	ld de, wd891
+	ld hl, wd88c + 2
+	ld de, wd88f + 2
 	ld b, $a2
 	call Func_84a7
 	ret
 
 Func_8369:
-	ld hl, wd88e
-	ld de, wd891
+	ld hl, wd88c + 2
+	ld de, wd88f + 2
 	ld b, $a2
 	call Func_84a7
 Func_8374:
 	ld hl, wTargetCarDamage
 	call Func_839e
 	ret z
-	ld hl, wd88a
+	ld hl, wd884 + $6
 	ld b, $07
 .asm_8380
 	sub $08
@@ -1622,7 +1622,7 @@ Func_8977:
 	ld [hl], a
 	ret
 .asm_8b17
-	ld hl, wd8cc
+	ld hl, wEncodedText + $13
 	ld b, $14
 .asm_8b1c
 	ld a, [hld]
