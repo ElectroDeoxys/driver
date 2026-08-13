@@ -9564,7 +9564,7 @@ Data_7c48::
 
 	; OB pals
 	dw Pals_f644
-    dw NULL
+	dw NULL
 	dw Pals_f64c
 	dw Pals_f654
 	dw Pals_f65c
@@ -9589,7 +9589,7 @@ Data_7c48::
 	db $0d, $40
 	db $0d, $80
 	db $0d, $c0
-	db $ff; end
+	db $ff ; end
 
 .NewYork:
 	; props

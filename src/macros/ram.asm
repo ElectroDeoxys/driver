@@ -4,8 +4,7 @@ MACRO? car_struct
 \1Unk01:: db
 \1Unk02:: db
 \1Unk03:: db
-\1Unk04:: db
-\1Unk05:: db
+\1Unk04:: dw
 \1Coords::
 \1Unk06:: db
 \1Y:: dw

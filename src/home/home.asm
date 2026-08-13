@@ -1523,9 +1523,9 @@ Func_2026:
 	ld [wdc7e], a
 .asm_209c
 	call .Func_20dc
-	ld a, $35
+	ld a, BANK(Gfx_d7e0d)
 	bankswitch
-	ld hl, $7e0d
+	ld hl, Gfx_d7e0d
 	lb bc, $0f, $00
 .asm_20ac
 	push bc
@@ -1556,7 +1556,7 @@ Func_2026:
 
 .Func_20ce:
 	ld de, wGfxBuffer
-	ld b, $10
+	ld b, TILE_SIZE
 .asm_20d3
 	ld a, [de]
 	cp [hl]
@@ -1584,7 +1584,7 @@ Func_2026:
 	ld a, [wdc7a]
 	bankswitch
 	ld de, wGfxBuffer
-	ld b, $10
+	ld b, TILE_SIZE
 	call CopyHLtoDE
 	pop de
 	pop bc
@@ -2536,7 +2536,7 @@ SpawnCar::
 	xor a
 	ld [hli], a ; CARSTRUCT_03
 	ld [hli], a ; CARSTRUCT_04
-	ld [hli], a ; CARSTRUCT_05
+	ld [hli], a
 	ld [hli], a ; CARSTRUCT_Y_FRAC
 	ld [hl], e  ; CARSTRUCT_Y
 	inc hl
@@ -4110,11 +4110,11 @@ Func_2f5f::
 	ld a, $03
 	bankswitch
 	push hl
-	ld a, $03
+	ld a, CARSTRUCT_03
 	add_hl
 	ld c, [hl]
 	inc hl
-	ld a, [hli]
+	ld a, [hli] ; CARSTRUCT_04
 	ld h, [hl]
 	ld l, a
 	inc hl
@@ -4147,7 +4147,7 @@ Func_2f8e:
 	add_hl
 	ld e, [hl]
 	inc hl
-	ld a, [hli]
+	ld a, [hli] ; CARSTRUCT_04
 	ld h, [hl]
 	ld l, a
 	inc hl
@@ -4329,7 +4329,7 @@ Func_3047::
 	push hl
 	ld a, b
 	add a
-	ld hl, $75d7
+	ld hl, PtrTable_f5d7
 	add_hl
 	ld a, [hli]
 	ld h, [hl]
@@ -4343,26 +4343,27 @@ Func_3047::
 	pop hl
 	ld [hl], c ; CARSTRUCT_04
 	inc hl
-	ld [hl], b ; CARSTRUCT_05
-	ld a, CARSTRUCT_05
+	ld [hl], b
+	ld a, CARSTRUCT_04 + 1
 	sub_hl
 	ld a, [bc]
 	push af
 	inc bc
 	ld a, [bc]
-	ld b, a
+	ld b, a ; width
 	pop af
 	ld c, a
 	ld a, SPRITESTRUCT_X
 	add_de
 	bit 4, b
 	jr nz, .asm_30c6
+	; add 4 px to x
 	ld a, [de]
-	add $04
+	add LOW(4)
 	ld [de], a
 	inc de
 	ld a, [de]
-	adc $00
+	adc HIGH(4)
 	ld [de], a
 	jr .asm_30c7
 .asm_30c6
@@ -5722,7 +5723,7 @@ Func_3798:
 
 Func_37be:
 	call Func_37fb
-	ld a, CARSTRUCT_05
+	ld a, CARSTRUCT_04 + 1
 	call GetStructByte_A
 	push hl
 	call CalculateDirectionComponents
@@ -5826,8 +5827,8 @@ PropGfxTable:
 	assert_table_length NUM_PROPS
 
 Data_3864:
-    db $04, $04, $04, $02, $02, $03, $00, $02
+	db $04, $04, $04, $02, $02, $03, $00, $02
 	db $05, $02, $02, $03, $02, $02
 
 	db $00, $ff, $40, $ff, $00, $ff, $00, $ff, $c0, $fe, $00, $fd, $00, $ff, $40, $ff
-    db $40, $ff, $00, $ff, $00, $ff, $00, $ff, $c0, $fe, $00
+	db $40, $ff, $00, $ff, $00, $ff, $00, $ff, $c0, $fe, $00

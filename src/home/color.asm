@@ -391,19 +391,19 @@ SafeCopyPalette:
 	jr nc, .copy_1
 	wait_ppu
 .copy_1
-    REPT PAL_SIZE / 2
-        ld a, [hli]
-        ld [$ff00+c], a
-    ENDR
+	REPT PAL_SIZE / 2
+		ld a, [hli]
+		ld [$ff00+c], a
+	ENDR
 	ldh a, [rLCDC]
 	rlca
 	jr nc, .copy_2
 	wait_ppu
 .copy_2
-    REPT PAL_SIZE / 2
-        ld a, [hli]
-        ld [$ff00+c], a
-    ENDR
+	REPT PAL_SIZE / 2
+		ld a, [hli]
+		ld [$ff00+c], a
+	ENDR
 	ret
 
 UnreferencedPals_GrayInverted: INCLUDE "gfx/gray_inverted.pal"
