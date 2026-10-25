@@ -4355,9 +4355,10 @@ Func_3047::
 	ld c, a
 	ld a, SPRITESTRUCT_X
 	add_de
+	; width >= 16 px?
 	bit 4, b
 	jr nz, .asm_30c6
-	; add 4 px to x
+	; no, add 4 px to x
 	ld a, [de]
 	add LOW(4)
 	ld [de], a

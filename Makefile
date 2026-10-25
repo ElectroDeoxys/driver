@@ -85,7 +85,7 @@ endif
 opts = -Cjv -i BDRE -k 4X -l 0x33 -m MBC5 -n 0 -p 0 -t DRIVER
 
 $(rom): $(rom_obj) src/layout.link
-	$(RGBLINK) -w -m $(rom:.gbc=.map) -n $(rom:.gbc=.sym) -l src/layout.link -o $@ $(filter %.o,$^) -O baserom.gbc
+	$(RGBLINK) -w -p 0xff -m $(rom:.gbc=.map) -n $(rom:.gbc=.sym) -l src/layout.link -o $@ $(filter %.o,$^) -O baserom.gbc
 	$(RGBFIX) $(opts) $@
 
 ### Misc file-specific graphics rules
